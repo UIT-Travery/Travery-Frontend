@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
 import '../../core/themes/app_colors.dart';
@@ -80,7 +81,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      Navigator.pop(context);
+      context.pop();
     } else if (cmd.error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -112,7 +113,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     ));
   }
 
-  void _onCancel() => Navigator.pop(context);
+  void _onCancel() => context.pop();
 
   @override
   Widget build(BuildContext context) {
@@ -363,7 +364,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     style: TextStyle(
                       fontSize: AppTextTheme.bodyLarge,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      color: AppColors.primaryDarkBlackBlue,
                     ),
                   ),
                 ),

@@ -89,25 +89,41 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
           bottomRight: Radius.circular(32),
         ),
       ),
-      child: const Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Chào mừng điều phối viên',
-            style: TextStyle(
-              fontSize: AppTextTheme.bodyMedium,
-              color: Colors.white70,
-              fontWeight: FontWeight.w400,
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Chào mừng điều phối viên',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.bodyMedium,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'Đỗ Minh Trí',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.headlineSmall,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 6),
-          Text(
-            'Danh sách Tour',
-            style: TextStyle(
-              fontSize: AppTextTheme.headlineSmall,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+          IconButton(
+            onPressed: () {
+              context.push(Routes.coordinatorViewProfile);
+            },
+            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 28),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
         ],
       ),
@@ -148,8 +164,7 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
     }
 
     if (viewModel.loadTours.error) {
-      final error =
-          (viewModel.loadTours.result as core_result.Error).error;
+      final error = (viewModel.loadTours.result as core_result.Error).error;
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

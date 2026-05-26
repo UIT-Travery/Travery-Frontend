@@ -102,7 +102,7 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
                         ),
                       ),
                       SmallButton(
-                        label: 'Thêm phương tiện',
+                        label: 'Thêm',
                         prefixIcon: Icon(Icons.add, color: Colors.white),
                         onTap: () {
                           context.push(Routes.adminCreateVehicle);

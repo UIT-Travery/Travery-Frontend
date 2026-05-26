@@ -12,18 +12,23 @@ class SmallButton extends StatelessWidget {
     required this.label,
     this.prefixIcon,
     required this.onTap,
+    this.color,
+    this.height = 28,
   });
+
+  final Color? color;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.primaryDarkBlackBlue,
+      color: color ?? AppColors.primaryDarkBlackBlue,
       borderRadius: BorderRadius.circular(5),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(5),
         child: Container(
-          height: 25,
+          height: height,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(
             mainAxisSize: MainAxisSize.min,

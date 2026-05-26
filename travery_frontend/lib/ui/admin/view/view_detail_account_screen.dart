@@ -97,14 +97,10 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
           'Hành động này không thể hoàn tác.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy'),
-          ),
+          TextButton(onPressed: () => context.pop(), child: const Text('Hủy')),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
-              Navigator.pop(context);
+              context.pop();
             },
             child: Text('Xóa', style: TextStyle(color: AppColors.error)),
           ),
@@ -217,7 +213,7 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () => context.pop(),
             child: Container(
               width: 36,
               height: 36,
@@ -478,15 +474,11 @@ class _InfoTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
-    this.suffix,
   });
 
   final IconData icon;
   final String label;
   final String value;
-
-  /// Optional secondary text rendered after the value (e.g. "~ 8 tháng trước")
-  final String? suffix;
 
   @override
   Widget build(BuildContext context) {
@@ -531,16 +523,6 @@ class _InfoTile extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              if (suffix != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  suffix!,
-                  style: TextStyle(
-                    fontSize: AppTextTheme.bodySmall,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
             ],
           ),
         ],

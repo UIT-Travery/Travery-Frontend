@@ -47,3 +47,4 @@ app.*.map.json
 # Custom ignores
 Models/
 Travery API Documentation.md
+config.json

@@ -85,6 +85,17 @@ class AdminBottomNavBar extends StatelessWidget {
             ),
             label: 'Chat',
           ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: EdgeInsets.only(bottom: 4.0),
+              child: Icon(Icons.settings_outlined),
+            ),
+            activeIcon: Padding(
+              padding: EdgeInsets.only(bottom: 4.0),
+              child: Icon(Icons.settings),
+            ),
+            label: 'Cài đặt',
+          ),
         ],
       ),
     );

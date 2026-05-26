@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_input_field.dart';
-import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_dropdown_button.dart';
 
 class CoordinatorCreateCoachTemplateScreen extends StatefulWidget {
   const CoordinatorCreateCoachTemplateScreen({super.key});

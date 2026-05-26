@@ -461,7 +461,7 @@ class _PeriodPicker extends StatelessWidget {
                       : null,
                   onTap: () {
                     onSelected(i);
-                    Navigator.pop(context);
+                    context.pop();
                   },
                 );
               }),

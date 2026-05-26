@@ -147,15 +147,6 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
           ],
         ),
       ),
-
-      // ── FAB ───────────────────────────────────────────────────────────────
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onAddAccount,
-        backgroundColor: AppColors.primaryDarkBlackBlue,
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.person_add_rounded, color: Colors.white),
-      ),
     );
   }
 
@@ -214,29 +205,21 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   }
 
   // ── Handlers ───────────────────────────────────────────────────────────────
-  void _onAccountTap(BusinessAccount businessAccount) {
-    context.push(Routes.adminViewDetailAccountWithId(businessAccount.id));
+  void _onAccountTap(BusinessAccount account) {
+    context.push(Routes.adminViewDetailAccountWithId(account.id));
   }
 
-  void _onAddAccount() {
-    context.push(Routes.adminCreateAccount);
-  }
-
-  void _showAccountMenu(BuildContext context, BusinessAccount businessAccount) {
+  void _showAccountMenu(BuildContext context, BusinessAccount account) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _AccountMenuSheet(account: businessAccount),
+      builder: (_) => _AccountMenuSheet(account: account),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// BusinessAccount menu bottom sheet
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _AccountMenuSheet extends StatelessWidget {
   const _AccountMenuSheet({required this.account});

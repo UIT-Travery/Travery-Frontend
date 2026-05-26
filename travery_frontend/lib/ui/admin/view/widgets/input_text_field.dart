@@ -41,7 +41,7 @@ class InputTextField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Container(
-          height: 40,
+          height: 48,
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),

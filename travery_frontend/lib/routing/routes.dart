@@ -39,6 +39,7 @@ class Routes {
       '/admin/update-vehicle/$vehicleId';
   static String adminViewDetailAccountWithId(String id) =>
       '/admin/view-detail-account/$id';
+  static const String adminUpdateProfile = '/admin/update-profile';
 
   /* HƯỚNG DẪN: Khi thêm Repository/Feature mới (ví dụ: Hotel, Car):
   Hãy thêm các hằng số đường dẫn vào đây.
@@ -64,6 +65,8 @@ class Routes {
   static const String coordinatorCreateTour = '/coordinator/create-tour';
   static const String coordinatorViewTemplate = '/coordinator/view-template';
   static const String coordinatorMain = '/coordinator-main';
+  static const String coordinatorViewProfile = '/coordinator/view-profile';
+  static const String coordinatorUpdateProfile = '/coordinator/update-profile';
 
   // Guide
   static const String guideHome = '/guide/home';

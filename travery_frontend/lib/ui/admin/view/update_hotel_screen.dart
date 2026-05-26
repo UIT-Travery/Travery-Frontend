@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/room_card.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/dropdown_button.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/input_text_field.dart';
@@ -267,7 +268,7 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
         Row(
           children: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text(
                 'Hủy',
                 style: TextStyle(fontWeight: FontWeight.bold),

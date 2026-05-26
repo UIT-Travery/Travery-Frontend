@@ -139,20 +139,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     badgeTextColor: const Color(0xFF2E7D32),
                   ),
 
-                  const SizedBox(height: 12),
-
-                  _StatCard(
-                    icon: Icons.account_balance_wallet_outlined,
-                    iconBgColor: const Color(0xFFFFEBEE),
-                    iconColor: const Color(0xFFE53935),
-                    label: 'LỢI NHUẬN RÒNG',
-                    value: '\$${_formatNumber(stats.netProfit.toInt())}',
-                    badgeText:
-                        '+${stats.profitGrowthPercent.toStringAsFixed(1)}%',
-                    badgeColor: const Color(0xFFE6F4EA),
-                    badgeTextColor: const Color(0xFF2E7D32),
-                  ),
-
                   const SizedBox(height: 20),
 
                   // ── Revenue by service ────────────────────────────────────────

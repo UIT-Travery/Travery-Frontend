@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/themes/app_colors.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
@@ -230,7 +231,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
         Row(
           children: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: const Text(
                 'Hủy',
                 style: TextStyle(fontWeight: FontWeight.bold),

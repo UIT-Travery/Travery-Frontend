@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/utils/alert.dart';
 import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
+import '../../core/widgets/loading_overlay.dart';
+import 'package:travery_frontend/utils/core_result.dart' as core;
 import 'widgets/auth_text_field.dart';
 import 'widgets/auth_button.dart';
 import 'package:travery_frontend/routing/routes.dart';
@@ -56,11 +58,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context.push(Routes.otp, extra: {'email': emailController.text});
     }
     if (widget.viewModel.register.error) {
+      final result = widget.viewModel.register.result;
+      String errorMessage = 'Đăng ký thất bại';
+      if (result is core.Error) {
+        errorMessage = result.error.toString().replaceAll(
+          'HttpException: ',
+          '',
+        );
+      }
       widget.viewModel.register.clearResult();
-      Utils.showErrorNotification(
-        context,
-        widget.viewModel.register.error.toString(),
-      );
+      Utils.showErrorNotification(context, errorMessage);
     }
   }
 
@@ -110,118 +117,126 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            height: 48,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Bạn đã có tài khoản? ',
-                  style: TextStyle(
-                    fontSize: AppTextTheme.bodyLarge,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
+    return ListenableBuilder(
+      listenable: widget.viewModel.register,
+      builder: (context, child) {
+        return LoadingOverlay(
+          isLoading: widget.viewModel.register.running,
+          child: Scaffold(
+            backgroundColor: AppColors.surface,
+            bottomNavigationBar: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                  height: 48,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Bạn đã có tài khoản? ',
+                        style: TextStyle(
+                          fontSize: AppTextTheme.bodyLarge,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: _navigateToLogin,
+                        child: Text(
+                          'Đăng nhập',
+                          style: TextStyle(
+                            fontSize: AppTextTheme.bodyLarge,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.link,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                InkWell(
-                  onTap: _navigateToLogin,
-                  child: Text(
-                    'Đăng nhập',
-                    style: TextStyle(
-                      fontSize: AppTextTheme.bodyLarge,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.link,
-                    ),
+              ),
+            ),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => context.pop(),
+                      ),
+
+                      Text(
+                        'Tạo tài khoản mới',
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Bắt đầu hành trình khám phá thế giới cùng Travery',
+                        style: TextStyle(
+                          fontSize: AppTextTheme.bodyLarge,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      AuthTextField(
+                        controller: nameController,
+                        title: 'Họ và tên',
+                        hintText: 'Nhập họ và tên của bạn',
+                        isPassword: false,
+                        prefixIcon: Icons.person,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      AuthTextField(
+                        controller: emailController,
+                        title: 'Email',
+                        hintText: 'Nhập email của bạn',
+                        isPassword: false,
+                        prefixIcon: Icons.email,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      AuthTextField(
+                        controller: passwordController,
+                        title: 'Mật khẩu',
+                        hintText: 'Nhập mật khẩu của bạn',
+                        isPassword: true,
+                        prefixIcon: Icons.lock,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      AuthTextField(
+                        controller: confirmPasswordController,
+                        title: 'Xác nhận mật khẩu',
+                        hintText: 'Nhập lại mật khẩu của bạn',
+                        isPassword: true,
+                        prefixIcon: Icons.lock_reset,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      AuthButton(title: 'Đăng ký', onPressed: _handleRegister),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => context.pop(),
-                ),
-
-                Text(
-                  'Tạo tài khoản mới',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Bắt đầu hành trình khám phá thế giới cùng Travery',
-                  style: TextStyle(
-                    fontSize: AppTextTheme.bodyLarge,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                AuthTextField(
-                  controller: nameController,
-                  title: 'Họ và tên',
-                  hintText: 'Nhập họ và tên của bạn',
-                  isPassword: false,
-                  prefixIcon: Icons.person,
-                ),
-
-                const SizedBox(height: 16),
-
-                AuthTextField(
-                  controller: emailController,
-                  title: 'Email',
-                  hintText: 'Nhập email của bạn',
-                  isPassword: false,
-                  prefixIcon: Icons.email,
-                ),
-
-                const SizedBox(height: 16),
-
-                AuthTextField(
-                  controller: passwordController,
-                  title: 'Mật khẩu',
-                  hintText: 'Nhập mật khẩu của bạn',
-                  isPassword: true,
-                  prefixIcon: Icons.lock,
-                ),
-
-                const SizedBox(height: 16),
-
-                AuthTextField(
-                  controller: confirmPasswordController,
-                  title: 'Xác nhận mật khẩu',
-                  hintText: 'Nhập lại mật khẩu của bạn',
-                  isPassword: true,
-                  prefixIcon: Icons.lock_reset,
-                ),
-
-                const SizedBox(height: 24),
-
-                AuthButton(title: 'Đăng ký', onPressed: _handleRegister),
-              ],
-            ),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

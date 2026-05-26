@@ -28,7 +28,7 @@ class RoomCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(5),
       child: Container(
         width: double.infinity,
-        height: 110,
+        height: 130,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFFFFFFF), Color(0xFFE8F5FF)],

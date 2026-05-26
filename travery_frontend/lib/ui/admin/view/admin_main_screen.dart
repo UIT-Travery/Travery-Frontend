@@ -3,7 +3,9 @@ import 'dashboard_screen.dart';
 import 'account_management_screen.dart';
 import 'create_account_screen.dart';
 import 'widgets/admin_bottom_nav_bar.dart';
-import 'package:travery_frontend/ui/chat/chat_screen.dart';
+import 'admin_view_profile_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});
@@ -35,6 +37,15 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   }
 
   void _onBottomNavTapped(int index) {
+    if (index == 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tính năng Chat đang được phát triển'),
+          duration: Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -48,11 +59,14 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
-        children: const [
-          DashboardScreen(),
-          AccountManagementScreen(),
-          CreateAccountScreen(),
-          ChatScreen(title: 'Tin nhắn', showBackButton: false),
+        children: [
+          const DashboardScreen(),
+          const AccountManagementScreen(),
+          const CreateAccountScreen(),
+          const Center(child: Text('Chat')),
+          AdminViewProfileScreen(
+            viewModel: context.read<AdminProfileViewModel>(),
+          ),
         ],
       ),
       bottomNavigationBar: AdminBottomNavBar(

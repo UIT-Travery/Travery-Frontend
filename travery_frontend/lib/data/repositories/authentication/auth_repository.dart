@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 abstract class AuthRepository extends ChangeNotifier {
-  Future<Result<void>> loginViaEmail({
+  /// Returns the user's role string on success (e.g. "ROLE_TOURIST").
+  Future<Result<String>> loginViaEmail({
     required String email,
     required String password,
   });
