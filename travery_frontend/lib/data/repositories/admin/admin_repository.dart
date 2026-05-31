@@ -44,6 +44,50 @@ abstract class AdminRepository extends ChangeNotifier {
 
   Future<Result<void>> deleteAccount({required String id});
 
+  /// GET /api/v1/admin/users — paginated list of users.
+  /// Returns raw page map so callers can build their own pagination UI.
+  Future<Result<Map<String, dynamic>>> getUsers({
+    String? role,
+    String? status,
+    int page = 0,
+    int size = 20,
+  });
+
+  Future<Result<BusinessAccount>> getUserById({required String id});
+
+  Future<Result<BusinessAccount>> banUser({required String id});
+
+  Future<Result<BusinessAccount>> unbanUser({required String id});
+
+  Future<Result<BusinessAccount>> updateReceptionistProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? shiftType,
+    String? hotelId,
+  });
+
+  Future<Result<BusinessAccount>> updateGuideProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? guideLicense,
+    int? yearsExperience,
+    List<String>? languages,
+  });
+
+  Future<Result<BusinessAccount>> updateCoordinatorProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? department,
+  });
+
+  Future<Result<BusinessAccount>> updateUserAvatar({
+    required String id,
+    required String filePath,
+  });
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   Future<Result<List<BusinessCoach>>> getAllVehicles();

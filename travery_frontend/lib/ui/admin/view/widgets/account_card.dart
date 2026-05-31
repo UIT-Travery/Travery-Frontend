@@ -12,6 +12,10 @@ extension AccountRoleLabel on AccountRole {
         return 'ĐIỀU PHỐI VIÊN';
       case AccountRole.receptionist:
         return 'LỄ TÂN';
+      case AccountRole.tourist:
+        return 'KHÁCH HÀNG';
+      case AccountRole.admin:
+        return 'QUẢN TRỊ VIÊN';
     }
   }
 }
@@ -23,6 +27,12 @@ extension AccountStatusLabel on AccountStatus {
         return 'Đang hoạt động';
       case AccountStatus.inactive:
         return 'Ngừng hoạt động';
+      case AccountStatus.banned:
+        return 'Bị cấm';
+      case AccountStatus.pending:
+        return 'Chờ xác nhận';
+      case AccountStatus.deleted:
+        return 'Đã xóa';
     }
   }
 
@@ -32,6 +42,12 @@ extension AccountStatusLabel on AccountStatus {
         return AppColors.success;
       case AccountStatus.inactive:
         return AppColors.textSecondary;
+      case AccountStatus.banned:
+        return AppColors.error;
+      case AccountStatus.pending:
+        return AppColors.warning;
+      case AccountStatus.deleted:
+        return AppColors.textHint;
     }
   }
 }

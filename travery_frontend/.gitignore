@@ -44,7 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-
+*.md
 Model_documentation
 Travery API Documentation.md
 config.json

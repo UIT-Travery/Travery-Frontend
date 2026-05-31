@@ -29,11 +29,11 @@ void main() {
       expect(vm.loadAccounts.result, isA<Ok<List<BusinessAccount>>>());
     });
 
-    test('result contains 5 accounts', () async {
+    test('result contains 8 accounts', () async {
       await vm.loadAccounts.execute();
       final accounts =
           (vm.loadAccounts.result as Ok<List<BusinessAccount>>).value;
-      expect(accounts.length, equals(5));
+      expect(accounts.length, equals(8));
     });
 
     test('result includes accounts of different roles', () async {

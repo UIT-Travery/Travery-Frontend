@@ -9,8 +9,8 @@ part of 'image_response.dart';
 _$ImageResponseImpl _$$ImageResponseImplFromJson(Map<String, dynamic> json) =>
     _$ImageResponseImpl(
       url: json['url'] as String,
-      isThumbnail: json['isThumnail'] as bool? ?? false,
+      isThumbnail: json['isThumbnail'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$ImageResponseImplToJson(_$ImageResponseImpl instance) =>
-    <String, dynamic>{'url': instance.url, 'isThumnail': instance.isThumbnail};
+    <String, dynamic>{'url': instance.url, 'isThumbnail': instance.isThumbnail};
