@@ -181,17 +181,43 @@ class _GuideProfileScreenState extends State<GuideProfileScreen> {
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      if (profile.phoneNumber.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.phone_outlined,
+                              size: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              profile.phoneNumber,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      if (profile.status.isNotEmpty) ...[
+                        _buildStatusBadge(profile.status),
+                        const SizedBox(height: 8),
+                      ],
+                      const SizedBox(height: 24),
                       _buildMenuCard([
                         _MenuItem(
                           icon: Icons.person_outline,
                           title: 'Chỉnh sửa hồ sơ',
-                          onTap: () {},
+                          onTap: () => context.push(Routes.guideEditProfile),
                         ),
                         _MenuItem(
                           icon: Icons.lock_outline,
                           title: 'Đổi mật khẩu',
-                          onTap: () {},
+                          onTap: () => context.push(Routes.guideChangePassword),
                         ),
                         _MenuItem(
                           icon: Icons.help_outline,
@@ -209,6 +235,40 @@ class _GuideProfileScreenState extends State<GuideProfileScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        bgColor = const Color(0xFFD1FAE5);
+        textColor = const Color(0xFF16A34A);
+        break;
+      case 'DISABLED':
+        bgColor = const Color(0xFFFEE2E2);
+        textColor = const Color(0xFFDC2626);
+        break;
+      default:
+        bgColor = const Color(0xFFF3F6FF);
+        textColor = const Color(0xFF3B82F6);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status.replaceAll('_', ' '),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
       ),
     );
   }
@@ -240,6 +300,20 @@ class _GuideProfileScreenState extends State<GuideProfileScreen> {
                           _buildDefaultAvatar(),
                     )
                   : _buildDefaultAvatar(),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Icon(Icons.badge, color: Colors.white, size: 14),
             ),
           ),
         ],

@@ -7,8 +7,13 @@ import 'package:travery_frontend/data/repositories/coordinator/coordinator_repos
 import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'package:travery_frontend/ui/guide/home/guide_main_screen.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
+import 'package:travery_frontend/ui/guide/home/guide_profile_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_view_model.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/check_in_screen.dart';
@@ -145,16 +150,6 @@ import '../ui/admin/view_model/hotel_management_view_model.dart';
 import '../ui/admin/view_model/tour_management_view_model.dart';
 import '../ui/admin/view_model/vehicle_management_view_model.dart';
 import 'routes.dart';
-import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
-import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
-import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/vehicle_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/create_hotel_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/create_vehicle_view_model.dart';
 
 GoRouter appRouter(
   AuthRepository authRepository, {
@@ -854,12 +849,41 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.guideHome,
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) =>
-              GuideHomeViewModel(guideService: context.read<GuideService>()),
-          child: Builder(
-            builder: (ctx) =>
-                GuideMainScreen(viewModel: ctx.read<GuideHomeViewModel>()),
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
           ),
+          child: ChangeNotifierProvider(
+            create: (ctx) =>
+                GuideHomeViewModel(guideService: ctx.read<GuideService>()),
+            child: Builder(
+              builder: (ctx) =>
+                  GuideMainScreen(viewModel: ctx.read<GuideHomeViewModel>()),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.guideEditProfile,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserEditProfileScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.guideChangePassword,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserChangePasswordScreen(),
         ),
       ),
       GoRoute(

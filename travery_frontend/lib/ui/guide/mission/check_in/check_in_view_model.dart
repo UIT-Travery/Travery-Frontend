@@ -9,6 +9,8 @@ class CheckInViewModel extends ChangeNotifier {
   final GuideMissionService _missionService;
 
   String _instanceId = '';
+  GuideMissionDetail? _missionDetail;
+  GuideMissionDetail? get missionDetail => _missionDetail;
 
   List<GuidePassenger> _allPassengers = [];
   List<GuidePassenger> _filteredPassengers = [];
@@ -32,11 +34,21 @@ class CheckInViewModel extends ChangeNotifier {
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
 
-  void loadPassengers(String instanceId) async {
+  Future<void> loadPassengers(String instanceId) async {
     _instanceId = instanceId;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
+    // Load mission detail first to get tour name
+    final missionResult = await _missionService.getMissionDetail(instanceId);
+    switch (missionResult) {
+      case Ok(value: final detail):
+        _missionDetail = detail;
+      case Error():
+        // Continue even if mission detail fails
+        break;
+    }
 
     final result = await _missionService.getPassengers(instanceId);
 

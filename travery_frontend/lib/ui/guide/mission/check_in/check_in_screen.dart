@@ -59,12 +59,30 @@ class _CheckInScreenState extends State<CheckInScreen> {
             ),
             Consumer<CheckInViewModel>(
               builder: (context, vm, _) {
-                return Text(
-                  vm.searchQuery.isEmpty ? '' : '${vm.totalCount} hành khách',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                final missionName = vm.missionDetail?.tourName;
+                if (missionName != null && missionName.isNotEmpty) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.6,
+                    ),
+                    child: Text(
+                      missionName,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  );
+                }
+                return const Text(
+                  'Đang tải thông tin tour...',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
                   ),
                 );
               },

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
+import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
 import 'package:travery_frontend/ui/guide/widgets/guide_tour_card.dart';
 
 class GuideHomeScreen extends StatefulWidget {
@@ -91,12 +91,14 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Consumer<GuideHomeViewModel>(
-            builder: (context, vm, _) {
-              final ongoing = vm.ongoingCount;
+          Consumer<ProfileViewModel>(
+            builder: (context, profileVm, _) {
+              final guideName = profileVm.profile?.fullName;
               return Text(
-                'Xin chào, Name',
-                style: TextStyle(
+                guideName != null && guideName.isNotEmpty
+                    ? 'Xin chào, $guideName'
+                    : 'Xin chào, Hướng dẫn viên',
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -108,13 +110,23 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
           Consumer<GuideHomeViewModel>(
             builder: (context, vm, _) {
               final ongoing = vm.ongoingCount;
+              final ongoingTour = ongoing == 1
+                  ? vm.ongoingTours.firstOrNull
+                  : null;
+              final text = ongoing == 0
+                  ? 'Chưa có tour nào được phân công'
+                  : (ongoing == 1
+                        ? 'Tour đang diễn ra: ${ongoingTour?.tourName ?? ''}'
+                        : 'Bạn có $ongoing tour trong tuần này');
               return Text(
-                'Bạn có $ongoing tour trong tuần này.',
+                text,
                 style: const TextStyle(
                   fontSize: AppTextTheme.bodyMedium,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textSecondary,
                 ),
+                maxLines: ongoing == 1 ? 2 : 1,
+                overflow: TextOverflow.ellipsis,
               );
             },
           ),

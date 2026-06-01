@@ -11,6 +11,9 @@ class MissionDetailViewModel extends ChangeNotifier {
   GuideMissionDetail? _mission;
   GuideMissionDetail? get mission => _mission;
 
+  String? _missionId;
+  String? get missionId => _missionId;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -18,6 +21,7 @@ class MissionDetailViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<void> loadMissionDetail(String instanceId) async {
+    _missionId = instanceId;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -37,6 +41,7 @@ class MissionDetailViewModel extends ChangeNotifier {
 
   void clear() {
     _mission = null;
+    _missionId = null;
     _errorMessage = null;
     notifyListeners();
   }

@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/report_incident/report_incident_screen.dart';
 
 class TourProgressScreen extends StatefulWidget {
   final String missionId;
@@ -41,31 +40,26 @@ class _TourProgressScreenState extends State<TourProgressScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.primary),
           onPressed: () => context.pop(),
         ),
-        title: Column(
-          children: [
-            const Text(
-              'Tiến độ tour',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+        titleSpacing: 0,
+        title: Consumer<MissionDetailViewModel>(
+          builder: (context, vm, _) {
+            final name = vm.mission?.tourName ?? 'Tiến độ tour';
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.65,
               ),
-            ),
-            Consumer<MissionDetailViewModel>(
-              builder: (context, vm, _) {
-                if (vm.mission == null) return const SizedBox.shrink();
-                return Text(
-                  vm.mission!.id
-                      .substring(vm.mission!.id.length.clamp(0, 8))
-                      .toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppColors.textSecondary,
-                  ),
-                );
-              },
-            ),
-          ],
+              child: Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            );
+          },
         ),
         centerTitle: true,
       ),
@@ -142,17 +136,19 @@ class _TourProgressScreenState extends State<TourProgressScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(
-                Icons.confirmation_number_outlined,
-                size: 14,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Mã tour: ${mission.id.substring(mission.id.length.clamp(0, 8)).toUpperCase()}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F0FE),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${mission.totalPassengers} khách',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ],
@@ -178,7 +174,9 @@ class _TourProgressScreenState extends State<TourProgressScreen> {
           child: _InfoCard(
             icon: Icons.groups,
             label: 'Thành viên',
-            value: '${mission.totalPassengers} thành viên',
+            value: mission.totalPassengers > 0
+                ? '$mission.totalPassengers thành viên'
+                : 'Chưa có thông tin',
             subValue: '',
           ),
         ),

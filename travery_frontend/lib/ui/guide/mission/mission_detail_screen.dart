@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/check_in/check_in_screen.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_progress/tour_progress_screen.dart';
 
 class MissionDetailScreen extends StatefulWidget {
   final String missionId;
@@ -104,7 +102,7 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
 
   Widget _buildTourCard(mission) {
     final codeSuffix = mission.id.isNotEmpty
-        ? mission.id.substring(mission.id.length.clamp(0, 8)).toUpperCase()
+        ? mission.id.substring(0, mission.id.length.clamp(0, 8)).toUpperCase()
         : 'N/A';
     final dateStr =
         '${mission.startDate.day.toString().padLeft(2, '0')}/${mission.startDate.month.toString().padLeft(2, '0')}/${mission.startDate.year}';
@@ -271,27 +269,56 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
             icon: Icons.directions_bus,
             label: 'Biển số xe',
             value: mission.coachLicensePlate ?? 'Chưa có',
+            subLabel: mission.coachType != null && mission.coachType!.isNotEmpty
+                ? mission.coachType
+                : null,
           ),
           const Divider(height: 32),
           _InfoRow(
             icon: Icons.person,
             label: 'Tài xế',
             value: mission.driverName ?? 'Chưa có',
-            trailing: mission.driverPhone != null
-                ? Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F0FE),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.phone,
-                      color: AppColors.primary,
-                      size: 18,
+            trailing:
+                mission.driverPhone != null && mission.driverPhone!.isNotEmpty
+                ? GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(
+                        ClipboardData(text: mission.driverPhone!),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Đã sao chép số ${mission.driverPhone}',
+                          ),
+                          backgroundColor: AppColors.primary,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F0FE),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.copy,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
                     ),
                   )
                 : null,
+            subLabel: mission.driverPhone ?? null,
+          ),
+          const Divider(height: 32),
+          _InfoRow(
+            icon: Icons.location_on,
+            label: 'Điểm đón',
+            value: mission.pickupLocation.isNotEmpty
+                ? mission.pickupLocation
+                : 'Chưa có',
           ),
           const Divider(height: 32),
           _InfoRow(
@@ -300,6 +327,92 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
             value: mission.destinationName.isNotEmpty
                 ? mission.destinationName
                 : 'Chưa có',
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 16),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildMiniStatCard(
+                  icon: Icons.groups,
+                  label: 'Tổng hành khách',
+                  value: mission.totalPassengers > 0
+                      ? '${mission.totalPassengers}'
+                      : '—',
+                  color: const Color(0xFFE8F0FE),
+                  iconColor: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStatCard(
+                  icon: Icons.event_seat,
+                  label: 'Số đoàn booking',
+                  value: mission.bookings.isNotEmpty
+                      ? '${mission.bookings.length}'
+                      : '—',
+                  color: const Color(0xFFFEF3C7),
+                  iconColor: const Color(0xFFD97706),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniStatCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    required Color iconColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: iconColor),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -405,12 +518,14 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
   final Widget? trailing;
+  final String? subLabel;
 
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
     this.trailing,
+    this.subLabel,
   });
 
   @override
@@ -449,6 +564,16 @@ class _InfoRow extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
+              if (subLabel != null && subLabel!.isNotEmpty) ...[
+                const SizedBox(height: 1),
+                Text(
+                  subLabel!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

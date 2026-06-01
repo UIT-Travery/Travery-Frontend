@@ -37,6 +37,13 @@ class GuideTour with _$GuideTour {
     @JsonKey(name: 'created_at') DateTime? createdAt,
 
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
+
+    // Extended fields from API response
+    String? driverPhone,
+    String? coachType,
+    String? pickupLocation,
+    int? passengerCount,
+    int? bookingsCount,
   }) = _GuideTour;
 
   factory GuideTour.fromJson(Map<String, dynamic> json) =>
