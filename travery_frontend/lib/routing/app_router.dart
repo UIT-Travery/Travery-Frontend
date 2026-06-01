@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
 import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
@@ -31,8 +30,6 @@ import 'package:travery_frontend/ui/receptionist/view/recep_view_addon_list_scre
 import 'package:travery_frontend/ui/receptionist/view/recep_view_checkinout_list_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_hotel_room_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_profile_sceen.dart';
-import 'package:travery_frontend/ui/user/home/home_screen.dart';
-import 'package:travery_frontend/ui/user/home/view_models/home_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/list/tour_list_screen.dart';
 import 'package:travery_frontend/ui/user/tour/list/view_models/tour_list_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/detail/tour_detail_screen.dart';
@@ -45,33 +42,22 @@ import 'package:travery_frontend/ui/user/tour/payment/vnpay_payment_screen.dart'
 import 'package:travery_frontend/ui/user/tour/payment/view_models/vnpay_payment_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/payment_result/payment_result_screen.dart';
 import 'package:travery_frontend/ui/user/tour/payment_result/view_models/payment_result_view_model.dart';
-import 'package:travery_frontend/ui/user/tour/booking_success/booking_success_screen.dart';
-import 'package:travery_frontend/ui/user/tour/booking_list/booking_list_screen.dart';
-import 'package:travery_frontend/ui/user/tour/booking_list/view_models/booking_list_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/booking_detail_screen.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/cancel/cancel_booking_screen.dart';
 import 'package:travery_frontend/ui/user/tour/cancel/view_models/cancel_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/cancel_success/cancel_success_screen.dart';
 import 'package:travery_frontend/ui/user/trip/home/trip_home_screen.dart';
-import 'package:travery_frontend/ui/user/trip/home/view_models/trip_home_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/list/trip_list_screen.dart';
-import 'package:travery_frontend/ui/user/trip/list/view_models/trip_list_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/seat_picker/seat_picker_screen.dart';
-import 'package:travery_frontend/ui/user/trip/seat_picker/view_models/seat_picker_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_input/trip_booking_input_screen.dart';
-import 'package:travery_frontend/ui/user/trip/booking_input/view_models/trip_booking_input_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_review/trip_booking_review_screen.dart';
 import 'package:travery_frontend/ui/user/trip/booking_review/view_models/trip_booking_review_view_model.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/ui/user/trip/payment/trip_payment_screen.dart';
-import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/payment_result/trip_payment_result_screen.dart';
-import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/my_trip_booking_screen.dart';
-import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/trip_booking_detail_screen.dart';
-import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/cancel/trip_cancel_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel_success/trip_cancel_success_screen.dart';
 import 'package:travery_frontend/ui/user/widgets/user_bottom_nav.dart';
@@ -93,9 +79,7 @@ import 'package:travery_frontend/ui/admin/view/create_account_screen.dart';
 import 'package:travery_frontend/ui/admin/view/account_management_screen.dart';
 import 'package:travery_frontend/ui/admin/view/tour_management_screen.dart';
 import 'package:travery_frontend/ui/admin/view/vehicle_management_screen.dart';
-import 'package:travery_frontend/ui/admin/view/dashboard_screen.dart';
 import 'package:travery_frontend/ui/admin/view/hotel_management_screen.dart';
-import 'package:travery_frontend/data/services/api/model/booking/create_tour_booking_response/create_tour_booking_response.dart';
 import '../ui/admin/view/create_hotel_screen.dart';
 import '../ui/admin/view/update_hotel_screen.dart';
 import '../ui/admin/view/create_vehicle_screen.dart';
@@ -141,11 +125,6 @@ import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart'
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
 import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'routes.dart';
-import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
-import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
-import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/vehicle_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
@@ -900,4 +879,3 @@ GoRouter appRouter(
   onInitialized?.call(router);
   return router;
 }
-

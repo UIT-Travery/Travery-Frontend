@@ -26,7 +26,7 @@ import 'package:travery_frontend/data/services/guide/guide_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/data/services/trip/trip_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
-import 'package:travery_frontend/data/services/api/profile_service.dart';
+// import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/profile/profile_repository_remote.dart';
 
