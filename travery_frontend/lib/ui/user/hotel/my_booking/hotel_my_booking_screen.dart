@@ -5,7 +5,9 @@ import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_booking_view_model.dart';
 
 class HotelMyBookingScreen extends StatefulWidget {
-  const HotelMyBookingScreen({super.key});
+  const HotelMyBookingScreen({super.key, this.showHeader = true});
+
+  final bool showHeader;
 
   @override
   State<HotelMyBookingScreen> createState() => _HotelMyBookingScreenState();
@@ -57,7 +59,7 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
       backgroundColor: const Color(0xFFF8FBFF),
       body: Column(
         children: [
-          _buildHeader(),
+          if (widget.showHeader) _buildHeader(),
           Expanded(
             child: Consumer<HotelMyBookingViewModel>(
               builder: (context, vm, _) {
