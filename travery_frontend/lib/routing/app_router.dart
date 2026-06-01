@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_vehicle_view_model.dart';
-import 'package:travery_frontend/ui/core/auth_guard.dart';
 import 'package:travery_frontend/ui/admin/view/admin_main_screen.dart';
 import 'package:travery_frontend/ui/admin/view/view_detail_account_screen.dart';
 import 'package:travery_frontend/ui/admin/view_model/view_detail_account_view_model.dart';
@@ -133,6 +133,12 @@ import 'package:travery_frontend/ui/user/hotel/addon_payment/hotel_addon_payment
 import 'package:travery_frontend/ui/user/hotel/addon_payment_success/hotel_addon_payment_success_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout/hotel_checkout_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout_success/hotel_checkout_success_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'routes.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
@@ -836,6 +842,52 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.recepProfile,
         builder: (context, state) => const RecepViewProfileScreen(),
+      ),
+
+      // ==== User Profile Routes ====
+      GoRoute(
+        path: Routes.userProfile,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserProfileScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.userEditProfile,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserEditProfileScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.userChangePassword,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserChangePasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.userSettings,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserSettingsScreen(),
+        ),
       ),
     ],
   );

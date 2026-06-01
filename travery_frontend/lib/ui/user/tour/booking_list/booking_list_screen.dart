@@ -9,7 +9,9 @@ import 'package:travery_frontend/ui/user/tour/widgets/booking_card.dart';
 import 'package:travery_frontend/ui/user/tour/payment/view_models/vnpay_payment_view_model.dart';
 
 class BookingListScreen extends StatefulWidget {
-  const BookingListScreen({super.key});
+  const BookingListScreen({super.key, this.showHeader = true});
+
+  final bool showHeader;
 
   @override
   State<BookingListScreen> createState() => _BookingListScreenState();
@@ -106,21 +108,22 @@ class _BookingListScreenState extends State<BookingListScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 16, 20, 12),
-                child: Row(
-                  children: [
-                    Text(
-                      'Đơn đặt tour của tôi',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF131B2E),
+              if (widget.showHeader)
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 16, 20, 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Đơn đặt tour của tôi',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF131B2E),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
               Expanded(
                 child: Consumer<BookingListViewModel>(
                   builder: (context, vm, _) {

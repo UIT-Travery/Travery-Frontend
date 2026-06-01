@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/home/home_screen.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/my_trip_booking_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/data/services/security_storage_service.dart';
+import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
+import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
 
 class UserBottomNav extends StatefulWidget {
   const UserBottomNav({super.key, this.initialIndex = 0});
@@ -77,7 +83,14 @@ class _UserProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Profile - Coming Soon')));
+    return ChangeNotifierProvider(
+      create: (context) => ProfileViewModel(
+        profileService: context.read<ProfileService>(),
+        securityStorageService: context.read<SecurityStorageService>(),
+        authRepository: context.read<AuthRepository>(),
+      ),
+      child: const UserProfileScreen(),
+    );
   }
 }
 

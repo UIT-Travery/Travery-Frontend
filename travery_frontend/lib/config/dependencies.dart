@@ -17,6 +17,7 @@ import 'package:travery_frontend/data/repositories/user/user_booking_repository.
 import 'package:travery_frontend/data/services/api/admin_api_service.dart';
 import 'package:travery_frontend/data/services/api/auth_service.dart';
 import 'package:travery_frontend/data/services/api/coordinator_api_service.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/tour/tour_service.dart';
@@ -63,6 +64,7 @@ import '../data/services/tour/tour_service_impl.dart';
 
 List<SingleChildWidget> get providers => [
   Provider(create: (context) => AuthService()),
+  Provider(create: (context) => ProfileService()),
   Provider(create: (context) => SecurityStorageService()),
   Provider(
     create: (context) => TokenRefreshService(

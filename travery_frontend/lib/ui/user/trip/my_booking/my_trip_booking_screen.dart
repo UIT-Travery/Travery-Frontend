@@ -6,88 +6,39 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/widgets/trip_booking_card.dart';
 import 'package:travery_frontend/ui/user/tour/booking_list/booking_list_screen.dart';
-import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
+import 'package:travery_frontend/ui/user/hotel/my_booking/hotel_my_booking_screen.dart';
+import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_booking_view_model.dart';
+import 'package:travery_frontend/ui/user/widgets/booking_navigation_shell.dart';
+import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
 
-class MyTripBookingScreen extends StatefulWidget {
+class MyTripBookingScreen extends StatelessWidget {
   const MyTripBookingScreen({super.key});
 
   @override
-  State<MyTripBookingScreen> createState() => _MyTripBookingScreenState();
-}
-
-class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
-  int _selectedNavIndex = 0;
-  bool _showRail = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MyTripBookingViewModel>().loadBookings();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFF),
-      appBar: UserAppBar(
-        title: 'Đơn đặt vé của tôi',
-        showBackButton: false,
-        actions: [
-          IconButton(
-            onPressed: () => setState(() => _showRail = !_showRail),
-            icon: Icon(
-              _showRail ? Icons.view_sidebar : Icons.view_sidebar_outlined,
-              color: AppColors.primary,
-            ),
-          ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (ctx) => MyTripBookingViewModel(
+            repository: ctx.read<TripBookingRepository>(),
+          )..loadBookings(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HotelMyBookingViewModel()..loadBookings(),
+        ),
+      ],
+      child: BookingNavigationShell(
+        titles: const [
+          'Đơn đặt tour của tôi',
+          'Đơn đặt xe của tôi',
+          'Đơn đặt phòng của tôi',
         ],
-      ),
-      body: Row(
+        showBackButton: false,
+        onIndexChanged: (_) {},
         children: [
-          Expanded(
-            child: _selectedNavIndex == 0
-                ? const BookingListScreen()
-                : const _TripBookingListContent(),
-          ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            width: _showRail ? 80 : 0,
-            child: _showRail
-                ? NavigationRail(
-                    selectedIndex: _selectedNavIndex,
-                    onDestinationSelected: (index) {
-                      setState(() {
-                        _selectedNavIndex = index;
-                        _showRail = false;
-                      });
-                    },
-                    backgroundColor: Colors.white,
-                    indicatorColor: AppColors.primary.withValues(alpha: 0.1),
-                    labelType: NavigationRailLabelType.selected,
-                    destinations: const [
-                      NavigationRailDestination(
-                        icon: Icon(Icons.confirmation_number_outlined),
-                        selectedIcon: Icon(
-                          Icons.confirmation_number,
-                          color: AppColors.primary,
-                        ),
-                        label: Text('Tour', style: TextStyle(fontSize: 11)),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.directions_bus_outlined),
-                        selectedIcon: Icon(
-                          Icons.directions_bus,
-                          color: AppColors.primary,
-                        ),
-                        label: Text('Xe khách', style: TextStyle(fontSize: 11)),
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(),
-          ),
+          const BookingListScreen(showHeader: false),
+          const _TripBookingListContent(),
+          HotelMyBookingScreen(showHeader: false),
         ],
       ),
     );

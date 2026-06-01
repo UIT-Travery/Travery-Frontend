@@ -112,4 +112,10 @@ class Routes {
   static const String recepHotel = '/recep/hotel';
   static const String recepAddon = '/recep/addon';
   static const String recepProfile = '/recep/profile';
+
+  // User Profile
+  static const String userProfile = '/user/profile';
+  static const String userEditProfile = '/user/profile/edit';
+  static const String userChangePassword = '/user/profile/change-password';
+  static const String userSettings = '/user/profile/settings';
 }

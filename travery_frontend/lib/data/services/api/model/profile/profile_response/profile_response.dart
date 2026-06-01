@@ -8,6 +8,9 @@ class ProfileData {
     required this.status,
     required this.role,
     required this.createdAt,
+    this.passportNumber,
+    this.dateOfBirth,
+    this.gender,
   });
 
   final String id;
@@ -18,6 +21,9 @@ class ProfileData {
   final String status;
   final String role;
   final String createdAt;
+  final String? passportNumber;
+  final String? dateOfBirth;
+  final String? gender;
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
@@ -29,6 +35,9 @@ class ProfileData {
       status: json['status'] as String? ?? '',
       role: json['role'] as String? ?? '',
       createdAt: json['createdAt'] as String? ?? '',
+      passportNumber: json['passportNumber'] as String?,
+      dateOfBirth: json['dateOfBirth'] as String?,
+      gender: json['gender'] as String?,
     );
   }
 }
