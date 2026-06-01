@@ -28,6 +28,16 @@ class _UserBottomNavState extends State<UserBottomNav> {
   }
 
   @override
+  void didUpdateWidget(UserBottomNav oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialIndex != widget.initialIndex) {
+      setState(() {
+        _currentIndex = widget.initialIndex;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(

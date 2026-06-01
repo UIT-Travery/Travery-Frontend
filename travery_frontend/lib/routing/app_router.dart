@@ -499,9 +499,7 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.tripMyBookings,
-        builder: (context, state) {
-          return const MyTripBookingScreen();
-        },
+        builder: (context, state) => const UserBottomNav(initialIndex: 1),
       ),
       GoRoute(
         path: Routes.tripBookingDetail,
