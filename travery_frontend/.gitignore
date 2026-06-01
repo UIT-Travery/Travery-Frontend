@@ -50,3 +50,7 @@ Travery API Documentation.md
 config.json
 deeplink-integration.md
 VNPAY_FE_Integration_Guide.md
+.env
+.env.local
+.env.development
+!.env.example
