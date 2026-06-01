@@ -124,7 +124,7 @@ class _TripListScreenState extends State<TripListScreen> {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: vm.trips.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final trip = vm.trips[index];
         return _TripCard(
@@ -261,7 +261,7 @@ class _DateStripState extends State<_DateStrip> {
           physics: const _ClampingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           itemCount: _dates.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final date = _dates[index];
             final isSelected = _isSameDay(

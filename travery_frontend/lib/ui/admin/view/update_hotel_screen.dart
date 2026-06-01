@@ -22,7 +22,6 @@ class _RoomData {
     String? initialCapacity,
     String? initialMaxAdults,
     String? initialMaxChildren,
-    this.type,
   }) : numberController = TextEditingController(text: initialNumber),
        priceController = TextEditingController(text: initialPrice),
        capacityController = TextEditingController(text: initialCapacity),

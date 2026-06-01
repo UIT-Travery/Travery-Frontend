@@ -17,7 +17,7 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 
-  double _refundAmount = 28000;
+  final double _refundAmount = 28000;
 
   @override
   Widget build(BuildContext context) {

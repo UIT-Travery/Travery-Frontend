@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           scrollDirection: Axis.horizontal,
           itemCount: vm.featuredTours.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 12),
+          separatorBuilder: (_, _) => const SizedBox(width: 12),
           itemBuilder: (context, index) {
             final tour = vm.featuredTours[index];
             return TourCard(

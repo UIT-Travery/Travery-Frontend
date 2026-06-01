@@ -17,10 +17,6 @@ class _CoordinatorViewCoachListScreenState
     with AutomaticKeepAliveClientMixin {
   final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {

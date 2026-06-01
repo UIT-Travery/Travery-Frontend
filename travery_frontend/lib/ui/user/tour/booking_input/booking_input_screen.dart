@@ -27,8 +27,9 @@ DateTime? _tryParseDob(String value) {
     year = int.tryParse(parts[2]);
   }
   if (day == null || month == null || year == null) return null;
-  if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900)
+  if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900) {
     return null;
+  }
   return DateTime(year, month, day);
 }
 
@@ -124,9 +125,15 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
 
   @override
   void dispose() {
-    for (final c in _nameControllers) c.dispose();
-    for (final c in _identityControllers) c.dispose();
-    for (final c in _dobControllers) c.dispose();
+    for (final c in _nameControllers) {
+      c.dispose();
+    }
+    for (final c in _identityControllers) {
+      c.dispose();
+    }
+    for (final c in _dobControllers) {
+      c.dispose();
+    }
     _specialRequestsController.dispose();
     super.dispose();
   }

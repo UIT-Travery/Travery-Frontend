@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/core/widgets/app_bar_widget.dart';

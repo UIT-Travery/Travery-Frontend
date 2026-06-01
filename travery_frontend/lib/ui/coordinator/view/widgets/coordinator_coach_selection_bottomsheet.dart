@@ -209,7 +209,7 @@ class _CoordinatorCoachSelectionBottomsheetState
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: _drivers.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final driver = _drivers[index];
         return CoordinatorCoachSelectionCard(
@@ -242,7 +242,7 @@ class _CoordinatorCoachSelectionBottomsheetState
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: _vehicles.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final vehicle = _vehicles[index];
         return _CoordinatorVehicleSelectionCard(
@@ -343,7 +343,7 @@ class _CoordinatorVehicleSelectionCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     child: imageUrl != null && imageUrl!.isNotEmpty
                         ? Image.network(imageUrl!, fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Center(
+                            errorBuilder: (_, _, _) => const Center(
                               child: Icon(Icons.directions_bus_outlined,
                                   color: AppColors.textSecondary, size: 32),
                             ))

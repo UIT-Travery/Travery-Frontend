@@ -39,7 +39,7 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: _dummyAddons.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final addon = _dummyAddons[index];
                 return _AddonCard(
@@ -259,7 +259,7 @@ class _AddonCard extends StatelessWidget {
                 child: Image.network(
                   addon['imageUrl'] as String,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: const Color(0xFFF0F7FF),
                     child: const Center(
                       child: Icon(

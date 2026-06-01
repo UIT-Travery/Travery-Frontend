@@ -92,7 +92,7 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: vm.bookings.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final booking = vm.bookings[index];
                     return _BookingCard(
@@ -193,7 +193,7 @@ class _BookingCard extends StatelessWidget {
                   child: Image.network(
                     booking.hotelImageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFFF0F7FF),
                       child: const Center(
                         child: Icon(

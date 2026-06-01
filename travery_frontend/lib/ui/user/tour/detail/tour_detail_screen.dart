@@ -438,8 +438,9 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
   }
 
   Widget _buildScheduleList(TourDetailViewModel vm) {
-    if (vm.isLoadingInstances)
+    if (vm.isLoadingInstances) {
       return const Center(child: CircularProgressIndicator());
+    }
     if (vm.instances.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -607,41 +608,40 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (policy.rules != null)
-            ...policy.rules!.map((rule) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
+          ...policy.rules.map((rule) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Trước ${rule.timeBefore?.toInt() ?? 0} ngày',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF414755),
-                      ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Trước ${rule.timeBefore?.toInt() ?? 0} ngày',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF414755),
                     ),
-                    const Spacer(),
-                    Text(
-                      'Hoàn ${rule.refundPercentage?.toInt() ?? 0}%',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF131B2E),
-                      ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Hoàn ${rule.refundPercentage?.toInt() ?? 0}%',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF131B2E),
                     ),
-                  ],
-                ),
-              );
-            }),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -654,7 +654,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
     if (days == 1) return '1N';
     final nights = days - 1;
     if (nights == 1) return '1N1Đ';
-    return '${days}N${nights}Đ';
+    return '${days}N$nightsĐ';
   }
 
   String _getInstanceStatusLabel(TourInstanceStatus status) {

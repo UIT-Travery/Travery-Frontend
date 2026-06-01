@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 
@@ -34,7 +33,7 @@ class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: _dummyRooms.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final room = _dummyRooms[index];
                 final isSelected = _selectedRooms.contains(room);
@@ -249,7 +248,7 @@ class _RoomCard extends StatelessWidget {
                   child: Image.network(
                     room.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFFF0F7FF),
                       child: const Center(
                         child: Icon(

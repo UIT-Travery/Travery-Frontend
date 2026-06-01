@@ -117,8 +117,9 @@ class TripListViewModel extends ChangeNotifier {
   }
 
   Future<void> _searchTrips() async {
-    if (_origin == null || _destination == null || _departureDate == null)
+    if (_origin == null || _destination == null || _departureDate == null) {
       return;
+    }
 
     _isLoading = true;
     _error = null;

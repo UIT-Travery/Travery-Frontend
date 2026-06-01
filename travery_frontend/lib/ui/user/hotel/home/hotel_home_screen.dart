@@ -86,7 +86,7 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: vm.hotels.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final hotel = vm.hotels[index];
                     return _HotelCard(
@@ -207,7 +207,7 @@ class _HotelCard extends StatelessWidget {
               child: Image.network(
                 hotel.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   color: const Color(0xFFF0F7FF),
                   child: const Center(
                     child: Icon(
