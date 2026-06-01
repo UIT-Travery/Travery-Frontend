@@ -3,7 +3,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AppConfig {
   static const int timeout = 10000;
 
-  // Thay từ String.fromEnvironment() → dotenv
   static String get baseUrl {
     final url = dotenv.env['BASE_URL'];
     if (url == null || url.isEmpty) {
