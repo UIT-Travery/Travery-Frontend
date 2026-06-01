@@ -13,7 +13,6 @@ import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
-import 'package:travery_frontend/ui/guide/home/guide_profile_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_view_model.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/check_in_screen.dart';
@@ -35,8 +34,6 @@ import 'package:travery_frontend/ui/receptionist/view/recep_view_addon_list_scre
 import 'package:travery_frontend/ui/receptionist/view/recep_view_checkinout_list_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_hotel_room_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_profile_sceen.dart';
-import 'package:travery_frontend/ui/user/home/home_screen.dart';
-import 'package:travery_frontend/ui/user/home/view_models/home_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/list/tour_list_screen.dart';
 import 'package:travery_frontend/ui/user/tour/list/view_models/tour_list_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/detail/tour_detail_screen.dart';
@@ -49,33 +46,21 @@ import 'package:travery_frontend/ui/user/tour/payment/vnpay_payment_screen.dart'
 import 'package:travery_frontend/ui/user/tour/payment/view_models/vnpay_payment_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/payment_result/payment_result_screen.dart';
 import 'package:travery_frontend/ui/user/tour/payment_result/view_models/payment_result_view_model.dart';
-import 'package:travery_frontend/ui/user/tour/booking_success/booking_success_screen.dart';
-import 'package:travery_frontend/ui/user/tour/booking_list/booking_list_screen.dart';
-import 'package:travery_frontend/ui/user/tour/booking_list/view_models/booking_list_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/booking_detail_screen.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/cancel/cancel_booking_screen.dart';
 import 'package:travery_frontend/ui/user/tour/cancel/view_models/cancel_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/cancel_success/cancel_success_screen.dart';
 import 'package:travery_frontend/ui/user/trip/home/trip_home_screen.dart';
-import 'package:travery_frontend/ui/user/trip/home/view_models/trip_home_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/list/trip_list_screen.dart';
-import 'package:travery_frontend/ui/user/trip/list/view_models/trip_list_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/seat_picker/seat_picker_screen.dart';
-import 'package:travery_frontend/ui/user/trip/seat_picker/view_models/seat_picker_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_input/trip_booking_input_screen.dart';
-import 'package:travery_frontend/ui/user/trip/booking_input/view_models/trip_booking_input_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_review/trip_booking_review_screen.dart';
 import 'package:travery_frontend/ui/user/trip/booking_review/view_models/trip_booking_review_view_model.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/ui/user/trip/payment/trip_payment_screen.dart';
-import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/payment_result/trip_payment_result_screen.dart';
-import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
-import 'package:travery_frontend/ui/user/trip/my_booking/my_trip_booking_screen.dart';
-import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/trip_booking_detail_screen.dart';
-import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/cancel/trip_cancel_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel_success/trip_cancel_success_screen.dart';
 import 'package:travery_frontend/ui/user/widgets/user_bottom_nav.dart';
@@ -97,9 +82,7 @@ import 'package:travery_frontend/ui/admin/view/create_account_screen.dart';
 import 'package:travery_frontend/ui/admin/view/account_management_screen.dart';
 import 'package:travery_frontend/ui/admin/view/tour_management_screen.dart';
 import 'package:travery_frontend/ui/admin/view/vehicle_management_screen.dart';
-import 'package:travery_frontend/ui/admin/view/dashboard_screen.dart';
 import 'package:travery_frontend/ui/admin/view/hotel_management_screen.dart';
-import 'package:travery_frontend/data/services/api/model/booking/create_tour_booking_response/create_tour_booking_response.dart';
 import '../ui/admin/view/create_hotel_screen.dart';
 import '../ui/admin/view/update_hotel_screen.dart';
 import '../ui/admin/view/create_vehicle_screen.dart';
@@ -139,11 +122,7 @@ import 'package:travery_frontend/ui/user/hotel/addon_payment_success/hotel_addon
 import 'package:travery_frontend/ui/user/hotel/checkout/hotel_checkout_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout_success/hotel_checkout_success_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
-import 'package:travery_frontend/data/services/api/profile_service.dart';
 import '../ui/admin/view_model/create_hotel_view_model.dart';
 import '../ui/admin/view_model/create_vehicle_view_model.dart';
 import '../ui/admin/view_model/hotel_management_view_model.dart';
@@ -316,7 +295,6 @@ GoRouter appRouter(
         path: Routes.tourList,
         builder: (context, state) {
           final keyword = state.uri.queryParameters['keyword'];
-          final destinationId = state.uri.queryParameters['destinationId'];
           return TourListScreen(
             viewModel: context.read<TourListViewModel>(),
             keyword: keyword,
@@ -577,7 +555,6 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.hotelBookingDetail,
         builder: (context, state) {
-          final bookingId = state.pathParameters['id'] ?? '';
           return ChangeNotifierProvider(
             create: (_) => HotelBookingDetailViewModel(),
             child: HotelBookingDetailScreen(),

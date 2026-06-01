@@ -53,7 +53,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
           _lastLoadedBookingId = null;
-          context.go(Routes.tripMyBookings);
+          context.go('${Routes.tripMyBookings}?tab=1');
         }
       },
       child: Scaffold(
@@ -65,7 +65,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              context.go(Routes.tripMyBookings);
+              context.go('${Routes.tripMyBookings}?tab=1');
             },
           ),
           title: const Text(

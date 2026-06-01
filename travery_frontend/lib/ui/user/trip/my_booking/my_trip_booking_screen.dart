@@ -11,8 +11,36 @@ import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_b
 import 'package:travery_frontend/ui/user/widgets/booking_navigation_shell.dart';
 import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
 
-class MyTripBookingScreen extends StatelessWidget {
+class MyTripBookingScreen extends StatefulWidget {
   const MyTripBookingScreen({super.key});
+
+  @override
+  State<MyTripBookingScreen> createState() => _MyTripBookingScreenState();
+}
+
+class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
+  late int _initialIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialIndex = 0;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final tab = GoRouterState.of(context).uri.queryParameters['tab'];
+    final parsed = int.tryParse(tab ?? '')?.clamp(0, 2) ?? 0;
+    if (parsed != _initialIndex) {
+      setState(() => _initialIndex = parsed);
+    }
+  }
+
+  void _onIndexChanged(int index) {
+    setState(() => _initialIndex = index);
+    context.go('${Routes.tripMyBookings}?tab=$index');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +56,14 @@ class MyTripBookingScreen extends StatelessWidget {
         ),
       ],
       child: BookingNavigationShell(
+        initialIndex: _initialIndex,
         titles: const [
           'Đơn đặt tour của tôi',
           'Đơn đặt xe của tôi',
           'Đơn đặt phòng của tôi',
         ],
         showBackButton: false,
-        onIndexChanged: (_) {},
+        onIndexChanged: _onIndexChanged,
         children: [
           const BookingListScreen(showHeader: false),
           const _TripBookingListContent(),
