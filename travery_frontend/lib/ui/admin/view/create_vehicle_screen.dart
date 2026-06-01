@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/domain/models/admin/business_coach_seat/business_coach_seat.dart';
 import 'package:travery_frontend/ui/admin/view_model/create_vehicle_view_model.dart';
 import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
@@ -21,6 +22,9 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   final _plateController = TextEditingController();
   final _seatsController = TextEditingController();
   String? _selectedVehicleType;
+
+  int _numberOfFloors = 1;
+  final List<BusinessCoachSeat> _coachSeats = [];
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -245,6 +249,12 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
                 controller: _seatsController,
                 textInputType: TextInputType.number,
               ),
+              const SizedBox(height: 32),
+              _buildSectionTitle(Icons.event_seat_outlined, 'Sơ đồ chỗ ngồi'),
+              const SizedBox(height: 16),
+              _buildFloorButtons(),
+              const SizedBox(height: 24),
+              _buildSeatMaps(),
               const SizedBox(height: 30),
             ],
           ),
@@ -393,6 +403,161 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
           const SizedBox(height: 8),
           Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFloorButtons() {
+    return Row(
+      children: [
+        _buildFloorButton('1 tầng', 1),
+        const SizedBox(width: 8),
+        _buildFloorButton('2 tầng', 2),
+      ],
+    );
+  }
+
+  Widget _buildFloorButton(String label, int value) {
+    final isSelected = _numberOfFloors == value;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _numberOfFloors = value;
+          if (value == 1) {
+            _coachSeats.removeWhere((s) => s.tier == CoachSeatTier.upper);
+          }
+        });
+      },
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primaryDarkBlackBlue
+              : AppColors.primaryDarkBlackBlue.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppColors.primaryDarkBlackBlue,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeatMaps() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: _buildSeatMap('Tầng 1', CoachSeatTier.lower)),
+        if (_numberOfFloors == 2) ...[
+          const SizedBox(width: 16),
+          Expanded(child: _buildSeatMap('Tầng 2', CoachSeatTier.upper)),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSeatMap(String title, CoachSeatTier tier) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.primaryDarkBlackBlue,
+            ),
+          ),
+          const SizedBox(height: 20),
+          for (int row = 1; row <= 7; row++) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildSeat(tier, 'A', row),
+                _buildSeat(tier, 'B', row),
+                _buildSeat(tier, 'C', row),
+              ],
+            ),
+            if (row < 7) const SizedBox(height: 16),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _toggleSeat(CoachSeatTier tier, String colName, int row) {
+    final seatName = '$colName$row';
+    final existingIndex = _coachSeats.indexWhere(
+      (s) => s.seatName == seatName && s.tier == tier,
+    );
+
+    if (existingIndex != -1) {
+      setState(() {
+        _coachSeats.removeAt(existingIndex);
+      });
+    } else {
+      CoachSeatPosition pos;
+      if (row <= 2) {
+        pos = CoachSeatPosition.front;
+      } else if (row <= 5) {
+        pos = CoachSeatPosition.middle;
+      } else {
+        pos = CoachSeatPosition.back;
+      }
+
+      int colNumber = colName == 'A' ? 1 : (colName == 'B' ? 2 : 3);
+
+      setState(() {
+        _coachSeats.add(
+          BusinessCoachSeat(
+            price: '0',
+            tier: tier,
+            position: pos,
+            seatName: seatName,
+            rowNumber: row,
+            columnNumber: colNumber,
+          ),
+        );
+      });
+    }
+  }
+
+  Widget _buildSeat(CoachSeatTier tier, String colName, int row) {
+    final seatName = '$colName$row';
+    final isSelected = _coachSeats.any(
+      (s) => s.seatName == seatName && s.tier == tier,
+    );
+
+    return InkWell(
+      onTap: () => _toggleSeat(tier, colName, row),
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        width: 36,
+        height: 36,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.grey[300],
+          border: isSelected
+              ? Border.all(color: AppColors.primaryDarkBlackBlue, width: 1.5)
+              : null,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          seatName,
+          style: const TextStyle(color: Colors.black87, fontSize: 14),
+        ),
       ),
     );
   }
