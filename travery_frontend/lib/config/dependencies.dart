@@ -99,6 +99,14 @@ List<SingleChildWidget> get providers => [
   ),
   Provider<TripBookingRepository>(
     create: (context) => TripBookingRepository(
+
+  // ── Coordinator service ───────────────────────────────────────────────
+  Provider<CoordinatorApiService>(create: (context) => CoordinatorApiService()),
+
+  // ── Coordinator repository (remote — hits real API) ──────────────────────
+  ChangeNotifierProvider<CoordinatorRepository>(
+    create: (context) => CoordinatorRepositoryRemote(
+      apiService: context.read<CoordinatorApiService>(),
       securityStorageService: context.read<SecurityStorageService>(),
     ),
   ),
@@ -107,6 +115,17 @@ List<SingleChildWidget> get providers => [
   ChangeNotifierProvider(
     create: (context) =>
         TripHomeViewModel(tripService: context.read<TripService>()),
+    create: (context) => CreateAccountViewModel(
+      adminRepository: context.read<AdminRepository>(),
+    ),
+  ),
+  ChangeNotifierProvider(
+    create: (context) =>
+        CreateHotelViewModel(adminRepository: context.read<AdminRepository>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) =>
+        UpdateHotelViewModel(adminRepository: context.read<AdminRepository>()),
   ),
   ChangeNotifierProvider(
     create: (context) =>
