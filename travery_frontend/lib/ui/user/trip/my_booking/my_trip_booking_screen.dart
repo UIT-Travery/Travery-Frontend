@@ -7,6 +7,7 @@ import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_boo
 import 'package:travery_frontend/ui/user/trip/widgets/trip_booking_card.dart';
 import 'package:travery_frontend/ui/user/tour/booking_list/booking_list_screen.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
+import 'package:travery_frontend/ui/user/hotel/my_booking/hotel_my_booking_screen.dart';
 
 class MyTripBookingScreen extends StatefulWidget {
   const MyTripBookingScreen({super.key});
@@ -46,11 +47,7 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
       ),
       body: Row(
         children: [
-          Expanded(
-            child: _selectedNavIndex == 0
-                ? const BookingListScreen()
-                : const _TripBookingListContent(),
-          ),
+          Expanded(child: _buildContent()),
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
@@ -84,6 +81,17 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
                         ),
                         label: Text('Xe khách', style: TextStyle(fontSize: 11)),
                       ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.hotel_outlined),
+                        selectedIcon: Icon(
+                          Icons.hotel,
+                          color: AppColors.primary,
+                        ),
+                        label: Text(
+                          'Khách sạn',
+                          style: TextStyle(fontSize: 11),
+                        ),
+                      ),
                     ],
                   )
                 : const SizedBox.shrink(),
@@ -91,6 +99,19 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildContent() {
+    switch (_selectedNavIndex) {
+      case 0:
+        return const BookingListScreen();
+      case 1:
+        return const _TripBookingListContent();
+      case 2:
+        return const HotelMyBookingScreen();
+      default:
+        return const BookingListScreen();
+    }
   }
 }
 
