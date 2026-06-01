@@ -77,17 +77,6 @@ class RecepBottomNavBar extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Padding(
               padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.chat_bubble_outline),
-            ),
-            activeIcon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.chat_bubble),
-            ),
-            label: 'CHAT',
-          ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
               child: Icon(Icons.room_service_outlined),
             ),
             activeIcon: Padding(
@@ -95,6 +84,17 @@ class RecepBottomNavBar extends StatelessWidget {
               child: Icon(Icons.room_service),
             ),
             label: 'DỊCH VỤ',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: EdgeInsets.only(bottom: 4.0),
+              child: Icon(Icons.star_border),
+            ),
+            activeIcon: Padding(
+              padding: EdgeInsets.only(bottom: 4.0),
+              child: Icon(Icons.star),
+            ),
+            label: 'ĐÁNH GIÁ',
           ),
         ],
       ),

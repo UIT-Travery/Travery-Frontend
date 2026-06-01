@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
@@ -293,6 +294,7 @@ GoRouter appRouter(
         builder: (context, state) => CoordinatorViewProfileScreen(
           viewModel: AdminProfileViewModel(
             authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
         ),
       ),
@@ -301,6 +303,7 @@ GoRouter appRouter(
         builder: (context, state) => CoordinatorUpdateProfileScreen(
           viewModel: AdminProfileViewModel(
             authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
         ),
       ),
@@ -683,6 +686,7 @@ GoRouter appRouter(
             ChangeNotifierProvider(
               create: (context) => AdminProfileViewModel(
                 authRepository: context.read<AuthRepository>(),
+                profileRepository: context.read<ProfileRepository>(),
               ),
             ),
             ChangeNotifierProvider(
@@ -814,6 +818,7 @@ GoRouter appRouter(
         builder: (context, state) => UpdateProfileScreen(
           viewModel: AdminProfileViewModel(
             authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
         ),
       ),
@@ -895,3 +900,4 @@ GoRouter appRouter(
   onInitialized?.call(router);
   return router;
 }
+

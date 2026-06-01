@@ -5,6 +5,7 @@ import '../../../core/themes/app_text_theme.dart';
 class CoordinatorInputField extends StatelessWidget {
   final String? label;
   final String hintText;
+  final Widget? prefixIcon;
   final Widget? suffixIcon;
   final TextEditingController controller;
   final bool isMultipleLine;
@@ -13,6 +14,7 @@ class CoordinatorInputField extends StatelessWidget {
     super.key,
     this.label,
     required this.hintText,
+    this.prefixIcon,
     this.suffixIcon,
     required this.controller,
     this.isMultipleLine = false,
@@ -54,6 +56,7 @@ class CoordinatorInputField extends StatelessWidget {
                 color: AppColors.textHint,
                 fontSize: AppTextTheme.bodyMedium,
               ),
+              prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,

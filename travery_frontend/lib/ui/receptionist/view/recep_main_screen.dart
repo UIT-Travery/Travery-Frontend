@@ -3,6 +3,7 @@ import 'package:travery_frontend/ui/receptionist/view/recep_view_checkinout_list
 import 'recep_dashboard_screen.dart';
 import 'recep_view_addon_list_screen.dart';
 import 'recep_view_hotel_room_screen.dart';
+import 'recep_view_reviews.dart';
 import 'widgets/recep_bottom_nav_bar.dart';
 
 class RecepMainScreen extends StatefulWidget {
@@ -35,15 +36,6 @@ class _RecepMainScreenState extends State<RecepMainScreen> {
   }
 
   void _onBottomNavTapped(int index) {
-    if (index == 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tính năng Chat đang được phát triển'),
-          duration: Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -61,8 +53,8 @@ class _RecepMainScreenState extends State<RecepMainScreen> {
           RecepDashboardScreen(),
           RecepViewCheckinoutListScreen(),
           RecepViewHotelRoomScreen(),
-          Center(child: Text('Chat')),
           RecepViewAddonListScreen(),
+          RecepViewReviews(),
         ],
       ),
       bottomNavigationBar: RecepBottomNavBar(

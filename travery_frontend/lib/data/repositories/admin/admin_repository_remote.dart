@@ -137,6 +137,224 @@ class AdminRepositoryRemote extends AdminRepository {
     }
   }
 
+  // ── Helper: map raw user data to BusinessAccount ────────────────────────────
+
+  BusinessAccount _mapUser(Map<String, dynamic> map) {
+    return BusinessAccount(
+      id: map['id'] as String? ?? '',
+      name: map['fullName'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      role: BusinessAccount.roleFromApi(map['role'] as String?),
+      status: BusinessAccount.statusFromApi(map['status'] as String?),
+      avatarUrl: map['avatarUrl'] as String?,
+      phoneNumber: map['phoneNumber'] as String?,
+      createdAt: map['createdAt'] as String?,
+    );
+  }
+
+  // ── Admin User Controller ──────────────────────────────────────────────────
+
+  @override
+  Future<Result<Map<String, dynamic>>> getUsers({
+    String? role,
+    String? status,
+    int page = 0,
+    int size = 20,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.getUsers(
+      accessToken: token,
+      role: role,
+      status: status,
+      page: page,
+      size: size,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return Result.ok(result.value);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> getUserById({required String id}) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.getUserById(
+      accessToken: token,
+      id: id,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        return Result.ok(_mapUser(result.value));
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> banUser({required String id}) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.banUser(
+      accessToken: token,
+      id: id,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return Result.ok(_mapUser(result.value));
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> unbanUser({required String id}) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.unbanUser(
+      accessToken: token,
+      id: id,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return Result.ok(_mapUser(result.value));
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateReceptionistProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? shiftType,
+    String? hotelId,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.updateReceptionistProfile(
+      accessToken: token,
+      id: id,
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      shiftType: shiftType,
+      hotelId: hotelId,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return Result.ok(_mapUser(result.value));
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateGuideProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? guideLicense,
+    int? yearsExperience,
+    List<String>? languages,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.updateGuideProfile(
+      accessToken: token,
+      id: id,
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      guideLicense: guideLicense,
+      yearsExperience: yearsExperience,
+      languages: languages,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return Result.ok(_mapUser(result.value));
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateCoordinatorProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? department,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.updateCoordinatorProfile(
+      accessToken: token,
+      id: id,
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      department: department,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return Result.ok(_mapUser(result.value));
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateUserAvatar({
+    required String id,
+    required String filePath,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.updateUserAvatar(
+      accessToken: token,
+      id: id,
+      filePath: filePath,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return Result.ok(_mapUser(result.value));
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   @override

@@ -22,7 +22,6 @@ ImageResponse _$ImageResponseFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ImageResponse {
   String get url => throw _privateConstructorUsedError;
-  @JsonKey(name: 'isThumnail')
   bool get isThumbnail => throw _privateConstructorUsedError;
 
   /// Serializes this ImageResponse to a JSON map.
@@ -42,7 +41,7 @@ abstract class $ImageResponseCopyWith<$Res> {
     $Res Function(ImageResponse) then,
   ) = _$ImageResponseCopyWithImpl<$Res, ImageResponse>;
   @useResult
-  $Res call({String url, @JsonKey(name: 'isThumnail') bool isThumbnail});
+  $Res call({String url, bool isThumbnail});
 }
 
 /// @nodoc
@@ -85,7 +84,7 @@ abstract class _$$ImageResponseImplCopyWith<$Res>
   ) = __$$ImageResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String url, @JsonKey(name: 'isThumnail') bool isThumbnail});
+  $Res call({String url, bool isThumbnail});
 }
 
 /// @nodoc
@@ -120,10 +119,7 @@ class __$$ImageResponseImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ImageResponseImpl implements _ImageResponse {
-  const _$ImageResponseImpl({
-    required this.url,
-    @JsonKey(name: 'isThumnail') this.isThumbnail = false,
-  });
+  const _$ImageResponseImpl({required this.url, this.isThumbnail = false});
 
   factory _$ImageResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$ImageResponseImplFromJson(json);
@@ -131,7 +127,7 @@ class _$ImageResponseImpl implements _ImageResponse {
   @override
   final String url;
   @override
-  @JsonKey(name: 'isThumnail')
+  @JsonKey()
   final bool isThumbnail;
 
   @override
@@ -170,7 +166,7 @@ class _$ImageResponseImpl implements _ImageResponse {
 abstract class _ImageResponse implements ImageResponse {
   const factory _ImageResponse({
     required final String url,
-    @JsonKey(name: 'isThumnail') final bool isThumbnail,
+    final bool isThumbnail,
   }) = _$ImageResponseImpl;
 
   factory _ImageResponse.fromJson(Map<String, dynamic> json) =
@@ -179,7 +175,6 @@ abstract class _ImageResponse implements ImageResponse {
   @override
   String get url;
   @override
-  @JsonKey(name: 'isThumnail')
   bool get isThumbnail;
 
   /// Create a copy of ImageResponse

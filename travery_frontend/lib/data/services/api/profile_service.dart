@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:http_parser/http_parser.dart';
 import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
+import 'package:travery_frontend/data/services/api/model/profile/update_admin_profile_request/update_admin_profile_request.dart';
+import 'package:travery_frontend/data/services/api/model/profile/update_tourist_profile_request/update_tourist_profile_request.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class ProfileService {
@@ -26,7 +29,6 @@ class ProfileService {
       );
 
       final response = await request.close();
-
       if (response.statusCode == 200) {
         final stringData = await response.transform(utf8.decoder).join();
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;

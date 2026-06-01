@@ -1,10 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/input_text_field.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/small_button.dart';
 import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
+import 'package:travery_frontend/utils/alert.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   const UpdateProfileScreen({super.key, required this.viewModel});
@@ -18,21 +23,35 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    // Add listener if there is an update command in future
+    widget.viewModel.loadProfile.addListener(_onResult);
+    widget.viewModel.updateProfile.addListener(_onResult);
+    widget.viewModel.updateAvatar.addListener(_onResult);
+    widget.viewModel.loadProfile.execute();
   }
 
   @override
   void didUpdateWidget(covariant UpdateProfileScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update listener if there is an update command in future
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.loadProfile.removeListener(_onResult);
+      oldWidget.viewModel.updateProfile.removeListener(_onResult);
+      oldWidget.viewModel.updateAvatar.removeListener(_onResult);
+      widget.viewModel.loadProfile.addListener(_onResult);
+      widget.viewModel.updateProfile.addListener(_onResult);
+      widget.viewModel.updateAvatar.addListener(_onResult);
+    }
   }
 
   @override
   void dispose() {
+    widget.viewModel.loadProfile.removeListener(_onResult);
+    widget.viewModel.updateProfile.removeListener(_onResult);
+    widget.viewModel.updateAvatar.removeListener(_onResult);
     _emailController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
@@ -40,7 +59,45 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   }
 
   void _onResult() {
-    // Handle results from viewModel commands
+    if (!mounted) return;
+
+    final loadResult = widget.viewModel.loadProfile.result;
+    if (loadResult is Ok<ProfileData>) {
+      if (_emailController.text.isEmpty) {
+        _emailController.text = loadResult.value.email;
+        _nameController.text = loadResult.value.fullName;
+        _phoneController.text = loadResult.value.phoneNumber;
+      }
+    }
+
+    final updateResult = widget.viewModel.updateProfile.result;
+    if (updateResult != null) {
+      if (updateResult is Ok<ProfileData>) {
+        Utils.showSuccessNotification(context, 'Cập nhật thành công');
+        widget.viewModel.updateProfile.clearResult();
+        context.pop();
+      } else if (updateResult is Error<ProfileData>) {
+        Utils.showErrorNotification(
+          context,
+          updateResult.error.toString(),
+        );
+        widget.viewModel.updateProfile.clearResult();
+      }
+    }
+
+    final avatarResult = widget.viewModel.updateAvatar.result;
+    if (avatarResult != null) {
+      if (avatarResult is Ok<ProfileData>) {
+        Utils.showSuccessNotification(context, 'Cập nhật thành công');
+        widget.viewModel.updateAvatar.clearResult();
+      } else if (avatarResult is Error<ProfileData>) {
+        Utils.showErrorNotification(
+          context,
+          avatarResult.error.toString(),
+        );
+        widget.viewModel.updateAvatar.clearResult();
+      }
+    }
   }
 
   void _handleUpdate() {
@@ -49,25 +106,21 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     );
 
     if (phoneError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(phoneError),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.error,
-        ),
-      );
+      Utils.showErrorNotification(context, phoneError);
       return;
     }
 
-    // Success logic here
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Cập nhật thành công'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.green,
-      ),
-    );
-    context.pop();
+    widget.viewModel.updateProfile.execute((
+      fullName: _nameController.text,
+      phoneNumber: _phoneController.text,
+    ));
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      widget.viewModel.updateAvatar.execute(image.path);
+    }
   }
 
   @override
@@ -94,51 +147,83 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    'assets/images/placeholder_avatar.png',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 100,
-                      height: 100,
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      child: const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: AppColors.primary,
+      body: ListenableBuilder(
+        listenable: widget.viewModel.loadProfile,
+        builder: (context, _) {
+          final running = widget.viewModel.loadProfile.running ||
+              widget.viewModel.updateProfile.running ||
+              widget.viewModel.updateAvatar.running;
+
+          String? avatarUrl;
+          final loadResult = widget.viewModel.loadProfile.result;
+          if (loadResult is Ok<ProfileData>) {
+            avatarUrl = loadResult.value.avatarUrl;
+          }
+
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 24),
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: avatarUrl != null && avatarUrl.isNotEmpty
+                                ? Image.network(
+                                    avatarUrl,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: AppColors.primary.withValues(
+                                          alpha: 0.1),
+                                      child: const Icon(
+                                        Icons.person,
+                                        size: 50,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    width: 100,
+                                    height: 100,
+                                    color:
+                                        AppColors.primary.withValues(alpha: 0.1),
+                                    child: const Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                          ),
+                          Positioned(
+                            bottom: -4,
+                            right: -4,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-                Positioned(
-                  bottom: -4,
-                  right: -4,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
+                    const SizedBox(height: 32),
             InputTextField(
               label: 'Email',
               textholder: 'Nhập email',
@@ -209,6 +294,17 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             const SizedBox(height: 24),
           ],
         ),
+      ),
+      if (running)
+        Container(
+          color: Colors.black12,
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+    ],
+          );
+        },
       ),
     );
   }
