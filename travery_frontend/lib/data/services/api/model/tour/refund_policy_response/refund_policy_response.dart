@@ -6,9 +6,10 @@ part 'refund_policy_response.g.dart';
 @freezed
 class RefundPolicyRuleResponse with _$RefundPolicyRuleResponse {
   const factory RefundPolicyRuleResponse({
-    required String id,
-    required int daysBefore,
-    required double refundPercentage,
+    String? id,
+    double? timeBefore,
+    String? timeUnit,
+    double? refundPercentage,
   }) = _RefundPolicyRuleResponse;
 
   factory RefundPolicyRuleResponse.fromJson(Map<String, dynamic> json) =>
@@ -18,9 +19,9 @@ class RefundPolicyRuleResponse with _$RefundPolicyRuleResponse {
 @freezed
 class RefundPolicyResponse with _$RefundPolicyResponse {
   const factory RefundPolicyResponse({
-    required String id,
-    required String name,
-    required String serviceType,
+    String? id,
+    String? name,
+    String? serviceType,
     @Default([]) List<RefundPolicyRuleResponse> rules,
   }) = _RefundPolicyResponse;
 

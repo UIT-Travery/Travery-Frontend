@@ -63,7 +63,10 @@ class TourDetailViewModel extends ChangeNotifier {
 
     switch (result) {
       case Ok(value: final data):
-        _instances = data;
+        final now = DateTime.now();
+        final cutoff = now.add(const Duration(days: 5));
+        _instances = data.where((i) => i.startDate.isAfter(cutoff)).toList()
+          ..sort((a, b) => a.startDate.compareTo(b.startDate));
         _loadedInstancesForTourId = tourId;
       case Error(error: final e):
         _error = e.toString();

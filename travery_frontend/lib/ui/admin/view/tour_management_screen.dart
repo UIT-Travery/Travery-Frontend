@@ -39,11 +39,7 @@ class _TourManagementScreenState extends State<TourManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.pop(),
-            ),
-
+            const SizedBox(height: 16),
             Expanded(
               child: ListenableBuilder(
                 listenable: Listenable.merge([

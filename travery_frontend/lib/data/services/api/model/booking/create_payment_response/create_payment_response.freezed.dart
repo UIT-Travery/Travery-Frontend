@@ -23,6 +23,8 @@ CreatePaymentResponse _$CreatePaymentResponseFromJson(
 
 /// @nodoc
 mixin _$CreatePaymentResponse {
+  int get httpStatus => throw _privateConstructorUsedError;
+  String get message => throw _privateConstructorUsedError;
   PaymentResponseData get data => throw _privateConstructorUsedError;
 
   /// Serializes this CreatePaymentResponse to a JSON map.
@@ -42,7 +44,7 @@ abstract class $CreatePaymentResponseCopyWith<$Res> {
     $Res Function(CreatePaymentResponse) then,
   ) = _$CreatePaymentResponseCopyWithImpl<$Res, CreatePaymentResponse>;
   @useResult
-  $Res call({PaymentResponseData data});
+  $Res call({int httpStatus, String message, PaymentResponseData data});
 
   $PaymentResponseDataCopyWith<$Res> get data;
 }
@@ -64,9 +66,21 @@ class _$CreatePaymentResponseCopyWithImpl<
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? data = null}) {
+  $Res call({
+    Object? httpStatus = null,
+    Object? message = null,
+    Object? data = null,
+  }) {
     return _then(
       _value.copyWith(
+            httpStatus: null == httpStatus
+                ? _value.httpStatus
+                : httpStatus // ignore: cast_nullable_to_non_nullable
+                      as int,
+            message: null == message
+                ? _value.message
+                : message // ignore: cast_nullable_to_non_nullable
+                      as String,
             data: null == data
                 ? _value.data
                 : data // ignore: cast_nullable_to_non_nullable
@@ -96,7 +110,7 @@ abstract class _$$CreatePaymentResponseImplCopyWith<$Res>
   ) = __$$CreatePaymentResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({PaymentResponseData data});
+  $Res call({int httpStatus, String message, PaymentResponseData data});
 
   @override
   $PaymentResponseDataCopyWith<$Res> get data;
@@ -116,9 +130,21 @@ class __$$CreatePaymentResponseImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? data = null}) {
+  $Res call({
+    Object? httpStatus = null,
+    Object? message = null,
+    Object? data = null,
+  }) {
     return _then(
       _$CreatePaymentResponseImpl(
+        httpStatus: null == httpStatus
+            ? _value.httpStatus
+            : httpStatus // ignore: cast_nullable_to_non_nullable
+                  as int,
+        message: null == message
+            ? _value.message
+            : message // ignore: cast_nullable_to_non_nullable
+                  as String,
         data: null == data
             ? _value.data
             : data // ignore: cast_nullable_to_non_nullable
@@ -131,17 +157,25 @@ class __$$CreatePaymentResponseImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$CreatePaymentResponseImpl implements _CreatePaymentResponse {
-  const _$CreatePaymentResponseImpl({required this.data});
+  const _$CreatePaymentResponseImpl({
+    required this.httpStatus,
+    required this.message,
+    required this.data,
+  });
 
   factory _$CreatePaymentResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreatePaymentResponseImplFromJson(json);
 
   @override
+  final int httpStatus;
+  @override
+  final String message;
+  @override
   final PaymentResponseData data;
 
   @override
   String toString() {
-    return 'CreatePaymentResponse(data: $data)';
+    return 'CreatePaymentResponse(httpStatus: $httpStatus, message: $message, data: $data)';
   }
 
   @override
@@ -149,12 +183,15 @@ class _$CreatePaymentResponseImpl implements _CreatePaymentResponse {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreatePaymentResponseImpl &&
+            (identical(other.httpStatus, httpStatus) ||
+                other.httpStatus == httpStatus) &&
+            (identical(other.message, message) || other.message == message) &&
             (identical(other.data, data) || other.data == data));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, data);
+  int get hashCode => Object.hash(runtimeType, httpStatus, message, data);
 
   /// Create a copy of CreatePaymentResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -176,12 +213,18 @@ class _$CreatePaymentResponseImpl implements _CreatePaymentResponse {
 
 abstract class _CreatePaymentResponse implements CreatePaymentResponse {
   const factory _CreatePaymentResponse({
+    required final int httpStatus,
+    required final String message,
     required final PaymentResponseData data,
   }) = _$CreatePaymentResponseImpl;
 
   factory _CreatePaymentResponse.fromJson(Map<String, dynamic> json) =
       _$CreatePaymentResponseImpl.fromJson;
 
+  @override
+  int get httpStatus;
+  @override
+  String get message;
   @override
   PaymentResponseData get data;
 
@@ -336,9 +379,9 @@ class __$$PaymentResponseDataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PaymentResponseDataImpl implements _PaymentResponseData {
   const _$PaymentResponseDataImpl({
-    this.transactionId = '',
-    this.amount = 0,
-    this.paymentUrl = '',
+    required this.transactionId,
+    required this.amount,
+    required this.paymentUrl,
     this.expiresAt,
   });
 
@@ -346,13 +389,10 @@ class _$PaymentResponseDataImpl implements _PaymentResponseData {
       _$$PaymentResponseDataImplFromJson(json);
 
   @override
-  @JsonKey()
   final String transactionId;
   @override
-  @JsonKey()
   final double amount;
   @override
-  @JsonKey()
   final String paymentUrl;
   @override
   final String? expiresAt;
@@ -400,9 +440,9 @@ class _$PaymentResponseDataImpl implements _PaymentResponseData {
 
 abstract class _PaymentResponseData implements PaymentResponseData {
   const factory _PaymentResponseData({
-    final String transactionId,
-    final double amount,
-    final String paymentUrl,
+    required final String transactionId,
+    required final double amount,
+    required final String paymentUrl,
     final String? expiresAt,
   }) = _$PaymentResponseDataImpl;
 

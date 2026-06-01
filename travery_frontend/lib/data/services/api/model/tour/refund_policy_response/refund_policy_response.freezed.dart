@@ -23,9 +23,10 @@ RefundPolicyRuleResponse _$RefundPolicyRuleResponseFromJson(
 
 /// @nodoc
 mixin _$RefundPolicyRuleResponse {
-  String get id => throw _privateConstructorUsedError;
-  int get daysBefore => throw _privateConstructorUsedError;
-  double get refundPercentage => throw _privateConstructorUsedError;
+  String? get id => throw _privateConstructorUsedError;
+  double? get timeBefore => throw _privateConstructorUsedError;
+  String? get timeUnit => throw _privateConstructorUsedError;
+  double? get refundPercentage => throw _privateConstructorUsedError;
 
   /// Serializes this RefundPolicyRuleResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -44,7 +45,12 @@ abstract class $RefundPolicyRuleResponseCopyWith<$Res> {
     $Res Function(RefundPolicyRuleResponse) then,
   ) = _$RefundPolicyRuleResponseCopyWithImpl<$Res, RefundPolicyRuleResponse>;
   @useResult
-  $Res call({String id, int daysBefore, double refundPercentage});
+  $Res call({
+    String? id,
+    double? timeBefore,
+    String? timeUnit,
+    double? refundPercentage,
+  });
 }
 
 /// @nodoc
@@ -65,24 +71,29 @@ class _$RefundPolicyRuleResponseCopyWithImpl<
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? daysBefore = null,
-    Object? refundPercentage = null,
+    Object? id = freezed,
+    Object? timeBefore = freezed,
+    Object? timeUnit = freezed,
+    Object? refundPercentage = freezed,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
+            id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            daysBefore: null == daysBefore
-                ? _value.daysBefore
-                : daysBefore // ignore: cast_nullable_to_non_nullable
-                      as int,
-            refundPercentage: null == refundPercentage
+                      as String?,
+            timeBefore: freezed == timeBefore
+                ? _value.timeBefore
+                : timeBefore // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            timeUnit: freezed == timeUnit
+                ? _value.timeUnit
+                : timeUnit // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            refundPercentage: freezed == refundPercentage
                 ? _value.refundPercentage
                 : refundPercentage // ignore: cast_nullable_to_non_nullable
-                      as double,
+                      as double?,
           )
           as $Val,
     );
@@ -98,7 +109,12 @@ abstract class _$$RefundPolicyRuleResponseImplCopyWith<$Res>
   ) = __$$RefundPolicyRuleResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String id, int daysBefore, double refundPercentage});
+  $Res call({
+    String? id,
+    double? timeBefore,
+    String? timeUnit,
+    double? refundPercentage,
+  });
 }
 
 /// @nodoc
@@ -119,24 +135,29 @@ class __$$RefundPolicyRuleResponseImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? daysBefore = null,
-    Object? refundPercentage = null,
+    Object? id = freezed,
+    Object? timeBefore = freezed,
+    Object? timeUnit = freezed,
+    Object? refundPercentage = freezed,
   }) {
     return _then(
       _$RefundPolicyRuleResponseImpl(
-        id: null == id
+        id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        daysBefore: null == daysBefore
-            ? _value.daysBefore
-            : daysBefore // ignore: cast_nullable_to_non_nullable
-                  as int,
-        refundPercentage: null == refundPercentage
+                  as String?,
+        timeBefore: freezed == timeBefore
+            ? _value.timeBefore
+            : timeBefore // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        timeUnit: freezed == timeUnit
+            ? _value.timeUnit
+            : timeUnit // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        refundPercentage: freezed == refundPercentage
             ? _value.refundPercentage
             : refundPercentage // ignore: cast_nullable_to_non_nullable
-                  as double,
+                  as double?,
       ),
     );
   }
@@ -146,24 +167,27 @@ class __$$RefundPolicyRuleResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$RefundPolicyRuleResponseImpl implements _RefundPolicyRuleResponse {
   const _$RefundPolicyRuleResponseImpl({
-    required this.id,
-    required this.daysBefore,
-    required this.refundPercentage,
+    this.id,
+    this.timeBefore,
+    this.timeUnit,
+    this.refundPercentage,
   });
 
   factory _$RefundPolicyRuleResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$RefundPolicyRuleResponseImplFromJson(json);
 
   @override
-  final String id;
+  final String? id;
   @override
-  final int daysBefore;
+  final double? timeBefore;
   @override
-  final double refundPercentage;
+  final String? timeUnit;
+  @override
+  final double? refundPercentage;
 
   @override
   String toString() {
-    return 'RefundPolicyRuleResponse(id: $id, daysBefore: $daysBefore, refundPercentage: $refundPercentage)';
+    return 'RefundPolicyRuleResponse(id: $id, timeBefore: $timeBefore, timeUnit: $timeUnit, refundPercentage: $refundPercentage)';
   }
 
   @override
@@ -172,8 +196,10 @@ class _$RefundPolicyRuleResponseImpl implements _RefundPolicyRuleResponse {
         (other.runtimeType == runtimeType &&
             other is _$RefundPolicyRuleResponseImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.daysBefore, daysBefore) ||
-                other.daysBefore == daysBefore) &&
+            (identical(other.timeBefore, timeBefore) ||
+                other.timeBefore == timeBefore) &&
+            (identical(other.timeUnit, timeUnit) ||
+                other.timeUnit == timeUnit) &&
             (identical(other.refundPercentage, refundPercentage) ||
                 other.refundPercentage == refundPercentage));
   }
@@ -181,7 +207,7 @@ class _$RefundPolicyRuleResponseImpl implements _RefundPolicyRuleResponse {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, daysBefore, refundPercentage);
+      Object.hash(runtimeType, id, timeBefore, timeUnit, refundPercentage);
 
   /// Create a copy of RefundPolicyRuleResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -202,20 +228,23 @@ class _$RefundPolicyRuleResponseImpl implements _RefundPolicyRuleResponse {
 
 abstract class _RefundPolicyRuleResponse implements RefundPolicyRuleResponse {
   const factory _RefundPolicyRuleResponse({
-    required final String id,
-    required final int daysBefore,
-    required final double refundPercentage,
+    final String? id,
+    final double? timeBefore,
+    final String? timeUnit,
+    final double? refundPercentage,
   }) = _$RefundPolicyRuleResponseImpl;
 
   factory _RefundPolicyRuleResponse.fromJson(Map<String, dynamic> json) =
       _$RefundPolicyRuleResponseImpl.fromJson;
 
   @override
-  String get id;
+  String? get id;
   @override
-  int get daysBefore;
+  double? get timeBefore;
   @override
-  double get refundPercentage;
+  String? get timeUnit;
+  @override
+  double? get refundPercentage;
 
   /// Create a copy of RefundPolicyRuleResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -231,9 +260,9 @@ RefundPolicyResponse _$RefundPolicyResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$RefundPolicyResponse {
-  String get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  String get serviceType => throw _privateConstructorUsedError;
+  String? get id => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
+  String? get serviceType => throw _privateConstructorUsedError;
   List<RefundPolicyRuleResponse> get rules =>
       throw _privateConstructorUsedError;
 
@@ -255,9 +284,9 @@ abstract class $RefundPolicyResponseCopyWith<$Res> {
   ) = _$RefundPolicyResponseCopyWithImpl<$Res, RefundPolicyResponse>;
   @useResult
   $Res call({
-    String id,
-    String name,
-    String serviceType,
+    String? id,
+    String? name,
+    String? serviceType,
     List<RefundPolicyRuleResponse> rules,
   });
 }
@@ -280,25 +309,25 @@ class _$RefundPolicyResponseCopyWithImpl<
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? serviceType = null,
+    Object? id = freezed,
+    Object? name = freezed,
+    Object? serviceType = freezed,
     Object? rules = null,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
+            id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            name: null == name
+                      as String?,
+            name: freezed == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            serviceType: null == serviceType
+                      as String?,
+            serviceType: freezed == serviceType
                 ? _value.serviceType
                 : serviceType // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as String?,
             rules: null == rules
                 ? _value.rules
                 : rules // ignore: cast_nullable_to_non_nullable
@@ -319,9 +348,9 @@ abstract class _$$RefundPolicyResponseImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String id,
-    String name,
-    String serviceType,
+    String? id,
+    String? name,
+    String? serviceType,
     List<RefundPolicyRuleResponse> rules,
   });
 }
@@ -340,25 +369,25 @@ class __$$RefundPolicyResponseImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? serviceType = null,
+    Object? id = freezed,
+    Object? name = freezed,
+    Object? serviceType = freezed,
     Object? rules = null,
   }) {
     return _then(
       _$RefundPolicyResponseImpl(
-        id: null == id
+        id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        name: null == name
+                  as String?,
+        name: freezed == name
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        serviceType: null == serviceType
+                  as String?,
+        serviceType: freezed == serviceType
             ? _value.serviceType
             : serviceType // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as String?,
         rules: null == rules
             ? _value._rules
             : rules // ignore: cast_nullable_to_non_nullable
@@ -372,9 +401,9 @@ class __$$RefundPolicyResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$RefundPolicyResponseImpl implements _RefundPolicyResponse {
   const _$RefundPolicyResponseImpl({
-    required this.id,
-    required this.name,
-    required this.serviceType,
+    this.id,
+    this.name,
+    this.serviceType,
     final List<RefundPolicyRuleResponse> rules = const [],
   }) : _rules = rules;
 
@@ -382,11 +411,11 @@ class _$RefundPolicyResponseImpl implements _RefundPolicyResponse {
       _$$RefundPolicyResponseImplFromJson(json);
 
   @override
-  final String id;
+  final String? id;
   @override
-  final String name;
+  final String? name;
   @override
-  final String serviceType;
+  final String? serviceType;
   final List<RefundPolicyRuleResponse> _rules;
   @override
   @JsonKey()
@@ -443,9 +472,9 @@ class _$RefundPolicyResponseImpl implements _RefundPolicyResponse {
 
 abstract class _RefundPolicyResponse implements RefundPolicyResponse {
   const factory _RefundPolicyResponse({
-    required final String id,
-    required final String name,
-    required final String serviceType,
+    final String? id,
+    final String? name,
+    final String? serviceType,
     final List<RefundPolicyRuleResponse> rules,
   }) = _$RefundPolicyResponseImpl;
 
@@ -453,11 +482,11 @@ abstract class _RefundPolicyResponse implements RefundPolicyResponse {
       _$RefundPolicyResponseImpl.fromJson;
 
   @override
-  String get id;
+  String? get id;
   @override
-  String get name;
+  String? get name;
   @override
-  String get serviceType;
+  String? get serviceType;
   @override
   List<RefundPolicyRuleResponse> get rules;
 

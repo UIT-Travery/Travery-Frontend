@@ -4,18 +4,19 @@ import 'dart:io';
 import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/seed_models/guide_tour/guide_tour.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
-import 'package:travery_frontend/data/services/security_storage_service.dart';
+import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class GuideServiceImpl implements GuideService {
-  GuideServiceImpl({required SecurityStorageService securityStorageService})
-    : _securityStorageService = securityStorageService;
+  GuideServiceImpl({required TokenRefreshService tokenRefreshService})
+    : _tokenRefreshService = tokenRefreshService;
 
-  final SecurityStorageService _securityStorageService;
+  final TokenRefreshService _tokenRefreshService;
 
   Future<void> _setBearerAuth(HttpClientRequest request) async {
-    final token = await _securityStorageService.getAccessToken();
-    if (token != null) {
+    final result = await _tokenRefreshService.getValidAccessToken();
+    if (result is Ok) {
+      final token = (result as Ok<String>).value;
       request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
     }
   }

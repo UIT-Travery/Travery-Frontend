@@ -452,65 +452,65 @@ class AdminRepositoryDev extends AdminRepository {
     }
   }
 
-  @override
-  Future<Result<void>> addHotel({
-    required String name,
-    required String address,
-    required String phone,
-    required int totalRooms,
-    required String status,
-    required double pricePerNight,
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final newId = 'hot_${_mutableHotels.length + 1}';
-    _mutableHotels.add(
-      BusinessHotel(
-        id: newId,
-        name: name,
-        address: address.split(',').first,
-        cityProvince: address,
-        roomCount: totalRooms,
-        occupancyRate: 0.0,
-        starRating: 5.0,
-      ),
-    );
-    notifyListeners();
-    return const Result.ok(null);
-  }
+  // @override
+  // Future<Result<void>> addHotel({
+  //   required String name,
+  //   required String address,
+  //   required String phone,
+  //   required int totalRooms,
+  //   required String status,
+  //   required double pricePerNight,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   final newId = 'hot_${_mutableHotels.length + 1}';
+  //   _mutableHotels.add(
+  //     BusinessHotel(
+  //       id: newId,
+  //       name: name,
+  //       address: address.split(',').first,
+  //       cityProvince: address,
+  //       roomCount: totalRooms,
+  //       occupancyRate: 0.0,
+  //       starRating: 5.0,
+  //     ),
+  //   );
+  //   notifyListeners();
+  //   return const Result.ok(null);
+  // }
 
-  @override
-  Future<Result<void>> addRoom({
-    required String hotelId,
-    required String roomType,
-    required int capacity,
-    required double price,
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return const Result.ok(null);
-  }
+  // @override
+  // Future<Result<void>> addRoom({
+  //   required String hotelId,
+  //   required String roomType,
+  //   required int capacity,
+  //   required double price,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   return const Result.ok(null);
+  // }
 
-  @override
-  Future<Result<void>> addVehicle({
-    required String name,
-    required String code,
-    required String licensePlate,
-    required int seatCount,
-    required String status,
-    required double rentalPrice,
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final newId = 'veh_${_mutableVehicles.length + 1}';
-    _mutableVehicles.add(
-      BusinessCoach(
-        id: newId,
-        plateNumber: licensePlate,
-        coachType: name,
-        seatCount: seatCount,
-      ),
-    );
-    notifyListeners();
-    return const Result.ok(null);
-  }
+  // @override
+  // Future<Result<void>> addVehicle({
+  //   required String name,
+  //   required String code,
+  //   required String licensePlate,
+  //   required int seatCount,
+  //   required String status,
+  //   required double rentalPrice,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   final newId = 'veh_${_mutableVehicles.length + 1}';
+  //   _mutableVehicles.add(
+  //     BusinessCoach(
+  //       id: newId,
+  //       plateNumber: licensePlate,
+  //       coachType: name,
+  //       seatCount: seatCount,
+  //     ),
+  //   );
+  //   notifyListeners();
+  //   return const Result.ok(null);
+  // }
 
   @override
   Future<Result<void>> deleteHotel({required String id}) async {

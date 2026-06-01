@@ -96,6 +96,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                           padding: const EdgeInsets.only(bottom: 8),
                           child: CheckInPassengerCard(
                             passenger: passenger,
+                            isLocked: viewModel.isCompleted,
                             onToggleStatus: () {
                               viewModel.togglePassengerStatus(passenger.id);
                             },
@@ -107,24 +108,25 @@ class _CheckInScreenState extends State<CheckInScreen> {
                   ),
                 ),
               ),
-              CheckInBottomBar(
-                arrivedCount: viewModel.arrivedCount,
-                totalCount: viewModel.totalCount,
-                isSubmitting: viewModel.isSubmitting,
-                onComplete: () async {
-                  final success = await viewModel.completeCheckIn();
-                  if (success && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Hoàn tất điểm danh thành công'),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
+              if (!viewModel.isCompleted)
+                CheckInBottomBar(
+                  arrivedCount: viewModel.arrivedCount,
+                  totalCount: viewModel.totalCount,
+                  isSubmitting: viewModel.isSubmitting,
+                  onComplete: () async {
+                    final success = await viewModel.completeCheckIn();
+                    if (success && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Hoàn tất điểm danh thành công'),
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
             ],
           );
         },

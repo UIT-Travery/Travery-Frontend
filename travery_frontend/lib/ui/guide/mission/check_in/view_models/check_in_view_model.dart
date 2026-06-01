@@ -20,6 +20,9 @@ class CheckInViewModel extends ChangeNotifier {
   bool _isSubmitting = false;
   bool get isSubmitting => _isSubmitting;
 
+  bool _isCompleted = false;
+  bool get isCompleted => _isCompleted;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -49,12 +52,18 @@ class CheckInViewModel extends ChangeNotifier {
     switch (result) {
       case Ok<CheckInPassengerList>():
         _passengers = result.value.passengers;
+        _isCompleted = _checkIfCompleted();
       case Error<CheckInPassengerList>():
         _errorMessage = result.error.toString();
     }
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  bool _checkIfCompleted() {
+    return _passengers.isNotEmpty &&
+        _passengers.every((p) => p.status != CheckInStatus.pending);
   }
 
   Future<void> refreshPassengers() async {
@@ -68,6 +77,8 @@ class CheckInViewModel extends ChangeNotifier {
   }
 
   Future<void> togglePassengerStatus(String passengerId) async {
+    if (_isCompleted) return;
+
     final index = _passengers.indexWhere((p) => p.id == passengerId);
     if (index == -1) return;
 
@@ -80,6 +91,7 @@ class CheckInViewModel extends ChangeNotifier {
     notifyListeners();
 
     final result = await _checkInRepository.updatePassengerStatus(
+      missionId: _missionId!,
       passengerId: passengerId,
       status: newStatus,
     );
@@ -102,18 +114,23 @@ class CheckInViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    final arrivedIds = _passengers
-        .where((p) => p.status == CheckInStatus.arrived)
-        .map((p) => p.id)
-        .toList();
+    final attendances = _passengers.map((p) {
+      final status = switch (p.status) {
+        CheckInStatus.arrived => AttendanceStatus.checkedIn,
+        CheckInStatus.noShow => AttendanceStatus.noShow,
+        CheckInStatus.pending => AttendanceStatus.notChecked,
+      };
+      return MemberAttendance(memberId: p.id, status: status);
+    }).toList();
 
     final result = await _checkInRepository.completeCheckIn(
       missionId: _missionId!,
-      arrivedPassengerIds: arrivedIds,
+      attendances: attendances,
     );
 
     switch (result) {
       case Ok<bool>():
+        _isCompleted = true;
         _isSubmitting = false;
         notifyListeners();
         return true;

@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
-import 'package:travery_frontend/data/seed_models/booking_detail/booking_detail_model.dart';
 import 'package:travery_frontend/ui/user/tour/widgets/status_banner.dart';
 import 'package:travery_frontend/ui/user/tour/widgets/info_card.dart';
 import 'package:travery_frontend/ui/user/widgets/section_title.dart';
 import 'package:travery_frontend/ui/user/widgets/member_row.dart';
-import 'package:travery_frontend/ui/user/tour/widgets/refund_policy_widget.dart';
-import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   const BookingDetailScreen({
@@ -124,29 +120,39 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               const SizedBox(height: 24),
               const SectionTitle(title: 'Danh sách khách', icon: Icons.group),
               const SizedBox(height: 12),
-              if (booking.members.isNotEmpty)
-                ...booking.members.map<Widget>(
-                  (m) => MemberRow(
-                    memberName: m.fullName,
-                    memberType: m.memberType,
-                    identity: m.identityNumber,
-                  ),
+              ...booking.members.map<Widget>(
+                (m) => MemberRow(
+                  memberName: m.fullName,
+                  memberType: m.memberType,
+                  identity: m.identityNumber ?? '',
                 ),
-              if (booking.members.isEmpty)
-                ...booking.refundPolicy.tiers.map<Widget>(
-                  (tier) => MemberRow(
-                    memberName: 'Khách hàng',
-                    memberType: '',
-                    identity: '',
-                  ),
-                ),
-              const SizedBox(height: 24),
-              const SectionTitle(
-                title: 'Chính sách hoàn hủy',
-                icon: Icons.policy,
               ),
-              const SizedBox(height: 12),
-              RefundPolicyWidget(policy: booking.refundPolicy),
+              const SizedBox(height: 24),
+              if (booking.specialRequests != null &&
+                  booking.specialRequests!.isNotEmpty) ...[
+                const SectionTitle(
+                  title: 'Yêu cầu đặc biệt',
+                  icon: Icons.note_alt_outlined,
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Text(
+                    booking.specialRequests!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
               const SizedBox(height: 120),
             ],
           );
@@ -155,7 +161,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       bottomNavigationBar: Consumer<BookingDetailViewModel>(
         builder: (context, vm, _) {
           if (vm.bookingDetail == null) return const SizedBox.shrink();
-          final canCancel = vm.bookingDetail!.status == 'Đang chờ';
+          if (vm.bookingDetail!.status == 'CANCELLED') {
+            return const SizedBox.shrink();
+          }
+
+          final canCancel = vm.bookingDetail!.canCancel;
           return Container(
             padding: EdgeInsets.fromLTRB(
               20,
@@ -178,12 +188,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 if (canCancel) ...[
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => context.push(
-                        Routes.cancelConfirmation.replaceFirst(
-                          ':id',
-                          widget.bookingId,
-                        ),
-                      ),
+                      onPressed: () =>
+                          context.push('/booking/${widget.bookingId}/cancel'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
@@ -216,10 +222,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat, size: 18),
+                        Icon(Icons.group, size: 18),
                         SizedBox(width: 8),
                         Text(
-                          'Chat hỗ trợ',
+                          'Vào group chat',
                           style: TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ],
@@ -234,8 +240,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     );
   }
 
-  String _formatDate(DateTime date) =>
-      '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);

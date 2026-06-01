@@ -17,8 +17,11 @@ abstract class TourService {
     int? minRating,
     DateTime? startDate,
     String? destinationId,
+    String? sortBy,
+    String? sortDir,
     int page = 0,
     int size = 20,
+    int? minDays,
   });
 
   Future<Result<List<TourFeaturedItem>>> getFeaturedTours();

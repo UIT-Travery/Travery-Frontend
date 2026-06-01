@@ -5,8 +5,11 @@ part 'create_payment_response.g.dart';
 
 @freezed
 class CreatePaymentResponse with _$CreatePaymentResponse {
-  const factory CreatePaymentResponse({required PaymentResponseData data}) =
-      _CreatePaymentResponse;
+  const factory CreatePaymentResponse({
+    required int httpStatus,
+    required String message,
+    required PaymentResponseData data,
+  }) = _CreatePaymentResponse;
 
   factory CreatePaymentResponse.fromJson(Map<String, dynamic> json) =>
       _$CreatePaymentResponseFromJson(json);
@@ -15,9 +18,9 @@ class CreatePaymentResponse with _$CreatePaymentResponse {
 @freezed
 class PaymentResponseData with _$PaymentResponseData {
   const factory PaymentResponseData({
-    @Default('') String transactionId,
-    @Default(0) double amount,
-    @Default('') String paymentUrl,
+    required String transactionId,
+    required double amount,
+    required String paymentUrl,
     String? expiresAt,
   }) = _PaymentResponseData;
 

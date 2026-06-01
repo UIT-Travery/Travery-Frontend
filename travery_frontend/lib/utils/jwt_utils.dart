@@ -39,4 +39,16 @@ class JwtUtils {
     }
     return null;
   }
+
+  static String? extractFullName(String token) {
+    return decodePayload(token)?['fullName'] as String?;
+  }
+
+  static String? extractPhone(String token) {
+    return decodePayload(token)?['phone'] as String?;
+  }
+
+  static String? extractEmail(String token) {
+    return decodePayload(token)?['sub'] as String?;
+  }
 }

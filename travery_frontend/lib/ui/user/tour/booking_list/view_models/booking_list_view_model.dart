@@ -62,8 +62,8 @@ class BookingListViewModel extends ChangeNotifier {
 
     switch (result) {
       case Ok(value: final data):
-        _bookings = data.content;
-        _hasMore = _bookings.length >= _pageSize;
+        _bookings = data.content.where((b) => !b.isTooSoon).toList();
+        _hasMore = data.content.length >= _pageSize;
       case Error(error: final e):
         _error = e.toString();
     }
@@ -89,7 +89,7 @@ class BookingListViewModel extends ChangeNotifier {
 
     switch (result) {
       case Ok(value: final data):
-        _bookings.addAll(data.content);
+        _bookings.addAll(data.content.where((b) => !b.isTooSoon));
         _hasMore = data.content.length >= _pageSize;
       case Error(error: final e):
         _currentPage--;
@@ -102,8 +102,6 @@ class BookingListViewModel extends ChangeNotifier {
 
   String getStatusLabel(String status) {
     switch (status) {
-      case 'PENDING':
-        return 'Đang chờ';
       case 'PAID':
         return 'Đã thanh toán';
       case 'CHECKED_IN':
@@ -119,8 +117,6 @@ class BookingListViewModel extends ChangeNotifier {
 
   String getStatusColor(String status) {
     switch (status) {
-      case 'PENDING':
-        return 'orange';
       case 'PAID':
         return 'green';
       case 'CANCELLED':

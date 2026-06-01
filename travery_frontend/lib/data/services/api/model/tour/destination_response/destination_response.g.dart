@@ -9,10 +9,10 @@ part of 'destination_response.dart';
 _$DestinationResponseImpl _$$DestinationResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$DestinationResponseImpl(
-  id: json['id'] as String,
-  code: json['code'] as String,
-  name: json['name'] as String,
-  region: json['region'] as String,
+  id: json['id'] as String?,
+  code: json['code'] as String?,
+  name: json['name'] as String?,
+  region: json['region'] as String?,
   imageUrl: json['imageUrl'] as String?,
   description: json['description'] as String?,
 );

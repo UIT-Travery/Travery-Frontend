@@ -21,10 +21,10 @@ DestinationResponse _$DestinationResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$DestinationResponse {
-  String get id => throw _privateConstructorUsedError;
-  String get code => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  String get region => throw _privateConstructorUsedError;
+  String? get id => throw _privateConstructorUsedError;
+  String? get code => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
+  String? get region => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
 
@@ -46,10 +46,10 @@ abstract class $DestinationResponseCopyWith<$Res> {
   ) = _$DestinationResponseCopyWithImpl<$Res, DestinationResponse>;
   @useResult
   $Res call({
-    String id,
-    String code,
-    String name,
-    String region,
+    String? id,
+    String? code,
+    String? name,
+    String? region,
     String? imageUrl,
     String? description,
   });
@@ -70,31 +70,31 @@ class _$DestinationResponseCopyWithImpl<$Res, $Val extends DestinationResponse>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? code = null,
-    Object? name = null,
-    Object? region = null,
+    Object? id = freezed,
+    Object? code = freezed,
+    Object? name = freezed,
+    Object? region = freezed,
     Object? imageUrl = freezed,
     Object? description = freezed,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
+            id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            code: null == code
+                      as String?,
+            code: freezed == code
                 ? _value.code
                 : code // ignore: cast_nullable_to_non_nullable
-                      as String,
-            name: null == name
+                      as String?,
+            name: freezed == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            region: null == region
+                      as String?,
+            region: freezed == region
                 ? _value.region
                 : region // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as String?,
             imageUrl: freezed == imageUrl
                 ? _value.imageUrl
                 : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -119,10 +119,10 @@ abstract class _$$DestinationResponseImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String id,
-    String code,
-    String name,
-    String region,
+    String? id,
+    String? code,
+    String? name,
+    String? region,
     String? imageUrl,
     String? description,
   });
@@ -142,31 +142,31 @@ class __$$DestinationResponseImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? code = null,
-    Object? name = null,
-    Object? region = null,
+    Object? id = freezed,
+    Object? code = freezed,
+    Object? name = freezed,
+    Object? region = freezed,
     Object? imageUrl = freezed,
     Object? description = freezed,
   }) {
     return _then(
       _$DestinationResponseImpl(
-        id: null == id
+        id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        code: null == code
+                  as String?,
+        code: freezed == code
             ? _value.code
             : code // ignore: cast_nullable_to_non_nullable
-                  as String,
-        name: null == name
+                  as String?,
+        name: freezed == name
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        region: null == region
+                  as String?,
+        region: freezed == region
             ? _value.region
             : region // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as String?,
         imageUrl: freezed == imageUrl
             ? _value.imageUrl
             : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -184,10 +184,10 @@ class __$$DestinationResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DestinationResponseImpl implements _DestinationResponse {
   const _$DestinationResponseImpl({
-    required this.id,
-    required this.code,
-    required this.name,
-    required this.region,
+    this.id,
+    this.code,
+    this.name,
+    this.region,
     this.imageUrl,
     this.description,
   });
@@ -196,13 +196,13 @@ class _$DestinationResponseImpl implements _DestinationResponse {
       _$$DestinationResponseImplFromJson(json);
 
   @override
-  final String id;
+  final String? id;
   @override
-  final String code;
+  final String? code;
   @override
-  final String name;
+  final String? name;
   @override
-  final String region;
+  final String? region;
   @override
   final String? imageUrl;
   @override
@@ -252,10 +252,10 @@ class _$DestinationResponseImpl implements _DestinationResponse {
 
 abstract class _DestinationResponse implements DestinationResponse {
   const factory _DestinationResponse({
-    required final String id,
-    required final String code,
-    required final String name,
-    required final String region,
+    final String? id,
+    final String? code,
+    final String? name,
+    final String? region,
     final String? imageUrl,
     final String? description,
   }) = _$DestinationResponseImpl;
@@ -264,13 +264,13 @@ abstract class _DestinationResponse implements DestinationResponse {
       _$DestinationResponseImpl.fromJson;
 
   @override
-  String get id;
+  String? get id;
   @override
-  String get code;
+  String? get code;
   @override
-  String get name;
+  String? get name;
   @override
-  String get region;
+  String? get region;
   @override
   String? get imageUrl;
   @override

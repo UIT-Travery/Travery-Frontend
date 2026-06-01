@@ -5,11 +5,13 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 class CheckInPassengerCard extends StatelessWidget {
   final CheckInPassenger passenger;
   final VoidCallback onToggleStatus;
+  final bool isLocked;
 
   const CheckInPassengerCard({
     super.key,
     required this.passenger,
     required this.onToggleStatus,
+    this.isLocked = false,
   });
 
   @override
@@ -18,7 +20,7 @@ class CheckInPassengerCard extends StatelessWidget {
     final isChild = passenger.isChild;
 
     return GestureDetector(
-      onTap: onToggleStatus,
+      onTap: isLocked ? null : onToggleStatus,
       child: Container(
         decoration: BoxDecoration(
           color: isArrived

@@ -6,11 +6,15 @@ class BookingCard extends StatelessWidget {
     required this.booking,
     required this.statusLabel,
     required this.onTap,
+    this.onPaymentTap,
   });
 
   final dynamic booking;
   final String statusLabel;
   final VoidCallback onTap;
+  final VoidCallback? onPaymentTap;
+
+  bool get _isPending => booking.status == 'PENDING';
 
   Color _getStatusColor() {
     switch (booking.status) {
@@ -106,6 +110,27 @@ class BookingCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (_isPending && booking.paymentDeadline != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: Colors.orange,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Hạn: ${_formatDateTime(booking.paymentDeadline)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.orange,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -131,24 +156,55 @@ class BookingCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          Text(
-                            'Xem chi tiết',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF0058BC),
+                      if (_isPending && onPaymentTap != null)
+                        ElevatedButton(
+                          onPressed: onPaymentTap,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFF6B35),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
                             ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 0,
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.chevron_right,
-                            size: 18,
-                            color: Color(0xFF0058BC),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.payment, size: 16),
+                              SizedBox(width: 4),
+                              Text(
+                                'Thanh toán',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        )
+                      else
+                        Row(
+                          children: [
+                            Text(
+                              'Xem chi tiết',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF0058BC),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.chevron_right,
+                              size: 18,
+                              color: Color(0xFF0058BC),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ],
@@ -163,5 +219,15 @@ class BookingCard extends StatelessWidget {
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
+  }
+
+  String _formatDateTime(String? dateTime) {
+    if (dateTime == null) return '';
+    try {
+      final dt = DateTime.parse(dateTime);
+      return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return dateTime;
+    }
   }
 }

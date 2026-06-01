@@ -1,0 +1,306 @@
+<!DOCTYPE html><html class="light" lang="vi"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .toggle-checkbox:checked + .toggle-slot {
+            background-color: #0052cc;
+        }
+        .toggle-checkbox:checked + .toggle-slot .toggle-dot {
+            transform: translateX(20px);
+        }
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "text-dark": "#172B4D",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-tertiary-fixed-variant": "#812800",
+                    "surface-container": "#e7eeff",
+                    "on-background": "#101c2d",
+                    "outline": "#737685",
+                    "warning": "#FFAB00",
+                    "surface-container-low": "#f0f3ff",
+                    "secondary": "#5d5f5f",
+                    "outline-variant": "#c3c6d6",
+                    "inverse-on-surface": "#ebf1ff",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "inverse-primary": "#b2c5ff",
+                    "tertiary": "#7b2600",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "error-container": "#ffdad6",
+                    "background": "#f9f9ff",
+                    "inverse-surface": "#253143",
+                    "surface-variant": "#d7e3fb",
+                    "on-surface-variant": "#434654",
+                    "surface-container-highest": "#d7e3fb",
+                    "on-tertiary-fixed": "#380d00",
+                    "error": "#FF5630",
+                    "on-secondary-container": "#616363",
+                    "tertiary-fixed-dim": "#ffb59b",
+                    "surface-dim": "#cedbf2",
+                    "tertiary-container": "#a33500",
+                    "primary-fixed": "#dae2ff",
+                    "on-primary-container": "#c4d2ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#f9f9ff",
+                    "on-tertiary-container": "#ffc6b2",
+                    "surface-tint": "#0c56d0",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#003d9b",
+                    "on-surface": "#101c2d",
+                    "on-secondary": "#ffffff",
+                    "primary-container": "#0052cc",
+                    "tertiary-fixed": "#ffdbcf",
+                    "surface-gray": "#F4F5F7",
+                    "surface-container-high": "#dee9ff",
+                    "on-primary-fixed": "#001848",
+                    "secondary-container": "#dfe0e0",
+                    "surface-blue": "#F4F7FF",
+                    "surface": "#f9f9ff",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "success": "#36B37E",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-padding": "20px",
+                    "xs": "4px",
+                    "base": "8px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "gutter": "12px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-sm-mobile": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="flex items-center justify-between px-container-padding h-14 w-full z-40 bg-surface dark:bg-surface fixed top-0">
+<div class="flex items-center gap-4">
+<button aria-label="Go back" class="p-2 -ml-2 rounded-full hover:bg-surface-container-low transition-colors active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm-mobile text-primary">Cài đặt</h1>
+</div>
+<div class="w-10"></div> <!-- Placeholder for balance -->
+</header>
+<!-- Main Content Canvas -->
+<main class="mt-14 px-container-padding py-md flex-1">
+<!-- Section: Thông báo -->
+<section class="mb-lg">
+<h2 class="text-secondary font-label-md text-label-md uppercase tracking-wider mb-sm">Thông báo</h2>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_15px_0_rgba(0,0,0,0.06)] overflow-hidden">
+<!-- Push Notifications -->
+<div class="flex items-center justify-between p-md border-b border-outline-variant/30">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-blue flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-text-dark">Thông báo đẩy</p>
+<p class="font-label-sm text-label-sm text-secondary">Nhận cập nhật tức thì</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only toggle-checkbox" type="checkbox">
+<div class="toggle-slot w-11 h-6 bg-secondary-container rounded-full transition-colors duration-200">
+<div class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200"></div>
+</div>
+</label>
+</div>
+<!-- Email Notifications -->
+<div class="flex items-center justify-between p-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-blue flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">mail</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-text-dark">Thông báo qua Email</p>
+<p class="font-label-sm text-label-sm text-secondary">Bản tin và ưu đãi</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only toggle-checkbox" type="checkbox">
+<div class="toggle-slot w-11 h-6 bg-secondary-container rounded-full transition-colors duration-200">
+<div class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200"></div>
+</div>
+</label>
+</div>
+</div>
+</section>
+<!-- Section: Thông tin -->
+<section class="mb-lg">
+<h2 class="text-secondary font-label-md text-label-md uppercase tracking-wider mb-sm">Thông tin</h2>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_15px_0_rgba(0,0,0,0.06)] overflow-hidden">
+<!-- Version -->
+<div class="flex items-center justify-between p-md border-b border-outline-variant/30">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-blue flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">info</span>
+</div>
+<p class="font-body-lg text-body-lg text-text-dark">Phiên bản</p>
+</div>
+<span class="font-body-md text-body-md text-secondary">v1.0.2</span>
+</div>
+<!-- Terms -->
+<button class="w-full flex items-center justify-between p-md border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors text-left active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-blue flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<p class="font-body-lg text-body-lg text-text-dark">Điều khoản &amp; Điều kiện</p>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+<!-- Privacy -->
+<button class="w-full flex items-center justify-between p-md hover:bg-surface-container-low transition-colors text-left active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-blue flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">shield</span>
+</div>
+<p class="font-body-lg text-body-lg text-text-dark">Chính sách bảo mật</p>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Section: Tài khoản -->
+<section class="mb-xl">
+<h2 class="text-secondary font-label-md text-label-md uppercase tracking-wider mb-sm">Tài khoản</h2>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_15px_0_rgba(0,0,0,0.06)] overflow-hidden">
+<!-- Delete Account -->
+<button class="w-full flex items-center justify-between p-md hover:bg-error-container/20 transition-colors text-left active:scale-[0.98] transition-transform" onclick="toggleModal('deleteModal')">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-error-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-error">delete_forever</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-error font-semibold">Xóa tài khoản</p>
+<p class="font-label-sm text-label-sm text-secondary">Hành động này không thể hoàn tác</p>
+</div>
+</div>
+</button>
+</div>
+</section>
+<!-- Promo Banner (Bento Style) -->
+<div class="relative w-full rounded-2xl overflow-hidden aspect-[16/7] bg-primary group mb-xl">
+<div class="absolute inset-0 bg-gradient-to-r from-primary to-primary-container opacity-90"></div>
+<img class="absolute inset-0 w-full h-full object-cover mix-blend-overlay" data-alt="A breathtaking panoramic view of the French Alps at dawn, with soft morning light illuminating the snow-capped peaks and mist-filled valleys. The aesthetic is high-end and serene, aligning with a premium travel lifestyle brand. The color palette features cool blues, crisp whites, and subtle hints of golden sunlight, creating a mood of exploration and tranquility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtu27eXvpiZ8---qL7vHcxFXi89iU_nyB6KNCAGFsEHlZ7qTSNqUUdYV2iy89M26VRTEg1IPi2JgrBnyJlid15VY7Wp7xPwJXzUL3IpwgLomHnBF4qexFZ1hwljvcyJBSyytRrxMkbSrjKlKkim4765yj3cLadZkrMlJHpOKESIXGKMs_VlV_ped7iyIAlmHiRa77H54r9Yrocp4XTWJMRsK8YY6G4P-PeHpTb7Cc1nTE9h3zQE0-eNkmk4YtK2qbsF3ilBsGLvRU">
+<div class="absolute inset-0 p-lg flex flex-col justify-center">
+<h3 class="text-white font-headline-sm text-headline-sm-mobile mb-xs">Nâng cấp lên TravelPro+</h3>
+<p class="text-primary-fixed font-body-md text-body-md mb-md">Nhận ưu đãi độc quyền 20%</p>
+<button class="bg-white text-primary px-md py-2 rounded-xl font-label-md w-fit hover:bg-surface-blue transition-colors">Tìm hiểu thêm</button>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar (Hidden for Settings Detail sub-page but required by prompt instructions) -->
+<!-- Applying Suppression Logic: Suppression is usually for transactional sub-pages, but I will include it as it's a top-level choice in many architectures. I'll style "Profile" as active. -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface-container-lowest dark:bg-surface-container-low shadow-[0_-4px_15px_0_rgba(0,0,0,0.06)]">
+<button class="flex flex-col items-center justify-center text-secondary hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">event_available</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-label-sm text-label-sm">Saved</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-sm text-label-sm">Inbox</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</nav>
+<!-- Confirmation Modal -->
+<div class="fixed inset-0 z-[100] hidden items-center justify-center p-container-padding" id="deleteModal">
+<div class="absolute inset-0 bg-text-dark/40 backdrop-blur-sm transition-opacity" onclick="toggleModal('deleteModal')"></div>
+<div class="relative bg-white rounded-2xl p-lg w-full max-w-sm shadow-2xl transition-transform transform scale-100">
+<div class="flex items-center gap-md mb-md">
+<div class="w-12 h-12 rounded-full bg-error-container/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-3xl">warning</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm-mobile text-text-dark">Xác nhận xóa?</h4>
+</div>
+<p class="text-secondary font-body-md text-body-md mb-lg">
+                Tất cả dữ liệu hành trình và hồ sơ của bạn sẽ bị xóa vĩnh viễn. Bạn không thể khôi phục sau khi xác nhận.
+            </p>
+<div class="flex flex-col gap-base">
+<button class="w-full bg-error text-white h-12 rounded-xl font-headline-sm text-headline-sm-mobile active:scale-95 transition-transform" onclick="toggleModal('deleteModal')">
+                    Xóa vĩnh viễn
+                </button>
+<button class="w-full bg-surface-blue text-primary h-12 rounded-xl font-headline-sm text-headline-sm-mobile active:scale-95 transition-transform" onclick="toggleModal('deleteModal')">
+                    Hủy bỏ
+                </button>
+</div>
+</div>
+</div>
+<script>
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+        }
+    </script>
+</body></html>

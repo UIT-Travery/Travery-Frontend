@@ -118,12 +118,15 @@ class BookingSuccessScreen extends StatelessWidget {
                             letterSpacing: 0.5,
                           ),
                         ),
-                        Text(
-                          '#${bookingId.substring(0, 8).toUpperCase()}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.primary,
+                        Flexible(
+                          child: Text(
+                            '#${_shortCode}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -272,5 +275,12 @@ class BookingSuccessScreen extends StatelessWidget {
     if (adultCount > 0) parts.add('$adultCount Người lớn');
     if (childCount > 0) parts.add('$childCount Trẻ em');
     return parts.isEmpty ? '0 khách' : parts.join(', ');
+  }
+
+  String get _shortCode {
+    final clean = bookingId.replaceAll('-', '');
+    return clean.length >= 8
+        ? clean.substring(0, 8).toUpperCase()
+        : clean.toUpperCase();
   }
 }

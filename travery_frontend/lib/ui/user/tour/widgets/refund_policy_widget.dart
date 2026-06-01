@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'package:travery_frontend/data/seed_models/booking_detail/booking_detail_model.dart';
+import 'package:travery_frontend/data/services/api/model/tour/refund_policy_response/refund_policy_response.dart';
 
 class RefundPolicyWidget extends StatelessWidget {
   const RefundPolicyWidget({super.key, required this.policy});
 
-  final RefundPolicy policy;
+  final RefundPolicyResponse policy;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class RefundPolicyWidget extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: policy.tiers.map((tier) {
+        children: policy.rules.map((rule) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Row(
@@ -33,7 +33,7 @@ class RefundPolicyWidget extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    tier.label,
+                    'Trước ${rule.timeBefore?.toInt() ?? 0} ngày khởi hành',
                     style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xFF414755),
@@ -41,7 +41,7 @@ class RefundPolicyWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  tier.description,
+                  'Hoàn ${rule.refundPercentage?.toInt()}%',
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,

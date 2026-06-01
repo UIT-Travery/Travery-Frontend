@@ -37,10 +37,7 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.pop(),
-            ),
+            const SizedBox(height: 16),
             // ── Content ──────────────────────────────────────────────────────
             Expanded(
               child: ListenableBuilder(

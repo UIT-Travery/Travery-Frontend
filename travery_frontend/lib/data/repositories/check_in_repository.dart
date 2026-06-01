@@ -8,11 +8,12 @@ abstract class CheckInRepository {
     required String query,
   });
   Future<Result<CheckInPassenger>> updatePassengerStatus({
+    required String missionId,
     required String passengerId,
     required CheckInStatus status,
   });
   Future<Result<bool>> completeCheckIn({
     required String missionId,
-    required List<String> arrivedPassengerIds,
+    required List<MemberAttendance> attendances,
   });
 }

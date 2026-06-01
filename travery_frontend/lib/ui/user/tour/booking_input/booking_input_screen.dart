@@ -10,24 +10,26 @@ import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 // ─── Top-level helpers for date-of-birth validation ───────────────────────────
 
 DateTime? _tryParseDob(String value) {
-  final parts = value.split('/');
-  if (parts.length != 3) return null;
-  final day = int.tryParse(parts[0]);
-  final month = int.tryParse(parts[1]);
-  final year = int.tryParse(parts[2]);
+  if (value.isEmpty) return null;
+  var parts = value.split('/');
+  if (parts.length != 3) {
+    parts = value.split('-');
+    if (parts.length != 3) return null;
+  }
+  int? day, month, year;
+  if (int.tryParse(parts[0]) != null && int.parse(parts[0]) > 31) {
+    year = int.tryParse(parts[0]);
+    month = int.tryParse(parts[1]);
+    day = int.tryParse(parts[2]);
+  } else {
+    day = int.tryParse(parts[0]);
+    month = int.tryParse(parts[1]);
+    year = int.tryParse(parts[2]);
+  }
   if (day == null || month == null || year == null) return null;
   if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900)
     return null;
   return DateTime(year, month, day);
-}
-
-int _calcAge(DateTime dob) {
-  final now = DateTime.now();
-  int age = now.year - dob.year;
-  if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
-    age--;
-  }
-  return age;
 }
 
 String? Function(String?) _nameValidator() {
@@ -40,25 +42,19 @@ String? Function(String?) _nameValidator() {
 
 String? Function(String?) _identityValidator() {
   return (value) {
-    if (value == null || value.trim().isEmpty)
-      return 'Vui lòng nhập số CCCD/Hộ chiếu';
-    if (!RegExp(r'^\d{9,12}$').hasMatch(value.trim())) {
-      return 'Số CCCD phải từ 9 đến 12 chữ số';
+    if (value == null || value.trim().isEmpty) return 'Vui lòng nhập số CCCD';
+    if (!RegExp(r'^\d{12}$').hasMatch(value.trim())) {
+      return 'Số CCCD phải đủ 12 chữ số';
     }
     return null;
   };
 }
 
-String? Function(String?) _dobValidator(bool isAdult) {
+String? Function(String?) _dobValidator() {
   return (value) {
     if (value == null || value.trim().isEmpty) {
       return 'Vui lòng nhập ngày sinh';
     }
-    final dob = _tryParseDob(value.trim());
-    if (dob == null) return 'Định dạng: DD/MM/YYYY';
-    final age = _calcAge(dob);
-    if (isAdult && age < 10) return 'Người lớn phải từ 10 tuổi trở lên';
-    if (!isAdult && age >= 10) return 'Trẻ em phải dưới 10 tuổi';
     return null;
   };
 }
@@ -70,6 +66,8 @@ class BookingInputScreen extends StatefulWidget {
     required this.tourId,
     required this.instanceId,
     required this.tourName,
+    this.destinationName,
+    // this.startLocation,
     this.pricePerAdult,
     this.pricePerChild,
     this.startDate,
@@ -80,6 +78,8 @@ class BookingInputScreen extends StatefulWidget {
   final String tourId;
   final String instanceId;
   final String tourName;
+  final String? destinationName;
+  // final String? startLocation;
   final double? pricePerAdult;
   final double? pricePerChild;
   final String? startDate;
@@ -100,7 +100,6 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
   @override
   void initState() {
     super.initState();
-    _syncControllers();
   }
 
   void _syncControllers() {
@@ -142,6 +141,7 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
       appBar: const UserAppBar(title: 'Thông tin đặt tour'),
       body: Consumer<BookingInputViewModel>(
         builder: (context, vm, _) {
+          _syncControllers();
           return Form(
             key: _formKey,
             child: ListView(
@@ -388,6 +388,8 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
         'tourId': widget.tourId,
         'instanceId': widget.instanceId,
         'tourName': widget.tourName,
+        'destinationName': widget.destinationName ?? '',
+        // 'startLocation': widget.startLocation ?? '',
         'tourImageUrl': null,
         'members': widget.viewModel.members
             .map(
@@ -555,15 +557,15 @@ class _MemberCard extends StatelessWidget {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.person,
+                child: Icon(
+                  isAdult ? Icons.person : Icons.child_care,
                   size: 18,
                   color: AppColors.primary,
                 ),
               ),
               const SizedBox(width: 12),
               Text(
-                'Hành khách ${index + 1} (${isAdult ? 'Người lớn' : 'Trẻ em'})',
+                'Hành khách ${index + 1}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -582,7 +584,7 @@ class _MemberCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _InputField(
-            label: 'Số CCCD/Hộ chiếu *',
+            label: 'Số CCCD *',
             controller: identityController,
             hint: 'VD: 012345678901',
             keyboardType: TextInputType.number,
@@ -593,9 +595,8 @@ class _MemberCard extends StatelessWidget {
           _DatePickerFormField(
             label: 'Ngày sinh *',
             controller: dobController,
-            isAdult: isAdult,
             onChanged: (_) => onChanged(),
-            validator: _dobValidator(isAdult),
+            validator: _dobValidator(),
           ),
         ],
       ),
@@ -672,7 +673,6 @@ class _DatePickerFormField extends FormField<String> {
   _DatePickerFormField({
     required String label,
     required TextEditingController? controller,
-    required bool isAdult,
     required ValueChanged<String> onChanged,
     String? Function(String?)? validator,
   }) : super(
@@ -694,21 +694,11 @@ class _DatePickerFormField extends FormField<String> {
                  onTap: () async {
                    final now = DateTime.now();
                    final initial = _tryParseDob(controller?.text ?? '');
-                   final eighteenYearsAgo = DateTime(
-                     now.year - 18,
-                     now.month,
-                     now.day,
-                   );
-                   final maxDate = isAdult
-                       ? eighteenYearsAgo
-                       : DateTime(now.year - 1, now.month, now.day);
-                   final minDate = DateTime(now.year - 100, now.month, now.day);
-
                    final picked = await showDatePicker(
                      context: state.context,
-                     initialDate: initial ?? maxDate,
-                     firstDate: minDate,
-                     lastDate: maxDate,
+                     initialDate: initial ?? DateTime(2000),
+                     firstDate: DateTime(1900),
+                     lastDate: now,
                      helpText: 'Chọn ngày sinh',
                      cancelText: 'Hủy',
                      confirmText: 'Xác nhận',

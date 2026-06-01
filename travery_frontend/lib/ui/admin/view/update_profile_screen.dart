@@ -6,16 +6,15 @@ import 'package:travery_frontend/ui/admin/view/widgets/input_text_field.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/small_button.dart';
 import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
 
-class AdminUpdateProfileScreen extends StatefulWidget {
-  const AdminUpdateProfileScreen({super.key, required this.viewModel});
+class UpdateProfileScreen extends StatefulWidget {
+  const UpdateProfileScreen({super.key, required this.viewModel});
   final AdminProfileViewModel viewModel;
 
   @override
-  State<AdminUpdateProfileScreen> createState() =>
-      _AdminUpdateProfileScreenState();
+  State<UpdateProfileScreen> createState() => _UpdateProfileScreenState();
 }
 
-class _AdminUpdateProfileScreenState extends State<AdminUpdateProfileScreen> {
+class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -27,7 +26,7 @@ class _AdminUpdateProfileScreenState extends State<AdminUpdateProfileScreen> {
   }
 
   @override
-  void didUpdateWidget(covariant AdminUpdateProfileScreen oldWidget) {
+  void didUpdateWidget(covariant UpdateProfileScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Update listener if there is an update command in future
   }

@@ -47,24 +47,6 @@ class _AdminViewProfileScreenState extends State<AdminViewProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        title: Row(
-          children: [
-            const Icon(Icons.grid_view, color: AppColors.primary),
-            const SizedBox(width: 8),
-            Text(
-              'Travery Admin',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: AppTextTheme.headlineMedium,
-              ),
-            ),
-          ],
-        ),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

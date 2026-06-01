@@ -1,6 +1,6 @@
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/api/coordinator_api_service.dart';
-import 'package:travery_frontend/data/services/security_storage_service.dart';
+import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/tour_instance_detail_response/tour_instance_detail_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
@@ -11,17 +11,20 @@ import 'package:travery_frontend/utils/core_result.dart';
 
 class CoordinatorRepositoryRemote extends CoordinatorRepository {
   final CoordinatorApiService _apiService;
-  final SecurityStorageService _securityStorageService;
+  final TokenRefreshService _tokenRefreshService;
 
   CoordinatorRepositoryRemote({
     required CoordinatorApiService apiService,
-    required SecurityStorageService securityStorageService,
+    required TokenRefreshService tokenRefreshService,
   }) : _apiService = apiService,
-       _securityStorageService = securityStorageService;
+       _tokenRefreshService = tokenRefreshService;
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  Future<String?> _getToken() => _securityStorageService.getAccessToken();
+  Future<String?> _getToken() async {
+    final result = await _tokenRefreshService.getValidAccessToken();
+    return result is Ok ? (result as Ok<String>).value : null;
+  }
 
   CoordinatorTour _fromDetail(TourInstanceDetailResponse r) {
     return CoordinatorTour(

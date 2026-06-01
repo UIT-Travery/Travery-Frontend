@@ -7,7 +7,7 @@ part 'image_response.g.dart';
 class ImageResponse with _$ImageResponse {
   const factory ImageResponse({
     required String url,
-    @JsonKey(name: 'isThumnail') @Default(false) bool isThumbnail,
+    @Default(false) bool isThumbnail,
   }) = _ImageResponse;
 
   factory ImageResponse.fromJson(Map<String, dynamic> json) =>

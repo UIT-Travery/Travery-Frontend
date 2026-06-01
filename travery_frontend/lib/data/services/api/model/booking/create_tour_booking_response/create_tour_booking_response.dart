@@ -29,6 +29,10 @@ class TourBookingData with _$TourBookingData {
     @Default('') String endDate,
     @Default([]) List<BookingMemberData> members,
     PaymentData? payment,
+    @Default('') String paymentMethod,
+    @Default('') String paymentStatus,
+    @Default('') String transactionId,
+    @Default('') String gatewayTransactionId,
   }) = _TourBookingData;
 
   factory TourBookingData.fromJson(Map<String, dynamic> json) =>
@@ -54,6 +58,7 @@ class BookingMemberData with _$BookingMemberData {
 class PaymentData with _$PaymentData {
   const factory PaymentData({
     @Default('') String transactionId,
+    @Default('') String gatewayTransactionId,
     @Default(0) double amount,
     @Default('') String paymentUrl,
     String? expiresAt,

@@ -59,22 +59,10 @@ class MemberRow extends StatelessWidget {
             ),
           ),
           if (memberType.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: isAdult
-                    ? AppColors.primary.withValues(alpha: 0.1)
-                    : Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                isAdult ? 'NL' : 'TE',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: isAdult ? AppColors.primary : Colors.orange[700],
-                ),
-              ),
+            Icon(
+              isAdult ? Icons.person : Icons.child_care,
+              size: 20,
+              color: isAdult ? AppColors.primary : Colors.orange[700],
             ),
         ],
       ),

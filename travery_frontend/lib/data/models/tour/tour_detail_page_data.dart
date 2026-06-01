@@ -34,11 +34,11 @@ class TourDetailPageData {
 
   factory TourDetailPageData.fromJson(Map<String, dynamic> json) {
     return TourDetailPageData(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? 'Tour không tên',
       description: json['description'] as String?,
-      pricePerAdult: (json['pricePerAdult'] as num).toDouble(),
-      pricePerChild: (json['pricePerChild'] as num).toDouble(),
+      pricePerAdult: (json['pricePerAdult'] as num?)?.toDouble() ?? 0.0,
+      pricePerChild: (json['pricePerChild'] as num?)?.toDouble() ?? 0.0,
       averageRating: (json['averageRating'] as num?)?.toDouble(),
       ratingCount: json['ratingCount'] as int?,
       startLocation: json['startLocation'] as String?,
@@ -80,9 +80,9 @@ class TourItineraryPageData {
 
   factory TourItineraryPageData.fromJson(Map<String, dynamic> json) {
     return TourItineraryPageData(
-      dayNumber: json['dayNumber'] as int,
-      title: json['title'] as String,
-      description: json['description'] as String,
+      dayNumber: json['dayNumber'] as int? ?? 0,
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
       images: (json['images'] as List<dynamic>?)
           ?.map((e) => TourImagePageData.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -98,8 +98,9 @@ class TourImagePageData {
 
   factory TourImagePageData.fromJson(Map<String, dynamic> json) {
     return TourImagePageData(
-      url: json['url'] as String,
-      isThumbnail: json['isThumnail'] as bool?,
+      url: json['url'] as String? ?? '',
+      isThumbnail:
+          json['isThumbnail'] as bool? ?? (json['isThumnail'] as bool?),
     );
   }
 }
