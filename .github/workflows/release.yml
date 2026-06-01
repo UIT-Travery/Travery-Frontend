@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./travery_frontend
     
     steps:
       - name: Checkout code
@@ -52,8 +55,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/app/outputs/flutter-app.apk
-            build/app/outputs/bundle/release/app-release.aab
+            travery_frontend/build/app/outputs/flutter-apk/app-release.apk
+            travery_frontend/build/app/outputs/bundle/release/app-release.aab
           body: |
             ## Release ${{ steps.tag.outputs.VERSION }}
             
