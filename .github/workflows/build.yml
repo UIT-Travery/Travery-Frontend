@@ -13,6 +13,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./travery_frontend
     
     steps:
       - name: Checkout code
@@ -59,10 +62,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-release.apk
-          path: build/app/outputs/flutter-app.apk
+          path: travery_frontend/build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload AAB as artifact
         uses: actions/upload-artifact@v3
         with:
           name: app-release.aab
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: travery_frontend/build/app/outputs/bundle/release/app-release.aab
