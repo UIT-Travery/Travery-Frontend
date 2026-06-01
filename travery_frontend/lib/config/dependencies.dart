@@ -25,6 +25,9 @@ import 'package:travery_frontend/data/services/guide/guide_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/data/services/trip/trip_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository_remote.dart';
 
 import 'package:travery_frontend/data/services/booking/booking_service.dart';
 import 'package:travery_frontend/data/repositories/mission_repository_impl.dart';
@@ -144,6 +147,17 @@ List<SingleChildWidget> get providers => [
   ChangeNotifierProvider<AdminRepository>(
     create: (context) => AdminRepositoryRemote(
       adminApiService: context.read<AdminApiService>(),
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+
+  // ── Profile service ──────────────────────────────────────────────────────
+  Provider<ProfileService>(create: (context) => ProfileService()),
+
+  // ── Profile repository (remote) ──────────────────────────────────────────
+  ChangeNotifierProvider<ProfileRepository>(
+    create: (context) => ProfileRepositoryRemote(
+      profileService: context.read<ProfileService>(),
       tokenRefreshService: context.read<TokenRefreshService>(),
     ),
   ),
