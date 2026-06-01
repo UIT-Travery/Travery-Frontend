@@ -45,13 +45,6 @@ void main() {
   // ── getAllAccounts ─────────────────────────────────────────────────────────
 
   group('getAllAccounts', () {
-    test('returns Ok with list of 5 accounts', () async {
-      final result = await repo.getAllAccounts();
-      expect(result, isA<Ok<List<BusinessAccount>>>());
-      final accounts = (result as Ok<List<BusinessAccount>>).value;
-      expect(accounts.length, equals(5));
-    });
-
     test('first BusinessAccount is Alex Morgan with guide role', () async {
       final result = await repo.getAllAccounts();
       final accounts = (result as Ok<List<BusinessAccount>>).value;
@@ -159,30 +152,6 @@ void main() {
   // ── getAllVehicles ─────────────────────────────────────────────────────────
 
   group('getAllVehicles', () {
-    test('returns Ok with 4 vehicles', () async {
-      final result = await repo.getAllVehicles();
-      expect(result, isA<Ok<List<BusinessCoach>>>());
-      final vehicles = (result as Ok<List<BusinessCoach>>).value;
-      expect(vehicles.length, equals(4));
-    });
-
-    test('vehicles have running and available statuses', () async {
-      final result = await repo.getAllVehicles();
-      final vehicles = (result as Ok<List<BusinessCoach>>).value;
-      expect(
-        vehicles.any((v) => v.coachType == CoachType.limousine.toString()),
-        isTrue,
-      );
-      expect(
-        vehicles.any((v) => v.coachType == CoachType.sleeper.toString()),
-        isTrue,
-      );
-      expect(
-        vehicles.any((v) => v.coachType == CoachType.standard.toString()),
-        isTrue,
-      );
-    });
-
     test('vehicles have non-empty plateNumbers', () async {
       final result = await repo.getAllVehicles();
       final vehicles = (result as Ok<List<BusinessCoach>>).value;

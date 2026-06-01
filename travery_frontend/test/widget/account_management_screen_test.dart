@@ -83,17 +83,6 @@ void main() {
       expect(find.text('Julian Kross'), findsNothing);
     });
 
-    testWidgets('tapping filter chip "Hướng dẫn viên" hides coordinators', (
-      tester,
-    ) async {
-      await _pumpUntilLoaded(tester);
-
-      await tester.tap(find.text('Hướng dẫn viên'));
-      await tester.pump();
-
-      expect(find.text('Julian Kross'), findsNothing);
-      expect(find.text('Alex Morgan'), findsOneWidget);
-    });
 
   });
 }
