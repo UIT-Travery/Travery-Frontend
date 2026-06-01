@@ -44,6 +44,10 @@ import 'package:travery_frontend/ui/user/tour/booking_list/view_models/booking_l
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/cancel/view_models/cancel_booking_view_model.dart';
 
+import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/create_hotel_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
+
 import 'package:travery_frontend/ui/user/trip/home/view_models/trip_home_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/list/view_models/trip_list_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/seat_picker/view_models/seat_picker_view_model.dart';
@@ -72,6 +76,8 @@ List<SingleChildWidget> get providers => [
       securityStorageService: context.read<SecurityStorageService>(),
     ),
   ),
+  // ── Coordinator service ───────────────────────────────────────────────
+  Provider<CoordinatorApiService>(create: (context) => CoordinatorApiService()),
   ChangeNotifierProvider(
     create: (context) =>
         AuthRepositoryRemote(
@@ -99,14 +105,6 @@ List<SingleChildWidget> get providers => [
   ),
   Provider<TripBookingRepository>(
     create: (context) => TripBookingRepository(
-
-  // ── Coordinator service ───────────────────────────────────────────────
-  Provider<CoordinatorApiService>(create: (context) => CoordinatorApiService()),
-
-  // ── Coordinator repository (remote — hits real API) ──────────────────────
-  ChangeNotifierProvider<CoordinatorRepository>(
-    create: (context) => CoordinatorRepositoryRemote(
-      apiService: context.read<CoordinatorApiService>(),
       securityStorageService: context.read<SecurityStorageService>(),
     ),
   ),
@@ -115,6 +113,8 @@ List<SingleChildWidget> get providers => [
   ChangeNotifierProvider(
     create: (context) =>
         TripHomeViewModel(tripService: context.read<TripService>()),
+  ),
+  ChangeNotifierProvider(
     create: (context) => CreateAccountViewModel(
       adminRepository: context.read<AdminRepository>(),
     ),
