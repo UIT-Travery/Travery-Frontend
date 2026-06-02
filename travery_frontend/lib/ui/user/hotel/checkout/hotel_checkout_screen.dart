@@ -76,14 +76,7 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
   }
 
   Widget _buildTitle() {
-    return const Text(
-      'Thanh toán cuối cùng',
-      style: TextStyle(
-        fontSize: AppTextTheme.headlineLarge,
-        fontWeight: FontWeight.w800,
-        color: AppColors.primary,
-      ),
-    );
+    return const SizedBox.shrink();
   }
 
   Widget _buildResortCard() {
@@ -96,27 +89,11 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
           BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          const Text(
-            'Azure Sands',
-            style: TextStyle(
-              fontSize: AppTextTheme.headlineSmall,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(color: AppColors.inputBackground),
-          ),
-          Row(
-            children: [
-              Expanded(child: _buildInfoField('Khách', 'Le Hoang Nam')),
-              Expanded(child: _buildInfoField('Phòng', 'DELUXE, VIP')),
-            ],
-          ),
+          Expanded(child: _buildInfoField('Khách', 'Le Hoang Nam')),
+          const SizedBox(width: 16),
+          Expanded(child: _buildInfoField('Phòng', 'DELUXE, VIP')),
         ],
       ),
     );
@@ -242,9 +219,9 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
       ),
       child: Column(
         children: [
-          _buildTotalRow('Total Room', _formatPrice(8000000)),
+          _buildTotalRow('Tiền phòng', _formatPrice(8000000)),
           const SizedBox(height: 8),
-          _buildTotalRow('Total Add-ons & Services', _formatPrice(5050000)),
+          _buildTotalRow('Dịch vụ & Add-on', _formatPrice(5050000)),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(color: AppColors.outline),
@@ -253,7 +230,7 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Total Due',
+                'Tổng cộng',
                 style: TextStyle(
                   fontSize: AppTextTheme.headlineSmall,
                   fontWeight: FontWeight.bold,
