@@ -32,12 +32,21 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.createVehicle.addListener(_onCreateVehicleChanged);
+    widget.viewModel.createVehicle.addListener(_onResult);
+  }
+
+  @override
+  void didUpdateWidget(covariant CreateVehicleScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.createVehicle.removeListener(_onResult);
+      widget.viewModel.createVehicle.addListener(_onResult);
+    }
   }
 
   @override
   void dispose() {
-    widget.viewModel.createVehicle.removeListener(_onCreateVehicleChanged);
+    widget.viewModel.createVehicle.removeListener(_onResult);
     _nameController.dispose();
     _phoneController.dispose();
     _licenseController.dispose();
@@ -48,7 +57,7 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
 
   // ── Command listener ───────────────────────────────────────────────────────
 
-  void _onCreateVehicleChanged() {
+  void _onResult() {
     final cmd = widget.viewModel.createVehicle;
     if (cmd.completed) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -121,10 +130,10 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
 
     widget.viewModel.createVehicle.execute((
       registrationNumber: _plateController.text.trim(),
-      model: _nameController.text.trim(),
       type: _selectedVehicleType!,
+      layoutName: 'Layout - ${_plateController.text.trim()}',
       seatCount: seatCount,
-      isAvailable: true,
+      seatItems: _coachSeats,
     ));
   }
 
@@ -283,7 +292,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
     return ListenableBuilder(
       listenable: widget.viewModel.createVehicle,
       builder: (context, _) {
-        final isRunning = widget.viewModel.createVehicle.running;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,

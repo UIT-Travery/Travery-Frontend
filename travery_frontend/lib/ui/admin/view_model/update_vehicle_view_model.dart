@@ -8,10 +8,9 @@ import 'package:travery_frontend/utils/core_result.dart';
 typedef UpdateVehiclePayload = ({
   String id,
   String registrationNumber,
-  String model,
   String type,
+  String seatLayoutId,
   int seatCount,
-  bool isAvailable,
 });
 
 class UpdateVehicleViewModel extends ChangeNotifier {
@@ -40,10 +39,9 @@ class UpdateVehicleViewModel extends ChangeNotifier {
     final result = await _adminRepository.updateVehicle(
       id: payload.id,
       registrationNumber: payload.registrationNumber,
-      model: payload.model,
       type: payload.type,
+      seatLayoutId: payload.seatLayoutId,
       seatCount: payload.seatCount,
-      isAvailable: payload.isAvailable,
     );
     switch (result) {
       case Ok<void>():

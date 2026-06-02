@@ -249,6 +249,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                         email: account.email,
                         role: account.role,
                         status: account.status,
+                        avatarUrl: account.avatarUrl,
                         onTap: () => _onAccountTap(account),
                         onMenuTap: () => _showAccountMenu(context, account),
                       );
@@ -259,6 +260,16 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await context.push(Routes.adminCreateAccount);
+          if (result == true && mounted) {
+            _loadUsers();
+          }
+        },
+        backgroundColor: AppColors.primaryDarkBlackBlue,
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }
@@ -287,8 +298,11 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
-  void _onAccountTap(BusinessAccount account) {
-    context.push(Routes.adminViewDetailAccountWithId(account.id));
+  void _onAccountTap(BusinessAccount account) async {
+    await context.push(Routes.adminViewDetailAccountWithId(account.id));
+    if (mounted) {
+      _loadUsers();
+    }
   }
 
   void _showAccountMenu(BuildContext context, BusinessAccount account) {

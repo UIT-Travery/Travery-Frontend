@@ -84,7 +84,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     if (avatarResult != null) {
       if (avatarResult is Ok<ProfileData>) {
         Utils.showSuccessNotification(context, 'Cập nhật thành công');
+        PaintingBinding.instance.imageCache.clear();
         widget.viewModel.updateAvatar.clearResult();
+        widget.viewModel.loadProfile.execute();
       } else if (avatarResult is Error<ProfileData>) {
         Utils.showErrorNotification(context, avatarResult.error.toString());
         widget.viewModel.updateAvatar.clearResult();

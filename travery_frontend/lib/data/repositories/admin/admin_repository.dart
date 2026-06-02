@@ -28,9 +28,11 @@ abstract class AdminRepository extends ChangeNotifier {
   Future<Result<void>> createAccount({
     required String name,
     required String email,
-    required String employeeId,
+    required String password,
     required String role,
     required bool isActive,
+    String? guideLicense,
+    String? hotelId,
   });
 
   Future<Result<void>> updateAccount({
@@ -88,6 +90,14 @@ abstract class AdminRepository extends ChangeNotifier {
     required String filePath,
   });
 
+  // ── Seat Layouts ──────────────────────────────────────────────────────────
+
+  Future<Result<String>> createSeatLayout({
+    required String name,
+    required String coachType,
+    required List<dynamic> items, // dynamic to accept BusinessCoachSeat or Map
+  });
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   Future<Result<List<BusinessCoach>>> getAllVehicles();
@@ -96,19 +106,17 @@ abstract class AdminRepository extends ChangeNotifier {
 
   Future<Result<void>> createVehicle({
     required String registrationNumber,
-    required String model,
     required String type,
+    required String seatLayoutId,
     required int seatCount,
-    required bool isAvailable,
   });
 
   Future<Result<void>> updateVehicle({
     required String id,
     required String registrationNumber,
-    required String model,
     required String type,
+    required String seatLayoutId,
     required int seatCount,
-    required bool isAvailable,
   });
 
   Future<Result<void>> deleteVehicle({required String id});

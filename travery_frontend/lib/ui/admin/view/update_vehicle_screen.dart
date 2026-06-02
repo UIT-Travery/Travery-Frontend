@@ -131,10 +131,9 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
     widget.viewModel.updateVehicle.execute((
       id: widget.vehicleId ?? '',
       registrationNumber: _plateController.text.trim(),
-      model: _nameController.text.trim(),
       type: _selectedVehicleType!,
+      seatLayoutId: 'dummy-seat-layout', // TODO: Get actual layout ID if needed
       seatCount: seatCount,
-      isAvailable: true,
     ));
   }
 
@@ -317,7 +316,6 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
     return ListenableBuilder(
       listenable: widget.viewModel.updateVehicle,
       builder: (context, _) {
-        final isRunning = widget.viewModel.updateVehicle.running;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,

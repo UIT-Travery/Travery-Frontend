@@ -693,4 +693,206 @@ class AdminApiService {
       client.close();
     }
   }
+  // ── Seat Layouts ──────────────────────────────────────────────────────────
+
+  Future<Result<Map<String, dynamic>>> getSeatLayouts({
+    required String accessToken,
+    String? coachType,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final queryParams = <String, String>{};
+      if (coachType != null && coachType.isNotEmpty) {
+        queryParams['coachType'] = coachType;
+      }
+      final uri = Uri.https(_host, '/api/v1/admin/seat-layouts', queryParams);
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách sơ đồ ghế',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<Map<String, dynamic>>> createSeatLayout({
+    required String accessToken,
+    required Map<String, dynamic> bodyMap,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/seat-layouts');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tạo sơ đồ ghế',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<Map<String, dynamic>>> getSeatLayoutDetail({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/seat-layouts/$id');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải chi tiết sơ đồ ghế',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  // ── Coaches ───────────────────────────────────────────────────────────────
+
+  Future<Result<List<dynamic>>> getCoaches({
+    required String accessToken,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/coaches');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as List<dynamic>? ?? []);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách phương tiện',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<Map<String, dynamic>>> createCoach({
+    required String accessToken,
+    required Map<String, dynamic> bodyMap,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/coaches');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể thêm phương tiện',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<Map<String, dynamic>>> getCoachDetail({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/coaches/$id');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải chi tiết phương tiện',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
 }
