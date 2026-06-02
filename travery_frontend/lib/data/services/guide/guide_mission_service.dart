@@ -1,6 +1,5 @@
 import 'package:travery_frontend/data/seed_models/tour_progress/tour_progress.dart';
 import 'package:travery_frontend/data/seed_models/incident/incident.dart';
-import 'package:travery_frontend/data/seed_models/check_in/check_in_passenger.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 abstract class GuideMissionService {
@@ -14,13 +13,14 @@ abstract class GuideMissionService {
   });
 
   /// PATCH /api/v1/staff/guide/instances/{id}/attendance
+  /// Body: { "attendances": [{ "memberId": "uuid", "status": "PRESENT" }] }
   Future<Result<void>> updateAttendance(
     String instanceId,
-    Map<String, String> attendanceMap,
+    List<Map<String, String>> attendances,
   );
 
   /// PATCH /api/v1/staff/guide/instances/{id}/progress
-  Future<Result<void>> updateProgress(String instanceId, String stepId);
+  Future<Result<void>> updateProgress(String instanceId, String status);
 
   /// POST /api/v1/staff/guide/instances/{id}/incidents
   Future<Result<Incident>> reportIncident(

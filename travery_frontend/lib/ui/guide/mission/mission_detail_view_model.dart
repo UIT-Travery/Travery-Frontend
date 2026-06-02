@@ -17,6 +17,9 @@ class MissionDetailViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isUpdatingProgress = false;
+  bool get isUpdatingProgress => _isUpdatingProgress;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -37,6 +40,29 @@ class MissionDetailViewModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<bool> updateProgress(String newStatus) async {
+    if (_missionId == null) return false;
+
+    _isUpdatingProgress = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final result = await _missionService.updateProgress(_missionId!, newStatus);
+
+    switch (result) {
+      case Ok():
+        await loadMissionDetail(_missionId!);
+        _isUpdatingProgress = false;
+        notifyListeners();
+        return true;
+      case Error(error: final e):
+        _errorMessage = e.toString();
+        _isUpdatingProgress = false;
+        notifyListeners();
+        return false;
+    }
   }
 
   void clear() {

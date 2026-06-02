@@ -61,7 +61,7 @@ class _GuideMissionScreenState extends State<GuideMissionScreen> {
                     );
                   }
 
-                  final ongoing = vm.ongoingTours;
+                  final ongoing = vm.inProgressTours;
 
                   if (ongoing.isEmpty) {
                     return Center(

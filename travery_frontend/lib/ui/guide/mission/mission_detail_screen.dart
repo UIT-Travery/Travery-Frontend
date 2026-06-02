@@ -399,8 +399,6 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
                     fontWeight: FontWeight.w500,
                     color: AppColors.textSecondary,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -410,6 +408,7 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
+                  maxLines: 2,
                 ),
               ],
             ),

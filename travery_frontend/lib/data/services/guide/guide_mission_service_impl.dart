@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/seed_models/incident/incident.dart';
-import 'package:travery_frontend/data/seed_models/tour_progress/tour_progress.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -191,7 +190,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
   @override
   Future<Result<void>> updateAttendance(
     String instanceId,
-    Map<String, String> attendanceMap,
+    List<Map<String, String>> attendances,
   ) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
@@ -208,7 +207,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
         ContentType.json.value,
       );
       await _setBearerAuth(request);
-      request.write(jsonEncode(attendanceMap));
+      request.write(jsonEncode({'attendances': attendances}));
 
       final response = await request.close();
 
@@ -229,7 +228,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
   }
 
   @override
-  Future<Result<void>> updateProgress(String instanceId, String stepId) async {
+  Future<Result<void>> updateProgress(String instanceId, String status) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
 
@@ -245,7 +244,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
         ContentType.json.value,
       );
       await _setBearerAuth(request);
-      request.write(jsonEncode({'stepId': stepId}));
+      request.write(jsonEncode({'status': status}));
 
       final response = await request.close();
 

@@ -109,15 +109,15 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
           const SizedBox(height: 4),
           Consumer<GuideHomeViewModel>(
             builder: (context, vm, _) {
-              final ongoing = vm.ongoingCount;
-              final ongoingTour = ongoing == 1
-                  ? vm.ongoingTours.firstOrNull
+              final inProgress = vm.inProgressCount;
+              final inProgressTour = inProgress == 1
+                  ? vm.inProgressTours.firstOrNull
                   : null;
-              final text = ongoing == 0
+              final text = inProgress == 0
                   ? 'Chưa có tour nào được phân công'
-                  : (ongoing == 1
-                        ? 'Tour đang diễn ra: ${ongoingTour?.tourName ?? ''}'
-                        : 'Bạn có $ongoing tour trong tuần này');
+                  : (inProgress == 1
+                        ? 'Tour đang diễn ra: ${inProgressTour?.tourName ?? ''}'
+                        : 'Bạn có $inProgress tour trong tuần này');
               return Text(
                 text,
                 style: const TextStyle(
@@ -125,7 +125,7 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
                   fontWeight: FontWeight.w500,
                   color: AppColors.textSecondary,
                 ),
-                maxLines: ongoing == 1 ? 2 : 1,
+                maxLines: inProgress == 1 ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
               );
             },
@@ -148,19 +148,15 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
           padding: const EdgeInsets.all(4),
           child: Row(
             children: [
-              _buildTab('Tất cả', 0, vm.selectedTabIndex, vm.allTours.length),
+              _buildTab('Hôm nay', 0, vm.selectedTabIndex, vm.todayCount),
+              _buildTab('Sắp tới', 1, vm.selectedTabIndex, vm.upcomingCount),
               _buildTab(
-                'Đang diễn ra',
-                1,
-                vm.selectedTabIndex,
-                vm.ongoingCount,
-              ),
-              _buildTab(
-                'Đã hoàn thành',
+                'Đang chạy',
                 2,
                 vm.selectedTabIndex,
-                vm.completedCount,
+                vm.inProgressCount,
               ),
+              _buildTab('Tất cả', 3, vm.selectedTabIndex, vm.allTours.length),
             ],
           ),
         );
