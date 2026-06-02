@@ -159,7 +159,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           Text(
             hotel.name,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1F2937),
             ),

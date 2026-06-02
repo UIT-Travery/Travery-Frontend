@@ -153,7 +153,7 @@ class _HotelAddonPaymentSuccessScreenState
         const Text(
           'Đặt dịch vụ thành công!',
           style: TextStyle(
-            fontSize: AppTextTheme.headlineLarge,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),

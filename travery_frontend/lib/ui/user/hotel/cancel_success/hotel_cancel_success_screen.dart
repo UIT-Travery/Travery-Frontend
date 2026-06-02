@@ -62,42 +62,45 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF0F7FF), AppColors.background],
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF0F7FF), AppColors.background],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Column(
-                      children: [
-                        ScaleTransition(
-                          scale: _scaleAnimation,
-                          child: _buildSuccessIcon(),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildTitle(),
-                        const SizedBox(height: 24),
-                        _buildRefundCard(),
-                        const SizedBox(height: 16),
-                        _buildDisclaimer(),
-                      ],
+          child: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        children: [
+                          ScaleTransition(
+                            scale: _scaleAnimation,
+                            child: _buildSuccessIcon(),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildTitle(),
+                          const SizedBox(height: 24),
+                          _buildRefundCard(),
+                          const SizedBox(height: 16),
+                          _buildDisclaimer(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              _buildBottomButton(),
-            ],
+                _buildBottomButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -139,7 +142,7 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen>
         const Text(
           'Hủy phòng thành công!',
           style: TextStyle(
-            fontSize: AppTextTheme.headlineLarge,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
@@ -281,7 +284,7 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen>
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () => context.pushReplacement(Routes.tourHome),
+          onPressed: () => context.go(Routes.tourHome),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.buttonPrimaryText,

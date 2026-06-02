@@ -60,64 +60,67 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF0F7FF), AppColors.background],
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF0F7FF), AppColors.background],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ScaleTransition(
-                            scale: _scaleAnimation,
-                            child: _buildSuccessBadge(),
-                          ),
-                          const SizedBox(height: 32),
-                          Text(
-                            _isSuccess
-                                ? 'Đặt phòng thành công!'
-                                : 'Thanh toán thất bại',
-                            style: const TextStyle(
-                              fontSize: AppTextTheme.headlineLarge,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+          child: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ScaleTransition(
+                              scale: _scaleAnimation,
+                              child: _buildSuccessBadge(),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            _isSuccess
-                                ? 'Cảm ơn bạn đã tin tưởng Travery. Hành trình của bạn đã sẵn sàng bắt đầu.'
-                                : 'Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.',
-                            style: const TextStyle(
-                              fontSize: AppTextTheme.bodyMedium,
-                              color: AppColors.textSecondary,
-                              height: 1.5,
+                            const SizedBox(height: 32),
+                            Text(
+                              _isSuccess
+                                  ? 'Đặt phòng thành công!'
+                                  : 'Thanh toán thất bại',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 32),
-                          _buildBookingCard(),
-                        ],
+                            const SizedBox(height: 12),
+                            Text(
+                              _isSuccess
+                                  ? 'Cảm ơn bạn đã tin tưởng Travery. Hành trình của bạn đã sẵn sàng bắt đầu.'
+                                  : 'Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.',
+                              style: const TextStyle(
+                                fontSize: AppTextTheme.bodyMedium,
+                                color: AppColors.textSecondary,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            _buildBookingCard(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              _buildBottomButton(),
-            ],
+                _buildBottomButton(),
+              ],
+            ),
           ),
         ),
       ),

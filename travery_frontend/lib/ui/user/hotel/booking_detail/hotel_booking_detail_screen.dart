@@ -392,7 +392,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
               Text(
                 _formatPrice(vm.grandTotal),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF007AFF),
                 ),

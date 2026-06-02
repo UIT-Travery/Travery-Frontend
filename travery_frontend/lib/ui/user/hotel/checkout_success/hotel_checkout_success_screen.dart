@@ -52,25 +52,28 @@ class _HotelCheckoutSuccessScreenState extends State<HotelCheckoutSuccessScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF0F7FF), AppColors.background],
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF0F7FF), AppColors.background],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                const Spacer(),
-                _buildSuccessContent(),
-                const Spacer(),
-                _buildBottomButton(),
-              ],
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  const Spacer(),
+                  _buildSuccessContent(),
+                  const Spacer(),
+                  _buildBottomButton(),
+                ],
+              ),
             ),
           ),
         ),
@@ -89,7 +92,7 @@ class _HotelCheckoutSuccessScreenState extends State<HotelCheckoutSuccessScreen>
           const Text(
             'Thanh toán thành công!',
             style: TextStyle(
-              fontSize: AppTextTheme.headlineLarge,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
@@ -175,7 +178,7 @@ class _HotelCheckoutSuccessScreenState extends State<HotelCheckoutSuccessScreen>
           Text(
             _formatPrice(13050000),
             style: const TextStyle(
-              fontSize: AppTextTheme.headlineLarge,
+              fontSize: 20,
               fontWeight: FontWeight.w800,
               color: AppColors.success,
             ),
@@ -189,7 +192,7 @@ class _HotelCheckoutSuccessScreenState extends State<HotelCheckoutSuccessScreen>
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () => context.pushReplacement(Routes.tourHome),
+        onPressed: () => context.go(Routes.tourHome),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.buttonPrimaryText,
