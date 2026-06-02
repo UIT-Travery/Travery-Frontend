@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
@@ -60,6 +60,7 @@ import 'package:travery_frontend/ui/user/trip/booking_review/view_models/trip_bo
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/ui/user/trip/payment/trip_payment_screen.dart';
 import 'package:travery_frontend/ui/user/trip/payment_result/trip_payment_result_screen.dart';
+import 'package:travery_frontend/ui/user/trip/my_booking/my_trip_booking_screen.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/trip_booking_detail_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel/trip_cancel_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel_success/trip_cancel_success_screen.dart';
@@ -272,6 +273,7 @@ GoRouter appRouter(
         builder: (context, state) => CoordinatorViewProfileScreen(
           viewModel: AdminProfileViewModel(
             authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
         ),
       ),
@@ -280,6 +282,7 @@ GoRouter appRouter(
         builder: (context, state) => CoordinatorUpdateProfileScreen(
           viewModel: AdminProfileViewModel(
             authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
         ),
       ),
@@ -613,6 +616,7 @@ GoRouter appRouter(
             ChangeNotifierProvider(
               create: (context) => AdminProfileViewModel(
                 authRepository: context.read<AuthRepository>(),
+                profileRepository: context.read<ProfileRepository>(),
               ),
             ),
             ChangeNotifierProvider(
@@ -744,6 +748,7 @@ GoRouter appRouter(
         builder: (context, state) => UpdateProfileScreen(
           viewModel: AdminProfileViewModel(
             authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
         ),
       ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
-import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 
 class HotelBookingReviewScreen extends StatefulWidget {
   const HotelBookingReviewScreen({super.key});

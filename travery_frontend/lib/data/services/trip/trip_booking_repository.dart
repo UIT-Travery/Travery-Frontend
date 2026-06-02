@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';

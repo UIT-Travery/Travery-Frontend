@@ -26,7 +26,6 @@ class ProfileService {
       );
 
       final response = await request.close();
-
       if (response.statusCode == 200) {
         final stringData = await response.transform(utf8.decoder).join();
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;

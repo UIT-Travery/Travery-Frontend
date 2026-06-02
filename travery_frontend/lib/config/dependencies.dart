@@ -28,6 +28,9 @@ import 'package:travery_frontend/data/services/guide/guide_mission_service_impl.
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/data/services/trip/trip_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
+// import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository_remote.dart';
 
 import 'package:travery_frontend/data/services/booking/booking_service.dart';
 import 'package:travery_frontend/data/repositories/mission_repository_impl.dart';
@@ -45,6 +48,10 @@ import 'package:travery_frontend/ui/user/tour/payment_result/view_models/payment
 import 'package:travery_frontend/ui/user/tour/booking_list/view_models/booking_list_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/cancel/view_models/cancel_booking_view_model.dart';
+
+import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/create_hotel_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
 
 import 'package:travery_frontend/ui/user/trip/home/view_models/trip_home_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/list/view_models/trip_list_view_model.dart';
@@ -68,6 +75,8 @@ List<SingleChildWidget> get providers => [
       securityStorageService: context.read<SecurityStorageService>(),
     ),
   ),
+  // ── Coordinator service ───────────────────────────────────────────────
+  Provider<CoordinatorApiService>(create: (context) => CoordinatorApiService()),
   ChangeNotifierProvider(
     create: (context) =>
         AuthRepositoryRemote(
@@ -103,6 +112,19 @@ List<SingleChildWidget> get providers => [
   ChangeNotifierProvider(
     create: (context) =>
         TripHomeViewModel(tripService: context.read<TripService>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) => CreateAccountViewModel(
+      adminRepository: context.read<AdminRepository>(),
+    ),
+  ),
+  ChangeNotifierProvider(
+    create: (context) =>
+        CreateHotelViewModel(adminRepository: context.read<AdminRepository>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) =>
+        UpdateHotelViewModel(adminRepository: context.read<AdminRepository>()),
   ),
   ChangeNotifierProvider(
     create: (context) =>
@@ -143,6 +165,18 @@ List<SingleChildWidget> get providers => [
     create: (context) => AdminRepositoryRemote(
       adminApiService: context.read<AdminApiService>(),
       tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+
+  // ── Profile service ──────────────────────────────────────────────────────
+  Provider<ProfileService>(create: (context) => ProfileService()),
+
+  // ── Profile repository (remote) ──────────────────────────────────────────
+  ChangeNotifierProvider<ProfileRepository>(
+    create: (context) => ProfileRepositoryRemote(
+      profileService: context.read<ProfileService>(),
+      tokenRefreshService: context.read<TokenRefreshService>(),
+      securityStorageService: context.read<SecurityStorageService>(),
     ),
   ),
 

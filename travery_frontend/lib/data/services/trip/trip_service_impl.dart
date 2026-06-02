@@ -108,8 +108,9 @@ class TripServiceImpl implements TripService {
           final stringData = await response.transform(utf8.decoder).join();
           final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
           final data = jsonMap['data'] as Map<String, dynamic>?;
-          if (data == null)
+          if (data == null) {
             return Result.error(const HttpException('Không có dữ liệu ghế'));
+          }
           return Result.ok(TripSeatData.fromJson(data));
         } on Exception catch (error) {
           return Result.error(error);
@@ -153,10 +154,11 @@ class TripServiceImpl implements TripService {
           final stringData = await response.transform(utf8.decoder).join();
           final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
           final data = jsonMap['data'] as Map<String, dynamic>?;
-          if (data == null)
+          if (data == null) {
             return Result.error(
               const HttpException('Không có dữ liệu booking'),
             );
+          }
           return Result.ok(TripBookingData.fromJson(data));
         } on Exception catch (error) {
           return Result.error(error);
@@ -197,10 +199,11 @@ class TripServiceImpl implements TripService {
           final stringData = await response.transform(utf8.decoder).join();
           final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
           final data = jsonMap['data'] as Map<String, dynamic>?;
-          if (data == null)
+          if (data == null) {
             return Result.error(
               const HttpException('Không có dữ liệu booking'),
             );
+          }
           return Result.ok(TripBookingData.fromJson(data));
         } on Exception catch (error) {
           return Result.error(error);
@@ -249,8 +252,9 @@ class TripServiceImpl implements TripService {
           final stringData = await response.transform(utf8.decoder).join();
           final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
           final data = jsonMap['data'] as Map<String, dynamic>?;
-          if (data == null)
+          if (data == null) {
             return Result.error(const HttpException('Không có dữ liệu hủy'));
+          }
           return Result.ok(CancelTripData.fromJson(data));
         } on Exception catch (error) {
           return Result.error(error);
@@ -294,10 +298,11 @@ class TripServiceImpl implements TripService {
           final stringData = await response.transform(utf8.decoder).join();
           final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
           final data = jsonMap['data'] as Map<String, dynamic>?;
-          if (data == null)
+          if (data == null) {
             return Result.error(
               const HttpException('Không có dữ liệu thanh toán'),
             );
+          }
           return Result.ok(TripPaymentData.fromJson(data));
         } on Exception catch (error) {
           return Result.error(error);

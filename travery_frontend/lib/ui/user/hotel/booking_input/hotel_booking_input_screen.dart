@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
-import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 
 class HotelBookingInputScreen extends StatefulWidget {
   const HotelBookingInputScreen({super.key});

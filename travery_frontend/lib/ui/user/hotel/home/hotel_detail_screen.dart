@@ -91,7 +91,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
               ? Image.network(
                   hotel.imageUrls.first,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: const Color(0xFFF0F7FF),
                     child: const Center(
                       child: Icon(
@@ -123,7 +123,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              '1 / ${hotel.imageUrls.length > 0 ? hotel.imageUrls.length : 1}',
+              '1 / ${hotel.imageUrls.isNotEmpty ? hotel.imageUrls.length : 1}',
               style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),
@@ -535,7 +535,7 @@ class _RoomCard extends StatelessWidget {
                   child: Image.network(
                     room.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFFF0F7FF),
                       child: const Center(
                         child: Icon(

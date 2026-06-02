@@ -387,6 +387,156 @@ class AdminRepositoryDev extends AdminRepository {
     return const Result.ok(null);
   }
 
+  // ── Admin User Controller (dev stubs) ─────────────────────────────────
+
+  @override
+  Future<Result<Map<String, dynamic>>> getUsers({
+    String? role,
+    String? status,
+    int page = 0,
+    int size = 20,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    var list = _mutableAccounts.toList();
+    if (role != null && role.isNotEmpty) {
+      final r = BusinessAccount.roleFromApi(role);
+      list = list.where((a) => a.role == r).toList();
+    }
+    if (status != null && status.isNotEmpty) {
+      final s = BusinessAccount.statusFromApi(status);
+      list = list.where((a) => a.status == s).toList();
+    }
+    final start = page * size;
+    final end = (start + size).clamp(0, list.length);
+    final content = start < list.length ? list.sublist(start, end) : <BusinessAccount>[];
+    final contentJson = content.map((a) => {
+      'id': a.id,
+      'fullName': a.name,
+      'email': a.email,
+      'role': BusinessAccount.roleToApi(a.role),
+      'status': BusinessAccount.statusToApi(a.status),
+      'avatarUrl': a.avatarUrl,
+      'phoneNumber': a.phoneNumber,
+      'createdAt': a.createdAt,
+    }).toList();
+    return Result.ok({
+      'content': contentJson,
+      'totalElements': list.length,
+      'totalPages': (list.length / size).ceil(),
+      'size': size,
+      'number': page,
+      'first': page == 0,
+      'last': end >= list.length,
+    });
+  }
+
+  @override
+  Future<Result<BusinessAccount>> getUserById({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      return Result.ok(_mutableAccounts.firstWhere((a) => a.id == id));
+    } catch (_) {
+      return Result.error(Exception('User not found: $id'));
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> banUser({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) {
+      return Result.error(Exception('User not found: $id'));
+    }
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      status: AccountStatus.banned,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> unbanUser({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) {
+      return Result.error(Exception('User not found: $id'));
+    }
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      status: AccountStatus.active,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateReceptionistProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? shiftType,
+    String? hotelId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateGuideProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? guideLicense,
+    int? yearsExperience,
+    List<String>? languages,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateCoordinatorProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? department,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateUserAvatar({
+    required String id,
+    required String filePath,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    // In dev mode, just return the existing account unchanged.
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   @override
