@@ -1,6 +1,7 @@
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
 import 'package:travery_frontend/data/seed_models/room/room.dart';
 import 'package:travery_frontend/data/services/api/admin_api_service.dart';
+import 'package:travery_frontend/data/services/api/model/coach_response.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/domain/models/admin/business_account/business_account.dart';
 import 'package:travery_frontend/domain/models/admin/business_coach/business_coach.dart';
@@ -56,9 +57,11 @@ class AdminRepositoryRemote extends AdminRepository {
   Future<Result<void>> createAccount({
     required String name,
     required String email,
-    required String employeeId,
+    required String password,
     required String role,
     required bool isActive,
+    String? guideLicense,
+    String? hotelId,
   }) async {
     final token = await _getAccessToken();
     if (token == null) {
@@ -70,9 +73,11 @@ class AdminRepositoryRemote extends AdminRepository {
     final result = await _adminApiService.createStaff(
       accessToken: token,
       email: email,
-      password: employeeId, // employeeId used as initial password
+      password: password,
       fullName: name,
       role: apiRole,
+      guideLicense: guideLicense,
+      hotelId: hotelId,
     );
 
     switch (result) {
@@ -124,7 +129,7 @@ class AdminRepositoryRemote extends AdminRepository {
       return Result.error(Exception('Phiên đăng nhập hết hạn'));
     }
 
-    final result = await _adminApiService.deleteAccount(
+    final result = await _adminApiService.deleteUser(
       accessToken: token,
       id: id,
     );
@@ -355,11 +360,77 @@ class AdminRepositoryRemote extends AdminRepository {
     }
   }
 
+  // ── Seat Layouts ──────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<String>> createSeatLayout({
+    required String name,
+    required String coachType,
+    required List<dynamic> items,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final serializedItems = items.map((e) {
+      if (e is Map<String, dynamic>) return e;
+      return {
+        'seatName': (e as dynamic).seatName,
+        'tier': ((e as dynamic).tier.toString().contains('upper')) ? 'UPPER' : 'LOWER',
+        'position': ((e as dynamic).position.toString().contains('front')) ? 'FRONT' : ((e as dynamic).position.toString().contains('middle') ? 'MIDDLE' : 'BACK'),
+        'rowNumber': (e as dynamic).rowNumber,
+        'columnNumber': (e as dynamic).columnNumber,
+      };
+    }).toList();
+
+    final requestMap = {
+      'name': name,
+      'coachType': coachType,
+      'items': serializedItems,
+    };
+
+    final result = await _adminApiService.createSeatLayout(
+      accessToken: token,
+      bodyMap: requestMap,
+    );
+
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        final id = result.value['id'] as String?;
+        return Result.ok(id ?? '');
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   @override
   Future<Result<List<BusinessCoach>>> getAllVehicles() async {
-    return const Result.ok([]);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.getCoaches(accessToken: token);
+
+    switch (result) {
+      case Ok<List<dynamic>>():
+        final coaches = result.value.map((e) {
+          final coach = CoachResponse.fromJson(e as Map<String, dynamic>);
+          return BusinessCoach(
+            id: coach.id,
+            plateNumber: coach.licensePlate,
+            coachType: coach.coachType,
+            seatCount: coach.capacity,
+            status: coach.status,
+          );
+        }).toList();
+        return Result.ok(coaches);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
@@ -370,22 +441,43 @@ class AdminRepositoryRemote extends AdminRepository {
   @override
   Future<Result<void>> createVehicle({
     required String registrationNumber,
-    required String model,
     required String type,
+    required String seatLayoutId,
     required int seatCount,
-    required bool isAvailable,
   }) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final requestMap = {
+      'coachType': type,
+      'licensePlate': registrationNumber,
+      'seatLayoutId': seatLayoutId,
+      'capacity': seatCount,
+    };
+
+    final result = await _adminApiService.createCoach(
+      accessToken: token,
+      bodyMap: requestMap,
+    );
+
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
   Future<Result<void>> updateVehicle({
     required String id,
     required String registrationNumber,
-    required String model,
     required String type,
+    required String seatLayoutId,
     required int seatCount,
-    required bool isAvailable,
   }) async {
     return Result.error(_notImplemented);
   }
@@ -394,6 +486,7 @@ class AdminRepositoryRemote extends AdminRepository {
   Future<Result<void>> deleteVehicle({required String id}) async {
     return Result.error(_notImplemented);
   }
+
 
   // ── Hotels ─────────────────────────────────────────────────────────────────
 

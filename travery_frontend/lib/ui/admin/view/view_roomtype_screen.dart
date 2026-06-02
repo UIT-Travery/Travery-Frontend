@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import '../../../../domain/models/admin/business_room_type/business_room_type.dart';
 import 'widgets/large_button.dart';
 
-class RoomtypeManagementScreen extends StatefulWidget {
+class ViewRoomtypeScreen extends StatefulWidget {
   final BusinessRoomType? roomType;
 
-  const RoomtypeManagementScreen({super.key, this.roomType});
+  const ViewRoomtypeScreen({super.key, this.roomType});
 
   @override
-  State<RoomtypeManagementScreen> createState() =>
-      _RoomtypeManagementScreenState();
+  State<ViewRoomtypeScreen> createState() => _ViewRoomtypeScreenState();
 }
 
-class _RoomtypeManagementScreenState extends State<RoomtypeManagementScreen> {
+class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
   String _getBedTypeName(BedType type) {
     switch (type) {
       case BedType.single:
@@ -161,6 +161,70 @@ class _RoomtypeManagementScreenState extends State<RoomtypeManagementScreen> {
             ),
             const SizedBox(height: 16),
 
+            // Hotel Card
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDBEAFE),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.apartment, color: Color(0xFF0055C3)),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'KHÁCH SẠN',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B),
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Khách sạn Mường Thanh',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '123 Đường ABC, Quận 1, TP. HCM',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // Second Card: Capacity
             Container(
               padding: const EdgeInsets.all(16),
@@ -275,8 +339,8 @@ class _RoomtypeManagementScreenState extends State<RoomtypeManagementScreen> {
               color: const Color(0xFF0055C3),
               onTap: () {
                 context.push(
-                  '/admin_update_room_type_screen.dart',
-                  extra: type,
+                  Routes.adminUpdateRoomType,
+                  extra: {'roomType': type},
                 );
               },
             ),

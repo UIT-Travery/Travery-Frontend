@@ -87,36 +87,42 @@ class AdminRepositoryDev extends AdminRepository {
       plateNumber: '51B - 882.41',
       coachType: CoachType.limousine.toString(),
       seatCount: 22,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_2',
       plateNumber: '29B - 110.02',
       coachType: 'Standard',
       seatCount: 45,
+      status: 'Maintenance',
     ),
     BusinessCoach(
       id: 'veh_3',
       plateNumber: '59B - 564.29',
       coachType: 'Limousine',
       seatCount: 9,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_4',
       plateNumber: '49B - 023.15',
       coachType: 'Standard',
       seatCount: 34,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_5',
       plateNumber: '30A - 765.33',
       coachType: 'VIP Sleeper',
       seatCount: 18,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_6',
       plateNumber: '79C - 441.88',
       coachType: 'Standard',
       seatCount: 40,
+      status: 'Retired',
     ),
   ];
 
@@ -329,9 +335,11 @@ class AdminRepositoryDev extends AdminRepository {
   Future<Result<void>> createAccount({
     required String name,
     required String email,
-    required String employeeId,
+    required String password,
     required String role,
     required bool isActive,
+    String? guideLicense,
+    String? hotelId,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     final newId = 'acc_${_mutableAccounts.length + 1}';
@@ -345,7 +353,7 @@ class AdminRepositoryDev extends AdminRepository {
       ),
     );
     notifyListeners();
-    return const Result.ok(null);
+    return Result.ok(newId);
   }
 
   @override
@@ -408,17 +416,23 @@ class AdminRepositoryDev extends AdminRepository {
     }
     final start = page * size;
     final end = (start + size).clamp(0, list.length);
-    final content = start < list.length ? list.sublist(start, end) : <BusinessAccount>[];
-    final contentJson = content.map((a) => {
-      'id': a.id,
-      'fullName': a.name,
-      'email': a.email,
-      'role': BusinessAccount.roleToApi(a.role),
-      'status': BusinessAccount.statusToApi(a.status),
-      'avatarUrl': a.avatarUrl,
-      'phoneNumber': a.phoneNumber,
-      'createdAt': a.createdAt,
-    }).toList();
+    final content = start < list.length
+        ? list.sublist(start, end)
+        : <BusinessAccount>[];
+    final contentJson = content
+        .map(
+          (a) => {
+            'id': a.id,
+            'fullName': a.name,
+            'email': a.email,
+            'role': BusinessAccount.roleToApi(a.role),
+            'status': BusinessAccount.statusToApi(a.status),
+            'avatarUrl': a.avatarUrl,
+            'phoneNumber': a.phoneNumber,
+            'createdAt': a.createdAt,
+          },
+        )
+        .toList();
     return Result.ok({
       'content': contentJson,
       'totalElements': list.length,
@@ -775,18 +789,19 @@ class AdminRepositoryDev extends AdminRepository {
   //   return const Result.ok(null);
   // }
 
-  @override
-  Future<Result<void>> createVehicle({
-    required String registrationNumber,
-    required String model,
-    required String type,
-    required int seatCount,
-    required bool isAvailable,
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    notifyListeners();
-    return const Result.ok(null);
-  }
+  // @override
+  // Future<Result<void>> createVehicle({
+  //   required String registrationNumber,
+  //   required String model,
+  //   required String type,
+  //   required int seatCount,
+  //   required bool isAvailable,
+  //   required double rentalPrice,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   notifyListeners();
+  //   return const Result.ok(null);
+  // }
 
   @override
   Future<Result<void>> deleteVehicle({required String id}) async {
@@ -868,18 +883,18 @@ class AdminRepositoryDev extends AdminRepository {
     throw UnimplementedError();
   }
 
-  @override
-  Future<Result<void>> updateVehicle({
-    required String id,
-    required String registrationNumber,
-    required String model,
-    required String type,
-    required int seatCount,
-    required bool isAvailable,
-  }) {
-    // TODO: implement updateVehicle
-    throw UnimplementedError();
-  }
+  // @override
+  // Future<Result<void>> updateVehicle({
+  //   required String id,
+  //   required String registrationNumber,
+  //   required String model,
+  //   required String type,
+  //   required int seatCount,
+  //   required bool isAvailable,
+  // }) {
+  //   // TODO: implement updateVehicle
+  //   throw UnimplementedError();
+  // }
 
   // ── Tour Templates ─────────────────────────────────────────────
 
@@ -904,6 +919,62 @@ class AdminRepositoryDev extends AdminRepository {
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<String>> createSeatLayout({
+    required String name,
+    required String coachType,
+    required List<dynamic> items,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok('mock_layout_id');
+  }
+
+  @override
+  Future<Result<void>> createVehicle({
+    required String registrationNumber,
+    required String type,
+    required String seatLayoutId,
+    required int seatCount,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final newId = 'veh_${_mutableVehicles.length + 1}';
+    _mutableVehicles.add(
+      BusinessCoach(
+        id: newId,
+        plateNumber: registrationNumber,
+        coachType: type,
+        seatCount: seatCount,
+        status: 'Active',
+      ),
+    );
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> updateVehicle({
+    required String id,
+    required String registrationNumber,
+    required String type,
+    required String seatLayoutId,
+    required int seatCount,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableVehicles.indexWhere((v) => v.id == id);
+    if (idx != -1) {
+      final existing = _mutableVehicles[idx];
+      _mutableVehicles[idx] = BusinessCoach(
+        id: existing.id,
+        plateNumber: registrationNumber,
+        coachType: type,
+        seatCount: seatCount,
+        status: existing.status,
+      );
+      notifyListeners();
+    }
     return const Result.ok(null);
   }
 }

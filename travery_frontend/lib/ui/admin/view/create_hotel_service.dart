@@ -16,9 +16,11 @@ class _CreateHotelServiceScreenState extends State<CreateHotelServiceScreen> {
 
   String? selectedServiceType;
   String? selectedUnit;
+  String? selectedHotel;
 
   final List<String> serviceTypes = ['Spa', 'Ăn uống', 'Giặt ủi', 'Khác'];
   final List<String> units = ['Người', 'Suất', 'KG', 'Lần'];
+  final List<String> hotels = ['Khách sạn Mường Thanh', 'Khách sạn Rex', 'Khách sạn Caravelle'];
 
   @override
   void dispose() {
@@ -32,10 +34,11 @@ class _CreateHotelServiceScreenState extends State<CreateHotelServiceScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FB),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -44,6 +47,7 @@ class _CreateHotelServiceScreenState extends State<CreateHotelServiceScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             const Text(
               'Thêm Dịch vụ mới',
               style: TextStyle(
@@ -61,6 +65,19 @@ class _CreateHotelServiceScreenState extends State<CreateHotelServiceScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            CustomDropdownButton(
+              label: 'Khách sạn',
+              textholder: 'Chọn loại khách sạn',
+              prefixIcon: const Icon(Icons.hotel_outlined, color: Colors.black54),
+              items: hotels,
+              value: selectedHotel,
+              onChanged: (value) {
+                setState(() {
+                  selectedHotel = value;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
             CustomDropdownButton(
               label: 'Loại dịch vụ',
               textholder: 'Chọn loại dịch vụ',

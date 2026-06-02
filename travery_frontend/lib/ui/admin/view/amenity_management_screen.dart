@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import 'widgets/amenity_card.dart';
 import 'widgets/small_button.dart';
-import 'update_amenity_screen.dart';
-import 'create_amenity_screen.dart';
 
 class AmenityManagementScreen extends StatefulWidget {
   const AmenityManagementScreen({super.key});
@@ -45,12 +45,7 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
                     size: 16,
                   ),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CreateAmenityScreen(),
-                      ),
-                    );
+                    context.push(Routes.adminCreateAmenity);
                   },
                 ),
               ],
@@ -108,15 +103,13 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
                     subtitle: 'Khách sạn',
                     iconData: Icons.wifi,
                     onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpdateAmenityScreen(
-                            amenityType: 'Khách sạn',
-                            amenityName: 'WIFI miễn phí',
-                            iconData: Icons.wifi,
-                          ),
-                        ),
+                      context.push(
+                        Routes.adminUpdateAmenity,
+                        extra: {
+                          'amenityType': 'Khách sạn',
+                          'amenityName': 'WIFI miễn phí',
+                          'iconData': Icons.wifi,
+                        },
                       );
                     },
                   ),
@@ -125,15 +118,13 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
                     subtitle: 'Khách sạn',
                     iconData: Icons.restaurant,
                     onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpdateAmenityScreen(
-                            amenityType: 'Khách sạn',
-                            amenityName: 'Ẩm thực Á-Âu',
-                            iconData: Icons.restaurant,
-                          ),
-                        ),
+                      context.push(
+                        Routes.adminUpdateAmenity,
+                        extra: {
+                          'amenityType': 'Khách sạn',
+                          'amenityName': 'Ẩm thực Á-Âu',
+                          'iconData': Icons.restaurant,
+                        },
                       );
                     },
                   ),
@@ -142,15 +133,13 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
                     subtitle: 'Phòng',
                     iconData: Icons.bathtub,
                     onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpdateAmenityScreen(
-                            amenityType: 'Phòng',
-                            amenityName: 'Bồn tắm',
-                            iconData: Icons.bathtub,
-                          ),
-                        ),
+                      context.push(
+                        Routes.adminUpdateAmenity,
+                        extra: {
+                          'amenityType': 'Phòng',
+                          'amenityName': 'Bồn tắm',
+                          'iconData': Icons.bathtub,
+                        },
                       );
                     },
                   ),

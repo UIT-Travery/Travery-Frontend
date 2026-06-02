@@ -23,6 +23,13 @@ class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
   String? _selectedBedType;
   final List<String> _bedTypes = ['Single', 'Double', 'Twin'];
 
+  String? _selectedHotel;
+  final List<String> _hotels = [
+    'Khách sạn Mường Thanh',
+    'Khách sạn Rex',
+    'Khách sạn Caravelle',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -72,11 +79,12 @@ class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -98,6 +106,22 @@ class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
+            CustomDropdownButton(
+              label: 'Khách sạn',
+              textholder: 'Chọn loại khách sạn',
+              items: _hotels,
+              value: _selectedHotel,
+              prefixIcon: const Icon(
+                Icons.hotel_outlined,
+                color: Colors.black54,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _selectedHotel = value;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
             InputTextField(
               label: 'Tên loại phòng',
               textholder: 'Nhập tên loại phòng',
