@@ -23,6 +23,8 @@ import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_service_impl.dart';
+import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/data/services/guide/guide_mission_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/data/services/trip/trip_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
@@ -60,12 +62,6 @@ import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_v
 import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
-
-import 'package:travery_frontend/ui/guide/home/view_models/guide_home_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/view_models/mission_detail_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/check_in/view_models/check_in_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_progress/view_models/tour_progress_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_completed/view_models/our_completed_view_model.dart';
 
 import '../data/services/tour/tour_service_impl.dart';
 
@@ -250,6 +246,11 @@ List<SingleChildWidget> get providers => [
       tokenRefreshService: context.read<TokenRefreshService>(),
     ),
   ),
+  Provider<GuideMissionService>(
+    create: (context) => GuideMissionServiceImpl(
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
   Provider<MissionRepository>(
     create: (context) => MissionRepositoryImpl(
       tokenRefreshService: context.read<TokenRefreshService>(),
@@ -268,29 +269,6 @@ List<SingleChildWidget> get providers => [
   Provider<TourCompletedRepository>(
     create: (context) => TourCompletedRepositoryImpl(
       tokenRefreshService: context.read<TokenRefreshService>(),
-    ),
-  ),
-  ChangeNotifierProvider(
-    create: (context) =>
-        GuideHomeViewModel(guideService: context.read<GuideService>()),
-  ),
-  ChangeNotifierProvider(
-    create: (context) => MissionDetailViewModel(
-      missionRepository: context.read<MissionRepository>(),
-    ),
-  ),
-  ChangeNotifierProvider(
-    create: (context) =>
-        CheckInViewModel(checkInRepository: context.read<CheckInRepository>()),
-  ),
-  ChangeNotifierProvider(
-    create: (context) => TourProgressViewModel(
-      repository: context.read<TourProgressRepository>(),
-    ),
-  ),
-  ChangeNotifierProvider(
-    create: (context) => TourCompletedViewModel(
-      repository: context.read<TourCompletedRepository>(),
     ),
   ),
 ];

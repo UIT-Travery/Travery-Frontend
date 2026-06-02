@@ -7,6 +7,20 @@ import 'package:travery_frontend/data/repositories/authentication/auth_repositor
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_coach/coordinator_coach.dart';
+import 'package:travery_frontend/data/services/guide/guide_service.dart';
+import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/ui/guide/home/guide_main_screen.dart';
+import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
+import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
+import 'package:travery_frontend/ui/guide/mission/mission_detail_screen.dart';
+import 'package:travery_frontend/ui/guide/mission/mission_detail_view_model.dart';
+import 'package:travery_frontend/ui/guide/mission/check_in/check_in_screen.dart';
+import 'package:travery_frontend/ui/guide/mission/check_in/check_in_view_model.dart';
+import 'package:travery_frontend/ui/guide/mission/tour_progress/tour_progress_screen.dart';
+import 'package:travery_frontend/ui/guide/mission/report_incident/report_incident_screen.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_vehicle_view_model.dart';
 import 'package:travery_frontend/ui/admin/view/admin_main_screen.dart';
@@ -16,16 +30,6 @@ import 'package:travery_frontend/ui/authentication/view_models/confirm_password_
 import 'package:travery_frontend/ui/authentication/view_models/forgot_password_view_model.dart';
 import 'package:travery_frontend/ui/authentication/view_models/register_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_main_screen.dart';
-import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
-import 'package:travery_frontend/ui/guide/home/view_models/guide_home_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/mission_detail_screen.dart';
-import 'package:travery_frontend/ui/guide/mission/view_models/mission_detail_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/check_in/check_in_screen.dart';
-import 'package:travery_frontend/ui/guide/mission/check_in/view_models/check_in_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_progress/tour_progress_screen.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_progress/view_models/tour_progress_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_completed/our_completed_screen.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_completed/view_models/our_completed_view_model.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_dashboard_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_main_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_addon_list_screen.dart';
@@ -121,17 +125,13 @@ import 'package:travery_frontend/ui/user/hotel/addon_payment_success/hotel_addon
 import 'package:travery_frontend/ui/user/hotel/checkout/hotel_checkout_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout_success/hotel_checkout_success_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
-import 'package:travery_frontend/data/services/api/profile_service.dart';
+import '../ui/admin/view_model/create_hotel_view_model.dart';
+import '../ui/admin/view_model/create_vehicle_view_model.dart';
+import '../ui/admin/view_model/hotel_management_view_model.dart';
+import '../ui/admin/view_model/tour_management_view_model.dart';
+import '../ui/admin/view_model/vehicle_management_view_model.dart';
 import 'routes.dart';
-import 'package:travery_frontend/ui/admin/view_model/vehicle_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/create_hotel_view_model.dart';
-import 'package:travery_frontend/ui/admin/view_model/create_vehicle_view_model.dart';
 
 // Admin new imports
 import '../ui/admin/view/view_roomtype_list_sreen.dart';
@@ -361,51 +361,6 @@ GoRouter appRouter(
       ),
 
       // --- GUIDE ROUTES ---
-      GoRoute(
-        path: Routes.guideHome,
-        builder: (context, state) =>
-            GuideHomeScreen(viewModel: context.read<GuideHomeViewModel>()),
-      ),
-      GoRoute(
-        path: Routes.missionDetail,
-        builder: (context, state) {
-          final missionId = state.pathParameters['id'] ?? '';
-          return MissionDetailScreen(
-            missionId: missionId,
-            viewModel: context.read<MissionDetailViewModel>(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.checkIn,
-        builder: (context, state) {
-          final missionId = state.pathParameters['id'] ?? '';
-          return CheckInScreen(
-            missionId: missionId,
-            viewModel: context.read<CheckInViewModel>(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.tourProgress,
-        builder: (context, state) {
-          final missionId = state.pathParameters['id'] ?? '';
-          return TourProgressScreen(
-            missionId: missionId,
-            viewModel: context.read<TourProgressViewModel>(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.tourCompleted,
-        builder: (context, state) {
-          final missionId = state.pathParameters['id'] ?? '';
-          return TourCompletedScreen(
-            missionId: missionId,
-            viewModel: context.read<TourCompletedViewModel>(),
-          );
-        },
-      ),
 
       // --- USER ROUTES ---
       GoRoute(
@@ -416,7 +371,6 @@ GoRouter appRouter(
         path: Routes.tourList,
         builder: (context, state) {
           final keyword = state.uri.queryParameters['keyword'];
-          final destinationId = state.uri.queryParameters['destinationId'];
           return TourListScreen(
             viewModel: context.read<TourListViewModel>(),
             keyword: keyword,
@@ -599,9 +553,7 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.tripMyBookings,
-        builder: (context, state) {
-          return const MyTripBookingScreen();
-        },
+        builder: (context, state) => const UserBottomNav(initialIndex: 1),
       ),
       GoRoute(
         path: Routes.tripBookingDetail,
@@ -679,7 +631,6 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.hotelBookingDetail,
         builder: (context, state) {
-          final bookingId = state.pathParameters['id'] ?? '';
           return ChangeNotifierProvider(
             create: (_) => HotelBookingDetailViewModel(),
             child: HotelBookingDetailScreen(),
@@ -1036,6 +987,123 @@ GoRouter appRouter(
           ),
           child: const UserSettingsScreen(),
         ),
+      ),
+
+      // ==== Guide Routes ====
+      GoRoute(
+        path: Routes.guideHome,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: ChangeNotifierProvider(
+            create: (ctx) =>
+                GuideHomeViewModel(guideService: ctx.read<GuideService>()),
+            child: Builder(
+              builder: (ctx) =>
+                  GuideMainScreen(viewModel: ctx.read<GuideHomeViewModel>()),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.guideEditProfile,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserEditProfileScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.guideChangePassword,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ProfileViewModel(
+            profileService: context.read<ProfileService>(),
+            securityStorageService: context.read<SecurityStorageService>(),
+            authRepository: context.read<AuthRepository>(),
+          ),
+          child: const UserChangePasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.missionDetail,
+        builder: (context, state) {
+          final missionId = state.pathParameters['id'] ?? '';
+          return ChangeNotifierProvider(
+            create: (ctx) => MissionDetailViewModel(
+              missionService: ctx.read<GuideMissionService>(),
+            ),
+            child: Builder(
+              builder: (ctx) => MissionDetailScreen(
+                missionId: missionId,
+                viewModel: ctx.read<MissionDetailViewModel>(),
+              ),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.tourCompleted,
+        builder: (context, state) {
+          final missionId = state.pathParameters['id'] ?? '';
+          return ChangeNotifierProvider(
+            create: (ctx) => MissionDetailViewModel(
+              missionService: ctx.read<GuideMissionService>(),
+            ),
+            child: Builder(
+              builder: (ctx) => MissionDetailScreen(
+                missionId: missionId,
+                viewModel: ctx.read<MissionDetailViewModel>(),
+              ),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.checkIn,
+        builder: (context, state) {
+          final missionId = state.pathParameters['id'] ?? '';
+          return ChangeNotifierProvider(
+            create: (ctx) => CheckInViewModel(
+              missionService: ctx.read<GuideMissionService>(),
+            ),
+            child: Builder(
+              builder: (ctx) => CheckInScreen(
+                missionId: missionId,
+                viewModel: ctx.read<CheckInViewModel>(),
+              ),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.tourProgress,
+        builder: (context, state) {
+          final missionId = state.pathParameters['id'] ?? '';
+          return ChangeNotifierProvider(
+            create: (ctx) => MissionDetailViewModel(
+              missionService: ctx.read<GuideMissionService>(),
+            ),
+            child: Builder(
+              builder: (ctx) => TourProgressScreen(
+                missionId: missionId,
+                viewModel: ctx.read<MissionDetailViewModel>(),
+              ),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/guide/mission/:id/report-incident',
+        builder: (context, state) {
+          final missionId = state.pathParameters['id'] ?? '';
+          return ReportIncidentScreen(missionId: missionId);
+        },
       ),
     ],
   );
