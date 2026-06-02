@@ -87,36 +87,42 @@ class AdminRepositoryDev extends AdminRepository {
       plateNumber: '51B - 882.41',
       coachType: CoachType.limousine.toString(),
       seatCount: 22,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_2',
       plateNumber: '29B - 110.02',
       coachType: 'Standard',
       seatCount: 45,
+      status: 'Maintenance',
     ),
     BusinessCoach(
       id: 'veh_3',
       plateNumber: '59B - 564.29',
       coachType: 'Limousine',
       seatCount: 9,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_4',
       plateNumber: '49B - 023.15',
       coachType: 'Standard',
       seatCount: 34,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_5',
       plateNumber: '30A - 765.33',
       coachType: 'VIP Sleeper',
       seatCount: 18,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_6',
       plateNumber: '79C - 441.88',
       coachType: 'Standard',
       seatCount: 40,
+      status: 'Retired',
     ),
   ];
 
@@ -921,9 +927,9 @@ class AdminRepositoryDev extends AdminRepository {
     required String name,
     required String coachType,
     required List<dynamic> items,
-  }) {
-    // TODO: implement createSeatLayout
-    throw UnimplementedError();
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok('mock_layout_id');
   }
 
   @override
@@ -932,9 +938,20 @@ class AdminRepositoryDev extends AdminRepository {
     required String type,
     required String seatLayoutId,
     required int seatCount,
-  }) {
-    // TODO: implement createVehicle
-    throw UnimplementedError();
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final newId = 'veh_${_mutableVehicles.length + 1}';
+    _mutableVehicles.add(
+      BusinessCoach(
+        id: newId,
+        plateNumber: registrationNumber,
+        coachType: type,
+        seatCount: seatCount,
+        status: 'Active',
+      ),
+    );
+    notifyListeners();
+    return const Result.ok(null);
   }
 
   @override
@@ -944,8 +961,20 @@ class AdminRepositoryDev extends AdminRepository {
     required String type,
     required String seatLayoutId,
     required int seatCount,
-  }) {
-    // TODO: implement updateVehicle
-    throw UnimplementedError();
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableVehicles.indexWhere((v) => v.id == id);
+    if (idx != -1) {
+      final existing = _mutableVehicles[idx];
+      _mutableVehicles[idx] = BusinessCoach(
+        id: existing.id,
+        plateNumber: registrationNumber,
+        coachType: type,
+        seatCount: seatCount,
+        status: existing.status,
+      );
+      notifyListeners();
+    }
+    return const Result.ok(null);
   }
 }

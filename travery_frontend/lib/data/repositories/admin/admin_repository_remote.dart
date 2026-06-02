@@ -424,6 +424,7 @@ class AdminRepositoryRemote extends AdminRepository {
             plateNumber: coach.licensePlate,
             coachType: coach.coachType,
             seatCount: coach.capacity,
+            status: coach.status,
           );
         }).toList();
         return Result.ok(coaches);

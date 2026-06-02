@@ -169,9 +169,7 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
 
                   final vehicles = _applyFilters(all);
                   final runningCount = all
-                      .where(
-                        (v) => v.coachType == 'LIMOUSINE',
-                      )
+                      .where((v) => v.coachType == 'LIMOUSINE')
                       .length;
 
                   return Column(
@@ -243,7 +241,9 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
                                   final v = vehicles[index];
                                   return VehicleCard(
                                     plateNumber: v.plateNumber,
-                                    vehicleType: _getVehicleTypeLabel(v.coachType),
+                                    vehicleType: _getVehicleTypeLabel(
+                                      v.coachType,
+                                    ),
                                     seatCount: v.seatCount,
                                     onTap: () async {
                                       await context.push(

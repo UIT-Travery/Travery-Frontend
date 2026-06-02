@@ -20,6 +20,9 @@ class _CreateRoomTypeScreenState extends State<CreateRoomTypeScreen> {
   String? _selectedBedType;
   final List<String> _bedTypes = ['Single', 'Double', 'Twin'];
 
+  String? _selectedHotel;
+  final List<String> _hotels = ['Khách sạn Mường Thanh', 'Khách sạn Rex', 'Khách sạn Caravelle'];
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -63,6 +66,19 @@ class _CreateRoomTypeScreenState extends State<CreateRoomTypeScreen> {
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               const SizedBox(height: 24),
+              CustomDropdownButton(
+                label: 'Khách sạn',
+                textholder: 'Chọn loại khách sạn',
+                items: _hotels,
+                value: _selectedHotel,
+                prefixIcon: const Icon(Icons.hotel_outlined, color: Colors.black54),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedHotel = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
               InputTextField(
                 label: 'Tên loại phòng',
                 textholder: 'Nhập tên loại phòng',

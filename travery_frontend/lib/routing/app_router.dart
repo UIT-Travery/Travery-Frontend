@@ -817,12 +817,18 @@ GoRouter appRouter(
         path: Routes.adminViewDetailAccountWithId(':id'),
         builder: (context, state) {
           final accountId = state.pathParameters['id']!;
-          final viewModel = ViewDetailAccountViewModel(
-            adminRepository: context.read<AdminRepository>(),
-          );
-          return ViewDetailAccountScreen(
-            viewModel: viewModel,
-            accountId: accountId,
+          return ChangeNotifierProvider(
+            create: (context) => ViewDetailAccountViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            child: Consumer<ViewDetailAccountViewModel>(
+              builder: (context, viewModel, child) {
+                return ViewDetailAccountScreen(
+                  viewModel: viewModel,
+                  accountId: accountId,
+                );
+              },
+            ),
           );
         },
       ),
@@ -830,10 +836,19 @@ GoRouter appRouter(
         path: Routes.adminUpdateHotelWithId(':id'),
         builder: (context, state) {
           final hotelId = state.pathParameters['id']!;
-          final viewModel = UpdateHotelViewModel(
-            adminRepository: context.read<AdminRepository>(),
+          return ChangeNotifierProvider(
+            create: (context) => UpdateHotelViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            child: Consumer<UpdateHotelViewModel>(
+              builder: (context, viewModel, child) {
+                return UpdateHotelScreen(
+                  viewModel: viewModel, 
+                  hotelId: hotelId,
+                );
+              },
+            ),
           );
-          return UpdateHotelScreen(viewModel: viewModel, hotelId: hotelId);
         },
       ),
       GoRoute(
@@ -848,12 +863,18 @@ GoRouter appRouter(
         path: Routes.adminUpdateVehicleWithId(':id'),
         builder: (context, state) {
           final vehicleId = state.pathParameters['id']!;
-          final viewModel = UpdateVehicleViewModel(
-            adminRepository: context.read<AdminRepository>(),
-          );
-          return UpdateVehicleScreen(
-            viewModel: viewModel,
-            vehicleId: vehicleId,
+          return ChangeNotifierProvider(
+            create: (context) => UpdateVehicleViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            child: Consumer<UpdateVehicleViewModel>(
+              builder: (context, viewModel, child) {
+                return UpdateVehicleScreen(
+                  viewModel: viewModel,
+                  vehicleId: vehicleId,
+                );
+              },
+            ),
           );
         },
       ),

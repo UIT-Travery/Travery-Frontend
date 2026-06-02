@@ -17,9 +17,6 @@ class CreateVehicleScreen extends StatefulWidget {
 }
 
 class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _licenseController = TextEditingController();
   final _plateController = TextEditingController();
   final _seatsController = TextEditingController();
   String? _selectedVehicleType;
@@ -47,9 +44,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   @override
   void dispose() {
     widget.viewModel.createVehicle.removeListener(_onResult);
-    _nameController.dispose();
-    _phoneController.dispose();
-    _licenseController.dispose();
     _plateController.dispose();
     _seatsController.dispose();
     super.dispose();
@@ -80,33 +74,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   // ── Actions ────────────────────────────────────────────────────────────────
 
   void _onSave() {
-    if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập họ và tên'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    if (_phoneController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập số điện thoại'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    if (_licenseController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập giấy phép lái xe'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
     if (_plateController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -161,61 +128,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
 
               _buildHeader(),
               const SizedBox(height: 24),
-              _buildSectionTitle(Icons.person_outline, 'Thông tin tài xế'),
-              const SizedBox(height: 16),
-              _buildImageUpload('Thêm ảnh đại diện tài xế'),
-              const SizedBox(height: 24),
-              InputTextField(
-                label: 'Họ và tên',
-                textholder: 'Nhập họ và tên',
-                prefixIcon: const Icon(
-                  Icons.text_format,
-                  size: 20,
-                  color: Colors.black87,
-                ),
-                suffixIcon: const Icon(
-                  Icons.edit,
-                  size: 16,
-                  color: Colors.black54,
-                ),
-                controller: _nameController,
-                textInputType: TextInputType.name,
-              ),
-              const SizedBox(height: 16),
-              InputTextField(
-                label: 'Số điện thoại',
-                textholder: 'Nhập số điện thoại',
-                prefixIcon: const Icon(
-                  Icons.phone,
-                  size: 20,
-                  color: Colors.black87,
-                ),
-                suffixIcon: const Icon(
-                  Icons.edit,
-                  size: 16,
-                  color: Colors.black54,
-                ),
-                controller: _phoneController,
-                textInputType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-              InputTextField(
-                label: 'Giấy phép lái xe',
-                textholder: 'Nhập số giấy phép lái xe',
-                prefixIcon: const Icon(
-                  Icons.numbers,
-                  size: 20,
-                  color: Colors.black87,
-                ),
-                suffixIcon: const Icon(
-                  Icons.edit,
-                  size: 16,
-                  color: Colors.black54,
-                ),
-                controller: _licenseController,
-                textInputType: TextInputType.text,
-              ),
-              const SizedBox(height: 32),
               _buildSectionTitle(
                 Icons.directions_car_outlined,
                 'Thông tin phương tiện',
@@ -310,7 +222,7 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Nhập thông tin phương tiện và tài xế để tạo chuyến xe',
+                    'Nhập thông tin phương tiện để tạo phương tiện mới',
                     style: TextStyle(
                       fontSize: AppTextTheme.bodySmall,
                       color: Colors.grey[600],
@@ -339,30 +251,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildImageUpload(String text) {
-    return Center(
-      child: Column(
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.image_outlined,
-              color: Colors.black54,
-              size: 30,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
     );
   }
 

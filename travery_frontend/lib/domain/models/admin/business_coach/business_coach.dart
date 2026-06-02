@@ -8,6 +8,7 @@ class BusinessCoach {
     required this.plateNumber,
     required this.coachType,
     required this.seatCount,
+    required this.status,
     this.seats,
   });
 
@@ -15,5 +16,6 @@ class BusinessCoach {
   final String plateNumber;
   final String coachType;
   final int seatCount;
+  final String status;
   final List<BusinessCoachSeat>? seats;
 }
