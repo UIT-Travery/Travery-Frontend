@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/admin/view/admin_view_profile_screen.dart';
+import 'package:travery_frontend/ui/admin/view/view_roomtype_list_sreen.dart';
 import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
@@ -14,7 +15,6 @@ import 'account_management_screen.dart';
 import 'hotel_management_screen.dart';
 import 'tour_management_screen.dart';
 import 'vehicle_management_screen.dart';
-import 'roomtype_mangagement_screen.dart';
 import 'amenity_management_screen.dart';
 import 'widgets/admin_sidebar.dart';
 
@@ -75,7 +75,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           viewModel: context.read<HotelManagementViewModel>(),
         );
       case 5:
-        return const RoomtypeManagementScreen();
+        return const ViewRoomtypeListScreen();
       case 6:
         return const AmenityManagementScreen();
       case 8:

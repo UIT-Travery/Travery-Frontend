@@ -186,7 +186,7 @@ class _AdminViewProfileScreenState extends State<AdminViewProfileScreen> {
                 color: const Color(0xFF0D47A1), // Blue
                 height: 48,
                 onTap: () {
-                  context.push('/admin/update-profile');
+                  context.push(Routes.adminUpdateProfile);
                 },
               ),
             ),

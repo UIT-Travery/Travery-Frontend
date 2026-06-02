@@ -6,6 +6,7 @@ import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
+import 'widgets/large_button.dart';
 
 class CreateVehicleScreen extends StatefulWidget {
   const CreateVehicleScreen({super.key, required this.viewModel});
@@ -139,8 +140,15 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildAppBar(),
-              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.centerLeft,
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
               _buildHeader(),
               const SizedBox(height: 24),
               _buildSectionTitle(Icons.person_outline, 'Thông tin tài xế'),
@@ -255,6 +263,11 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
               _buildFloorButtons(),
               const SizedBox(height: 24),
               _buildSeatMaps(),
+              const SizedBox(height: 16),
+              LargeButton(
+                text: 'Lưu',
+                onTap: widget.viewModel.createVehicle.running ? null : _onSave,
+              ),
               const SizedBox(height: 30),
             ],
           ),
@@ -264,35 +277,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   }
 
   // ── Builders ───────────────────────────────────────────────────────────────
-
-  Widget _buildAppBar() {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.grid_view_rounded,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 10),
-        const Text(
-          'Travery Admin',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildHeader() {
     return ListenableBuilder(
@@ -325,40 +309,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
                   ),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: isRunning ? null : () => context.pop(),
-                  child: const Text(
-                    'Hủy',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: isRunning ? null : _onSave,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryDarkBlackBlue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  child: isRunning
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Lưu',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                ),
-              ],
             ),
           ],
         );

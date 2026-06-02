@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
@@ -5,6 +6,7 @@ import 'package:travery_frontend/data/repositories/profile/profile_repository.da
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_coach/coordinator_coach.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_vehicle_view_model.dart';
 import 'package:travery_frontend/ui/admin/view/admin_main_screen.dart';
@@ -130,6 +132,31 @@ import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.
 import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/create_hotel_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/create_vehicle_view_model.dart';
+
+// Admin new imports
+import '../ui/admin/view/view_roomtype_list_sreen.dart';
+import '../ui/admin/view/view_roomtype_screen.dart';
+import '../ui/admin/view/create_room_type_screen.dart';
+import '../ui/admin/view/update_room_type_screen.dart';
+import '../ui/admin/view/amenity_management_screen.dart';
+import '../ui/admin/view/create_amenity_screen.dart';
+import '../ui/admin/view/update_amenity_screen.dart';
+import '../ui/admin/view/view_hotel_service_list_screen.dart';
+import '../ui/admin/view/create_hotel_service.dart';
+import '../ui/admin/view/update_hotel_service_screen.dart';
+import '../ui/admin/view/admin_view_profile_screen.dart';
+
+// Coordinator new imports
+import 'package:travery_frontend/ui/coordinator/view/coordinator_create_coach_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_create_coach_template_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_selection_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_list_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_template_list_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_view_ended_tour_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_view_reviews_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view/coordinator_view_task_list_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_template_list_view_model.dart';
 
 GoRouter appRouter(
   AuthRepository authRepository, {
@@ -285,6 +312,52 @@ GoRouter appRouter(
             profileRepository: context.read<ProfileRepository>(),
           ),
         ),
+      ),
+      GoRoute(
+        path: Routes.coordinatorSelection,
+        builder: (context, state) => const CoordinatorSelectionScreen(),
+      ),
+      GoRoute(
+        path: Routes.coordinatorViewEndedTour,
+        builder: (context, state) => const CoordinatorViewEndedTourScreen(),
+      ),
+      GoRoute(
+        path: Routes.coordinatorViewCoachList,
+        builder: (context, state) => const CoordinatorViewCoachListScreen(),
+      ),
+      GoRoute(
+        path: Routes.coordinatorViewCoach,
+        builder: (context, state) {
+          final coach =
+              state.extra
+                  as CoordinatorCoach; // It needs a dynamic or specific type, passing what was in extra
+          return CoordinatorViewCoachScreen(coach: coach);
+        },
+      ),
+      GoRoute(
+        path: Routes.coordinatorCreateCoach,
+        builder: (context, state) => const CoordinatorCreateCoachScreen(),
+      ),
+      GoRoute(
+        path: Routes.coordinatorViewCoachTemplateList,
+        builder: (context, state) => CoordinatorViewCoachTemplateListScreen(
+          viewModel: CoordinatorCoachTemplateListViewModel(
+            coordinatorRepository: context.read<CoordinatorRepository>(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.coordinatorCreateCoachTemplate,
+        builder: (context, state) =>
+            const CoordinatorCreateCoachTemplateScreen(),
+      ),
+      GoRoute(
+        path: Routes.coordinatorViewReviews,
+        builder: (context, state) => const CoordinatorViewReviewsScreen(),
+      ),
+      GoRoute(
+        path: Routes.coordinatorViewTaskList,
+        builder: (context, state) => const CoordinatorViewTaskListScreen(),
       ),
 
       // --- GUIDE ROUTES ---
@@ -800,6 +873,76 @@ GoRouter appRouter(
             profileRepository: context.read<ProfileRepository>(),
           ),
         ),
+      ),
+      GoRoute(
+        path: Routes.adminViewProfile,
+        builder: (context, state) => AdminViewProfileScreen(
+          viewModel: AdminProfileViewModel(
+            authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.adminViewRoomtypeList,
+        builder: (context, state) => const ViewRoomtypeListScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminViewRoomtype,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return ViewRoomtypeScreen(roomType: extra?['roomType']);
+        },
+      ),
+      GoRoute(
+        path: Routes.adminCreateRoomType,
+        builder: (context, state) => const CreateRoomTypeScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminUpdateRoomType,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return UpdateRoomTypeScreen(roomType: extra?['roomType']);
+        },
+      ),
+      GoRoute(
+        path: Routes.adminAmenityManagement,
+        builder: (context, state) => const AmenityManagementScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminCreateAmenity,
+        builder: (context, state) => const CreateAmenityScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminUpdateAmenity,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return UpdateAmenityScreen(
+            amenityType: extra?['amenityType'] as String?,
+            amenityName: extra?['amenityName'] as String?,
+            iconData: extra?['iconData'] as IconData?,
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.adminHotelServiceList,
+        builder: (context, state) => const ViewHotelServiceListScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminCreateHotelService,
+        builder: (context, state) => const CreateHotelServiceScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminUpdateHotelService,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return UpdateHotelServiceScreen(
+            serviceType: extra?['serviceType'] as String?,
+            serviceName: extra?['serviceName'] as String?,
+            unit: extra?['unit'] as String?,
+            price: extra?['price'] as String?,
+          );
+        },
       ),
 
       //======Receptionist========

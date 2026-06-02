@@ -10,6 +10,7 @@ class InputTextField extends StatelessWidget {
   final TextEditingController controller;
   final TextInputType textInputType;
   final String? initialValue;
+  final int maxLines;
 
   InputTextField({
     super.key,
@@ -20,6 +21,7 @@ class InputTextField extends StatelessWidget {
     required this.controller,
     required this.textInputType,
     this.initialValue,
+    this.maxLines = 1,
   }) {
     if (initialValue != null && controller.text.isEmpty) {
       controller.text = initialValue!;
@@ -41,7 +43,8 @@ class InputTextField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Container(
-          height: 48,
+          height: maxLines > 1 ? null : 48,
+          constraints: const BoxConstraints(minHeight: 48),
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
@@ -50,6 +53,7 @@ class InputTextField extends StatelessWidget {
           child: TextField(
             controller: controller,
             keyboardType: textInputType,
+            maxLines: maxLines,
             style: TextStyle(
               fontSize: AppTextTheme.bodyMedium,
               fontWeight: FontWeight.w500,

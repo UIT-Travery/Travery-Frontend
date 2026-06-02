@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import '../../../../domain/models/admin/business_room_type/business_room_type.dart';
 import 'widgets/large_button.dart';
 
-class RoomtypeManagementScreen extends StatefulWidget {
+class ViewRoomtypeScreen extends StatefulWidget {
   final BusinessRoomType? roomType;
 
-  const RoomtypeManagementScreen({super.key, this.roomType});
+  const ViewRoomtypeScreen({super.key, this.roomType});
 
   @override
-  State<RoomtypeManagementScreen> createState() =>
-      _RoomtypeManagementScreenState();
+  State<ViewRoomtypeScreen> createState() => _ViewRoomtypeScreenState();
 }
 
-class _RoomtypeManagementScreenState extends State<RoomtypeManagementScreen> {
+class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
   String _getBedTypeName(BedType type) {
     switch (type) {
       case BedType.single:
@@ -275,8 +275,8 @@ class _RoomtypeManagementScreenState extends State<RoomtypeManagementScreen> {
               color: const Color(0xFF0055C3),
               onTap: () {
                 context.push(
-                  '/admin_update_room_type_screen.dart',
-                  extra: type,
+                  Routes.adminUpdateRoomType,
+                  extra: {'roomType': type},
                 );
               },
             ),

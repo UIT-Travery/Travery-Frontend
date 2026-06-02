@@ -71,19 +71,20 @@ class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.pop(),
-        ),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                alignment: Alignment.centerLeft,
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
             const Text(
               'Chỉnh sửa Loại phòng',
               style: TextStyle(

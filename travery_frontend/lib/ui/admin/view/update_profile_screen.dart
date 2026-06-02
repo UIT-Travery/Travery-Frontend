@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/input_text_field.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/small_button.dart';
 import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
@@ -76,10 +75,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         widget.viewModel.updateProfile.clearResult();
         context.pop();
       } else if (updateResult is Error<ProfileData>) {
-        Utils.showErrorNotification(
-          context,
-          updateResult.error.toString(),
-        );
+        Utils.showErrorNotification(context, updateResult.error.toString());
         widget.viewModel.updateProfile.clearResult();
       }
     }
@@ -90,10 +86,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         Utils.showSuccessNotification(context, 'Cập nhật thành công');
         widget.viewModel.updateAvatar.clearResult();
       } else if (avatarResult is Error<ProfileData>) {
-        Utils.showErrorNotification(
-          context,
-          avatarResult.error.toString(),
-        );
+        Utils.showErrorNotification(context, avatarResult.error.toString());
         widget.viewModel.updateAvatar.clearResult();
       }
     }
@@ -126,30 +119,11 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        leading: const SizedBox.shrink(),
-        leadingWidth: 0,
-        title: Row(
-          children: [
-            const Icon(Icons.grid_view, color: AppColors.primary),
-            const SizedBox(width: 8),
-            Text(
-              'Travery Admin',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: AppTextTheme.headlineMedium,
-              ),
-            ),
-          ],
-        ),
-      ),
       body: ListenableBuilder(
         listenable: widget.viewModel.loadProfile,
         builder: (context, _) {
-          final running = widget.viewModel.loadProfile.running ||
+          final running =
+              widget.viewModel.loadProfile.running ||
               widget.viewModel.updateProfile.running ||
               widget.viewModel.updateAvatar.running;
 
@@ -165,6 +139,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        alignment: Alignment.centerLeft,
+                        icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     GestureDetector(
                       onTap: _pickImage,
@@ -178,24 +161,26 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                     width: 100,
                                     height: 100,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        Container(
-                                      width: 100,
-                                      height: 100,
-                                      color: AppColors.primary.withValues(
-                                          alpha: 0.1),
-                                      child: const Icon(
-                                        Icons.person,
-                                        size: 50,
-                                        color: AppColors.primary,
-                                      ),
-                                    ),
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                              width: 100,
+                                              height: 100,
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.1),
+                                              child: const Icon(
+                                                Icons.person,
+                                                size: 50,
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
                                   )
                                 : Container(
                                     width: 100,
                                     height: 100,
-                                    color:
-                                        AppColors.primary.withValues(alpha: 0.1),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     child: const Icon(
                                       Icons.person,
                                       size: 50,
@@ -223,85 +208,83 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-            InputTextField(
-              label: 'Email',
-              textholder: 'Nhập email',
-              controller: _emailController,
-              textInputType: TextInputType.emailAddress,
-              prefixIcon: const Icon(
-                Icons.email_outlined,
-                color: AppColors.textPrimary,
+                    InputTextField(
+                      label: 'Email',
+                      textholder: 'Nhập email',
+                      controller: _emailController,
+                      textInputType: TextInputType.emailAddress,
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        color: AppColors.textPrimary,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.edit,
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    InputTextField(
+                      label: 'Họ và tên',
+                      textholder: 'Nhập họ và tên',
+                      controller: _nameController,
+                      textInputType: TextInputType.name,
+                      prefixIcon: const Icon(
+                        Icons.person_outline,
+                        color: AppColors.textPrimary,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.edit,
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    InputTextField(
+                      label: 'Số điện thoại',
+                      textholder: 'Nhập số điện thoại',
+                      controller: _phoneController,
+                      textInputType: TextInputType.phone,
+                      prefixIcon: const Icon(
+                        Icons.phone_outlined,
+                        color: AppColors.textPrimary,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.edit,
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SmallButton(
+                        label: 'Xác nhận chỉnh sửa',
+                        color: const Color(0xFF0D47A1), // Blue
+                        height: 48,
+                        onTap: _handleUpdate,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SmallButton(
+                        label: 'Hủy bỏ',
+                        color: const Color(0xFFB71C1C), // Red
+                        height: 48,
+                        onTap: () => context.pop(),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
-              suffixIcon: const Icon(
-                Icons.edit,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(height: 16),
-            InputTextField(
-              label: 'Họ và tên',
-              textholder: 'Nhập họ và tên',
-              controller: _nameController,
-              textInputType: TextInputType.name,
-              prefixIcon: const Icon(
-                Icons.person_outline,
-                color: AppColors.textPrimary,
-              ),
-              suffixIcon: const Icon(
-                Icons.edit,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(height: 16),
-            InputTextField(
-              label: 'Số điện thoại',
-              textholder: 'Nhập số điện thoại',
-              controller: _phoneController,
-              textInputType: TextInputType.phone,
-              prefixIcon: const Icon(
-                Icons.phone_outlined,
-                color: AppColors.textPrimary,
-              ),
-              suffixIcon: const Icon(
-                Icons.edit,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: SmallButton(
-                label: 'Xác nhận chỉnh sửa',
-                color: const Color(0xFF0D47A1), // Blue
-                height: 48,
-                onTap: _handleUpdate,
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: SmallButton(
-                label: 'Hủy bỏ',
-                color: const Color(0xFFB71C1C), // Red
-                height: 48,
-                onTap: () => context.pop(),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-      if (running)
-        Container(
-          color: Colors.black12,
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-    ],
+              if (running)
+                Container(
+                  color: Colors.black12,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+            ],
           );
         },
       ),

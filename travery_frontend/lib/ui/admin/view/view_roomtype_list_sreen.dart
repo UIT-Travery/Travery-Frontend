@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import '../../../../domain/models/admin/business_room_type/business_room_type.dart';
 import 'widgets/hotel_room_type_card.dart';
 import 'widgets/small_button.dart';
@@ -43,14 +44,6 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.pop(),
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
@@ -62,6 +55,7 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 16),
                     const Text(
                       'Quản lý Loại phòng',
                       style: TextStyle(
@@ -86,9 +80,7 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
                   ),
                   color: const Color(0xFF0055C3),
                   onTap: () {
-                    context.push(
-                      '/admin_create_room_type_screen.dart',
-                    ); // Assuming generic push for demo
+                    context.push(Routes.adminCreateRoomType);
                   },
                 ),
               ],
@@ -141,7 +133,7 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 0.85,
+                  childAspectRatio: 1.3,
                 ),
                 itemCount: mockRoomTypes.length,
                 itemBuilder: (context, index) {
@@ -150,8 +142,8 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
                     roomType: roomType,
                     onTap: () {
                       context.push(
-                        '/admin_view_roomtype_screen.dart',
-                        extra: roomType,
+                        Routes.adminViewRoomtype,
+                        extra: {'roomType': roomType},
                       );
                     },
                   );

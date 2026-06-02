@@ -5,6 +5,7 @@ import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
+import 'widgets/large_button.dart';
 
 class UpdateVehicleScreen extends StatefulWidget {
   final UpdateVehicleViewModel viewModel;
@@ -259,6 +260,11 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
                 controller: _seatsController,
                 textInputType: TextInputType.number,
               ),
+              const SizedBox(height: 16),
+              LargeButton(
+                text: 'Lưu',
+                onTap: widget.viewModel.updateVehicle.running ? null : _onSave,
+              ),
               const SizedBox(height: 30),
             ],
           ),
@@ -272,6 +278,12 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
   Widget _buildAppBar() {
     return Row(
       children: [
+        IconButton(
+          padding: EdgeInsets.zero,
+          alignment: Alignment.centerLeft,
+          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+          onPressed: () => Navigator.pop(context),
+        ),
         Container(
           width: 36,
           height: 36,
@@ -329,40 +341,6 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
                   ),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: isRunning ? null : () => context.pop(),
-                  child: const Text(
-                    'Hủy',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: isRunning ? null : _onSave,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryDarkBlackBlue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  child: isRunning
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Lưu',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                ),
-              ],
             ),
           ],
         );

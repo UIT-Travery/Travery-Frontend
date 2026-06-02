@@ -182,6 +182,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   Widget _buildAppBar() {
     return Row(
       children: [
+        IconButton(
+          padding: EdgeInsets.zero,
+          alignment: Alignment.centerLeft,
+          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+          onPressed: () => Navigator.pop(context),
+        ),
         Container(
           width: 36,
           height: 36,

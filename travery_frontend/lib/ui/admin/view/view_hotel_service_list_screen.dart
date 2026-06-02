@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import 'widgets/hotel_service_card.dart';
 import 'widgets/small_button.dart';
-import 'create_hotel_service.dart';
-import 'update_hotel_service_screen.dart';
 
 class ViewHotelServiceListScreen extends StatelessWidget {
   const ViewHotelServiceListScreen({super.key});
@@ -11,14 +11,6 @@ class ViewHotelServiceListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FB),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
@@ -37,14 +29,13 @@ class ViewHotelServiceListScreen extends StatelessWidget {
                 ),
                 SmallButton(
                   label: 'Thêm',
-                  prefixIcon: const Icon(Icons.add, color: Colors.white, size: 16),
+                  prefixIcon: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CreateHotelServiceScreen(),
-                      ),
-                    );
+                    context.push(Routes.adminCreateHotelService);
                   },
                 ),
               ],
@@ -52,10 +43,7 @@ class ViewHotelServiceListScreen extends StatelessWidget {
             const SizedBox(height: 8),
             const Text(
               'Danh sách các dịch vụ trong khách sạn',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF64748B),
-              ),
+              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 24),
             Expanded(
@@ -67,16 +55,14 @@ class ViewHotelServiceListScreen extends StatelessWidget {
                     price: '500.000 đ',
                     unit: '/NGƯỜI',
                     onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpdateHotelServiceScreen(
-                            serviceType: 'Spa',
-                            serviceName: 'Spa Thụy Điển',
-                            unit: 'Người',
-                            price: '500000',
-                          ),
-                        ),
+                      context.push(
+                        Routes.adminUpdateHotelService,
+                        extra: {
+                          'serviceType': 'Spa',
+                          'serviceName': 'Spa Thụy Điển',
+                          'unit': 'Người',
+                          'price': '500000',
+                        },
                       );
                     },
                   ),
@@ -86,16 +72,14 @@ class ViewHotelServiceListScreen extends StatelessWidget {
                     price: '450.000 đ',
                     unit: '/SUẤT',
                     onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpdateHotelServiceScreen(
-                            serviceType: 'Ăn uống',
-                            serviceName: 'Bữa sáng Châu Âu',
-                            unit: 'Suất',
-                            price: '450000',
-                          ),
-                        ),
+                      context.push(
+                        Routes.adminUpdateHotelService,
+                        extra: {
+                          'serviceType': 'Ăn uống',
+                          'serviceName': 'Bữa sáng Châu Âu',
+                          'unit': 'Suất',
+                          'price': '450000',
+                        },
                       );
                     },
                   ),
@@ -105,16 +89,14 @@ class ViewHotelServiceListScreen extends StatelessWidget {
                     price: '80.000 đ',
                     unit: '/KG',
                     onEdit: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpdateHotelServiceScreen(
-                            serviceType: 'Giặt ủi',
-                            serviceName: 'Giặt sấy trong 24h',
-                            unit: 'KG',
-                            price: '80000',
-                          ),
-                        ),
+                      context.push(
+                        Routes.adminUpdateHotelService,
+                        extra: {
+                          'serviceType': 'Giặt ủi',
+                          'serviceName': 'Giặt sấy trong 24h',
+                          'unit': 'KG',
+                          'price': '80000',
+                        },
                       );
                     },
                   ),
