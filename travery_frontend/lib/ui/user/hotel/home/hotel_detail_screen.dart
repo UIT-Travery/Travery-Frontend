@@ -312,7 +312,12 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push(
+                    Routes.hotelRoomList.replaceFirst(':id', hotel.id),
+                    extra: {'hotel': hotel},
+                  );
+                },
                 child: const Text(
                   'Xem thêm',
                   style: TextStyle(fontSize: 14, color: Color(0xFF007AFF)),

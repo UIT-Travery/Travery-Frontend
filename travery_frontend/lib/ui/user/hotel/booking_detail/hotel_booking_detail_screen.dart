@@ -31,11 +31,13 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     if (!mounted) return;
     final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
     final booking = extra?['booking'];
-    if (booking == null) return;
-    final bookingId = booking.id as String;
+    final bookingId = booking?.id as String? ?? '';
     if (bookingId == _lastLoadedBookingId) return;
     _lastLoadedBookingId = bookingId;
-    context.read<HotelBookingDetailViewModel>().loadBooking(bookingId);
+    context.read<HotelBookingDetailViewModel>().loadBooking(
+      bookingId,
+      bookingData: booking,
+    );
   }
 
   String _formatPrice(double price) {
@@ -58,30 +60,32 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
               child: Text('Không tìm thấy thông tin đặt phòng'),
             );
           }
-          return Stack(
+          return Column(
             children: [
-              ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  _buildStatusSection(booking),
-                  const SizedBox(height: 16),
-                  _buildBookingIdCard(booking),
-                  const SizedBox(height: 16),
-                  _buildCustomerInfo(booking),
-                  const SizedBox(height: 16),
-                  _buildServices(booking),
-                  const SizedBox(height: 16),
-                  _buildPaymentDetails(booking, vm),
-                  const SizedBox(height: 16),
-                  _buildUpsellSection(),
-                ],
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    MediaQuery.of(context).padding.bottom + 160,
+                  ),
+                  children: [
+                    _buildStatusSection(booking),
+                    const SizedBox(height: 16),
+                    _buildBookingIdCard(booking),
+                    const SizedBox(height: 16),
+                    _buildCustomerInfo(booking),
+                    const SizedBox(height: 16),
+                    _buildServices(booking),
+                    const SizedBox(height: 16),
+                    _buildPaymentDetails(booking, vm),
+                    const SizedBox(height: 16),
+                    _buildUpsellSection(context, booking),
+                  ],
+                ),
               ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _buildBottomActions(context, booking),
-              ),
+              _buildBottomActions(context, booking),
             ],
           );
         },
@@ -427,34 +431,77 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     );
   }
 
-  Widget _buildUpsellSection() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          const Text(
-            'Bạn cần thêm dịch vụ gì cho phòng này ?',
-            style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF4F8FF),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFF007AFF)),
+  Widget _buildUpsellSection(BuildContext context, dynamic booking) {
+    return GestureDetector(
+      onTap: () => context.push(
+        Routes.hotelAddonList.replaceFirst(':id', booking.id),
+        extra: {'booking': booking},
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 20,
             ),
-            child: const Text(
-              'Thêm dịch vụ',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F7FF),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.add_circle_outline,
+                size: 24,
                 color: Color(0xFF007AFF),
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Thêm dịch vụ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F2937),
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Đồ ăn, Spa, Giặt ủi và hơn thế nữa',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F7FF),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Thêm',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF007AFF),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -508,7 +555,10 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
             if (isCancellable) const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () => context.push(
+                  Routes.hotelCheckout.replaceFirst(':id', booking.id),
+                  extra: {'booking': booking},
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF007AFF),
                   foregroundColor: Colors.white,

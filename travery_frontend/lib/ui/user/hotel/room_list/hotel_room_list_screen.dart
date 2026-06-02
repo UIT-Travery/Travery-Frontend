@@ -12,6 +12,7 @@ class HotelRoomListScreen extends StatefulWidget {
 
 class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
   final List<HotelRoomData> _selectedRooms = [];
+  List<HotelRoomData> _rooms = _dummyRooms;
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
@@ -20,6 +21,20 @@ class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
 
   double get _totalPrice {
     return _selectedRooms.fold(0, (sum, room) => sum + room.pricePerNight);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      final hotel = extra?['hotel'];
+      if (hotel != null && hotel is HotelDetailData) {
+        setState(() {
+          _rooms = hotel.rooms;
+        });
+      }
+    });
   }
 
   @override
@@ -32,10 +47,10 @@ class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
-              itemCount: _dummyRooms.length,
+              itemCount: _rooms.length,
               separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                final room = _dummyRooms[index];
+                final room = _rooms[index];
                 final isSelected = _selectedRooms.contains(room);
                 return _RoomCard(
                   room: room,

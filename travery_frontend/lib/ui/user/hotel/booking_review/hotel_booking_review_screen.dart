@@ -333,12 +333,11 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
-              context.push(
-                Routes.hotelPayment,
-                extra: {
-                  'bookingId': 'BK-TEST-001',
-                  'paymentUrl': 'https://sandbox.vnpayment.vn',
-                },
+              // TODO: Khi có VNPay API thì navigate đến Routes.hotelPayment
+              // Hiện tại skip qua payment để test flow
+              context.go(
+                Routes.hotelPaymentResult,
+                extra: {'bookingId': 'BK-TEST-001', 'status': 'success'},
               );
             },
             style: ElevatedButton.styleFrom(

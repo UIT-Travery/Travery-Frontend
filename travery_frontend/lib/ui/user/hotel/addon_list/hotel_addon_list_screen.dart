@@ -20,13 +20,6 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 
-  double get _totalPrice {
-    return _dummyAddons.fold<double>(0, (sum, addon) {
-      final qty = _quantities[addon['id']] ?? 1;
-      return sum + (addon['price'] as double) * qty;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,13 +54,13 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
 
   Widget _buildHeader() {
     return Container(
-      color: Colors.white,
       padding: EdgeInsets.fromLTRB(
         4,
         MediaQuery.of(context).padding.top + 8,
         16,
         8,
       ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Row(
         children: [
           IconButton(
@@ -92,9 +85,9 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
 
   Widget _buildTabs() {
     return Container(
-      color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
+        color: Colors.white,
         border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
       ),
       child: SingleChildScrollView(
@@ -162,7 +155,10 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {
-              context.push(Routes.hotelAddonPayment);
+              context.push(
+                Routes.hotelAddonPaymentResult,
+                extra: {'bookingId': 'BK-TEST-001', 'status': 'success'},
+              );
             },
             icon: const Icon(Icons.shopping_cart),
             label: const Text('Thêm vào đơn'),
