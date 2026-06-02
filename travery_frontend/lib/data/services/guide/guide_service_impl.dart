@@ -132,7 +132,7 @@ class GuideServiceImpl implements GuideService {
     // Map API response to GuideTour model
     // API returns: id, tourName, destinationName, pickupLocation,
     // startDate, endDate, status, coachId, coachLicensePlate, coachType,
-    // driverId, driverName, driverPhone, bookings[]
+    // driverId, driverName, driverPhone, bookings[], passengersCount, bookingsCount
 
     final startDateStr = map['startDate'] as String?;
     final endDateStr = map['endDate'] as String?;
@@ -157,7 +157,9 @@ class GuideServiceImpl implements GuideService {
 
     // Count total passengers from bookings
     int groupSize = 0;
+    int bookingsCount = 0;
     final bookings = map['bookings'] as List<dynamic>? ?? [];
+    bookingsCount = bookings.length;
     for (final booking in bookings) {
       final members = booking['members'] as List<dynamic>? ?? [];
       groupSize += members.length;
@@ -180,6 +182,11 @@ class GuideServiceImpl implements GuideService {
       status: guideStatus,
       vehiclePlate: map['coachLicensePlate'] as String?,
       driverName: map['driverName'] as String?,
+      driverPhone: map['driverPhone'] as String?,
+      coachType: map['coachType'] as String?,
+      pickupLocation: map['pickupLocation'] as String?,
+      passengerCount: groupSize,
+      bookingsCount: bookingsCount,
     );
   }
 }

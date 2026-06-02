@@ -49,13 +49,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: true,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
           _lastLoadedBookingId = null;
-          final vm = context.read<TripBookingDetailViewModel>();
-          final booking = vm.bookingData;
-          if (booking != null) vm.loadBooking(booking.id);
+          context.go('${Routes.tripMyBookings}?tab=1');
         }
       },
       child: Scaffold(
@@ -66,7 +64,9 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pushReplacement(Routes.tripMyBookings),
+            onPressed: () {
+              context.go('${Routes.tripMyBookings}?tab=1');
+            },
           ),
           title: const Text(
             'Chi tiết đặt vé',
