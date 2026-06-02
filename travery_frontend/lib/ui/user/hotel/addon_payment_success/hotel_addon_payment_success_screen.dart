@@ -212,47 +212,32 @@ class _HotelAddonPaymentSuccessScreenState
   }
 
   Widget _buildButtons() {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => context.go(Routes.hotelHome),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0056B3),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        24,
+        24,
+        MediaQuery.of(context).padding.bottom + 24,
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () => context.pushReplacement(Routes.tourHome),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0056B3),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: const Text(
-              'Quay lại trang chủ',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            elevation: 0,
+          ),
+          child: const Text(
+            'Quay lại trang chủ',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: () => context.go(Routes.hotelMyBookings),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF0056B3),
-              side: const BorderSide(color: Color(0xFF0056B3)),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Xem đơn hàng của tôi',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

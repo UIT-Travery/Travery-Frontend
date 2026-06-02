@@ -118,7 +118,10 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.arrow_back, color: Color(0xFF374151)),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: const Icon(Icons.arrow_back, color: Color(0xFF374151)),
+          ),
           const SizedBox(width: 12),
           const Expanded(
             child: Text(

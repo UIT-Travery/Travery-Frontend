@@ -11,7 +11,6 @@ class HotelCancelSuccessScreen extends StatefulWidget {
 }
 
 class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen> {
-  String _bookingId = 'TRV-8829-VN';
   double _refundAmount = 12500000;
 
   String _formatPrice(double price) {
@@ -25,7 +24,6 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
       setState(() {
-        _bookingId = extra?['bookingId'] as String? ?? _bookingId;
         _refundAmount =
             (extra?['refundAmount'] as num?)?.toDouble() ?? _refundAmount;
       });
@@ -169,15 +167,11 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildRefundRow('Mã đặt phòng', _bookingId),
-          const SizedBox(height: 14),
           _buildRefundRow(
             'Số tiền hoàn lại',
             _formatPrice(_refundAmount),
             isHighlighted: true,
           ),
-          const SizedBox(height: 14),
-          _buildRefundRowWithWallet('Phương thức hoàn tiền', 'Ví VNPay'),
           const SizedBox(height: 14),
           _buildRefundRow('Thời gian xử lý dự kiến', '3-5 ngày làm việc'),
         ],
@@ -206,44 +200,6 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen> {
                 ? const Color(0xFF0066D6)
                 : const Color(0xFF1F2937),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRefundRowWithWallet(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-        ),
-        Row(
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(
-                Icons.payment,
-                size: 14,
-                color: Color(0xFF2563EB),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-          ],
         ),
       ],
     );
@@ -287,7 +243,7 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen> {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () => context.go(Routes.hotelHome),
+            onPressed: () => context.pushReplacement(Routes.tourHome),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0066D6),
               foregroundColor: Colors.white,

@@ -47,6 +47,23 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF007AFF)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          'Chi tiết khách sạn',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF007AFF),
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Consumer<HotelDetailViewModel>(
         builder: (context, vm, _) {
           if (vm.isLoading) {

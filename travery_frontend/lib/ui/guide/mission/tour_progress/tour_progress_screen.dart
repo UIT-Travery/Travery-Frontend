@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_view_model.dart';
 
@@ -19,110 +18,30 @@ class TourProgressScreen extends StatefulWidget {
 }
 
 class _TourProgressScreenState extends State<TourProgressScreen> {
-  String? _selectedStatus;
-  final _notesController = TextEditingController();
-  final _locationController = TextEditingController();
-
-  static const _statusOptions = [
-    ('PLANNING', 'Lên kế hoạch', Color(0xFF6B7280)),
-    ('OPEN', 'Mở bán', Color(0xFF10B981)),
-    ('FULL', 'Đã đủ khách', Color(0xFFF59E0B)),
-    ('IN_PROGRESS', 'Đang diễn ra', Color(0xFF3B82F6)),
-    ('COMPLETED', 'Hoàn thành', Color(0xFF16A34A)),
-    ('CANCELLED', 'Đã hủy', Color(0xFFDC2626)),
+  static const _statusFlow = [
+    ('OPEN', 'Mở đầu', Icons.play_arrow, Color(0xFF10B981)),
+    ('FULL', 'Đã đủ khách', Icons.groups, Color(0xFF8B5CF6)),
+    ('IN_PROGRESS', 'Đang diễn ra', Icons.directions_bus, Color(0xFFF59E0B)),
+    ('COMPLETED', 'Hoàn thành', Icons.check_circle, Color(0xFF3B82F6)),
   ];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.viewModel.loadMissionDetail(widget.missionId);
-    });
+    widget.viewModel.loadMissionDetail(widget.missionId);
   }
 
-  @override
-  void dispose() {
-    _notesController.dispose();
-    _locationController.dispose();
-    super.dispose();
+  int _getStatusIndex(String status) {
+    for (int i = 0; i < _statusFlow.length; i++) {
+      if (_statusFlow[i].$1 == status) return i;
+    }
+    return -1;
   }
 
-  String _getStatusLabel(String status) {
-    for (final opt in _statusOptions) {
-      if (opt.$1 == status) return opt.$2;
-    }
-    return status;
-  }
-
-  Color _getStatusColor(String status) {
-    for (final opt in _statusOptions) {
-      if (opt.$1 == status) return opt.$3;
-    }
-    return AppColors.outline;
-  }
-
-  Color _getStatusBgColor(String status) {
-    for (final opt in _statusOptions) {
-      if (opt.$1 == status) return opt.$3.withValues(alpha: 0.1);
-    }
-    return AppColors.surface;
-  }
-
-  bool _isValidTransition(String currentStatus, String newStatus) {
-    final order = ['PLANNING', 'OPEN', 'FULL', 'IN_PROGRESS', 'COMPLETED'];
-    final currentIndex = order.indexOf(currentStatus);
-    final newIndex = order.indexOf(newStatus);
-
-    if (currentStatus == 'CANCELLED') return false;
-    if (currentStatus == 'COMPLETED') return newStatus == 'CANCELLED';
-
-    return newIndex > currentIndex || newStatus == 'CANCELLED';
-  }
-
-  Future<void> _updateProgress() async {
-    if (_selectedStatus == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn trạng thái mới'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-
-    final currentStatus = widget.viewModel.mission?.status ?? '';
-    if (!_isValidTransition(currentStatus, _selectedStatus!)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Không thể chuyển từ "$currentStatus" sang "$_selectedStatus"',
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-
-    final success = await widget.viewModel.updateProgress(_selectedStatus!);
-
-    if (!mounted) return;
-
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cập nhật tiến độ thành công'),
-          backgroundColor: AppColors.primary,
-        ),
-      );
-      context.pop();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.viewModel.errorMessage ?? 'Cập nhật thất bại'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-    }
+  String? _getNextStatus(String currentStatus) {
+    final idx = _getStatusIndex(currentStatus);
+    if (idx < 0 || idx >= _statusFlow.length - 1) return null;
+    return _statusFlow[idx + 1].$1;
   }
 
   @override
@@ -136,214 +55,199 @@ class _TourProgressScreenState extends State<TourProgressScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.primary),
           onPressed: () => context.pop(),
         ),
-        titleSpacing: 0,
-        title: Consumer<MissionDetailViewModel>(
-          builder: (context, vm, _) {
-            final name = vm.mission?.tourName ?? 'Tiến độ tour';
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.65,
-              ),
-              child: Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            );
-          },
+        title: const Text(
+          'Cập nhật tiến độ',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
-      body: Consumer<MissionDetailViewModel>(
-        builder: (context, vm, _) {
-          if (vm.isLoading) {
+      body: ListenableBuilder(
+        listenable: widget.viewModel,
+        builder: (context, _) {
+          if (widget.viewModel.isLoading) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
 
-          final mission = vm.mission;
+          final mission = widget.viewModel.mission;
           if (mission == null) {
-            return const Center(child: Text('Không có dữ liệu'));
+            return _buildError('Không tìm thấy nhiệm vụ');
           }
 
-          return _buildContent(mission, vm);
+          return _buildContent(mission);
         },
       ),
     );
   }
 
-  Widget _buildContent(mission, MissionDetailViewModel vm) {
+  Widget _buildContent(mission) {
+    final currentStatus = mission.status;
+    final nextStatus = _getNextStatus(currentStatus);
+    final isCompleted = currentStatus == 'COMPLETED';
+    final isCancelled = currentStatus == 'CANCELLED';
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTourInfoCard(mission),
-          const SizedBox(height: 16),
-          _buildCurrentStatusCard(mission),
-          const SizedBox(height: 16),
-          _buildStatusSelector(mission),
-          const SizedBox(height: 16),
-          _buildNotesCard(),
-          const SizedBox(height: 16),
-          _buildLocationCard(),
+          _buildCurrentStatusCard(mission, currentStatus),
           const SizedBox(height: 24),
-          _buildUpdateButton(vm),
-          const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTourInfoCard(mission) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '#${mission.id.substring(0, mission.id.length.clamp(0, 8)).toUpperCase()}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+          if (!isCompleted && !isCancelled && nextStatus != null) ...[
+            const Text(
+              'Chuyển sang bước tiếp theo',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildStatusOption(nextStatus),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: widget.viewModel.isUpdatingProgress
+                    ? null
+                    : () => _handleUpdate(nextStatus),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
+                child: widget.viewModel.isUpdatingProgress
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Xác nhận cập nhật',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            mission.tourName,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-              height: 1.3,
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(
-                Icons.calendar_today,
-                size: 14,
-                color: AppColors.textSecondary,
+          ],
+          if (isCompleted) ...[
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD1FAE5),
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(width: 6),
-              Text(
-                '${mission.startDate.day}/${mission.startDate.month}/${mission.startDate.year} - ${mission.endDate.day}/${mission.endDate.month}/${mission.endDate.year}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                ),
+              child: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Color(0xFF10B981), size: 32),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      'Tour đã hoàn thành!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF065F46),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildMiniStat(Icons.groups, '${mission.totalPassengers} khách'),
-              const SizedBox(width: 16),
-              _buildMiniStat(
-                Icons.event_seat,
-                '${mission.bookings.length} đoàn',
+            ),
+          ],
+          if (isCancelled) ...[
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEE2E2),
+                borderRadius: BorderRadius.circular(16),
               ),
-            ],
-          ),
+              child: const Row(
+                children: [
+                  Icon(Icons.cancel, color: Color(0xFFDC2626), size: 32),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      'Tour đã bị hủy',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF991B1B),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  Widget _buildMiniStat(IconData icon, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: AppColors.primary),
-        const SizedBox(width: 6),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
+  Widget _buildCurrentStatusCard(mission, String currentStatus) {
+    final (label, _, icon, color) = _statusFlow.firstWhere(
+      (s) => s.$1 == currentStatus,
+      orElse: () => (currentStatus, currentStatus, Icons.help, Colors.grey),
     );
-  }
-
-  Widget _buildCurrentStatusCard(mission) {
-    final status = mission.status;
-    final color = _getStatusColor(status);
-    final bgColor = _getStatusBgColor(status);
 
     return Container(
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'TRẠNG THÁI HIỆN TẠI',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: AppColors.outline,
-              letterSpacing: 1.5,
-            ),
+            'Trạng thái hiện tại',
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withValues(alpha: 0.3)),
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 12),
+                Icon(icon, color: color, size: 20),
+                const SizedBox(width: 8),
                 Text(
-                  _getStatusLabel(status),
+                  label,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: color,
                   ),
@@ -356,264 +260,114 @@ class _TourProgressScreenState extends State<TourProgressScreen> {
     );
   }
 
-  Widget _buildStatusSelector(mission) {
-    final currentStatus = mission.status;
+  Widget _buildStatusOption(String status) {
+    final (label, desc, icon, color) = _statusFlow.firstWhere(
+      (s) => s.$1 == status,
+      orElse: () => (status, '', Icons.arrow_forward, AppColors.primary),
+    );
 
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
-        ],
-      ),
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+      ),
+      child: Row(
         children: [
-          const Text(
-            'CẬP NHẬT TRẠNG THÁI MỚI',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: AppColors.outline,
-              letterSpacing: 1.5,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(16),
             ),
+            child: Icon(icon, color: Colors.white, size: 28),
           ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _statusOptions.map((opt) {
-              final (value, label, color) = opt;
-              final isSelected = _selectedStatus == value;
-              final isCurrent = currentStatus == value;
-              final isValid =
-                  _isValidTransition(currentStatus, value) || isCurrent;
-
-              return GestureDetector(
-                onTap: isValid && !isCurrent
-                    ? () => setState(() => _selectedStatus = value)
-                    : null,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: color,
                   ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? color.withValues(alpha: 0.15)
-                        : (isCurrent
-                              ? AppColors.surface
-                              : (isValid
-                                    ? AppColors.surface
-                                    : Colors.grey.shade100)),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isSelected
-                          ? color
-                          : (isCurrent
-                                ? AppColors.primary
-                                : (isValid
-                                      ? AppColors.outline
-                                      : Colors.grey.shade300)),
-                      width: isSelected || isCurrent ? 2 : 1,
+                ),
+                if (desc.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    desc,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: isValid || isCurrent
-                              ? color
-                              : Colors.grey.shade400,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isSelected || isCurrent
-                              ? FontWeight.bold
-                              : FontWeight.w500,
-                          color: isValid || isCurrent
-                              ? (isSelected ? color : AppColors.textPrimary)
-                              : Colors.grey.shade400,
-                        ),
-                      ),
-                      if (isCurrent)
-                        Container(
-                          margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'HIỆN TẠI',
-                            style: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotesCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'GHI CHÚ / NHẬT KÝ',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: AppColors.outline,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _notesController,
-            maxLines: 4,
-            decoration: InputDecoration(
-              hintText: 'Nhập ghi chú về tiến độ tour...',
-              hintStyle: const TextStyle(color: AppColors.outline),
-              filled: true,
-              fillColor: AppColors.background,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
-                  width: 2,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLocationCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'VỊ TRÍ HIỆN TẠI',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: AppColors.outline,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _locationController,
-            decoration: InputDecoration(
-              hintText: 'VD: Đang ở Hải Phòng',
-              hintStyle: const TextStyle(color: AppColors.outline),
-              prefixIcon: const Icon(
-                Icons.location_on,
-                color: AppColors.primary,
-              ),
-              filled: true,
-              fillColor: AppColors.background,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
-                  width: 2,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUpdateButton(MissionDetailViewModel vm) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: vm.isUpdatingProgress || _selectedStatus == null
-            ? null
-            : _updateProgress,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: vm.isUpdatingProgress
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check_circle_outline, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Cập nhật tiến độ',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
                 ],
+              ],
+            ),
+          ),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.arrow_forward,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleUpdate(String newStatus) async {
+    final success = await widget.viewModel.updateProgress(newStatus);
+    if (!mounted) return;
+
+    if (success) {
+      context.pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.viewModel.errorMessage ?? 'Cập nhật thất bại'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  Widget _buildError(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () =>
+                  widget.viewModel.loadMissionDetail(widget.missionId),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
               ),
+              child: const Text('Thử lại'),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -16,11 +16,11 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
 
-  final List<Map<String, TextEditingController>> _guestControllers = [
+  final List<Map<String, dynamic>> _guestControllers = [
     {
       'name': TextEditingController(),
       'idNumber': TextEditingController(),
-      'dob': TextEditingController(),
+      'dob': DateTime.now().subtract(const Duration(days: 365 * 25)),
     },
   ];
 
@@ -36,7 +36,6 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
     for (final guest in _guestControllers) {
       guest['name']?.dispose();
       guest['idNumber']?.dispose();
-      guest['dob']?.dispose();
     }
     super.dispose();
   }
@@ -46,7 +45,7 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
       _guestControllers.add({
         'name': TextEditingController(),
         'idNumber': TextEditingController(),
-        'dob': TextEditingController(),
+        'dob': DateTime.now().subtract(const Duration(days: 365 * 25)),
       });
     });
   }
@@ -55,7 +54,6 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
     setState(() {
       _guestControllers[index]['name']?.dispose();
       _guestControllers[index]['idNumber']?.dispose();
-      _guestControllers[index]['dob']?.dispose();
       _guestControllers.removeAt(index);
     });
   }
@@ -176,7 +174,7 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Số lượng:',
+                'Số lượng khách:',
                 style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
               ),
               Text(
@@ -407,8 +405,32 @@ class _GuestCard extends StatelessWidget {
   });
 
   final int index;
-  final Map<String, TextEditingController?> controllers;
+  final Map<String, dynamic> controllers;
   final VoidCallback? onRemove;
+
+  DateTime get _dob => controllers['dob'] as DateTime;
+  TextEditingController get _nameController =>
+      controllers['name'] as TextEditingController;
+  TextEditingController get _idController =>
+      controllers['idNumber'] as TextEditingController;
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _selectDob(BuildContext context, StateSetter setState) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dob,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        controllers['dob'] = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -471,7 +493,7 @@ class _GuestCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildField(
-            controller: controllers['name']!,
+            controller: _nameController,
             label: 'Họ và tên',
             hint: 'VD: NGUYEN VAN A',
           ),
@@ -480,17 +502,28 @@ class _GuestCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildField(
-                  controller: controllers['idNumber']!,
+                  controller: _idController,
                   label: 'Số hộ chiếu/CCCD',
                   hint: '012345678',
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _buildField(
-                  controller: controllers['dob']!,
-                  label: 'Ngày sinh',
-                  hint: 'DD/MM/YYYY',
+                child: StatefulBuilder(
+                  builder: (context, setState) {
+                    return _buildField(
+                      label: 'Ngày sinh',
+                      hint: 'DD/MM/YYYY',
+                      onTap: () => _selectDob(context, setState),
+                      child: Text(
+                        _formatDate(_dob),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF1F2937),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -501,9 +534,11 @@ class _GuestCard extends StatelessWidget {
   }
 
   Widget _buildField({
-    required TextEditingController controller,
+    TextEditingController? controller,
     required String label,
     required String hint,
+    VoidCallback? onTap,
+    Widget? child,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,22 +552,38 @@ class _GuestCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
-            filled: true,
-            fillColor: const Color(0xFFF8FAFF),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
-          ),
+        GestureDetector(
+          onTap: onTap,
+          child: child != null
+              ? Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFF),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: child,
+                )
+              : TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
         ),
       ],
     );

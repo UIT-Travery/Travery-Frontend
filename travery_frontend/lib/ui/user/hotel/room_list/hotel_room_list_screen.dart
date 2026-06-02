@@ -275,20 +275,29 @@ class _RoomCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (room.isAvailable)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2ECC71),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFF10B981)
+                          : (room.isAvailable ? Colors.white : Colors.grey),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFFD1D5DB),
+                        width: 2,
                       ),
                     ),
+                    child: isSelected
+                        ? const Icon(Icons.check, size: 14, color: Colors.white)
+                        : null,
                   ),
+                ),
               ],
             ),
             Padding(

@@ -21,9 +21,6 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-    final booking = extra?['booking'];
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBFF),
       body: Column(
@@ -31,14 +28,14 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
           _buildHeader(),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               children: [
                 _buildWarningIcon(),
-                const SizedBox(height: 24),
-                _buildWarningTitle(),
-                const SizedBox(height: 24),
-                _buildBookingInfoCard(booking),
                 const SizedBox(height: 16),
+                _buildWarningTitle(),
+                const SizedBox(height: 16),
+                _buildBookingInfoCard(),
+                const SizedBox(height: 12),
                 _buildNote(),
               ],
             ),
@@ -56,19 +53,19 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
         4,
         MediaQuery.of(context).padding.top + 8,
         16,
-        16,
+        12,
       ),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, size: 20),
             onPressed: () => context.pop(),
           ),
           const Expanded(
             child: Text(
               'Xác nhận hủy đặt phòng',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1F2937),
               ),
@@ -83,16 +80,16 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
   Widget _buildWarningIcon() {
     return Center(
       child: Container(
-        width: 96,
-        height: 96,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFEE2E2),
+        width: 64,
+        height: 64,
+        decoration: const BoxDecoration(
+          color: Color(0xFFFEE2E2),
           shape: BoxShape.circle,
         ),
         child: const Icon(
           Icons.warning_amber_rounded,
           color: Color(0xFFDC2626),
-          size: 48,
+          size: 32,
         ),
       ),
     );
@@ -104,40 +101,39 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
         const Text(
           'Bạn có chắc chắn muốn hủy đặt phòng?',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Color(0xFF1F2937),
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         const Text(
           'Hành động này không thể hoàn tác sau khi đã xác nhận.',
-          style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+          style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
           textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
-  Widget _buildBookingInfoCard(dynamic booking) {
+  Widget _buildBookingInfoCard() {
+    const roomType = 'Phòng Superior';
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'MÃ ĐẶT PHÒNG',
+            'LOẠI PHÒNG',
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
@@ -147,15 +143,15 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            booking?.id ?? 'TRV-99218A',
+            roomType,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1F2937),
             ),
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: EdgeInsets.symmetric(vertical: 10),
             child: DashedDivider(),
           ),
           Row(
@@ -163,24 +159,24 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
             children: [
               const Text(
                 'Giá phòng',
-                style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
               ),
               const Text(
                 '280.000đ',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFF1F2937),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFFEFF6FF),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,7 +184,7 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
                 const Text(
                   'Số tiền hoàn lại:',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF2563EB),
                   ),
@@ -196,7 +192,7 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
                 Text(
                   _formatPrice(_refundAmount),
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF2563EB),
                   ),
@@ -211,19 +207,19 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
 
   Widget _buildNote() {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 20, color: Color(0xFF3B82F6)),
-          SizedBox(width: 12),
+          Icon(Icons.info_outline, size: 16, color: Color(0xFF3B82F6)),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Lưu ý quan trọng: Tiền sẽ được hoàn về phương thức thanh toán ban đầu trong vòng 3-5 ngày làm việc tùy thuộc vào ngân hàng của bạn.',
+              'Lưu ý: Tiền sẽ được hoàn về phương thức thanh toán ban đầu trong 3-5 ngày làm việc.',
               style: TextStyle(
                 fontSize: 12,
                 color: Color(0xFF374151),
@@ -239,14 +235,14 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
   Widget _buildBottomActions(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        20,
-        12,
-        20,
-        MediaQuery.of(context).padding.bottom + 12,
+        16,
+        10,
+        16,
+        MediaQuery.of(context).padding.bottom + 10,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: const Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: SafeArea(
         top: false,
@@ -272,38 +268,31 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF007AFF),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   elevation: 0,
                 ),
                 child: _isCancelling
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: 18,
+                        height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: Colors.white,
                         ),
                       )
-                    : const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check, size: 18),
-                          SizedBox(width: 8),
-                          Text(
-                            'Xác nhận hủy',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                    : const Text(
+                        'Xác nhận hủy',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -311,14 +300,14 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF374151),
                   side: const BorderSide(color: Color(0xFFE5E7EB)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: const Text(
                   'Quay lại',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

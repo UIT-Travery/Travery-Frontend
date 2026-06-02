@@ -134,9 +134,7 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
       ),
       child: Column(
         children: [
-          _buildRow('Mã đặt phòng', 'TRV-8829-4410', isBlue: true),
-          const SizedBox(height: 12),
-          _buildRow('Mã phòng', '101'),
+          _buildRow('Mã đặt chỗ', 'TRV-8829-4410', isBlue: true),
           const SizedBox(height: 12),
           _buildRow('Loại phòng', 'VIP'),
           const Padding(
@@ -176,52 +174,32 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
 
   Widget _buildButtons() {
     return Container(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                context.go(Routes.hotelMyBookings);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0066FF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Xem booking',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+      padding: EdgeInsets.fromLTRB(
+        24,
+        24,
+        24,
+        MediaQuery.of(context).padding.bottom + 24,
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            context.go(Routes.home);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0066FF),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
+            elevation: 0,
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {
-                context.go(Routes.hotelHome);
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF0066FF),
-                side: const BorderSide(color: Color(0xFF0066FF)),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Về trang chủ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
+          child: const Text(
+            'Về trang chủ',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-        ],
+        ),
       ),
     );
   }

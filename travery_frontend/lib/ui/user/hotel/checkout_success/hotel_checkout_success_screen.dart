@@ -328,7 +328,7 @@ class _HotelCheckoutSuccessScreenState
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () => context.go(Routes.hotelHome),
+          onPressed: () => context.pushReplacement(Routes.home),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0059B3),
             foregroundColor: Colors.white,
