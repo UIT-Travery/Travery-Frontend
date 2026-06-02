@@ -119,6 +119,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: ListenableBuilder(
         listenable: widget.viewModel.loadProfile,
         builder: (context, _) {
@@ -139,15 +148,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        alignment: Alignment.centerLeft,
-                        icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
+
                     const SizedBox(height: 24),
                     GestureDetector(
                       onTap: _pickImage,

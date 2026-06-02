@@ -115,6 +115,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -123,10 +132,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── App bar ────────────────────────────────────────────────
-                _buildAppBar(),
-
-                const SizedBox(height: 20),
+                // ── Page header ────────────────────────────────────────────
 
                 // ── Page header ────────────────────────────────────────────
                 Text(
@@ -182,12 +188,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   Widget _buildAppBar() {
     return Row(
       children: [
-        IconButton(
-          padding: EdgeInsets.zero,
-          alignment: Alignment.centerLeft,
-          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-          onPressed: () => Navigator.pop(context),
-        ),
         Container(
           width: 36,
           height: 36,

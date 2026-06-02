@@ -134,21 +134,22 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  alignment: Alignment.centerLeft,
-                  icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
+
               _buildHeader(),
               const SizedBox(height: 24),
               _buildSectionTitle(Icons.person_outline, 'Thông tin tài xế'),

@@ -31,20 +31,21 @@ class _CreateHotelServiceScreenState extends State<CreateHotelServiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
-                icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
+
             const Text(
               'Thêm Dịch vụ mới',
               style: TextStyle(

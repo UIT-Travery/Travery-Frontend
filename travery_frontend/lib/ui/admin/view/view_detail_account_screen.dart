@@ -483,13 +483,30 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
           children: [
             Scaffold(
               backgroundColor: AppColors.surface,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                title: Text(
+                  'Chi tiết tài khoản',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.headlineMedium,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.only(bottom: 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildAppBar(context),
+
                       _buildProfileCard(account),
                       const SizedBox(height: 16),
                       Padding(
