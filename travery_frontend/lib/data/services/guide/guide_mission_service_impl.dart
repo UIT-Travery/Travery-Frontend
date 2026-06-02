@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/seed_models/incident/incident.dart';
-import 'package:travery_frontend/data/seed_models/tour_progress/tour_progress.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -191,7 +190,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
   @override
   Future<Result<void>> updateAttendance(
     String instanceId,
-    Map<String, String> attendanceMap,
+    List<Map<String, String>> attendances,
   ) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
@@ -208,7 +207,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
         ContentType.json.value,
       );
       await _setBearerAuth(request);
-      request.write(jsonEncode(attendanceMap));
+      request.write(jsonEncode({'attendances': attendances}));
 
       final response = await request.close();
 
@@ -229,7 +228,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
   }
 
   @override
-  Future<Result<void>> updateProgress(String instanceId, String stepId) async {
+  Future<Result<void>> updateProgress(String instanceId, String status) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
 
@@ -245,7 +244,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
         ContentType.json.value,
       );
       await _setBearerAuth(request);
-      request.write(jsonEncode({'stepId': stepId}));
+      request.write(jsonEncode({'status': status}));
 
       final response = await request.close();
 
@@ -377,6 +376,120 @@ class GuideMissionServiceImpl implements GuideMissionService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Lấy danh sách sự cố thất bại',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<CoachTripStatusResponse>> updateCoachTripStatus(
+    String tripId,
+    String status,
+  ) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.putUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/guide/coach-trips/$tripId/status',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+      request.write(jsonEncode({'status': status}));
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>?;
+        if (data == null) {
+          return Result.error(
+            const HttpException('Cập nhật trạng thái thất bại'),
+          );
+        }
+        return Result.ok(_parseCoachTripStatus(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Cập nhật trạng thái chuyến xe thất bại',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  CoachTripStatusResponse _parseCoachTripStatus(Map<String, dynamic> data) {
+    return CoachTripStatusResponse(
+      id: data['id'] as String? ?? '',
+      departureTime: data['departureTime'] != null
+          ? DateTime.tryParse(data['departureTime'] as String)
+          : null,
+      arrivalTime: data['arrivalTime'] != null
+          ? DateTime.tryParse(data['arrivalTime'] as String)
+          : null,
+      status: data['status'] as String? ?? '',
+      routeId: data['routeId'] as String?,
+      originDestinationName: data['originDestinationName'] as String?,
+      destinationDestinationName: data['destinationDestinationName'] as String?,
+      basePrice: (data['basePrice'] as num?)?.toDouble(),
+      coachId: data['coachId'] as String?,
+      coachLicensePlate: data['coachLicensePlate'] as String?,
+      coachType: data['coachType'] as String?,
+      driverId: data['driverId'] as String?,
+      driverName: data['driverName'] as String?,
+      driverPhone: data['driverPhone'] as String?,
+      totalSeats: data['totalSeats'] as int? ?? 0,
+      availableSeats: data['availableSeats'] as int? ?? 0,
+      bookingsCount: data['bookingsCount'] as int? ?? 0,
+      passengersCount: data['passengersCount'] as int? ?? 0,
+    );
+  }
+
+  @override
+  Future<Result<void>> markPassengerNoShow(
+    String tripId,
+    String bookingId,
+  ) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.putUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/guide/coach-trips/$tripId/bookings/$bookingId/no-show',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        return const Result.ok(null);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Đánh dấu không đến thất bại',
         );
         return Result.error(HttpException(errorMsg));
       }

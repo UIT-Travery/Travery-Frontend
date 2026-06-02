@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/guide/mission/mission_detail_view_model.dart';
 
@@ -23,28 +21,44 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.viewModel.loadMissionDetail(widget.missionId);
-    });
+    widget.viewModel.loadMissionDetail(widget.missionId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Consumer<MissionDetailViewModel>(
-        builder: (context, vm, _) {
-          if (vm.isLoading) {
+      appBar: AppBar(
+        backgroundColor: AppColors.surface,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(
+          'Chi tiết Nhiệm vụ',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: ListenableBuilder(
+        listenable: widget.viewModel,
+        builder: (context, _) {
+          if (widget.viewModel.isLoading) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
 
-          if (vm.errorMessage != null) {
-            return _buildError(vm.errorMessage!);
+          if (widget.viewModel.errorMessage != null) {
+            return _buildError(widget.viewModel.errorMessage!);
           }
 
-          final mission = vm.mission;
+          final mission = widget.viewModel.mission;
           if (mission == null) {
             return _buildError('Không tìm thấy nhiệm vụ');
           }
@@ -56,47 +70,24 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
   }
 
   Widget _buildContent(mission) {
-    return CustomScrollView(
-      slivers: [
-        _buildSliverAppBar(),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTourCard(mission),
-                const SizedBox(height: 16),
-                _buildActionButtons(mission),
-                const SizedBox(height: 16),
-                _buildOperationalCard(mission),
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      backgroundColor: AppColors.surface,
-      elevation: 0,
-      pinned: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-        onPressed: () => context.pop(),
-      ),
-      title: const Text(
-        'Chi tiết Nhiệm vụ',
-        style: TextStyle(
-          color: AppColors.primary,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+    return RefreshIndicator(
+      onRefresh: () => widget.viewModel.loadMissionDetail(widget.missionId),
+      color: AppColors.primary,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTourCard(mission),
+            const SizedBox(height: 16),
+            _buildActionButtons(mission),
+            const SizedBox(height: 16),
+            _buildOperationalCard(mission),
+            const SizedBox(height: 100),
+          ],
         ),
       ),
-      centerTitle: true,
     );
   }
 
@@ -105,7 +96,7 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
         ? mission.id.substring(0, mission.id.length.clamp(0, 8)).toUpperCase()
         : 'N/A';
     final dateStr =
-        '${mission.startDate.day.toString().padLeft(2, '0')}/${mission.startDate.month.toString().padLeft(2, '0')}/${mission.startDate.year}';
+        '${mission.startDate.day}/${mission.startDate.month}/${mission.startDate.year}';
 
     return Container(
       decoration: BoxDecoration(
@@ -119,21 +110,20 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hero image placeholder
           Container(
-            height: 200,
+            height: 160,
             width: double.infinity,
-            color: AppColors.primary.withValues(alpha: 0.1),
-            child: const Center(
-              child: Icon(
-                Icons.image_outlined,
-                size: 64,
-                color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
               ),
+            ),
+            child: const Center(
+              child: Icon(Icons.tour, size: 64, color: AppColors.primary),
             ),
           ),
           Padding(
@@ -141,65 +131,79 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        mission.tourName,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    _buildStatusBadge(mission.status),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 Text(
-                  mission.tourName,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                  'Mã: $codeSuffix',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 6),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'MÃ TOUR',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.outline,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '#$codeSuffix',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        mission.pickupLocation,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text(
-                            'NGÀY KHỞI HÀNH',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.outline,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            dateStr,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      dateStr,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Icon(
+                      Icons.groups_outlined,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${mission.totalPassengers} khách',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -212,29 +216,144 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     );
   }
 
-  Widget _buildActionButtons(mission) {
-    return Row(
-      children: [
-        Expanded(
-          child: _ActionButton(
-            icon: Icons.checklist,
-            label: 'Điểm danh đoàn\n(Check-in)',
-            onTap: () {
-              context.push('/guide/mission/${widget.missionId}/check-in');
-            },
-          ),
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+    String label;
+
+    switch (status.toUpperCase()) {
+      case 'IN_PROGRESS':
+        bgColor = const Color(0xFFFEF3C7);
+        textColor = const Color(0xFFD97706);
+        label = 'ĐANG DIỄN RA';
+        break;
+      case 'COMPLETED':
+        bgColor = const Color(0xFFD1FAE5);
+        textColor = const Color(0xFF10B981);
+        label = 'HOÀN THÀNH';
+        break;
+      case 'CANCELLED':
+        bgColor = const Color(0xFFFEE2E2);
+        textColor = const Color(0xFFDC2626);
+        label = 'ĐÃ HỦY';
+        break;
+      default:
+        bgColor = const Color(0xFFE0F2FE);
+        textColor = const Color(0xFF3B82F6);
+        label = status;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: textColor,
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ActionButton(
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(mission) {
+    final isOngoing = mission.isOngoing;
+
+    return Column(
+      children: [
+        _buildActionButton(
+          icon: Icons.check_circle_outline,
+          label: 'Điểm danh',
+          subtitle: 'Check-in hành khách',
+          color: const Color(0xFF3B82F6),
+          onTap: () =>
+              context.push('/guide/mission/${widget.missionId}/check-in'),
+        ),
+        const SizedBox(height: 12),
+        if (isOngoing)
+          _buildActionButton(
             icon: Icons.trending_up,
-            label: 'Cập nhật\nTiến độ',
-            onTap: () {
-              context.push('/guide/mission/${widget.missionId}/progress');
-            },
+            label: 'Cập nhật tiến độ',
+            subtitle: 'Chuyển trạng thái tour',
+            color: const Color(0xFF10B981),
+            onTap: () =>
+                context.push('/guide/mission/${widget.missionId}/progress'),
+          ),
+        if (isOngoing) const SizedBox(height: 12),
+        _buildActionButton(
+          icon: Icons.warning_amber_outlined,
+          label: 'Báo cáo sự cố',
+          subtitle: 'Thông báo vấn đề',
+          color: const Color(0xFFEF4444),
+          onTap: () => context.push(
+            '/guide/mission/${widget.missionId}/report-incident',
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: color),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -242,343 +361,110 @@ class _MissionDetailScreenState extends State<MissionDetailScreen> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'THÔNG TIN VẬN HÀNH',
+            'Thông tin điều hành',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.outline,
-              letterSpacing: 1.5,
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 20),
-          _InfoRow(
-            icon: Icons.directions_bus,
-            label: 'Biển số xe',
-            value: mission.coachLicensePlate ?? 'Chưa có',
-            subLabel: mission.coachType != null && mission.coachType!.isNotEmpty
-                ? mission.coachType
-                : null,
-          ),
-          const Divider(height: 32),
-          _InfoRow(
-            icon: Icons.person,
-            label: 'Tài xế',
-            value: mission.driverName ?? 'Chưa có',
-            trailing:
-                mission.driverPhone != null && mission.driverPhone!.isNotEmpty
-                ? GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: mission.driverPhone!),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Đã sao chép số ${mission.driverPhone}',
-                          ),
-                          backgroundColor: AppColors.primary,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F0FE),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.copy,
-                        color: AppColors.primary,
-                        size: 18,
-                      ),
-                    ),
-                  )
-                : null,
-            subLabel: mission.driverPhone ?? null,
-          ),
-          const Divider(height: 32),
-          _InfoRow(
-            icon: Icons.location_on,
-            label: 'Điểm đón',
-            value: mission.pickupLocation.isNotEmpty
-                ? mission.pickupLocation
-                : 'Chưa có',
-          ),
-          const Divider(height: 32),
-          _InfoRow(
-            icon: Icons.hotel,
-            label: 'Khách sạn',
-            value: mission.destinationName.isNotEmpty
-                ? mission.destinationName
-                : 'Chưa có',
-          ),
           const SizedBox(height: 16),
-          const Divider(height: 16),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildMiniStatCard(
-                  icon: Icons.groups,
-                  label: 'Tổng hành khách',
-                  value: mission.totalPassengers > 0
-                      ? '${mission.totalPassengers}'
-                      : '—',
-                  color: const Color(0xFFE8F0FE),
-                  iconColor: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildMiniStatCard(
-                  icon: Icons.event_seat,
-                  label: 'Số đoàn booking',
-                  value: mission.bookings.isNotEmpty
-                      ? '${mission.bookings.length}'
-                      : '—',
-                  color: const Color(0xFFFEF3C7),
-                  iconColor: const Color(0xFFD97706),
-                ),
-              ),
-            ],
+          if (mission.driverName != null && mission.driverName!.isNotEmpty) ...[
+            _buildInfoRow(
+              icon: Icons.person_outline,
+              label: 'Tài xế',
+              value: mission.driverName!,
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (mission.coachLicensePlate != null &&
+              mission.coachLicensePlate!.isNotEmpty) ...[
+            _buildInfoRow(
+              icon: Icons.directions_bus_outlined,
+              label: 'Biển số',
+              value: mission.coachLicensePlate!,
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (mission.coachType != null && mission.coachType!.isNotEmpty) ...[
+            _buildInfoRow(
+              icon: Icons.airline_seat_recline_normal_outlined,
+              label: 'Loại xe',
+              value: mission.coachType!,
+            ),
+            const SizedBox(height: 12),
+          ],
+          _buildInfoRow(
+            icon: Icons.groups_outlined,
+            label: 'Tổng khách',
+            value: '${mission.totalPassengers} người',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMiniStatCard({
+  Widget _buildInfoRow({
     required IconData icon,
     required String label,
     required String value,
-    required Color color,
-    required Color iconColor,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 18, color: iconColor),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: AppColors.textSecondary),
+        const SizedBox(width: 12),
+        Text(
+          '$label:',
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildError(String message) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Chi tiết Nhiệm vụ',
-          style: TextStyle(color: AppColors.primary),
-        ),
-        centerTitle: true,
-      ),
-      body: Center(
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
             Text(
               message,
+              textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textSecondary),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () =>
                   widget.viewModel.loadMissionDetail(widget.missionId),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
               child: const Text('Thử lại'),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(icon, color: Colors.white, size: 28),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Widget? trailing;
-  final String? subLabel;
-
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.trailing,
-    this.subLabel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F0FE),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(icon, color: AppColors.primary, size: 22),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.outline,
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              if (subLabel != null && subLabel!.isNotEmpty) ...[
-                const SizedBox(height: 1),
-                Text(
-                  subLabel!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        if (trailing != null) trailing!,
-      ],
     );
   }
 }

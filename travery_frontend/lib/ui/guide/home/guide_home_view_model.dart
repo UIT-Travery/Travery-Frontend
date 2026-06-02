@@ -3,6 +3,36 @@ import 'package:travery_frontend/data/seed_models/guide_tour/guide_tour.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
+enum GuideFilter { today, upcoming, inProgress, all }
+
+extension GuideFilterExtension on GuideFilter {
+  String get label {
+    switch (this) {
+      case GuideFilter.today:
+        return 'Hôm nay';
+      case GuideFilter.upcoming:
+        return 'Sắp tới';
+      case GuideFilter.inProgress:
+        return 'Đang chạy';
+      case GuideFilter.all:
+        return 'Tất cả';
+    }
+  }
+
+  String get apiValue {
+    switch (this) {
+      case GuideFilter.today:
+        return 'today';
+      case GuideFilter.upcoming:
+        return 'upcoming';
+      case GuideFilter.inProgress:
+        return 'in_progress';
+      case GuideFilter.all:
+        return 'all';
+    }
+  }
+}
+
 class GuideHomeViewModel extends ChangeNotifier {
   GuideHomeViewModel({required GuideService guideService})
     : _guideService = guideService;
@@ -18,52 +48,74 @@ class GuideHomeViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  int _selectedTabIndex = 0;
-  int get selectedTabIndex => _selectedTabIndex;
+  GuideFilter _selectedFilter = GuideFilter.today;
+  GuideFilter get selectedFilter => _selectedFilter;
+  int get selectedTabIndex => _selectedFilter.index;
 
-  List<GuideTour> _ongoingTours = [];
-  List<GuideTour> _completedTours = [];
+  List<GuideTour> _todayTours = [];
+  List<GuideTour> _upcomingTours = [];
+  List<GuideTour> _inProgressTours = [];
   List<GuideTour> _displayedTours = [];
 
-  List<GuideTour> get ongoingTours => _ongoingTours;
-  List<GuideTour> get completedTours => _completedTours;
+  List<GuideTour> get todayTours => _todayTours;
+  List<GuideTour> get upcomingTours => _upcomingTours;
+  List<GuideTour> get inProgressTours => _inProgressTours;
   List<GuideTour> get displayedTours => _displayedTours;
-  int get ongoingCount => _ongoingTours.length;
-  int get completedCount => _completedTours.length;
+
+  int get todayCount => _todayTours.length;
+  int get upcomingCount => _upcomingTours.length;
+  int get inProgressCount => _inProgressTours.length;
 
   void setSelectedTab(int index) {
-    _selectedTabIndex = index;
+    _selectedFilter = GuideFilter.values[index];
     _updateDisplayedTours();
     notifyListeners();
   }
 
   void _updateDisplayedTours() {
-    switch (_selectedTabIndex) {
-      case 0:
+    switch (_selectedFilter) {
+      case GuideFilter.today:
+        _displayedTours = _todayTours;
+        break;
+      case GuideFilter.upcoming:
+        _displayedTours = _upcomingTours;
+        break;
+      case GuideFilter.inProgress:
+        _displayedTours = _inProgressTours;
+        break;
+      case GuideFilter.all:
         _displayedTours = _allTours;
         break;
-      case 1:
-        _displayedTours = _ongoingTours;
-        break;
-      case 2:
-        _displayedTours = _completedTours;
-        break;
-      default:
-        _displayedTours = _allTours;
     }
   }
 
   void _recomputeCaches() {
-    _ongoingTours = _allTours
-        .where(
-          (t) =>
-              t.status == GuideTourStatus.ongoing ||
-              t.status == GuideTourStatus.upcoming,
-        )
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    _todayTours = _allTours.where((t) {
+      final tourDate = DateTime(
+        t.startDate.year,
+        t.startDate.month,
+        t.startDate.day,
+      );
+      return tourDate.isAtSameMomentAs(today);
+    }).toList();
+
+    _upcomingTours = _allTours.where((t) {
+      final tourDate = DateTime(
+        t.startDate.year,
+        t.startDate.month,
+        t.startDate.day,
+      );
+      return tourDate.isAfter(today) || tourDate.isAtSameMomentAs(tomorrow);
+    }).toList();
+
+    _inProgressTours = _allTours
+        .where((t) => t.status == GuideTourStatus.ongoing)
         .toList();
-    _completedTours = _allTours
-        .where((t) => t.status == GuideTourStatus.completed)
-        .toList();
+
     _updateDisplayedTours();
   }
 

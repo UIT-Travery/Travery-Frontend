@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 
 class HotelPaymentResultScreen extends StatefulWidget {
   const HotelPaymentResultScreen({super.key});
@@ -10,7 +12,12 @@ class HotelPaymentResultScreen extends StatefulWidget {
       _HotelPaymentResultScreenState();
 }
 
-class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
+class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
   bool _isSuccess = true;
 
   String _formatPrice(double price) {
@@ -21,6 +28,23 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+
+    _controller.forward();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
       final status = extra?['status'] as String? ?? 'success';
@@ -29,52 +53,75 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF0F5FF),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSuccessBadge(),
-                      const SizedBox(height: 32),
-                      Text(
-                        _isSuccess
-                            ? 'Đặt phòng thành công!'
-                            : 'Thanh toán thất bại',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1F2937),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF0F7FF), AppColors.background],
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ScaleTransition(
+                              scale: _scaleAnimation,
+                              child: _buildSuccessBadge(),
+                            ),
+                            const SizedBox(height: 32),
+                            Text(
+                              _isSuccess
+                                  ? 'Đặt phòng thành công!'
+                                  : 'Thanh toán thất bại',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              _isSuccess
+                                  ? 'Cảm ơn bạn đã tin tưởng Travery. Hành trình của bạn đã sẵn sàng bắt đầu.'
+                                  : 'Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.',
+                              style: const TextStyle(
+                                fontSize: AppTextTheme.bodyMedium,
+                                color: AppColors.textSecondary,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            _buildBookingCard(),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _isSuccess
-                            ? 'Cảm ơn bạn đã tin tưởng Travery. Hành trình của bạn đã sẵn sàng bắt đầu.'
-                            : 'Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6B7280),
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 32),
-                      _buildBookingCard(),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                _buildBottomButton(),
+              ],
             ),
-            _buildButtons(),
-          ],
+          ),
         ),
       ),
     );
@@ -82,38 +129,55 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
 
   Widget _buildSuccessBadge() {
     return Stack(
-      alignment: Alignment.topRight,
+      alignment: Alignment.center,
       children: [
         Container(
-          width: 96,
-          height: 96,
+          width: 100,
+          height: 100,
           decoration: BoxDecoration(
-            color: const Color(0xFF00B289),
+            color: (_isSuccess ? AppColors.success : AppColors.error)
+                .withValues(alpha: 0.15),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00B289).withValues(alpha: 0.3),
+                color: (_isSuccess ? AppColors.success : AppColors.error)
+                    .withValues(alpha: 0.3),
                 blurRadius: 20,
-                spreadRadius: 4,
+                spreadRadius: 2,
               ),
             ],
           ),
-          child: const Icon(Icons.check, color: Colors.white, size: 48),
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: const Color(0xFFC2D7FF),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
+          child: Center(
+            child: Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                color: _isSuccess ? AppColors.success : AppColors.error,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isSuccess ? Icons.check : Icons.close,
+                color: Colors.white,
+                size: 40,
+              ),
             ),
-            child: const Icon(Icons.star, color: Color(0xFF0066FF), size: 16),
           ),
         ),
+        if (_isSuccess)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Icon(Icons.star, color: AppColors.warning, size: 16),
+            ),
+          ),
       ],
     );
   }
@@ -122,26 +186,24 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
-            spreadRadius: -4,
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         children: [
-          _buildRow('Mã đặt phòng', 'TRV-8829-4410', isBlue: true),
-          const SizedBox(height: 12),
-          _buildRow('Mã phòng', '101'),
+          _buildRow('Mã giao dịch', 'TRV-8829-4410', isPrimary: true),
           const SizedBox(height: 12),
           _buildRow('Loại phòng', 'VIP'),
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: DashedDivider(),
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(color: AppColors.inputBackground),
           ),
           _buildRow('Tổng thanh toán', _formatPrice(2450000), isBold: true),
         ],
@@ -152,7 +214,7 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
   Widget _buildRow(
     String label,
     String value, {
-    bool isBlue = false,
+    bool isPrimary = false,
     bool isBold = false,
   }) {
     return Row(
@@ -160,94 +222,62 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+          style: const TextStyle(
+            fontSize: AppTextTheme.bodyMedium,
+            color: AppColors.textSecondary,
+          ),
         ),
         Text(
           value,
           style: TextStyle(
-            fontSize: isBold ? 18 : 14,
+            fontSize: isBold
+                ? AppTextTheme.headlineSmall
+                : AppTextTheme.bodyMedium,
             fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-            color: isBlue ? const Color(0xFF0066FF) : const Color(0xFF1F2937),
+            color: isPrimary ? AppColors.primary : AppColors.textPrimary,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildBottomButton() {
     return Container(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                context.go(Routes.hotelMyBookings);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0066FF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Xem booking',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {
-                context.go(Routes.hotelHome);
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF0066FF),
-                side: const BorderSide(color: Color(0xFF0066FF)),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Về trang chủ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        ],
+      padding: EdgeInsets.fromLTRB(
+        24,
+        12,
+        24,
+        MediaQuery.of(context).padding.bottom + 12,
       ),
-    );
-  }
-}
-
-class DashedDivider extends StatelessWidget {
-  const DashedDivider({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final dashWidth = 5.0;
-        final dashSpace = 3.0;
-        final count = (constraints.maxWidth / (dashWidth + dashSpace)).floor();
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(count, (_) {
-            return Container(
-              width: dashWidth,
-              height: 1,
-              color: const Color(0xFFE5E7EB),
-            );
-          }),
-        );
-      },
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () => context.go(Routes.home),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.buttonPrimaryText,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 2,
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.home_outlined, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Về trang chủ',
+                style: TextStyle(
+                  fontSize: AppTextTheme.buttonMedium,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

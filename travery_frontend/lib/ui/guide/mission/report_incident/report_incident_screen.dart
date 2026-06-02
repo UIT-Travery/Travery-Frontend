@@ -3,8 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
-import 'package:travery_frontend/data/services/guide/guide_mission_service_impl.dart';
-import 'package:travery_frontend/data/services/token_refresh_service.dart';
 
 import '../../../../utils/core_result.dart';
 
@@ -41,40 +39,36 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isSubmitting) return;
 
     setState(() => _isSubmitting = true);
 
-    final tokenService = context.read<TokenRefreshService>();
-    final service = GuideMissionServiceImpl(tokenRefreshService: tokenService);
-    final result = await service.reportIncident(
+    final service = context.read<GuideMissionService>();
+    final success = await service.reportIncident(
       widget.missionId,
       _titleController.text.trim(),
       _descriptionController.text.trim(),
       _selectedSeverity,
     );
 
+    if (!mounted) return;
     setState(() => _isSubmitting = false);
 
-    if (!mounted) return;
-
-    switch (result) {
-      case Ok():
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Báo cáo sự cố đã được gửi'),
-            backgroundColor: AppColors.primary,
-          ),
-        );
-        context.pop();
-        break;
-      case Error(error: final e):
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        break;
+    if (success is Ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Báo cáo sự cố đã được gửi'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+      context.pop();
+    } else if (success is Error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text((success as Error).error.toString()),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 

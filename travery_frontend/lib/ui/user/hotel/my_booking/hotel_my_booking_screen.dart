@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_booking_view_model.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelMyBookingScreen extends StatefulWidget {
   const HotelMyBookingScreen({super.key, this.showHeader = true});
@@ -57,97 +58,63 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBFF),
-      body: Column(
-        children: [
-          if (widget.showHeader) _buildHeader(),
-          Expanded(
-            child: Consumer<HotelMyBookingViewModel>(
-              builder: (context, vm, _) {
-                if (vm.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (vm.bookings.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.hotel_outlined,
-                          size: 64,
-                          color: Color(0xFFE2E8F0),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Chưa có đơn đặt phòng nào',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF414755),
-                          ),
-                        ),
-                      ],
+      appBar: widget.showHeader
+          ? const HotelAppBar(title: 'Đơn đặt phòng của tôi')
+          : null,
+      body: Consumer<HotelMyBookingViewModel>(
+        builder: (context, vm, _) {
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (vm.bookings.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.hotel_outlined,
+                    size: 64,
+                    color: Color(0xFFE2E8F0),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Chưa có đơn đặt phòng nào',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF414755),
                     ),
-                  );
-                }
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: vm.bookings.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final booking = vm.bookings[index];
-                    return _BookingCard(
-                      booking: booking,
-                      formatPrice: _formatPrice,
-                      statusColor: _statusColor(booking.status),
-                      statusLabel: _statusLabel(booking.status),
-                      onTap: () => context.push(
-                        Routes.hotelBookingDetail.replaceFirst(
-                          ':id',
-                          booking.id,
-                        ),
-                        extra: {'booking': booking},
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+                  ),
+                ],
+              ),
+            );
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: vm.bookings.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 16),
+            itemBuilder: (context, index) {
+              final booking = vm.bookings[index];
+              return _BookingCard(
+                booking: booking,
+                formatPrice: _formatPrice,
+                statusColor: _statusColor(booking.status),
+                statusLabel: _statusLabel(booking.status),
+                onTap: () => context.push(
+                  Routes.hotelBookingDetail.replaceFirst(
+                    ':id',
+                    booking.id,
+                  ),
+                  extra: {'booking': booking},
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        16,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Đơn đặt phòng của tôi',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _BookingCard extends StatelessWidget {

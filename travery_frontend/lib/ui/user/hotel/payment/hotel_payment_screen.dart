@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelPaymentScreen extends StatefulWidget {
   const HotelPaymentScreen({super.key});
@@ -59,41 +60,10 @@ class _HotelPaymentScreenState extends State<HotelPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1F2937),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Xác nhận hủy'),
-                content: const Text(
-                  'Bạn có chắc chắn muốn hủy thanh toán không?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Không'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      context.pop();
-                    },
-                    child: const Text('Có, hủy'),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-        title: const Text(
-          'Thanh toán VNPay',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+      appBar: const HotelAppBar(
+        title: 'Thanh toán VNPay',
+        leadingIcon: Icons.close,
+        showConfirmDialog: true,
       ),
       body: Stack(
         children: [
