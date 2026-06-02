@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 
 class HotelAddonPaymentSuccessScreen extends StatefulWidget {
   const HotelAddonPaymentSuccessScreen({super.key});
@@ -11,37 +13,82 @@ class HotelAddonPaymentSuccessScreen extends StatefulWidget {
 }
 
 class _HotelAddonPaymentSuccessScreenState
-    extends State<HotelAddonPaymentSuccessScreen> {
+    extends State<HotelAddonPaymentSuccessScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 
   @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F7FF),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    _buildSuccessIcon(),
-                    const SizedBox(height: 24),
-                    _buildTitle(),
-                    const SizedBox(height: 24),
-                    _buildTransactionCard(),
-                    const SizedBox(height: 32),
-                    _buildButtons(),
-                  ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF0F7FF), AppColors.background],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        ScaleTransition(
+                          scale: _scaleAnimation,
+                          child: _buildSuccessIcon(),
+                        ),
+                        const SizedBox(height: 24),
+                        _buildTitle(),
+                        const SizedBox(height: 24),
+                        _buildTransactionCard(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+              _buildBottomButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -53,18 +100,18 @@ class _HotelAddonPaymentSuccessScreenState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox(width: 24),
+          const SizedBox(width: 48),
           const Text(
-            'Success',
+            'Thành công',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: AppTextTheme.labelMedium,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0056B3),
+              color: AppColors.primary,
             ),
           ),
-          GestureDetector(
-            onTap: () => context.pop(),
-            child: const Icon(Icons.close, color: Color(0xFF0056B3)),
+          IconButton(
+            icon: const Icon(Icons.close, color: AppColors.primary),
+            onPressed: () => context.pop(),
           ),
         ],
       ),
@@ -73,20 +120,30 @@ class _HotelAddonPaymentSuccessScreenState
 
   Widget _buildSuccessIcon() {
     return Container(
-      width: 96,
-      height: 96,
+      width: 100,
+      height: 100,
       decoration: BoxDecoration(
-        color: const Color(0xFF0056B3),
+        color: AppColors.success.withValues(alpha: 0.15),
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0056B3).withValues(alpha: 0.3),
+            color: AppColors.success.withValues(alpha: 0.3),
             blurRadius: 20,
-            spreadRadius: 4,
+            spreadRadius: 2,
           ),
         ],
       ),
-      child: const Icon(Icons.check, color: Colors.white, size: 48),
+      child: Center(
+        child: Container(
+          width: 70,
+          height: 70,
+          decoration: const BoxDecoration(
+            color: AppColors.success,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.check, color: Colors.white, size: 40),
+        ),
+      ),
     );
   }
 
@@ -96,16 +153,20 @@ class _HotelAddonPaymentSuccessScreenState
         const Text(
           'Đặt dịch vụ thành công!',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF0056B3),
+            fontSize: AppTextTheme.headlineLarge,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
           ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
         const Text(
           'Yêu cầu của bạn đã được tiếp nhận và sẽ được phục vụ tại phòng.',
-          style: TextStyle(fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
+          style: TextStyle(
+            fontSize: AppTextTheme.bodyMedium,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -116,12 +177,13 @@ class _HotelAddonPaymentSuccessScreenState
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -129,37 +191,37 @@ class _HotelAddonPaymentSuccessScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'MÃ GIAO DỊCH',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF9CA3AF),
-                  letterSpacing: 1,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.receipt_long,
+                  color: AppColors.primary,
+                  size: 24,
                 ),
               ),
+              const SizedBox(width: 12),
               const Text(
-                'ID: #AS-8892',
+                'Chi tiết thanh toán',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF6B7280),
+                  fontSize: AppTextTheme.labelMedium,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(color: Color(0xFFF3F4F6)),
-          ),
+          const SizedBox(height: 20),
           _buildItemRow('Floating Breakfast', _formatPrice(950000)),
           const SizedBox(height: 10),
           _buildItemRow('Deep Tissue Massage', _formatPrice(800000)),
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(color: Color(0xFFF3F4F6)),
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(color: AppColors.inputBackground),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -167,17 +229,17 @@ class _HotelAddonPaymentSuccessScreenState
               const Text(
                 'Tổng cộng',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: AppTextTheme.headlineSmall,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 _formatPrice(1750000),
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0056B3),
+                  fontSize: AppTextTheme.headlineSmall,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -194,47 +256,57 @@ class _HotelAddonPaymentSuccessScreenState
         Text(
           name,
           style: const TextStyle(
-            fontSize: 15,
+            fontSize: AppTextTheme.bodyMedium,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF1F2937),
+            color: AppColors.textPrimary,
           ),
         ),
         Text(
           price,
           style: const TextStyle(
-            fontSize: 15,
+            fontSize: AppTextTheme.bodyMedium,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF1F2937),
+            color: AppColors.textPrimary,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildBottomButton() {
     return Container(
       padding: EdgeInsets.fromLTRB(
         24,
+        12,
         24,
-        24,
-        MediaQuery.of(context).padding.bottom + 24,
+        MediaQuery.of(context).padding.bottom + 12,
       ),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () => context.pushReplacement(Routes.tourHome),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0056B3),
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.buttonPrimaryText,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            elevation: 0,
+            elevation: 2,
           ),
-          child: const Text(
-            'Quay lại trang chủ',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.home_outlined, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Quay lại trang chủ',
+                style: TextStyle(
+                  fontSize: AppTextTheme.buttonMedium,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ),
       ),

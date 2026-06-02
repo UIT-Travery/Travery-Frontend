@@ -12,23 +12,66 @@ class HotelCheckoutSuccessScreen extends StatefulWidget {
       _HotelCheckoutSuccessScreenState();
 }
 
-class _HotelCheckoutSuccessScreenState
-    extends State<HotelCheckoutSuccessScreen> {
+class _HotelCheckoutSuccessScreenState extends State<HotelCheckoutSuccessScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  String _formatPrice(double price) {
+    final str = price.toStringAsFixed(0);
+    return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              _buildSuccessContent(),
-              const Spacer(),
-              _buildBottomButton(),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF0F7FF), AppColors.background],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                const Spacer(),
+                _buildSuccessContent(),
+                const Spacer(),
+                _buildBottomButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -36,55 +79,109 @@ class _HotelCheckoutSuccessScreenState
   }
 
   Widget _buildSuccessContent() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildCheckCircle(),
-        const SizedBox(height: 24),
-        const Text(
-          'Check-out thành công!',
-          style: TextStyle(
-            fontSize: AppTextTheme.headlineMedium,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ScaleTransition(scale: _scaleAnimation, child: _buildSuccessBadge()),
+          const SizedBox(height: 32),
+          const Text(
+            'Thanh toán thành công!',
+            style: TextStyle(
+              fontSize: AppTextTheme.headlineLarge,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          'Cảm ơn bạn đã sử dụng dịch vụ. Chúc bạn một hành trình tiếp theo thượng lộ bình an!',
-          style: TextStyle(
-            fontSize: AppTextTheme.bodyMedium,
-            color: AppColors.textSecondary,
-            height: 1.5,
+          const SizedBox(height: 8),
+          const Text(
+            'Cảm ơn bạn đã thanh toán hóa đơn',
+            style: TextStyle(
+              fontSize: AppTextTheme.bodyMedium,
+              color: AppColors.textSecondary,
+            ),
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+          const SizedBox(height: 24),
+          _buildAmountCard(),
+          const SizedBox(height: 32),
+          const Text(
+            'Chúc bạn một hành trình tiếp theo\nthượng lộ bình an!',
+            style: TextStyle(
+              fontSize: AppTextTheme.bodySmall,
+              color: AppColors.textHint,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildCheckCircle() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: AppColors.success.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
+  Widget _buildSuccessBadge() {
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: BoxDecoration(
+        color: AppColors.success.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.success.withValues(alpha: 0.3),
+            blurRadius: 20,
+            spreadRadius: 2,
           ),
-        ),
-        Container(
-          width: 56,
-          height: 56,
+        ],
+      ),
+      child: Center(
+        child: Container(
+          width: 70,
+          height: 70,
           decoration: const BoxDecoration(
             color: AppColors.success,
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.check, color: Colors.white, size: 28),
+          child: const Icon(Icons.check, color: Colors.white, size: 40),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildAmountCard() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'Số tiền đã thanh toán',
+            style: TextStyle(
+              fontSize: AppTextTheme.bodySmall,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _formatPrice(13050000),
+            style: const TextStyle(
+              fontSize: AppTextTheme.headlineLarge,
+              fontWeight: FontWeight.w800,
+              color: AppColors.success,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -100,14 +197,21 @@ class _HotelCheckoutSuccessScreenState
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 0,
+          elevation: 2,
         ),
-        child: const Text(
-          'Quay về trang chủ',
-          style: TextStyle(
-            fontSize: AppTextTheme.buttonMedium,
-            fontWeight: FontWeight.bold,
-          ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.home_outlined, size: 20),
+            SizedBox(width: 8),
+            Text(
+              'Quay về trang chủ',
+              style: TextStyle(
+                fontSize: AppTextTheme.buttonMedium,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

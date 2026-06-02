@@ -276,15 +276,16 @@ class _RoomCard extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: 24,
-                    height: 24,
+                  top: 10,
+                  right: 10,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: isSelected
                           ? const Color(0xFF10B981)
-                          : (room.isAvailable ? Colors.white : Colors.grey),
+                          : Colors.white.withValues(alpha: 0.9),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isSelected
@@ -292,10 +293,28 @@ class _RoomCard extends StatelessWidget {
                             : const Color(0xFFD1D5DB),
                         width: 2,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: isSelected
-                        ? const Icon(Icons.check, size: 14, color: Colors.white)
-                        : null,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.white,
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ],
