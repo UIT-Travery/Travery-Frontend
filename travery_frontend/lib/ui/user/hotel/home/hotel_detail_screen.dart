@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelDetailScreen extends StatefulWidget {
   const HotelDetailScreen({super.key});
@@ -47,23 +48,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF007AFF)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Chi tiết khách sạn',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF007AFF),
-          ),
-        ),
-        centerTitle: true,
-      ),
+      appBar: const HotelAppBar(title: 'Chi tiết khách sạn'),
       body: Consumer<HotelDetailViewModel>(
         builder: (context, vm, _) {
           if (vm.isLoading) {

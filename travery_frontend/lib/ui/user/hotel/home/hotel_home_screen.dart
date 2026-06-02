@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelHomeScreen extends StatefulWidget {
   const HotelHomeScreen({super.key});
@@ -29,9 +30,9 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      appBar: const HotelAppBar(title: 'Danh sách khách sạn'),
       body: Column(
         children: [
-          _buildHeader(),
           _buildFilterBar(),
           Expanded(
             child: Consumer<HotelHomeViewModel>(
@@ -100,37 +101,6 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
                   },
                 );
               },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(
-        16,
-        MediaQuery.of(context).padding.top + 16,
-        16,
-        16,
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF374151)),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Text(
-              'Danh sách khách sạn',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
             ),
           ),
         ],

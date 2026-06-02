@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelBookingInputScreen extends StatefulWidget {
   const HotelBookingInputScreen({super.key});
@@ -91,19 +92,7 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1F2937),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Thông tin đặt phòng',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
+      appBar: const HotelAppBar(title: 'Thông tin đặt phòng'),
       body: Form(
         key: _formKey,
         child: Column(

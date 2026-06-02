@@ -74,7 +74,6 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen>
         child: SafeArea(
           child: Column(
             children: [
-              _buildHeader(),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
@@ -101,28 +100,6 @@ class _HotelCancelSuccessScreenState extends State<HotelCancelSuccessScreen>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-            onPressed: () => context.pop(),
-          ),
-          const Text(
-            'Thông báo',
-            style: TextStyle(
-              fontSize: AppTextTheme.labelMedium,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
       ),
     );
   }

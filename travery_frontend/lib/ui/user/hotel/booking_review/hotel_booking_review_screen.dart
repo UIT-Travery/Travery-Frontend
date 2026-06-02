@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelBookingReviewScreen extends StatefulWidget {
   const HotelBookingReviewScreen({super.key});
@@ -15,57 +16,20 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      body: Column(
+      appBar: const HotelAppBar(title: 'Xác nhận thông tin'),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          _buildHeader(),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildBookingInfo(),
-                const SizedBox(height: 16),
-                _buildContactInfo(),
-                const SizedBox(height: 16),
-                _buildGuestInfo(),
-                const SizedBox(height: 16),
-                _buildPricingSection(),
-              ],
-            ),
-          ),
+          _buildBookingInfo(),
+          const SizedBox(height: 16),
+          _buildContactInfo(),
+          const SizedBox(height: 16),
+          _buildGuestInfo(),
+          const SizedBox(height: 16),
+          _buildPricingSection(),
         ],
       ),
       bottomNavigationBar: _buildBottomBar(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        16,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Xác nhận thông tin',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

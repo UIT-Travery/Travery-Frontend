@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelCheckoutScreen extends StatefulWidget {
   const HotelCheckoutScreen({super.key});
@@ -21,57 +22,20 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
+      appBar: const HotelAppBar(title: 'Chi tiết dịch vụ'),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          _buildHeader(),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildTitle(),
-                const SizedBox(height: 16),
-                _buildResortCard(),
-                const SizedBox(height: 12),
-                _buildBillCard(),
-                const SizedBox(height: 12),
-                _buildTotalCard(),
-              ],
-            ),
-          ),
+          _buildTitle(),
+          const SizedBox(height: 16),
+          _buildResortCard(),
+          const SizedBox(height: 12),
+          _buildBillCard(),
+          const SizedBox(height: 12),
+          _buildTotalCard(),
         ],
       ),
       bottomNavigationBar: _buildBottomButton(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: AppColors.surface,
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        8,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Chi tiết dịch vụ',
-              style: TextStyle(
-                fontSize: AppTextTheme.labelMedium,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelAddonListScreen extends StatefulWidget {
   const HotelAddonListScreen({super.key});
@@ -24,9 +25,9 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
+      appBar: const HotelAppBar(title: 'Thêm dịch vụ'),
       body: Column(
         children: [
-          _buildHeader(),
           _buildTabs(),
           Expanded(
             child: ListView.separated(
@@ -49,37 +50,6 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
         ],
       ),
       bottomNavigationBar: _buildBottomBar(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        8,
-      ),
-      decoration: const BoxDecoration(color: Colors.white),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Thêm dịch vụ',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

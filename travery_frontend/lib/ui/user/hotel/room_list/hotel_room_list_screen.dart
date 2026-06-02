@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelRoomListScreen extends StatefulWidget {
   const HotelRoomListScreen({super.key});
@@ -41,68 +42,31 @@ class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: _rooms.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final room = _rooms[index];
-                final isSelected = _selectedRooms.contains(room);
-                return _RoomCard(
-                  room: room,
-                  isSelected: isSelected,
-                  formatPrice: _formatPrice,
-                  onToggle: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedRooms.remove(room);
-                      } else {
-                        _selectedRooms.add(room);
-                      }
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+      appBar: const HotelAppBar(title: 'Danh sách loại phòng'),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: _rooms.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final room = _rooms[index];
+          final isSelected = _selectedRooms.contains(room);
+          return _RoomCard(
+            room: room,
+            isSelected: isSelected,
+            formatPrice: _formatPrice,
+            onToggle: () {
+              setState(() {
+                if (isSelected) {
+                  _selectedRooms.remove(room);
+                } else {
+                  _selectedRooms.add(room);
+                }
+              });
+            },
+          );
+        },
       ),
       bottomNavigationBar: _buildBottomBar(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        16,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Danh sách loại phòng',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
