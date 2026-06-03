@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LogoutRequest {
 
- String get refreshToken;
+ String get refreshToken; String? get fcmToken;
 /// Create a copy of LogoutRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $LogoutRequestCopyWith<LogoutRequest> get copyWith => _$LogoutRequestCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LogoutRequest&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LogoutRequest&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.fcmToken, fcmToken) || other.fcmToken == fcmToken));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,refreshToken);
+int get hashCode => Object.hash(runtimeType,refreshToken,fcmToken);
 
 @override
 String toString() {
-  return 'LogoutRequest(refreshToken: $refreshToken)';
+  return 'LogoutRequest(refreshToken: $refreshToken, fcmToken: $fcmToken)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $LogoutRequestCopyWith<$Res>  {
   factory $LogoutRequestCopyWith(LogoutRequest value, $Res Function(LogoutRequest) _then) = _$LogoutRequestCopyWithImpl;
 @useResult
 $Res call({
- String refreshToken
+ String refreshToken, String? fcmToken
 });
 
 
@@ -65,10 +65,11 @@ class _$LogoutRequestCopyWithImpl<$Res>
 
 /// Create a copy of LogoutRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? refreshToken = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? refreshToken = null,Object? fcmToken = freezed,}) {
   return _then(_self.copyWith(
 refreshToken: null == refreshToken ? _self.refreshToken : refreshToken // ignore: cast_nullable_to_non_nullable
-as String,
+as String,fcmToken: freezed == fcmToken ? _self.fcmToken : fcmToken // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -153,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String refreshToken)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String refreshToken,  String? fcmToken)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LogoutRequest() when $default != null:
-return $default(_that.refreshToken);case _:
+return $default(_that.refreshToken,_that.fcmToken);case _:
   return orElse();
 
 }
@@ -174,10 +175,10 @@ return $default(_that.refreshToken);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String refreshToken)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String refreshToken,  String? fcmToken)  $default,) {final _that = this;
 switch (_that) {
 case _LogoutRequest():
-return $default(_that.refreshToken);case _:
+return $default(_that.refreshToken,_that.fcmToken);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +195,10 @@ return $default(_that.refreshToken);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String refreshToken)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String refreshToken,  String? fcmToken)?  $default,) {final _that = this;
 switch (_that) {
 case _LogoutRequest() when $default != null:
-return $default(_that.refreshToken);case _:
+return $default(_that.refreshToken,_that.fcmToken);case _:
   return null;
 
 }
@@ -209,10 +210,11 @@ return $default(_that.refreshToken);case _:
 @JsonSerializable()
 
 class _LogoutRequest implements LogoutRequest {
-  const _LogoutRequest({required this.refreshToken});
+  const _LogoutRequest({required this.refreshToken, this.fcmToken});
   factory _LogoutRequest.fromJson(Map<String, dynamic> json) => _$LogoutRequestFromJson(json);
 
 @override final  String refreshToken;
+@override final  String? fcmToken;
 
 /// Create a copy of LogoutRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -227,16 +229,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LogoutRequest&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LogoutRequest&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.fcmToken, fcmToken) || other.fcmToken == fcmToken));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,refreshToken);
+int get hashCode => Object.hash(runtimeType,refreshToken,fcmToken);
 
 @override
 String toString() {
-  return 'LogoutRequest(refreshToken: $refreshToken)';
+  return 'LogoutRequest(refreshToken: $refreshToken, fcmToken: $fcmToken)';
 }
 
 
@@ -247,7 +249,7 @@ abstract mixin class _$LogoutRequestCopyWith<$Res> implements $LogoutRequestCopy
   factory _$LogoutRequestCopyWith(_LogoutRequest value, $Res Function(_LogoutRequest) _then) = __$LogoutRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String refreshToken
+ String refreshToken, String? fcmToken
 });
 
 
@@ -264,10 +266,11 @@ class __$LogoutRequestCopyWithImpl<$Res>
 
 /// Create a copy of LogoutRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? refreshToken = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? refreshToken = null,Object? fcmToken = freezed,}) {
   return _then(_LogoutRequest(
 refreshToken: null == refreshToken ? _self.refreshToken : refreshToken // ignore: cast_nullable_to_non_nullable
-as String,
+as String,fcmToken: freezed == fcmToken ? _self.fcmToken : fcmToken // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

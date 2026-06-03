@@ -12,6 +12,7 @@ _SignupRequest _$SignupRequestFromJson(Map<String, dynamic> json) =>
       password: json['password'] as String,
       confirmPassword: json['confirmPassword'] as String,
       fullName: json['fullName'] as String,
+      fcmToken: json['fcmToken'] as String?,
     );
 
 Map<String, dynamic> _$SignupRequestToJson(_SignupRequest instance) =>
@@ -20,4 +21,5 @@ Map<String, dynamic> _$SignupRequestToJson(_SignupRequest instance) =>
       'password': instance.password,
       'confirmPassword': instance.confirmPassword,
       'fullName': instance.fullName,
+      'fcmToken': instance.fcmToken,
     };

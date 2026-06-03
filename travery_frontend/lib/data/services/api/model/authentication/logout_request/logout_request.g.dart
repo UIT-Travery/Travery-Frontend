@@ -7,7 +7,13 @@ part of 'logout_request.dart';
 // **************************************************************************
 
 _LogoutRequest _$LogoutRequestFromJson(Map<String, dynamic> json) =>
-    _LogoutRequest(refreshToken: json['refreshToken'] as String);
+    _LogoutRequest(
+      refreshToken: json['refreshToken'] as String,
+      fcmToken: json['fcmToken'] as String?,
+    );
 
 Map<String, dynamic> _$LogoutRequestToJson(_LogoutRequest instance) =>
-    <String, dynamic>{'refreshToken': instance.refreshToken};
+    <String, dynamic>{
+      'refreshToken': instance.refreshToken,
+      'fcmToken': instance.fcmToken,
+    };

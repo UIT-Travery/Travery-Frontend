@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SignupRequest {
 
- String get email; String get password; String get confirmPassword; String get fullName;
+ String get email; String get password; String get confirmPassword; String get fullName; String? get fcmToken;
 /// Create a copy of SignupRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $SignupRequestCopyWith<SignupRequest> get copyWith => _$SignupRequestCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignupRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.fullName, fullName) || other.fullName == fullName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignupRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.fcmToken, fcmToken) || other.fcmToken == fcmToken));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,email,password,confirmPassword,fullName);
+int get hashCode => Object.hash(runtimeType,email,password,confirmPassword,fullName,fcmToken);
 
 @override
 String toString() {
-  return 'SignupRequest(email: $email, password: $password, confirmPassword: $confirmPassword, fullName: $fullName)';
+  return 'SignupRequest(email: $email, password: $password, confirmPassword: $confirmPassword, fullName: $fullName, fcmToken: $fcmToken)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $SignupRequestCopyWith<$Res>  {
   factory $SignupRequestCopyWith(SignupRequest value, $Res Function(SignupRequest) _then) = _$SignupRequestCopyWithImpl;
 @useResult
 $Res call({
- String email, String password, String confirmPassword, String fullName
+ String email, String password, String confirmPassword, String fullName, String? fcmToken
 });
 
 
@@ -65,13 +65,14 @@ class _$SignupRequestCopyWithImpl<$Res>
 
 /// Create a copy of SignupRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? email = null,Object? password = null,Object? confirmPassword = null,Object? fullName = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? email = null,Object? password = null,Object? confirmPassword = null,Object? fullName = null,Object? fcmToken = freezed,}) {
   return _then(_self.copyWith(
 email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,confirmPassword: null == confirmPassword ? _self.confirmPassword : confirmPassword // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,fcmToken: freezed == fcmToken ? _self.fcmToken : fcmToken // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -156,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String email,  String password,  String confirmPassword,  String fullName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String email,  String password,  String confirmPassword,  String fullName,  String? fcmToken)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SignupRequest() when $default != null:
-return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName);case _:
+return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName,_that.fcmToken);case _:
   return orElse();
 
 }
@@ -177,10 +178,10 @@ return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName)
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String email,  String password,  String confirmPassword,  String fullName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String email,  String password,  String confirmPassword,  String fullName,  String? fcmToken)  $default,) {final _that = this;
 switch (_that) {
 case _SignupRequest():
-return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName);case _:
+return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName,_that.fcmToken);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +198,10 @@ return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName)
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String email,  String password,  String confirmPassword,  String fullName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String email,  String password,  String confirmPassword,  String fullName,  String? fcmToken)?  $default,) {final _that = this;
 switch (_that) {
 case _SignupRequest() when $default != null:
-return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName);case _:
+return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName,_that.fcmToken);case _:
   return null;
 
 }
@@ -212,13 +213,14 @@ return $default(_that.email,_that.password,_that.confirmPassword,_that.fullName)
 @JsonSerializable()
 
 class _SignupRequest implements SignupRequest {
-  const _SignupRequest({required this.email, required this.password, required this.confirmPassword, required this.fullName});
+  const _SignupRequest({required this.email, required this.password, required this.confirmPassword, required this.fullName, this.fcmToken});
   factory _SignupRequest.fromJson(Map<String, dynamic> json) => _$SignupRequestFromJson(json);
 
 @override final  String email;
 @override final  String password;
 @override final  String confirmPassword;
 @override final  String fullName;
+@override final  String? fcmToken;
 
 /// Create a copy of SignupRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignupRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.fullName, fullName) || other.fullName == fullName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignupRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.fcmToken, fcmToken) || other.fcmToken == fcmToken));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,email,password,confirmPassword,fullName);
+int get hashCode => Object.hash(runtimeType,email,password,confirmPassword,fullName,fcmToken);
 
 @override
 String toString() {
-  return 'SignupRequest(email: $email, password: $password, confirmPassword: $confirmPassword, fullName: $fullName)';
+  return 'SignupRequest(email: $email, password: $password, confirmPassword: $confirmPassword, fullName: $fullName, fcmToken: $fcmToken)';
 }
 
 
@@ -253,7 +255,7 @@ abstract mixin class _$SignupRequestCopyWith<$Res> implements $SignupRequestCopy
   factory _$SignupRequestCopyWith(_SignupRequest value, $Res Function(_SignupRequest) _then) = __$SignupRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String email, String password, String confirmPassword, String fullName
+ String email, String password, String confirmPassword, String fullName, String? fcmToken
 });
 
 
@@ -270,13 +272,14 @@ class __$SignupRequestCopyWithImpl<$Res>
 
 /// Create a copy of SignupRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? email = null,Object? password = null,Object? confirmPassword = null,Object? fullName = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? email = null,Object? password = null,Object? confirmPassword = null,Object? fullName = null,Object? fcmToken = freezed,}) {
   return _then(_SignupRequest(
 email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,confirmPassword: null == confirmPassword ? _self.confirmPassword : confirmPassword // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,fcmToken: freezed == fcmToken ? _self.fcmToken : fcmToken // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

@@ -10,6 +10,7 @@ abstract class SignupRequest with _$SignupRequest {
     required String password,
     required String confirmPassword,
     required String fullName,
+    String? fcmToken,
   }) = _SignupRequest;
 
   factory SignupRequest.fromJson(Map<String, dynamic> json) =>
