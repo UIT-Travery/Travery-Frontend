@@ -148,7 +148,6 @@ class _GuideCheckinScreenState extends State<GuideCheckinScreen> {
 
     return Column(
       children: [
-        if (!isEditable) _buildReadOnlyBanner(),
         Expanded(
           child: allMembers.isEmpty
               ? _buildEmptyMemberList()
@@ -188,31 +187,7 @@ class _GuideCheckinScreenState extends State<GuideCheckinScreen> {
   }
 
   bool _isEditableStatus(String status) {
-    return status == 'FULL' || status == 'IN_PROGRESS';
-  }
-
-  Widget _buildReadOnlyBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: const Color(0xFFfef3c7),
-      child: const Row(
-        children: [
-          Icon(Icons.info_outline, size: 16, color: Color(0xFFd97706)),
-          SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Chỉ có thể điểm danh khi tour ở trạng thái FULL hoặc ĐANG DIỄN RA',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFFd97706),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    return status != 'COMPLETED' && status != 'CANCELLED';
   }
 
   Widget _buildEmptyMemberList() {

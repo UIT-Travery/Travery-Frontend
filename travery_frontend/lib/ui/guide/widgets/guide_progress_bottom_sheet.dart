@@ -34,48 +34,47 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     _selectedStatus = statuses.length > 1 ? statuses[1].value : null;
   }
 
-  /// Get available statuses: current (disabled), exact next (enabled), CANCELLED.
+  bool get _isTerminalStatus =>
+      widget.currentStatus == 'COMPLETED' ||
+      widget.currentStatus == 'CANCELLED';
+
+  /// Get available statuses: current (disabled), all other valid statuses (enabled).
   List<_TourStatusOption> _getAvailableStatuses() {
-    const sequence = ['PLANNING', 'OPEN', 'FULL', 'IN_PROGRESS', 'COMPLETED'];
-    final currentIndex = sequence.indexOf(widget.currentStatus);
-
-    // Terminal status: only show current, nothing selectable
-    if (currentIndex == -1 || currentIndex >= sequence.length - 1) {
-      return [
-        _TourStatusOption(
-          value: widget.currentStatus,
-          label: widget.currentStatus,
-          description: _getStatusLabel(widget.currentStatus),
-        ),
-      ];
-    }
-
-    final nextStatus = sequence[currentIndex + 1];
-    return [
-      // Current (disabled)
+    final allStatuses = [
       _TourStatusOption(
-        value: widget.currentStatus,
-        label: widget.currentStatus,
-        description: _getStatusLabel(widget.currentStatus),
+        value: 'PLANNING',
+        label: 'PLANNING',
+        description: 'Đang lập kế hoạch',
       ),
-      // Next in sequence (enabled)
       _TourStatusOption(
-        value: nextStatus,
-        label: nextStatus,
-        description: _getStatusLabel(nextStatus),
+        value: 'OPEN',
+        label: 'OPEN',
+        description: 'Mở đăng ký',
       ),
-      // Always allow cancellation
+      _TourStatusOption(
+        value: 'FULL',
+        label: 'FULL',
+        description: 'Đã đủ khách',
+      ),
+      _TourStatusOption(
+        value: 'IN_PROGRESS',
+        label: 'IN_PROGRESS',
+        description: 'Đang diễn ra',
+      ),
+      _TourStatusOption(
+        value: 'COMPLETED',
+        label: 'COMPLETED',
+        description: 'Hoàn thành',
+      ),
       _TourStatusOption(
         value: 'CANCELLED',
         label: 'CANCELLED',
         description: 'Đã hủy',
       ),
     ];
-  }
 
-  bool get _isTerminalStatus =>
-      widget.currentStatus == 'COMPLETED' ||
-      widget.currentStatus == 'CANCELLED';
+    return allStatuses;
+  }
 
   @override
   Widget build(BuildContext context) {

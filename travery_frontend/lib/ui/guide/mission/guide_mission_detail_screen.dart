@@ -231,11 +231,7 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
                     ? () => _showProgressBottomSheet(mission)
                     : null,
                 icon: const Icon(Icons.update),
-                label: Text(
-                  isProgressEditable
-                      ? 'Cập nhật tiến độ'
-                      : 'Chưa đến hạn cập nhật',
-                ),
+                label: Text(_getProgressButtonLabel(mission.status)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isProgressEditable
                       ? AppColors.primary
@@ -257,7 +253,13 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
   }
 
   bool _isProgressEditable(String status) {
-    return status == 'FULL' || status == 'IN_PROGRESS';
+    return status != 'COMPLETED' && status != 'CANCELLED';
+  }
+
+  String _getProgressButtonLabel(String status) {
+    if (status == 'COMPLETED') return 'Đã hoàn thành';
+    if (status == 'CANCELLED') return 'Đã hủy';
+    return 'Cập nhật tiến độ';
   }
 
   void _navigateToCheckin(String missionId) {
