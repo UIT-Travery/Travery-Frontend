@@ -451,18 +451,6 @@ class _TripBookingReviewScreenState extends State<TripBookingReviewScreen> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.copy_outlined,
-                size: 16,
-                color: Color(0xFF6B7280),
-              ),
-            ),
           ],
         ),
         if (isBoarding && timeLabel != null && timeValue != null)

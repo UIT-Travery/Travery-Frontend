@@ -307,6 +307,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         textColor = const Color(0xFFDC2626);
         label = 'Đã hủy';
         break;
+      case 'PAID':
+        bgColor = const Color(0xFFECFDF5);
+        textColor = const Color(0xFF059669);
+        label = 'Đã thanh toán';
+        break;
       case 'COMPLETED':
         bgColor = const Color(0xFFDBEAFE);
         textColor = const Color(0xFF1D4ED8);

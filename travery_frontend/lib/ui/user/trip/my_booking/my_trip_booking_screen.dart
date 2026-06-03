@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/ui/user/trip/widgets/trip_booking_card.dart';
 import 'package:travery_frontend/ui/user/widgets/empty_state.dart';
 import 'package:travery_frontend/ui/user/widgets/error_state.dart';
@@ -146,44 +148,136 @@ class _TripBookingListContent extends StatelessWidget {
             onRetry: () => vm.loadBookings(refresh: true),
           );
         }
-        if (vm.bookings.isEmpty) {
-          return const EmptyState(
-            icon: Icons.directions_bus_outlined,
-            title: 'Chưa có đơn đặt xe nào',
-            subtitle: 'Hãy đặt xe để trải nghiệm dịch vụ!',
-          );
-        }
-        return RefreshIndicator(
-          onRefresh: () async =>
-              vm.loadBookings(status: vm.selectedStatus, refresh: true),
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: vm.bookings.length,
-            itemBuilder: (context, index) {
-              final b = vm.bookings[index];
-              return TripBookingCard(
-                departureTime: b.departureTime,
-                arrivalTime: b.estimatedArrivalTime,
-                originDestination: b.originDestination,
-                destinationDestination: b.destinationDestination,
-                bookedSeatNames: b.bookedSeatNames,
-                basePrice: b.basePrice,
-                totalPrice: b.totalPrice,
-                status: b.status,
-                statusLabel: vm.getStatusLabel(b.status),
-                coachLicensePlate: b.coachLicensePlate,
-                paymentDeadline: b.paymentDeadline,
-                paymentMethod: b.paymentMethod,
-                paymentStatus: b.paymentStatus,
-                onTap: () => context.push(
-                  Routes.tripBookingDetail,
-                  extra: {'booking': b},
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: vm.statusFilters.map((filter) {
+                    final isSelected =
+                        (vm.selectedStatus ?? 'Tất cả') == filter;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: () => vm.loadBookings(status: filter),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFF0058BC)
+                                : const Color(0xFFDAE2FD),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _getStatusDisplayName(filter),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF414755),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+            Expanded(
+              child: vm.bookings.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.directions_bus_outlined,
+                      title: 'Chưa có đơn đặt xe nào',
+                      subtitle: 'Hãy đặt xe để trải nghiệm dịch vụ!',
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () async => vm.loadBookings(
+                        status: vm.selectedStatus,
+                        refresh: true,
+                      ),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: vm.bookings.length,
+                        itemBuilder: (context, index) {
+                          final b = vm.bookings[index];
+                          return TripBookingCard(
+                            departureTime: b.departureTime,
+                            arrivalTime: b.estimatedArrivalTime,
+                            originDestination: b.originDestination,
+                            destinationDestination: b.destinationDestination,
+                            bookedSeatNames: b.bookedSeatNames,
+                            basePrice: b.basePrice,
+                            totalPrice: b.totalPrice,
+                            status: b.status,
+                            statusLabel: vm.getStatusLabel(b.status),
+                            coachLicensePlate: b.coachLicensePlate,
+                            paymentDeadline: b.paymentDeadline,
+                            paymentMethod: b.paymentMethod,
+                            paymentStatus: b.paymentStatus,
+                            onTap: () => context.push(
+                              Routes.tripBookingDetail,
+                              extra: {'booking': b},
+                            ),
+                            onPay: () async {
+                              final payment = b.payment;
+                              String? paymentUrl;
+                              if (payment != null &&
+                                  payment.paymentUrl.isNotEmpty) {
+                                paymentUrl = payment.paymentUrl;
+                              } else {
+                                final repo = context
+                                    .read<TripBookingRepository>();
+                                final result = await repo.createPayment(b.id);
+                                paymentUrl = switch (result) {
+                                  Ok(value: final d) => d.paymentUrl,
+                                  Error() => null,
+                                };
+                              }
+                              if (!context.mounted || paymentUrl == null)
+                                return;
+                              context.push(
+                                Routes.tripPayment,
+                                extra: {
+                                  'bookingId': b.id,
+                                  'paymentUrl': paymentUrl,
+                                  'transactionId':
+                                      b.payment?.transactionId ?? '',
+                                  'tripName':
+                                      '${b.originDestination} → ${b.destinationDestination}',
+                                  'amount': b.payment?.amount ?? b.totalPrice,
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
         );
       },
     );
+  }
+
+  String _getStatusDisplayName(String filter) {
+    switch (filter) {
+      case 'Tất cả':
+        return 'Tất cả';
+      case 'PENDING':
+        return 'Đang chờ';
+      case 'PAID':
+        return 'Đã thanh toán';
+      case 'CANCELLED':
+        return 'Đã hủy';
+      default:
+        return filter;
+    }
   }
 }

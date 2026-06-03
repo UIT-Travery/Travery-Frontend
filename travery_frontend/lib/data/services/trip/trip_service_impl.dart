@@ -226,6 +226,9 @@ class TripServiceImpl implements TripService {
   Future<Result<CancelTripData>> cancelTripBooking(
     String bookingId, {
     String? reason,
+    String? bankName,
+    String? accountNumber,
+    String? accountHolderName,
   }) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
@@ -242,7 +245,12 @@ class TripServiceImpl implements TripService {
         ContentType.json.value,
       );
       await _setBearerAuth(requestObj);
-      final body = reason != null ? jsonEncode({'reason': reason}) : '{}';
+      final body = jsonEncode({
+        if (reason != null) 'reason': reason,
+        if (bankName != null) 'bankName': bankName,
+        if (accountNumber != null) 'accountNumber': accountNumber,
+        if (accountHolderName != null) 'accountHolderName': accountHolderName,
+      });
       requestObj.write(body);
 
       final response = await requestObj.close();

@@ -25,6 +25,11 @@ class CancelBookingScreen extends StatefulWidget {
 
 class _CancelBookingScreenState extends State<CancelBookingScreen> {
   final TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _bankNameController = TextEditingController();
+  final TextEditingController _accountNumberController =
+      TextEditingController();
+  final TextEditingController _accountHolderController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -41,6 +46,9 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
   @override
   void dispose() {
     _reasonController.dispose();
+    _bankNameController.dispose();
+    _accountNumberController.dispose();
+    _accountHolderController.dispose();
     super.dispose();
   }
 
@@ -241,11 +249,99 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
                 ),
               ),
 
+              const SizedBox(height: 24),
+
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F3FF),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.account_balance,
+                          size: 18,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Thông tin hoàn tiền',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF131B2E),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Nhập thông tin tài khoản để nhận hoàn tiền',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF414755)),
+                    ),
+                    const SizedBox(height: 16),
+                    _BankField(
+                      controller: _bankNameController,
+                      label: 'Tên ngân hàng',
+                      hint: 'VD: Vietcombank',
+                      onChanged: vm.setBankName,
+                      errorText: vm.bankNameError,
+                    ),
+                    const SizedBox(height: 12),
+                    _BankField(
+                      controller: _accountNumberController,
+                      label: 'Số tài khoản',
+                      hint: 'Nhập số tài khoản',
+                      onChanged: vm.setAccountNumber,
+                      keyboardType: TextInputType.number,
+                      errorText: vm.accountNumberError,
+                    ),
+                    const SizedBox(height: 12),
+                    _BankField(
+                      controller: _accountHolderController,
+                      label: 'Tên chủ tài khoản',
+                      hint: 'Nhập tên chủ tài khoản',
+                      onChanged: vm.setAccountHolderName,
+                      errorText: vm.accountHolderNameError,
+                    ),
+                  ],
+                ),
+              ),
+
               if (vm.error != null) ...[
                 const SizedBox(height: 8),
-                Text(
-                  vm.error!,
-                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEE2E2),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFECACA)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 18,
+                        color: Color(0xFFDC2626),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          vm.error!,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF991B1B),
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
 
@@ -336,14 +432,34 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
     BuildContext context,
     CancelBookingViewModel vm,
   ) async {
-    if (!vm.canSubmit) {
+    final booking = widget.bookingDetail ?? vm.bookingDetail;
+    final bookingStatus = booking?.status ?? 'PENDING';
+
+    if (!vm.canSubmitWithBank(bookingStatus)) {
+      String msg;
+      if (bookingStatus == 'PAID') {
+        if (vm.bankName.trim().isEmpty ||
+            vm.accountNumber.trim().isEmpty ||
+            vm.accountHolderName.trim().isEmpty) {
+          msg =
+              'Vui lòng nhập đầy đủ thông tin tài khoản ngân hàng để nhận hoàn tiền';
+        } else {
+          msg = 'Vui lòng nhập lý do hủy tour (ít nhất 3 ký tự)';
+        }
+      } else {
+        msg = 'Vui lòng nhập lý do hủy tour (ít nhất 3 ký tự)';
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.white, size: 14),
-              SizedBox(width: 8),
-              Text('Vui lòng nhập lý do hủy tour (ít nhất 3 ký tự)'),
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.white,
+                size: 14,
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: Text(msg)),
             ],
           ),
           backgroundColor: Colors.red,
@@ -355,7 +471,6 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
       return;
     }
 
-    final booking = widget.bookingDetail ?? vm.bookingDetail;
     final navigator = GoRouter.of(context);
     final success = await vm.submitCancellation(widget.bookingId);
 
@@ -378,14 +493,19 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
           content: Row(
             children: [
               const Icon(Icons.error_outline, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Expanded(child: Text(vm.error!)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(vm.error!, style: const TextStyle(fontSize: 14)),
+              ),
             ],
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: const Color(0xFFDC2626),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -427,6 +547,76 @@ class _RefundRow extends StatelessWidget {
                 color: Color(0xFF131B2E),
               ),
             ),
+      ],
+    );
+  }
+}
+
+class _BankField extends StatelessWidget {
+  const _BankField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.onChanged,
+    this.keyboardType = TextInputType.text,
+    this.errorText,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final ValueChanged<String> onChanged;
+  final TextInputType keyboardType;
+  final String? errorText;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasError = errorText != null && errorText!.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: hasError ? Colors.red : const Color(0xFF414755),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: hasError ? Colors.red : const Color(0xFFE8EAF0),
+            ),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(
+                color: Color(0xFF9CA3AF),
+                fontSize: 13,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
+            ),
+          ),
+        ),
+        if (hasError) ...[
+          const SizedBox(height: 4),
+          Text(
+            errorText!,
+            style: const TextStyle(fontSize: 11, color: Colors.red),
+          ),
+        ],
       ],
     );
   }

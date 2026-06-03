@@ -13,6 +13,7 @@ class TripBookingCard extends StatelessWidget {
     required this.status,
     required this.statusLabel,
     required this.onTap,
+    required this.onPay,
     this.coachLicensePlate,
     this.paymentDeadline,
     this.paymentMethod,
@@ -29,6 +30,7 @@ class TripBookingCard extends StatelessWidget {
   final String status;
   final String statusLabel;
   final VoidCallback onTap;
+  final VoidCallback onPay;
   final String? coachLicensePlate;
   final DateTime? paymentDeadline;
   final String? paymentMethod;
@@ -51,178 +53,152 @@ class TripBookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Status bar
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: _getStatusColor().withValues(alpha: 0.1),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  statusLabel.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _getStatusColor(),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Status bar
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: _getStatusColor().withValues(alpha: 0.1),
-              child: Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(),
-                      shape: BoxShape.circle,
-                    ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Route as title
+                Text(
+                  '$originDestination → $destinationDestination',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF131B2E),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    statusLabel.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: _getStatusColor(),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Route as title
-                  Text(
-                    '$originDestination → $destinationDestination',
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF131B2E),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  // Date row
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                // Payment deadline
+                if (_isPending && paymentDeadline != null) ...[
                   Row(
                     children: [
                       const Icon(
-                        Icons.calendar_today,
+                        Icons.access_time,
                         size: 14,
-                        color: Color(0xFF414755),
+                        color: Colors.orange,
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        _formatDate(departureTime),
+                        'Hạn: ${_formatDate(paymentDeadline!)} ${_formatTime(paymentDeadline!)}',
                         style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF414755),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${_formatTime(departureTime)} → ${arrivalTime != null ? _formatTime(arrivalTime!) : "--:--"}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF414755),
+                          fontSize: 12,
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
-                  // Payment deadline
-                  if (_isPending && paymentDeadline != null) ...[
-                    const SizedBox(height: 8),
-                    Row(
+                  const SizedBox(height: 12),
+                ],
+                // Bottom row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: Colors.orange,
+                        const Text(
+                          'Tổng cộng',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF717786),
+                          ),
                         ),
-                        const SizedBox(width: 6),
                         Text(
-                          'Hạn: ${_formatDate(paymentDeadline!)} ${_formatTime(paymentDeadline!)}',
+                          _formatPrice(totalPrice),
                           style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.orange,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF0058BC),
                           ),
                         ),
                       ],
                     ),
-                  ],
-                  const SizedBox(height: 12),
-                  // Bottom row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Tổng cộng',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF717786),
-                            ),
+                    if (_isPending)
+                      ElevatedButton(
+                        onPressed: onPay,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF6B35),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
                           ),
-                          Text(
-                            _formatPrice(totalPrice),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF0058BC),
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ],
-                      ),
-                      if (_isPending)
-                        ElevatedButton(
-                          onPressed: onTap,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF6B35),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.payment, size: 16),
-                              SizedBox(width: 4),
-                              Text(
-                                'Thanh toán',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        Row(
+                          elevation: 0,
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text(
+                            Icon(Icons.payment, size: 16),
+                            SizedBox(width: 4),
+                            Text(
+                              'Thanh toán',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      GestureDetector(
+                        onTap: onTap,
+                        behavior: HitTestBehavior.opaque,
+                        child: const Row(
+                          children: [
+                            Text(
                               'Xem chi tiết',
                               style: TextStyle(
                                 fontSize: 13,
@@ -230,21 +206,21 @@ class TripBookingCard extends StatelessWidget {
                                 color: Color(0xFF0058BC),
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(
+                            SizedBox(width: 4),
+                            Icon(
                               Icons.chevron_right,
                               size: 18,
                               color: Color(0xFF0058BC),
                             ),
                           ],
                         ),
-                    ],
-                  ),
-                ],
-              ),
+                      ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
