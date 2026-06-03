@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
 
 class CoordinatorTourListScreen extends StatefulWidget {
   final CoordinatorTourListViewModel viewModel;
@@ -33,6 +34,7 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
     widget.viewModel.loadTours.addListener(_onResult);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.viewModel.loadTours.execute();
+      widget.viewModel.loadProfile.execute();
     });
   }
 
@@ -75,12 +77,13 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
         listenable: Listenable.merge([
           widget.viewModel.loadTours,
           widget.viewModel.filteredTours,
+          widget.viewModel.loadProfile,
         ]),
         builder: (context, child) {
           final viewModel = widget.viewModel;
           return Column(
             children: [
-              _buildHeader(context),
+              _buildHeader(context, viewModel),
               const SizedBox(height: 16),
               _buildSearchAndFilterRow(context),
               const SizedBox(height: 8),
@@ -92,8 +95,18 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(
+    BuildContext context,
+    CoordinatorTourListViewModel viewModel,
+  ) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
+
+    String userName = 'Đang tải...';
+    final profileResult = viewModel.loadProfile.result;
+    if (profileResult is core_result.Ok<ProfileData>) {
+      userName = profileResult.value.fullName;
+    }
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(24, statusBarHeight + 20, 24, 28),
@@ -112,7 +125,7 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -126,7 +139,7 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
                 ),
                 SizedBox(height: 6),
                 Text(
-                  'Đỗ Minh Trí',
+                  userName,
                   style: TextStyle(
                     fontSize: AppTextTheme.headlineSmall,
                     color: Colors.white,
@@ -140,7 +153,11 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
             onPressed: () {
               context.push(Routes.coordinatorViewProfile);
             },
-            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 28),
+            icon: const Icon(
+              Icons.settings_outlined,
+              color: Colors.white,
+              size: 28,
+            ),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
@@ -239,7 +256,8 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
         final tour = tours[index];
         final formattedStart = _formatDate(tour.startDate);
         final formattedEnd = _formatDate(tour.endDate);
-        final displayDate = (formattedEnd.isNotEmpty && formattedStart != formattedEnd)
+        final displayDate =
+            (formattedEnd.isNotEmpty && formattedStart != formattedEnd)
             ? '$formattedStart → $formattedEnd'
             : formattedStart;
 

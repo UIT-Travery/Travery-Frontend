@@ -242,6 +242,7 @@ GoRouter appRouter(
         builder: (context, state) => ChangeNotifierProvider(
           create: (context) => CoordinatorTourListViewModel(
             coordinatorRepository: context.read<CoordinatorRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
           child: const CoordinatorMainScreen(),
         ),
@@ -251,6 +252,7 @@ GoRouter appRouter(
         builder: (context, state) => CoordinatorTourListScreen(
           viewModel: CoordinatorTourListViewModel(
             coordinatorRepository: context.read<CoordinatorRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
           ),
         ),
       ),
