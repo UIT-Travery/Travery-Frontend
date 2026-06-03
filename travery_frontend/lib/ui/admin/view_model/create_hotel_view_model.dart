@@ -5,12 +5,14 @@ import 'package:travery_frontend/utils/core_result.dart';
 
 /// Payload for [CreateHotelViewModel.createHotel].
 typedef CreateHotelPayload = ({
-  String id,
   String name,
+  String? description,
   String address,
   String cityProvince,
-  double starRating,
-  String status,
+  String checkInTime,
+  String checkOutTime,
+  List<String> amenityIds,
+  String refundPolicyId,
 });
 
 class CreateHotelViewModel extends ChangeNotifier {
@@ -25,12 +27,14 @@ class CreateHotelViewModel extends ChangeNotifier {
 
   Future<Result<void>> _createHotel(CreateHotelPayload payload) async {
     final result = await _adminRepository.createHotel(
-      id: payload.id,
       name: payload.name,
+      description: payload.description,
       address: payload.address,
       cityProvince: payload.cityProvince,
-      starRating: payload.starRating,
-      status: payload.status,
+      checkInTime: payload.checkInTime,
+      checkOutTime: payload.checkOutTime,
+      amenityIds: payload.amenityIds,
+      refundPolicyId: payload.refundPolicyId,
     );
     switch (result) {
       case Ok<void>():

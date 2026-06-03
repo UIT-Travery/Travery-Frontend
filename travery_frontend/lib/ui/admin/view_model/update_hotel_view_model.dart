@@ -6,12 +6,15 @@ import 'package:travery_frontend/utils/core_result.dart';
 
 /// Payload for [UpdateHotelViewModel.updateHotel].
 typedef UpdateHotelPayload = ({
-  String id,
-  String name,
-  String address,
-  int starRating,
-  String cityProvince,
-  String status,
+  String hotelId,
+  String? name,
+  String? description,
+  String? address,
+  String? cityProvince,
+  String? checkInTime,
+  String? checkOutTime,
+  List<String>? amenityIds,
+  String? refundPolicyId,
 });
 
 class UpdateHotelViewModel extends ChangeNotifier {
@@ -38,12 +41,15 @@ class UpdateHotelViewModel extends ChangeNotifier {
 
   Future<Result<void>> _updateHotel(UpdateHotelPayload payload) async {
     final result = await _adminRepository.updateHotel(
-      id: payload.id,
+      hotelId: payload.hotelId,
       name: payload.name,
+      description: payload.description,
       address: payload.address,
-      starRating: payload.starRating,
       cityProvince: payload.cityProvince,
-      status: payload.status,
+      checkInTime: payload.checkInTime,
+      checkOutTime: payload.checkOutTime,
+      amenityIds: payload.amenityIds,
+      refundPolicyId: payload.refundPolicyId,
     );
     switch (result) {
       case Ok<void>():
