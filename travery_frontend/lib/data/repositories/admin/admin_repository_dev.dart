@@ -691,7 +691,7 @@ class AdminRepositoryDev extends AdminRepository {
   }
 
   @override
-  Future<Result<void>> createHotel({
+  Future<Result<String>> createHotel({
     required String name,
     String? description,
     required String address,
@@ -712,7 +712,7 @@ class AdminRepositoryDev extends AdminRepository {
       ),
     );
     notifyListeners();
-    return const Result.ok(null);
+    return Result.ok(newId);
   }
 
   @override
@@ -1145,5 +1145,48 @@ class AdminRepositoryDev extends AdminRepository {
       notifyListeners();
     }
     return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> createRefundPolicy({
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  }) {
+    // TODO: implement createRefundPolicy
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> deleteRefundPolicy({required String id}) {
+    // TODO: implement deleteRefundPolicy
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getAllRefundPolicies({
+    int page = 0,
+    int size = 20,
+    String? sort,
+  }) {
+    // TODO: implement getAllRefundPolicies
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<dynamic>> getRefundPolicyById({required String id}) {
+    // TODO: implement getRefundPolicyById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> updateRefundPolicy({
+    required String id,
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  }) {
+    // TODO: implement updateRefundPolicy
+    throw UnimplementedError();
   }
 }

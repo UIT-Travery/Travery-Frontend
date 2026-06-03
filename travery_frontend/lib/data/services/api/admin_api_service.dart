@@ -1486,4 +1486,156 @@ class AdminApiService {
       client.close();
     }
   }
+
+  // ── Refund Policies ─────────────────────────────────────────────────────────
+
+  /// GET /api/v1/admin/refund-policies
+  Future<Result<Map<String, dynamic>>> adminGetAllRefundPolicies({
+    required String accessToken,
+    int page = 0,
+    int size = 20,
+    String? sort,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final queryParams = {
+        'page': page.toString(),
+        'size': size.toString(),
+        if (sort != null) 'sort': sort,
+      };
+      final uri = Uri.https(_host, '/api/v1/admin/refund-policies', queryParams);
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể lấy danh sách chính sách hoàn tiền');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/admin/refund-policies/{id}
+  Future<Result<Map<String, dynamic>>> adminGetRefundPolicyById({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/refund-policies/$id');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể lấy chi tiết chính sách hoàn tiền');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// POST /api/v1/admin/refund-policies
+  Future<Result<Map<String, dynamic>>> adminCreateRefundPolicy({
+    required String accessToken,
+    required Map<String, dynamic> body,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/refund-policies');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+      request.write(jsonEncode(body));
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể tạo chính sách hoàn tiền');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PUT /api/v1/admin/refund-policies/{id}
+  Future<Result<Map<String, dynamic>>> adminUpdateRefundPolicy({
+    required String accessToken,
+    required String id,
+    required Map<String, dynamic> body,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/refund-policies/$id');
+      final request = await client.putUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+      request.write(jsonEncode(body));
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể cập nhật chính sách hoàn tiền');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// DELETE /api/v1/admin/refund-policies/{id}
+  Future<Result<void>> adminDeleteRefundPolicy({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/refund-policies/$id');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể xóa chính sách hoàn tiền');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
 }

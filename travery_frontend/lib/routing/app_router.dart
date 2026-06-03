@@ -69,6 +69,7 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coor
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
+import 'package:travery_frontend/ui/admin/view/add_hotel_info_screen.dart';
 import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
 import 'package:travery_frontend/ui/authentication/view/login_screen.dart';
 import 'package:travery_frontend/ui/authentication/view/register_screen.dart';
@@ -148,6 +149,15 @@ import '../ui/admin/view/admin_view_profile_screen.dart';
 import '../ui/admin/view_model/amenity_management_view_model.dart';
 import '../ui/admin/view_model/create_amenity_view_model.dart';
 import '../ui/admin/view_model/update_amenity_view_model.dart';
+
+// Admin Refund Policy imports
+import '../ui/admin/view/refund_policy_management_screen.dart';
+import '../ui/admin/view/create_refund_policy_screen.dart';
+import '../ui/admin/view/update_refund_policy_screen.dart';
+import '../ui/admin/view_model/refund_policy_management_view_model.dart';
+import '../ui/admin/view_model/create_refund_policy_view_model.dart';
+import '../ui/admin/view_model/update_refund_policy_view_model.dart';
+import 'package:travery_frontend/data/services/api/model/tour/refund_policy_response/refund_policy_response.dart';
 
 // Coordinator new imports
 import 'package:travery_frontend/ui/coordinator/view/coordinator_create_coach_screen.dart';
@@ -755,6 +765,16 @@ GoRouter appRouter(
         ),
       ),
       GoRoute(
+        path: Routes.adminAddHotelInfo,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return AddHotelInfoScreen(
+            viewModel: extra['viewModel'] as CreateHotelViewModel,
+            payload: extra['payload'] as CreateHotelPayload,
+          );
+        },
+      ),
+      GoRoute(
         path: Routes.adminHotelManagement,
         builder: (context, state) {
           return (HotelManagementScreen(
@@ -810,7 +830,7 @@ GoRouter appRouter(
             child: Consumer<UpdateHotelViewModel>(
               builder: (context, viewModel, child) {
                 return UpdateHotelScreen(
-                  viewModel: viewModel, 
+                  viewModel: viewModel,
                   hotelId: hotelId,
                 );
               },
@@ -921,6 +941,34 @@ GoRouter appRouter(
             amenityType: extra?['amenityType'] as String?,
             amenityName: extra?['amenityName'] as String?,
             iconData: extra?['iconData'] as IconData?,
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.adminRefundPolicyManagement,
+        builder: (context, state) => RefundPolicyManagementScreen(
+          viewModel: RefundPolicyManagementViewModel(
+            adminRepository: context.read<AdminRepository>(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.adminCreateRefundPolicy,
+        builder: (context, state) => CreateRefundPolicyScreen(
+          viewModel: CreateRefundPolicyViewModel(
+            adminRepository: context.read<AdminRepository>(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.adminUpdateRefundPolicy,
+        builder: (context, state) {
+          final policy = state.extra as RefundPolicyResponse;
+          return UpdateRefundPolicyScreen(
+            viewModel: UpdateRefundPolicyViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            policy: policy,
           );
         },
       ),

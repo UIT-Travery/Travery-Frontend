@@ -146,9 +146,9 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
                               name: h.name,
                               address: h.address,
                               cityProvince: h.cityProvince,
-                              starRating: h.starRating!,
-                              roomCount: h.roomCount!,
-                              occupancyRate: h.occupancyRate!,
+                              starRating: h.starRating ?? 0.0,
+                              roomCount: h.roomCount ?? 0,
+                              occupancyRate: h.occupancyRate ?? 0.0,
                               imageUrl: h.imageUrl,
                               onTap: () => _onHotelTap(h),
                             );

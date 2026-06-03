@@ -123,11 +123,14 @@ abstract class AdminRepository extends ChangeNotifier {
 
   // ── Hotels ────────────────────────────────────────────────────────────────
 
-  Future<Result<List<BusinessHotel>>> getAllHotels({int page = 0, int size = 20});
+  Future<Result<List<BusinessHotel>>> getAllHotels({
+    int page = 0,
+    int size = 20,
+  });
 
   Future<Result<BusinessHotel>> getHotel({required String id});
 
-  Future<Result<void>> createHotel({
+  Future<Result<String>> createHotel({
     required String name,
     String? description,
     required String address,
@@ -273,4 +276,29 @@ abstract class AdminRepository extends ChangeNotifier {
     required bool isCustom,
     required List<Map<String, dynamic>> itineraries,
   });
+
+  // ── Refund Policies ─────────────────────────────────────────────────────────
+
+  Future<Result<List<dynamic>>> getAllRefundPolicies({
+    int page = 0,
+    int size = 20,
+    String? sort,
+  });
+
+  Future<Result<dynamic>> getRefundPolicyById({required String id});
+
+  Future<Result<void>> createRefundPolicy({
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  });
+
+  Future<Result<void>> updateRefundPolicy({
+    required String id,
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  });
+
+  Future<Result<void>> deleteRefundPolicy({required String id});
 }

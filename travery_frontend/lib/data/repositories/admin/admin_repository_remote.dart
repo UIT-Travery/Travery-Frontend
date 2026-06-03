@@ -656,9 +656,13 @@ class AdminRepositoryRemote extends AdminRepository {
   // ── Hotels ─────────────────────────────────────────────────────────────────
 
   @override
-  Future<Result<List<BusinessHotel>>> getAllHotels({int page = 0, int size = 20}) async {
+  Future<Result<List<BusinessHotel>>> getAllHotels({
+    int page = 0,
+    int size = 20,
+  }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminGetAllHotels(
       accessToken: token,
@@ -675,6 +679,8 @@ class AdminRepositoryRemote extends AdminRepository {
             name: map['name'] as String? ?? '',
             address: map['address'] as String? ?? '',
             cityProvince: map['cityProvince'] as String? ?? '',
+            starRating: (map['averageRating'] as num?)?.toDouble() ?? 0.0,
+            imageUrl: map['thumbnailUrl'] as String?,
           );
         }).toList();
         return Result.ok(hotels);
@@ -689,7 +695,7 @@ class AdminRepositoryRemote extends AdminRepository {
   }
 
   @override
-  Future<Result<void>> createHotel({
+  Future<Result<String>> createHotel({
     required String name,
     String? description,
     required String address,
@@ -700,7 +706,8 @@ class AdminRepositoryRemote extends AdminRepository {
     required String refundPolicyId,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final body = <String, dynamic>{
       'name': name,
@@ -720,7 +727,8 @@ class AdminRepositoryRemote extends AdminRepository {
     switch (result) {
       case Ok<Map<String, dynamic>>():
         notifyListeners();
-        return const Result.ok(null);
+        final id = result.value['id'] as String? ?? '';
+        return Result.ok(id);
       case Error<Map<String, dynamic>>():
         return Result.error(result.error);
     }
@@ -739,7 +747,8 @@ class AdminRepositoryRemote extends AdminRepository {
     String? refundPolicyId,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final body = <String, dynamic>{};
     if (name != null) body['name'] = name;
@@ -776,7 +785,8 @@ class AdminRepositoryRemote extends AdminRepository {
     required List<String> filePaths,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminUploadHotelImages(
       accessToken: token,
@@ -798,7 +808,8 @@ class AdminRepositoryRemote extends AdminRepository {
     required String imageId,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminDeleteHotelImage(
       accessToken: token,
@@ -820,7 +831,8 @@ class AdminRepositoryRemote extends AdminRepository {
     required String imageId,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminSetHotelThumbnail(
       accessToken: token,
@@ -836,9 +848,12 @@ class AdminRepositoryRemote extends AdminRepository {
   }
 
   @override
-  Future<Result<List<dynamic>>> getHotelServices({required String hotelId}) async {
+  Future<Result<List<dynamic>>> getHotelServices({
+    required String hotelId,
+  }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminGetHotelServices(
       accessToken: token,
@@ -862,7 +877,8 @@ class AdminRepositoryRemote extends AdminRepository {
     String? description,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final body = <String, dynamic>{
       'name': name,
@@ -887,9 +903,12 @@ class AdminRepositoryRemote extends AdminRepository {
   }
 
   @override
-  Future<Result<List<dynamic>>> getHotelRoomTypes({required String hotelId}) async {
+  Future<Result<List<dynamic>>> getHotelRoomTypes({
+    required String hotelId,
+  }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminGetRoomTypes(
       accessToken: token,
@@ -915,7 +934,8 @@ class AdminRepositoryRemote extends AdminRepository {
     int? area,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final body = <String, dynamic>{
       'name': name,
@@ -944,7 +964,8 @@ class AdminRepositoryRemote extends AdminRepository {
   @override
   Future<Result<List<dynamic>>> getHotelRooms({required String hotelId}) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminGetRooms(
       accessToken: token,
@@ -966,7 +987,8 @@ class AdminRepositoryRemote extends AdminRepository {
     required String roomTypeId,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final body = <String, dynamic>{
       'roomNumber': roomNumber,
@@ -993,9 +1015,12 @@ class AdminRepositoryRemote extends AdminRepository {
   @override
   Future<Result<List<dynamic>>> getAllAmenities() async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
-    final result = await _adminApiService.adminGetAllAmenities(accessToken: token);
+    final result = await _adminApiService.adminGetAllAmenities(
+      accessToken: token,
+    );
     switch (result) {
       case Ok<List<dynamic>>():
         return Result.ok(result.value);
@@ -1011,7 +1036,8 @@ class AdminRepositoryRemote extends AdminRepository {
     String? iconImagePath,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminCreateAmenity(
       accessToken: token,
@@ -1036,7 +1062,8 @@ class AdminRepositoryRemote extends AdminRepository {
     String? iconImagePath,
   }) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminUpdateAmenity(
       accessToken: token,
@@ -1057,7 +1084,8 @@ class AdminRepositoryRemote extends AdminRepository {
   @override
   Future<Result<void>> deleteAmenity({required String amenityId}) async {
     final token = await _getAccessToken();
-    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
 
     final result = await _adminApiService.adminDeleteAmenity(
       accessToken: token,
@@ -1211,7 +1239,10 @@ class AdminRepositoryRemote extends AdminRepository {
             minTotalPerson: 0,
             maxTotalPerson: 0,
             startLocation: map['startLocation'] as String? ?? '',
-            destination: (map['destination'] as Map<String, dynamic>?)?['name'] as String? ?? '',
+            destination:
+                (map['destination'] as Map<String, dynamic>?)?['name']
+                    as String? ??
+                '',
             itineraries: [],
           );
         }).toList();
@@ -1258,6 +1289,122 @@ class AdminRepositoryRemote extends AdminRepository {
         notifyListeners();
         return const Result.ok(null);
       case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  // ── Refund Policies ─────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<dynamic>>> getAllRefundPolicies({
+    int page = 0,
+    int size = 20,
+    String? sort,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminGetAllRefundPolicies(
+      accessToken: token,
+      page: page,
+      size: size,
+      sort: sort,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        final content = result.value['content'] as List<dynamic>? ?? [];
+        return Result.ok(content);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<dynamic>> getRefundPolicyById({required String id}) async {
+    final token = await _getAccessToken();
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminGetRefundPolicyById(
+      accessToken: token,
+      id: id,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        return Result.ok(result.value);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> createRefundPolicy({
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final body = {'name': name, 'serviceType': serviceType, 'rules': rules};
+
+    final result = await _adminApiService.adminCreateRefundPolicy(
+      accessToken: token,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> updateRefundPolicy({
+    required String id,
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final body = {'name': name, 'serviceType': serviceType, 'rules': rules};
+
+    final result = await _adminApiService.adminUpdateRefundPolicy(
+      accessToken: token,
+      id: id,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteRefundPolicy({required String id}) async {
+    final token = await _getAccessToken();
+    if (token == null)
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminDeleteRefundPolicy(
+      accessToken: token,
+      id: id,
+    );
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
         return Result.error(result.error);
     }
   }

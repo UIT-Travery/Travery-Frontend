@@ -8,6 +8,7 @@ import 'widgets/dropdown_button.dart';
 import 'widgets/input_button.dart';
 import 'add_hotel_info_screen.dart';
 import 'widgets/large_button.dart';
+import 'widgets/amenity_bottom_sheet.dart';
 
 // No room data here anymore
 
@@ -35,16 +36,32 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   void initState() {
     super.initState();
     widget.viewModel.createHotel.addListener(_onCreateHotelChanged);
+    widget.viewModel.loadAmenities.addListener(_onAmenitiesLoaded);
+    widget.viewModel.loadRefundPolicies.addListener(_onRefundPoliciesLoaded);
+    widget.viewModel.loadAmenities.execute();
+    widget.viewModel.loadRefundPolicies.execute();
+  }
+
+  void _onAmenitiesLoaded() {
+    setState(() {}); // Rebuild when amenities load
+  }
+
+  void _onRefundPoliciesLoaded() {
+    setState(() {}); // Rebuild when refund policies load
   }
 
   @override
   void dispose() {
     widget.viewModel.createHotel.removeListener(_onCreateHotelChanged);
+    widget.viewModel.loadAmenities.removeListener(_onAmenitiesLoaded);
+    widget.viewModel.loadRefundPolicies.removeListener(_onRefundPoliciesLoaded);
     _nameController.dispose();
     _addressController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
+
+  List<String> _selectedAmenityIds = [];
 
   // ── Command listener ───────────────────────────────────────────────────────
 
@@ -81,10 +98,30 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
       return;
     }
 
-    // In real scenario we could save it to viewModel, but for now navigate
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AddHotelInfoScreen()),
+    if (_selectedPolicy == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn chính sách hoàn tiền'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final payload = (
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+      address: _addressController.text.trim(),
+      cityProvince: _selectedCity ?? 'Hà Nội',
+      checkInTime: _checkInTime,
+      checkOutTime: _checkOutTime,
+      amenityIds: _selectedAmenityIds,
+      refundPolicyId: _selectedPolicy!,
+    );
+
+    context.push(
+      '/admin/create-hotel/info', // Should use Routes.adminAddHotelInfo, but avoiding import if missing
+      extra: {'viewModel': widget.viewModel, 'payload': payload},
     );
   }
 
@@ -233,9 +270,19 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                   size: 20,
                   color: Colors.black87,
                 ),
-                items: const ['Miễn phí hủy phòng', 'Không hoàn tiền'],
-                value: _selectedPolicy,
-                onChanged: (val) => setState(() => _selectedPolicy = val),
+                items: widget.viewModel.refundPolicies
+                    .map((e) => e.name ?? 'Không tên')
+                    .toList(),
+                value: widget.viewModel.refundPolicies
+                    .where((e) => e.id == _selectedPolicy)
+                    .firstOrNull
+                    ?.name,
+                onChanged: (val) {
+                  final policy = widget.viewModel.refundPolicies
+                      .where((e) => e.name == val)
+                      .firstOrNull;
+                  setState(() => _selectedPolicy = policy?.id);
+                },
               ),
               const SizedBox(height: 16),
               InputTextField(
@@ -251,42 +298,94 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Cơ sở vật chất',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors
-                      .textPrimary, // Ensure this exists, or use Colors.black
-                ),
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(5),
-                child: Container(
-                  height: 48,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: AppColors.primaryDarkBlackBlue),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Cơ sở vật chất',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add, color: AppColors.textPrimary),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Chọn cơ sở vật chất',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: AppTextTheme.bodyMedium,
+                  TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => AmenityBottomSheet(
+                          amenities: widget.viewModel.amenities,
+                          initialSelected: _selectedAmenityIds,
+                          onConfirm: (selectedIds) {
+                            setState(() => _selectedAmenityIds = selectedIds);
+                          },
                         ),
+                      );
+                    },
+                    child: const Text(
+                      'Chọn cơ sở vật chất',
+                      style: TextStyle(
+                        color: AppColors.primaryDarkBlackBlue,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
+              if (_selectedAmenityIds.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _selectedAmenityIds.map((id) {
+                    final amenity = widget.viewModel.amenities.firstWhere(
+                      (a) => a.id == id,
+                      orElse: () => widget.viewModel.amenities.first,
+                    );
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.primaryDarkBlackBlue,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (amenity.iconUrl != null &&
+                              amenity.iconUrl!.isNotEmpty) ...[
+                            Image.network(
+                              amenity.iconUrl!,
+                              width: 24,
+                              height: 24,
+                              color: AppColors.primaryDarkBlackBlue,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.star,
+                                color: AppColors.primaryDarkBlackBlue,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            amenity.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryDarkBlackBlue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
               const SizedBox(height: 16),
               LargeButton(
                 text: 'Tiếp tục',
