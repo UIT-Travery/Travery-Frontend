@@ -38,42 +38,90 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
       widget.currentStatus == 'COMPLETED' ||
       widget.currentStatus == 'CANCELLED';
 
-  /// Get available statuses: current (disabled), all other valid statuses (enabled).
+  /// Get available statuses: current (disabled), next in sequence (enabled),
+  /// COMPLETED and CANCELLED. Past statuses are hidden.
   List<_TourStatusOption> _getAvailableStatuses() {
-    final allStatuses = [
-      _TourStatusOption(
-        value: 'PLANNING',
-        label: 'PLANNING',
-        description: 'Đang lập kế hoạch',
-      ),
-      _TourStatusOption(
-        value: 'OPEN',
-        label: 'OPEN',
-        description: 'Mở đăng ký',
-      ),
-      _TourStatusOption(
-        value: 'FULL',
-        label: 'FULL',
-        description: 'Đã đủ khách',
-      ),
-      _TourStatusOption(
-        value: 'IN_PROGRESS',
-        label: 'IN_PROGRESS',
-        description: 'Đang diễn ra',
-      ),
-      _TourStatusOption(
-        value: 'COMPLETED',
-        label: 'COMPLETED',
-        description: 'Hoàn thành',
-      ),
-      _TourStatusOption(
-        value: 'CANCELLED',
-        label: 'CANCELLED',
-        description: 'Đã hủy',
-      ),
-    ];
+    const sequence = ['PLANNING', 'OPEN', 'FULL', 'IN_PROGRESS'];
+    final currentIndex = sequence.indexOf(widget.currentStatus);
 
-    return allStatuses;
+    // Terminal statuses: include everything (no restriction on next steps)
+    if (currentIndex == -1) {
+      return _buildAllStatusOptions();
+    }
+
+    final result = <_TourStatusOption>[];
+
+    // Add current status (disabled)
+    result.add(_buildOption(sequence[currentIndex]));
+
+    // Add next status in sequence (enabled) — only one forward step
+    if (currentIndex < sequence.length - 1) {
+      result.add(_buildOption(sequence[currentIndex + 1]));
+    }
+
+    // Always allow COMPLETED and CANCELLED
+    result.add(_buildOption('COMPLETED'));
+    result.add(_buildOption('CANCELLED'));
+
+    return result;
+  }
+
+  List<_TourStatusOption> _buildAllStatusOptions() {
+    return [
+      'PLANNING',
+      'OPEN',
+      'FULL',
+      'IN_PROGRESS',
+      'COMPLETED',
+      'CANCELLED',
+    ].map(_buildOption).toList();
+  }
+
+  _TourStatusOption _buildOption(String status) {
+    switch (status) {
+      case 'PLANNING':
+        return _TourStatusOption(
+          value: status,
+          label: status,
+          description: 'Đang lập kế hoạch',
+        );
+      case 'OPEN':
+        return _TourStatusOption(
+          value: status,
+          label: status,
+          description: 'Mở đăng ký',
+        );
+      case 'FULL':
+        return _TourStatusOption(
+          value: status,
+          label: status,
+          description: 'Đã đủ khách',
+        );
+      case 'IN_PROGRESS':
+        return _TourStatusOption(
+          value: status,
+          label: status,
+          description: 'Đang diễn ra',
+        );
+      case 'COMPLETED':
+        return _TourStatusOption(
+          value: status,
+          label: status,
+          description: 'Hoàn thành',
+        );
+      case 'CANCELLED':
+        return _TourStatusOption(
+          value: status,
+          label: status,
+          description: 'Đã hủy',
+        );
+      default:
+        return _TourStatusOption(
+          value: status,
+          label: status,
+          description: status,
+        );
+    }
   }
 
   @override
