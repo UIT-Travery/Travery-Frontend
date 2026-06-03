@@ -43,7 +43,13 @@ class TripBookingDetailViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> cancelBooking(String bookingId, {String? reason}) async {
+  Future<bool> cancelBooking(
+    String bookingId, {
+    String? reason,
+    String? bankName,
+    String? accountNumber,
+    String? accountHolderName,
+  }) async {
     _isCancelling = true;
     _error = null;
     notifyListeners();
@@ -51,6 +57,9 @@ class TripBookingDetailViewModel extends ChangeNotifier {
     final result = await _tripService.cancelTripBooking(
       bookingId,
       reason: reason,
+      bankName: bankName,
+      accountNumber: accountNumber,
+      accountHolderName: accountHolderName,
     );
 
     switch (result) {
@@ -60,7 +69,12 @@ class TripBookingDetailViewModel extends ChangeNotifier {
         notifyListeners();
         return true;
       case Error(error: final e):
-        _error = e.toString();
+        final msg = e.toString();
+        if (msg.startsWith('HttpException: ')) {
+          _error = msg.substring('HttpException: '.length);
+        } else {
+          _error = msg;
+        }
         _isCancelling = false;
         notifyListeners();
         return false;

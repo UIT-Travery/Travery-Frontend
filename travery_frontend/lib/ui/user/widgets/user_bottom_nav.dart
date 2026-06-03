@@ -38,24 +38,19 @@ class _UserBottomNavState extends State<UserBottomNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: IndexedStack(
+        index: _currentIndex,
         children: [
-          _buildPage(0, const HomeScreen()),
-          _buildPage(1, const MyTripBookingScreen()),
-          _buildPage(
-            2,
-            const Scaffold(body: Center(child: Text('Chat - Coming Soon'))),
-          ),
-          _buildPage(
-            3,
-            ChangeNotifierProvider(
-              create: (context) => ProfileViewModel(
-                profileService: context.read<ProfileService>(),
-                securityStorageService: context.read<SecurityStorageService>(),
-                authRepository: context.read<AuthRepository>(),
-              ),
-              child: const UserProfileScreen(),
+          const HomeScreen(),
+          const MyTripBookingScreen(),
+          const Scaffold(body: Center(child: Text('Chat - Coming Soon'))),
+          ChangeNotifierProvider(
+            create: (context) => ProfileViewModel(
+              profileService: context.read<ProfileService>(),
+              securityStorageService: context.read<SecurityStorageService>(),
+              authRepository: context.read<AuthRepository>(),
             ),
+            child: const UserProfileScreen(),
           ),
         ],
       ),
@@ -65,16 +60,6 @@ class _UserBottomNavState extends State<UserBottomNav> {
           setState(() => _currentIndex = index);
         },
       ),
-    );
-  }
-
-  Widget _buildPage(int index, Widget child) {
-    return Visibility(
-      visible: _currentIndex == index,
-      maintainState: false,
-      maintainAnimation: false,
-      maintainSize: false,
-      child: child,
     );
   }
 }

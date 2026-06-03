@@ -108,6 +108,7 @@ import 'package:travery_frontend/ui/user/hotel/home/hotel_home_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/hotel_detail_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
+import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/ui/user/hotel/room_list/hotel_room_list_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_input/hotel_booking_input_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_review/hotel_booking_review_screen.dart';
@@ -601,7 +602,8 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.hotelHome,
         builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => HotelHomeViewModel(),
+          create: (_) =>
+              HotelHomeViewModel(hotelService: context.read<HotelService>()),
           child: const HotelHomeScreen(),
         ),
       ),
@@ -609,7 +611,9 @@ GoRouter appRouter(
         path: Routes.hotelDetail,
         builder: (context, state) {
           return ChangeNotifierProvider(
-            create: (_) => HotelDetailViewModel(),
+            create: (_) => HotelDetailViewModel(
+              hotelService: context.read<HotelService>(),
+            ),
             child: const HotelDetailScreen(),
           );
         },

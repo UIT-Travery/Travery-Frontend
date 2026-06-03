@@ -14,6 +14,39 @@ class CancelBookingViewModel extends ChangeNotifier {
   String _reason = '';
   String get reason => _reason;
 
+  String _bankName = '';
+  String get bankName => _bankName;
+  String? get bankNameError {
+    if (_bankName.isEmpty) return null;
+    if (!_isValidBankName(_bankName)) {
+      return 'Tên ngân hàng không hợp lệ';
+    }
+    return null;
+  }
+
+  String _accountNumber = '';
+  String get accountNumber => _accountNumber;
+  String? get accountNumberError {
+    if (_accountNumber.isEmpty) return null;
+    if (!_isValidAccountNumber(_accountNumber)) {
+      return 'Số tài khoản chỉ chứa chữ số';
+    }
+    if (_accountNumber.length < 6) {
+      return 'Số tài khoản phải có ít nhất 6 chữ số';
+    }
+    return null;
+  }
+
+  String _accountHolderName = '';
+  String get accountHolderName => _accountHolderName;
+  String? get accountHolderNameError {
+    if (_accountHolderName.isEmpty) return null;
+    if (!_isValidHolderName(_accountHolderName)) {
+      return 'Tên chủ tài khoản không hợp lệ';
+    }
+    return null;
+  }
+
   bool _isCancelling = false;
   bool get isCancelling => _isCancelling;
 
@@ -29,10 +62,53 @@ class CancelBookingViewModel extends ChangeNotifier {
   BookingDetailModel? _bookingDetail;
   BookingDetailModel? get bookingDetail => _bookingDetail;
 
-  bool get canSubmit => _reason.trim().length >= 3;
+  bool get canSubmit {
+    if (_reason.trim().length < 3) return false;
+    return true;
+  }
+
+  bool canSubmitWithBank(String bookingStatus) {
+    if (_reason.trim().length < 3) return false;
+    if (bookingStatus == 'PAID') {
+      return _bankName.trim().isNotEmpty &&
+          _accountNumber.trim().isNotEmpty &&
+          _accountHolderName.trim().isNotEmpty &&
+          bankNameError == null &&
+          accountNumberError == null &&
+          accountHolderNameError == null;
+    }
+    return true;
+  }
+
+  static bool _isValidBankName(String value) {
+    return RegExp(r"^[\p{L}\s0-9&.-]+$", unicode: true).hasMatch(value);
+  }
+
+  static bool _isValidAccountNumber(String value) {
+    return RegExp(r'^[0-9]+$').hasMatch(value);
+  }
+
+  static bool _isValidHolderName(String value) {
+    return RegExp(r"^[\p{L}\s]+$", unicode: true).hasMatch(value);
+  }
 
   void setReason(String value) {
     _reason = value;
+    notifyListeners();
+  }
+
+  void setBankName(String value) {
+    _bankName = value;
+    notifyListeners();
+  }
+
+  void setAccountNumber(String value) {
+    _accountNumber = value;
+    notifyListeners();
+  }
+
+  void setAccountHolderName(String value) {
+    _accountHolderName = value;
     notifyListeners();
   }
 
@@ -73,7 +149,12 @@ class CancelBookingViewModel extends ChangeNotifier {
 
     final result = await _bookingService.cancelBooking(
       bookingId: bookingId,
-      request: CancelBookingRequest(reason: _reason),
+      request: CancelBookingRequest(
+        reason: _reason,
+        bankName: _bankName,
+        accountNumber: _accountNumber,
+        accountHolderName: _accountHolderName,
+      ),
     );
 
     switch (result) {
@@ -83,7 +164,12 @@ class CancelBookingViewModel extends ChangeNotifier {
         notifyListeners();
         return true;
       case Error(error: final e):
-        _error = 'Không thể hủy tour: ${e.toString()}';
+        final msg = e.toString();
+        if (msg.startsWith('HttpException: ')) {
+          _error = msg.substring('HttpException: '.length);
+        } else {
+          _error = msg;
+        }
         _isCancelling = false;
         notifyListeners();
         return false;

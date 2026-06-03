@@ -5,6 +5,7 @@ import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
+import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 
 class TripCancelScreen extends StatefulWidget {
   const TripCancelScreen({super.key, this.bookingId = '', this.booking});
@@ -18,13 +19,69 @@ class TripCancelScreen extends StatefulWidget {
 
 class _TripCancelScreenState extends State<TripCancelScreen> {
   final _reasonController = TextEditingController();
+  final _bankNameController = TextEditingController();
+  final _accountNumberController = TextEditingController();
+  final _accountHolderController = TextEditingController();
   bool _confirmed = false;
   bool _isCancelling = false;
+  String? _bankNameError;
+  String? _accountNumberError;
+  String? _accountHolderError;
 
   @override
   void dispose() {
     _reasonController.dispose();
+    _bankNameController.dispose();
+    _accountNumberController.dispose();
+    _accountHolderController.dispose();
     super.dispose();
+  }
+
+  bool _isValidBankName(String value) {
+    return RegExp(r"^[\p{L}\s0-9&.-]+$", unicode: true).hasMatch(value);
+  }
+
+  bool _isValidAccountNumber(String value) {
+    return RegExp(r'^[0-9]+$').hasMatch(value);
+  }
+
+  bool _isValidHolderName(String value) {
+    return RegExp(r"^[\p{L}\s]+$", unicode: true).hasMatch(value);
+  }
+
+  void _validateBankFields() {
+    final bankName = _bankNameController.text.trim();
+    final accountNumber = _accountNumberController.text.trim();
+    final holderName = _accountHolderController.text.trim();
+
+    final newBankNameError = bankName.isNotEmpty && !_isValidBankName(bankName)
+        ? 'Tên ngân hàng không hợp lệ'
+        : null;
+    final newAccountNumberError = accountNumber.isNotEmpty
+        ? (!_isValidAccountNumber(accountNumber)
+              ? 'Số tài khoản chỉ chứa chữ số'
+              : (accountNumber.length < 6
+                    ? 'Số tài khoản phải có ít nhất 6 chữ số'
+                    : null))
+        : null;
+    final newHolderError =
+        holderName.isNotEmpty && !_isValidHolderName(holderName)
+        ? 'Tên chủ tài khoản không hợp lệ'
+        : null;
+
+    if (_bankNameError != newBankNameError ||
+        _accountNumberError != newAccountNumberError ||
+        _accountHolderError != newHolderError) {
+      setState(() {
+        _bankNameError = newBankNameError;
+        _accountNumberError = newAccountNumberError;
+        _accountHolderError = newHolderError;
+      });
+    }
+  }
+
+  void _onBankFieldChanged() {
+    _validateBankFields();
   }
 
   @override
@@ -33,38 +90,14 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
     if (booking == null) {
       return Scaffold(
         backgroundColor: const Color(0xFFF3F4F6),
-        appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          title: const Text(
-            'Hủy đặt vé',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
+        appBar: const UserAppBar(title: 'Hủy đặt vé'),
         body: const Center(child: Text('Không tìm thấy thông tin đặt vé')),
       );
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Hủy đặt vé',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-      ),
+      appBar: const UserAppBar(title: 'Hủy đặt vé'),
       body: Column(
         children: [
           Expanded(
@@ -238,34 +271,87 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
             ],
           ),
           const SizedBox(height: 24),
+
+          // Timeline — Boarding / Alighting
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Left column: icons stacked with vertical line between them
                 SizedBox(
                   width: 24,
-                  child: CustomPaint(
-                    size: const Size(24, double.infinity),
-                    painter: _DashedLinePainter(
-                      color: AppColors.primary,
-                      strokeWidth: 1.5,
-                      dashHeight: 4,
-                      dashSpace: 3,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      // Dashed vertical line (full height of the two nodes)
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _DashedLinePainter(
+                            color: AppColors.primary,
+                            strokeWidth: 1.5,
+                            dashHeight: 4,
+                            dashSpace: 3,
+                          ),
+                        ),
+                      ),
+                      // First icon (Lên xe)
+                      Positioned(
+                        top: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.success,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.trip_origin,
+                            size: 12,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                      // Second icon (Xuống xe)
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.error,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.location_on,
+                            size: 12,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
+                // Right column: text content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStationNode(
-                        icon: Icons.trip_origin,
+                        icon: null,
                         iconColor: AppColors.success,
                         title: 'Lên xe: ',
                         stationName: booking.originDestination,
                         address: '',
-                        timeLabel: 'Giờ có mặt tại bên',
+                        timeLabel: 'Giờ có mặt tại bến',
                         timeValue:
                             '${_formatTime(departureDt.subtract(const Duration(minutes: 15)))} ${_formatDate(departureDt)}',
                         isBoarding: true,
@@ -302,7 +388,7 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
                       ),
                       const SizedBox(height: 12),
                       _buildStationNode(
-                        icon: Icons.location_on,
+                        icon: null,
                         iconColor: AppColors.error,
                         title: 'Xuống xe: ',
                         stationName: booking.destinationDestination,
@@ -323,7 +409,7 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
   }
 
   Widget _buildStationNode({
-    required IconData icon,
+    required IconData? icon,
     required Color iconColor,
     required String title,
     required String stationName,
@@ -336,19 +422,9 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: iconColor, width: 2),
-                color: Colors.white,
-              ),
-              child: Icon(icon, size: 12, color: iconColor),
-            ),
-            const SizedBox(width: 10),
+            // Icon is now rendered in the Stack, so no icon here
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -386,23 +462,11 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.copy_outlined,
-                size: 16,
-                color: Color(0xFF6B7280),
-              ),
-            ),
           ],
         ),
         if (isBoarding && timeLabel != null && timeValue != null)
           Padding(
-            padding: const EdgeInsets.only(left: 34, top: 6),
+            padding: const EdgeInsets.only(top: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -642,6 +706,69 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F3FF),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.account_balance,
+                      size: 18,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Thông tin hoàn tiền',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF131B2E),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Nhập thông tin tài khoản để nhận hoàn tiền',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF414755)),
+                ),
+                const SizedBox(height: 16),
+                _TripCancelScreenBuildField(
+                  controller: _bankNameController,
+                  label: 'Tên ngân hàng',
+                  hint: 'VD: Vietcombank',
+                  keyboardType: TextInputType.text,
+                  errorText: _bankNameError,
+                  onChanged: (_) => _onBankFieldChanged(),
+                ),
+                const SizedBox(height: 12),
+                _TripCancelScreenBuildField(
+                  controller: _accountNumberController,
+                  label: 'Số tài khoản',
+                  hint: 'Nhập số tài khoản',
+                  keyboardType: TextInputType.number,
+                  errorText: _accountNumberError,
+                  onChanged: (_) => _onBankFieldChanged(),
+                ),
+                const SizedBox(height: 12),
+                _TripCancelScreenBuildField(
+                  controller: _accountHolderController,
+                  label: 'Tên chủ tài khoản',
+                  hint: 'Nhập tên chủ tài khoản',
+                  keyboardType: TextInputType.text,
+                  errorText: _accountHolderError,
+                  onChanged: (_) => _onBankFieldChanged(),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: () => setState(() => _confirmed = !_confirmed),
@@ -743,12 +870,58 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
   Future<void> _onCancel() async {
     final booking = widget.booking;
     if (booking == null) return;
-    final reason = _reasonController.text.trim();
+
+    final bankName = _bankNameController.text.trim();
+    final accountNumber = _accountNumberController.text.trim();
+    final accountHolder = _accountHolderController.text.trim();
+
+    if (booking.status == 'PAID') {
+      if (bankName.isEmpty || accountNumber.isEmpty || accountHolder.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Vui lòng nhập đầy đủ thông tin tài khoản ngân hàng để nhận hoàn tiền',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: const EdgeInsets.all(10),
+          ),
+        );
+        return;
+      }
+
+      _validateBankFields();
+      if (_bankNameError != null ||
+          _accountNumberError != null ||
+          _accountHolderError != null) {
+        return;
+      }
+    }
+
     setState(() => _isCancelling = true);
     final vm = context.read<TripBookingDetailViewModel>();
+    final reason = _reasonController.text.trim();
     final success = await vm.cancelBooking(
       booking.id,
       reason: reason.isEmpty ? null : reason,
+      bankName: bankName.isEmpty ? null : bankName,
+      accountNumber: accountNumber.isEmpty ? null : accountNumber,
+      accountHolderName: accountHolder.isEmpty ? null : accountHolder,
     );
     if (!mounted) return;
     setState(() => _isCancelling = false);
@@ -761,8 +934,25 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi: ${vm.error ?? 'Không thể hủy đặt vé'}'),
-          backgroundColor: Colors.red,
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  vm.error ?? 'Không thể hủy đặt vé',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFFDC2626),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -815,4 +1005,74 @@ class _DashedLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _TripCancelScreenBuildField extends StatelessWidget {
+  const _TripCancelScreenBuildField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.keyboardType,
+    this.errorText,
+    this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final TextInputType keyboardType;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasError = errorText != null && errorText!.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: hasError ? Colors.red : const Color(0xFF414755),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: hasError ? Colors.red : const Color(0xFFE5E7EB),
+            ),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(
+                color: Color(0xFF9CA3AF),
+                fontSize: 13,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
+            ),
+          ),
+        ),
+        if (hasError) ...[
+          const SizedBox(height: 4),
+          Text(
+            errorText!,
+            style: const TextStyle(fontSize: 11, color: Colors.red),
+          ),
+        ],
+      ],
+    );
+  }
 }

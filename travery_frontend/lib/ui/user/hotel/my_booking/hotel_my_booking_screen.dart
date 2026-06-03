@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_booking_view_model.dart';
-import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_booking_card.dart';
+import 'package:travery_frontend/ui/user/widgets/empty_state.dart';
+import 'package:travery_frontend/ui/user/widgets/error_state.dart';
 
 class HotelMyBookingScreen extends StatefulWidget {
   const HotelMyBookingScreen({super.key, this.showHeader = true});
@@ -16,292 +19,105 @@ class HotelMyBookingScreen extends StatefulWidget {
 
 class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HotelMyBookingViewModel>().loadBookings();
-    });
+  Widget build(BuildContext context) {
+    return Consumer<HotelMyBookingViewModel>(
+      builder: (context, vm, _) {
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: vm.statusFilters.map((filter) {
+                    final isSelected =
+                        (vm.selectedStatus ?? 'Tất cả') == filter;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: () => vm.loadBookings(status: filter),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFF0058BC)
+                                : const Color(0xFFDAE2FD),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _getStatusDisplayName(filter),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF414755),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            Expanded(
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : vm.error != null
+                  ? ErrorState(message: '', onRetry: () => vm.loadBookings())
+                  : vm.bookings.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.hotel_outlined,
+                      title: 'Chưa có đơn đặt phòng nào',
+                      subtitle: 'Hãy đặt phòng để trải nghiệm dịch vụ!',
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () async => vm.loadBookings(),
+                      color: AppColors.primary,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: vm.bookings.length,
+                        itemBuilder: (context, index) {
+                          final booking = vm.bookings[index];
+                          return HotelBookingCard(
+                            booking: booking,
+                            statusLabel: vm.getStatusLabel(booking.status),
+                            onTap: () => context.push(
+                              Routes.hotelBookingDetail.replaceFirst(
+                                ':id',
+                                booking.id,
+                              ),
+                              extra: {'booking': booking},
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  String _formatPrice(double price) {
-    final str = price.toStringAsFixed(0);
-    return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
-  }
-
-  Color _statusColor(String status) {
-    switch (status.toUpperCase()) {
-      case 'PAID':
-        return const Color(0xFF10B981);
-      case 'CHECKED_IN':
-        return const Color(0xFFF97316);
-      case 'CANCELLED':
-        return const Color(0xFFEF4444);
-      default:
-        return const Color(0xFF6B7280);
-    }
-  }
-
-  String _statusLabel(String status) {
-    switch (status.toUpperCase()) {
+  String _getStatusDisplayName(String filter) {
+    switch (filter) {
+      case 'Tất cả':
+        return 'Tất cả';
+      case 'PENDING':
+        return 'Đang chờ';
       case 'PAID':
         return 'Đã thanh toán';
       case 'CHECKED_IN':
-        return 'ĐANG Ở';
+        return 'Đang ở';
       case 'CANCELLED':
-        return 'ĐÃ HỦY';
+        return 'Đã hủy';
       default:
-        return status;
+        return filter;
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FBFF),
-      appBar: widget.showHeader
-          ? const HotelAppBar(title: 'Đơn đặt phòng của tôi')
-          : null,
-      body: Consumer<HotelMyBookingViewModel>(
-        builder: (context, vm, _) {
-          if (vm.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (vm.bookings.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.hotel_outlined,
-                    size: 64,
-                    color: Color(0xFFE2E8F0),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Chưa có đơn đặt phòng nào',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF414755),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: vm.bookings.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final booking = vm.bookings[index];
-              return _BookingCard(
-                booking: booking,
-                formatPrice: _formatPrice,
-                statusColor: _statusColor(booking.status),
-                statusLabel: _statusLabel(booking.status),
-                onTap: () => context.push(
-                  Routes.hotelBookingDetail.replaceFirst(
-                    ':id',
-                    booking.id,
-                  ),
-                  extra: {'booking': booking},
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-}
-
-class _BookingCard extends StatelessWidget {
-  const _BookingCard({
-    required this.booking,
-    required this.formatPrice,
-    required this.statusColor,
-    required this.statusLabel,
-    required this.onTap,
-  });
-
-  final dynamic booking;
-  final String Function(double) formatPrice;
-  final Color statusColor;
-  final String statusLabel;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          border: Border.all(color: const Color(0xFFF3F4F6)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Image.network(
-                    booking.hotelImageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: const Color(0xFFF0F7FF),
-                      child: const Center(
-                        child: Icon(
-                          Icons.hotel,
-                          size: 48,
-                          color: Color(0xFFBFDBFE),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      statusLabel,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    booking.hotelName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 12,
-                        color: Color(0xFF6B7280),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          booking.hotelAddress,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF6B7280),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        size: 12,
-                        color: Color(0xFFFACC15),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '4.9',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFACC15),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Giá từ',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFF9CA3AF),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            '${formatPrice(booking.totalPrice)} ',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF007AFF),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'Xem chi tiết',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF007AFF),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

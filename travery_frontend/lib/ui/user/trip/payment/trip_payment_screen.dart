@@ -68,8 +68,7 @@ class _TripPaymentScreenState extends State<TripPaymentScreen> {
           onPageFinished: (_) {
             if (mounted) setState(() => _isLoading = false);
           },
-          onWebResourceError: (e) =>
-              debugPrint('WebView error: ${e.description}'),
+          onWebResourceError: (e) {},
         ),
       )
       ..loadRequest(Uri.parse(_paymentUrl!));
@@ -83,10 +82,7 @@ class _TripPaymentScreenState extends State<TripPaymentScreen> {
       final responseCode =
           uri.queryParameters['vnp_ResponseCode'] ??
           uri.queryParameters['responseCode'];
-      debugPrint('VNPay Return URL: $url, ResponseCode: $responseCode');
-      if (responseCode == '00') {
-        _navigateToResult(success: true);
-      }
+      _navigateToResult(success: responseCode == '00');
     }
   }
 
