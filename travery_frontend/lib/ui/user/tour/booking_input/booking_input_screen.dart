@@ -182,7 +182,7 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
                       const Divider(height: 24),
                       _CounterRow(
                         label: 'Trẻ em',
-                        subtitle: 'Từ 10 tuổi trở xuống',
+                        subtitle: 'Từ 11 tuổi trở xuống',
                         count: vm.childCount,
                         onDecrease: vm.childCount > 0
                             ? () => vm.setChildCount(vm.childCount - 1)
