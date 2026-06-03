@@ -62,6 +62,7 @@ import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_v
 import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
+import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_booking_view_model.dart';
 
 import '../data/services/tour/tour_service_impl.dart';
 
@@ -155,6 +156,9 @@ List<SingleChildWidget> get providers => [
   ChangeNotifierProvider(
     create: (context) =>
         TripBookingDetailViewModel(tripService: context.read<TripService>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) => HotelMyBookingViewModel()..loadBookings(),
   ),
 
   // ── Admin service ─────────────────────────────────────────────────────────

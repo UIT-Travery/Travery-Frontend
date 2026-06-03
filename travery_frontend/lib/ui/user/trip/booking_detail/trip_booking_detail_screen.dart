@@ -6,6 +6,7 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
+import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 
 class TripBookingDetailScreen extends StatefulWidget {
   const TripBookingDetailScreen({super.key, this.bookingId = ''});
@@ -58,21 +59,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFF3F4F6),
-        appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              context.go('${Routes.tripMyBookings}?tab=1');
-            },
-          ),
-          title: const Text(
-            'Chi tiết đặt vé',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
+        appBar: const UserAppBar(title: 'Chi tiết đặt vé'),
         body: Consumer<TripBookingDetailViewModel>(
           builder: (context, vm, _) {
             if (vm.isLoading) {
@@ -329,34 +316,87 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
             ),
           ],
           const SizedBox(height: 24),
+
+          // Timeline — Boarding / Alighting
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Left column: icons stacked with vertical line between them
                 SizedBox(
                   width: 24,
-                  child: CustomPaint(
-                    size: const Size(24, double.infinity),
-                    painter: _DashedLinePainter(
-                      color: AppColors.primary,
-                      strokeWidth: 1.5,
-                      dashHeight: 4,
-                      dashSpace: 3,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      // Dashed vertical line (full height of the two nodes)
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _DashedLinePainter(
+                            color: AppColors.primary,
+                            strokeWidth: 1.5,
+                            dashHeight: 4,
+                            dashSpace: 3,
+                          ),
+                        ),
+                      ),
+                      // First icon (Lên xe)
+                      Positioned(
+                        top: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.success,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.trip_origin,
+                            size: 12,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                      // Second icon (Xuống xe)
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.error,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.location_on,
+                            size: 12,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
+                // Right column: text content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStationNode(
-                        icon: Icons.trip_origin,
+                        icon: null,
                         iconColor: AppColors.success,
                         title: 'Lên xe: ',
                         stationName: booking.originDestination,
                         address: '',
-                        timeLabel: 'Giờ có mặt tại bên',
+                        timeLabel: 'Giờ có mặt tại bến',
                         timeValue:
                             '${_formatTime(departureDt.subtract(const Duration(minutes: 15)))} ${_formatDate(departureDt)}',
                         isBoarding: true,
@@ -393,7 +433,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                       ),
                       const SizedBox(height: 12),
                       _buildStationNode(
-                        icon: Icons.location_on,
+                        icon: null,
                         iconColor: AppColors.error,
                         title: 'Xuống xe: ',
                         stationName: booking.destinationDestination,
@@ -414,7 +454,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   }
 
   Widget _buildStationNode({
-    required IconData icon,
+    required IconData? icon,
     required Color iconColor,
     required String title,
     required String stationName,
@@ -427,19 +467,9 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: iconColor, width: 2),
-                color: Colors.white,
-              ),
-              child: Icon(icon, size: 12, color: iconColor),
-            ),
-            const SizedBox(width: 10),
+            // Icon is now rendered in the Stack, so no icon here
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +523,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
         ),
         if (isBoarding && timeLabel != null && timeValue != null)
           Padding(
-            padding: const EdgeInsets.only(left: 34, top: 6),
+            padding: const EdgeInsets.only(top: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -766,44 +796,35 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                   ],
                 ),
               )
-            : Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push(
-                        Routes.tripCancelConfirmation,
-                        extra: {'booking': booking},
-                      ),
-                      icon: const Icon(Icons.cancel_outlined, size: 18),
-                      label: const Text('Hủy vé'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: BorderSide(color: Colors.red.shade300),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
+            : ElevatedButton(
+                onPressed: () => context.push(
+                  Routes.tripCancelConfirmation,
+                  extra: {'booking': booking},
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.red,
+                  side: BorderSide(color: Colors.red.shade300),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Hủy vé',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.phone, size: 18),
-                      label: const Text('Liên hệ'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                ],
+                    SizedBox(width: 8),
+                    Icon(Icons.close, size: 20),
+                  ],
+                ),
               ),
       ),
     );
