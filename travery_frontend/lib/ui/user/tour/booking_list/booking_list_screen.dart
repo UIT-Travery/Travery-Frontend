@@ -18,14 +18,6 @@ class BookingListScreen extends StatefulWidget {
 }
 
 class _BookingListScreenState extends State<BookingListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookingListViewModel>().loadBookings();
-    });
-  }
-
   Future<void> _handleBookingTap(booking) async {
     debugPrint('=== _handleBookingTap - status: ${booking.status}');
     if (booking.status != 'PENDING') {
@@ -188,7 +180,8 @@ class _BookingListScreenState extends State<BookingListScreen> {
                                   subtitle: 'Hãy khám phá và đặt tour ngay!',
                                 )
                               : RefreshIndicator(
-                                  onRefresh: () async => vm.loadBookings(refresh: true),
+                                  onRefresh: () =>
+                                      vm.loadBookings(refresh: true),
                                   child: ListView.builder(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,

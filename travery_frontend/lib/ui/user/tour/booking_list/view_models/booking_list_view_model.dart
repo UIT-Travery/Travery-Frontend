@@ -5,7 +5,9 @@ import 'package:travery_frontend/utils/core_result.dart';
 
 class BookingListViewModel extends ChangeNotifier {
   BookingListViewModel({required BookingService bookingService})
-    : _bookingService = bookingService;
+    : _bookingService = bookingService {
+    loadBookings();
+  }
 
   final BookingService _bookingService;
 

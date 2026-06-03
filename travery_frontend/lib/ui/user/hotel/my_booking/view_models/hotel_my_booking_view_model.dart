@@ -2,10 +2,19 @@ import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 
 class HotelMyBookingViewModel extends ChangeNotifier {
-  HotelMyBookingViewModel();
+  HotelMyBookingViewModel() {
+    loadBookings();
+  }
 
   List<HotelBookingData> _bookings = [];
-  List<HotelBookingData> get bookings => _bookings;
+  List<HotelBookingData> get bookings => _filteredBookings;
+
+  List<HotelBookingData> get _filteredBookings {
+    if (_selectedStatus == null || _selectedStatus == 'Tất cả') {
+      return _bookings;
+    }
+    return _bookings.where((b) => b.status == _selectedStatus).toList();
+  }
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -13,7 +22,20 @@ class HotelMyBookingViewModel extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  void loadBookings() {
+  String? _selectedStatus;
+  String? get selectedStatus => _selectedStatus;
+
+  static const List<String> _allStatuses = [
+    'Tất cả',
+    'PAID',
+    'CHECKED_IN',
+    'CANCELLED',
+  ];
+  List<String> get statusFilters => _allStatuses;
+
+  void loadBookings({String? status}) {
+    if (_isLoading) return;
+    _selectedStatus = status ?? _selectedStatus ?? 'Tất cả';
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -21,6 +43,26 @@ class HotelMyBookingViewModel extends ChangeNotifier {
     _bookings = _dummyBookings;
     _isLoading = false;
     notifyListeners();
+  }
+
+  void filterByStatus(String? status) {
+    _selectedStatus = status ?? 'Tất cả';
+    notifyListeners();
+  }
+
+  String getStatusLabel(String status) {
+    switch (status) {
+      case 'PAID':
+        return 'Đã thanh toán';
+      case 'CHECKED_IN':
+        return 'Đang ở';
+      case 'CANCELLED':
+        return 'Đã hủy';
+      case 'PENDING':
+        return 'Đang chờ';
+      default:
+        return status;
+    }
   }
 
   static final List<HotelBookingData> _dummyBookings = [

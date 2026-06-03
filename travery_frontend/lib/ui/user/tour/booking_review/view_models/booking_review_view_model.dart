@@ -13,9 +13,7 @@ class BookingReviewViewModel extends ChangeNotifier {
     ProfileService? profileService,
   }) : _tourService = tourService,
        _tokenRefreshService = tokenRefreshService,
-       _profileService = profileService ?? ProfileService() {
-    _loadProfile();
-  }
+       _profileService = profileService ?? ProfileService();
 
   final TourService _tourService;
   final TokenRefreshService _tokenRefreshService;
@@ -31,9 +29,11 @@ class BookingReviewViewModel extends ChangeNotifier {
   bool _isLoadingProfile = false;
   bool get isLoadingProfile => _isLoadingProfile;
 
-  Future<void> _loadProfile() async {
-    _isLoadingProfile = true;
-    notifyListeners();
+  Future<void> _loadProfile({bool isRefresh = false}) async {
+    if (!isRefresh) {
+      _isLoadingProfile = true;
+      notifyListeners();
+    }
 
     final tokenResult = await _tokenRefreshService.getValidAccessToken();
     final token = switch (tokenResult) {
@@ -58,6 +58,19 @@ class BookingReviewViewModel extends ChangeNotifier {
 
     _isLoadingProfile = false;
     notifyListeners();
+  }
+
+  Future<void> refreshProfile() async {
+    await _loadProfile(isRefresh: true);
+  }
+
+  Future<void> initProfile() async {
+    if (_userName == null && _userPhone == null && _userEmail == null) {
+      await _loadProfile();
+    } else {
+      _isLoadingProfile = false;
+      notifyListeners();
+    }
   }
 
   bool _isCreatingBooking = false;

@@ -19,71 +19,105 @@ class HotelMyBookingScreen extends StatefulWidget {
 
 class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HotelMyBookingViewModel>().loadBookings();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFFAFAFF),
-      child: Consumer<HotelMyBookingViewModel>(
-        builder: (context, vm, _) {
-          if (vm.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (vm.error != null) {
-            return ErrorState(message: '', onRetry: () => vm.loadBookings());
-          }
-
-          if (vm.bookings.isEmpty) {
-            return const EmptyState(
-              icon: Icons.hotel_outlined,
-              title: 'Chưa có đơn đặt phòng nào',
-              subtitle: 'Hãy đặt phòng để trải nghiệm dịch vụ!',
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async => vm.loadBookings(),
-            color: AppColors.primary,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: vm.bookings.length,
-              itemBuilder: (context, index) {
-                final booking = vm.bookings[index];
-                return HotelBookingCard(
-                  booking: booking,
-                  statusLabel: _getStatusLabel(booking.status),
-                  onTap: () => context.push(
-                    Routes.hotelBookingDetail.replaceFirst(':id', booking.id),
-                    extra: {'booking': booking},
-                  ),
-                );
-              },
+    return Consumer<HotelMyBookingViewModel>(
+      builder: (context, vm, _) {
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: vm.statusFilters.map((filter) {
+                    final isSelected =
+                        (vm.selectedStatus ?? 'Tất cả') == filter;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: () => vm.loadBookings(status: filter),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFF0058BC)
+                                : const Color(0xFFDAE2FD),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _getStatusDisplayName(filter),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF414755),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
-          );
-        },
-      ),
+            Expanded(
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : vm.error != null
+                  ? ErrorState(message: '', onRetry: () => vm.loadBookings())
+                  : vm.bookings.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.hotel_outlined,
+                      title: 'Chưa có đơn đặt phòng nào',
+                      subtitle: 'Hãy đặt phòng để trải nghiệm dịch vụ!',
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () async => vm.loadBookings(),
+                      color: AppColors.primary,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: vm.bookings.length,
+                        itemBuilder: (context, index) {
+                          final booking = vm.bookings[index];
+                          return HotelBookingCard(
+                            booking: booking,
+                            statusLabel: vm.getStatusLabel(booking.status),
+                            onTap: () => context.push(
+                              Routes.hotelBookingDetail.replaceFirst(
+                                ':id',
+                                booking.id,
+                              ),
+                              extra: {'booking': booking},
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  String _getStatusLabel(String status) {
-    switch (status.toUpperCase()) {
-      case 'PAID':
-        return 'Đã thanh toán';
+  String _getStatusDisplayName(String filter) {
+    switch (filter) {
+      case 'Tất cả':
+        return 'Tất cả';
       case 'PENDING':
         return 'Đang chờ';
-      case 'CANCELLED':
-        return 'Đã hủy';
+      case 'PAID':
+        return 'Đã thanh toán';
       case 'CHECKED_IN':
         return 'Đang ở';
+      case 'CANCELLED':
+        return 'Đã hủy';
       default:
-        return status;
+        return filter;
     }
   }
 }
