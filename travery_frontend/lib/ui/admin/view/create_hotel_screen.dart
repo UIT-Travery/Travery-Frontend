@@ -6,9 +6,9 @@ import '../../core/themes/app_text_theme.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
 import 'widgets/input_button.dart';
-import 'add_hotel_info_screen.dart';
 import 'widgets/large_button.dart';
 import 'widgets/amenity_bottom_sheet.dart';
+import 'package:travery_frontend/data/services/api/model/hotel/amenity_response.dart';
 
 // No room data here anymore
 
@@ -35,7 +35,6 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.createHotel.addListener(_onCreateHotelChanged);
     widget.viewModel.loadAmenities.addListener(_onAmenitiesLoaded);
     widget.viewModel.loadRefundPolicies.addListener(_onRefundPoliciesLoaded);
     widget.viewModel.loadAmenities.execute();
@@ -52,7 +51,6 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
 
   @override
   void dispose() {
-    widget.viewModel.createHotel.removeListener(_onCreateHotelChanged);
     widget.viewModel.loadAmenities.removeListener(_onAmenitiesLoaded);
     widget.viewModel.loadRefundPolicies.removeListener(_onRefundPoliciesLoaded);
     _nameController.dispose();
@@ -63,31 +61,9 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
 
   List<String> _selectedAmenityIds = [];
 
-  // ── Command listener ───────────────────────────────────────────────────────
-
-  void _onCreateHotelChanged() {
-    final cmd = widget.viewModel.createHotel;
-    if (cmd.completed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Đã thêm khách sạn: ${_nameController.text.trim()}'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      context.pop();
-    } else if (cmd.error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Không thể thêm khách sạn. Vui lòng thử lại.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  void _onNext() {
+  Future<void> _onNext() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -119,10 +95,14 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
       refundPolicyId: _selectedPolicy!,
     );
 
-    context.push(
+    final result = await context.push<bool>(
       '/admin/create-hotel/info', // Should use Routes.adminAddHotelInfo, but avoiding import if missing
       extra: {'viewModel': widget.viewModel, 'payload': payload},
     );
+
+    if (result == true && mounted) {
+      context.pop();
+    }
   }
 
   Future<void> _selectTime(BuildContext context, bool isCheckIn) async {
@@ -155,7 +135,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -342,7 +322,11 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                   children: _selectedAmenityIds.map((id) {
                     final amenity = widget.viewModel.amenities.firstWhere(
                       (a) => a.id == id,
-                      orElse: () => widget.viewModel.amenities.first,
+                      orElse: () => const AmenityResponse(
+                        id: '',
+                        name: 'Unknown',
+                        type: 'HOTEL',
+                      ),
                     );
                     return Container(
                       padding: const EdgeInsets.symmetric(

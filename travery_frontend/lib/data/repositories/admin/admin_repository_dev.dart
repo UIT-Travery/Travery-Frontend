@@ -789,7 +789,7 @@ class AdminRepositoryDev extends AdminRepository {
   }
 
   @override
-  Future<Result<void>> createHotelRoomType({
+  Future<Result<String>> createHotelRoomType({
     required String hotelId,
     required String name,
     String? description,
@@ -800,7 +800,7 @@ class AdminRepositoryDev extends AdminRepository {
     int? area,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return const Result.ok(null);
+    return const Result.ok('mock-room-type-id');
   }
 
   @override

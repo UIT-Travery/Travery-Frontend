@@ -20,12 +20,12 @@ class CreateRoomTypeViewModel extends ChangeNotifier {
 
   CreateRoomTypeViewModel({required AdminRepository adminRepository})
       : _adminRepository = adminRepository {
-    createRoomType = Command1<void, CreateRoomTypePayload>(_createRoomType);
+    createRoomType = Command1<String, CreateRoomTypePayload>(_createRoomType);
   }
 
-  late final Command1<void, CreateRoomTypePayload> createRoomType;
+  late final Command1<String, CreateRoomTypePayload> createRoomType;
 
-  Future<Result<void>> _createRoomType(CreateRoomTypePayload payload) async {
+  Future<Result<String>> _createRoomType(CreateRoomTypePayload payload) async {
     final result = await _adminRepository.createHotelRoomType(
       hotelId: payload.hotelId,
       name: payload.name,
@@ -37,9 +37,9 @@ class CreateRoomTypeViewModel extends ChangeNotifier {
       area: payload.area,
     );
     switch (result) {
-      case Ok<void>():
-        return const Result.ok(null);
-      case Error<void>():
+      case Ok<String>():
+        return Result.ok(result.value);
+      case Error<String>():
         return Result.error(result.error);
     }
   }

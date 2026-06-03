@@ -45,12 +45,49 @@ class _AddHotelInfoScreenState extends State<AddHotelInfoScreen> {
   int _thumbnailIndex = 0;
   final ImagePicker _picker = ImagePicker();
 
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
+
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.createHotel.addListener(_onHotelCreated);
+  }
+
+  @override
+  void didUpdateWidget(covariant AddHotelInfoScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.createHotel.removeListener(_onHotelCreated);
+      widget.viewModel.createHotel.addListener(_onHotelCreated);
+    }
+  }
+
   @override
   void dispose() {
+    widget.viewModel.createHotel.removeListener(_onHotelCreated);
     for (var room in _rooms) {
       room.dispose();
     }
     super.dispose();
+  }
+
+  // ── Command listener ───────────────────────────────────────────────────────
+
+  void _onHotelCreated() async {
+    final cmd = widget.viewModel.createHotel;
+    if (cmd.completed && cmd.result is Ok<String>) {
+      final hotelId = (cmd.result as Ok<String>).value;
+      await _saveRoomsAndImages(hotelId);
+    } else if (cmd.error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không thể tạo khách sạn. Vui lòng thử lại.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      setState(() => _isSaving = false);
+    }
   }
 
   Future<void> _pickImages() async {
@@ -81,19 +118,13 @@ class _AddHotelInfoScreenState extends State<AddHotelInfoScreen> {
     });
   }
 
-  Future<void> _onSave() async {
-    // Validate
-    if (_pickedImages.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng thêm ít nhất 1 ảnh khách sạn')),
-      );
-      return;
-    }
+  void _onSave() {
     for (var room in _rooms) {
-      if (room.numberController.text.trim().isEmpty || room.type == null) {
+      if (room.numberController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Vui lòng nhập đầy đủ thông tin các phòng'),
+            content: Text('Vui lòng nhập số phòng cho tất cả các phòng'),
+            behavior: SnackBarBehavior.floating,
           ),
         );
         return;
@@ -104,57 +135,58 @@ class _AddHotelInfoScreenState extends State<AddHotelInfoScreen> {
       _isSaving = true;
     });
 
+    widget.viewModel.createHotel.execute(widget.payload);
+  }
+
+  Future<void> _saveRoomsAndImages(String hotelId) async {
     try {
-      // 1. Create Hotel
-      await widget.viewModel.createHotel.execute(widget.payload);
-      final createHotelCmd = widget.viewModel.createHotel;
-
-      if (!createHotelCmd.completed) {
-        throw Exception('Lỗi khi tạo khách sạn');
-      }
-
-      final String hotelId = (createHotelCmd.result as Ok<String>).value;
       final adminRepo = context.read<AdminRepository>();
 
-      // 2. Upload Images
-      final uploadResult = await adminRepo.uploadHotelImages(
-        hotelId: hotelId,
-        filePaths: _pickedImages.map((e) => e.path).toList(),
-      );
+      // Upload images
+      if (_pickedImages.isNotEmpty) {
+        final uploadResult = await adminRepo.uploadHotelImages(
+          hotelId: hotelId,
+          filePaths: _pickedImages.map((e) => e.path).toList(),
+        );
 
-      if (uploadResult is Ok<List<dynamic>>) {
-        final uploadedImages = uploadResult.value;
-        if (uploadedImages.isNotEmpty &&
-            _thumbnailIndex < uploadedImages.length) {
-          // Set thumbnail (Image 1)
-          final thumbnailId = uploadedImages[_thumbnailIndex]['id'] as String;
-          await adminRepo.setHotelThumbnail(
-            hotelId: hotelId,
-            imageId: thumbnailId,
-          );
+        if (uploadResult is Ok<List<dynamic>>) {
+          final uploadedImages = uploadResult.value;
+          if (uploadedImages.isNotEmpty &&
+              _thumbnailIndex < uploadedImages.length) {
+            final thumbnailId = uploadedImages[_thumbnailIndex]['id'] as String;
+            await adminRepo.setHotelThumbnail(
+              hotelId: hotelId,
+              imageId: thumbnailId,
+            );
+          }
         }
       }
 
-      // 3. Create Rooms (Image 2 API)
+      // Create rooms
       for (var room in _rooms) {
-        // Here we simulate fetching/creating a room type and then creating room.
-        // For simplicity, we create a generic room type if not exist or map string directly
         final roomTypeResult = await adminRepo.createHotelRoomType(
           hotelId: hotelId,
-          name: room.type ?? 'Standard',
+          name: room.type ?? 'Đơn',
+          description: 'Phòng ${room.type ?? 'Đơn'}',
           basePrice: 500000,
           bedType: 'SINGLE',
+          capacityAdults: 2,
+          capacityChildren: 0,
+          area: 30,
         );
 
-        // Using a dummy roomTypeId or if we can get it from the result.
-        // The current createHotelRoomType returns Result<void>
-        await adminRepo.createHotelRoom(
-          hotelId: hotelId,
-          roomNumber: room.numberController.text.trim(),
-          floor: 1,
-          roomTypeId:
-              'default_room_type_id', // In a real scenario, this comes from room type API
-        );
+        if (roomTypeResult is Ok<String>) {
+          await adminRepo.createHotelRoom(
+            hotelId: hotelId,
+            roomNumber: room.numberController.text.trim(),
+            floor: 1,
+            roomTypeId: roomTypeResult.value,
+          );
+        } else {
+          throw Exception(
+            'Không thể tạo loại phòng cho phòng ${room.numberController.text}',
+          );
+        }
       }
 
       if (!mounted) return;
@@ -165,8 +197,7 @@ class _AddHotelInfoScreenState extends State<AddHotelInfoScreen> {
         ),
       );
 
-      // Go back to hotel list
-      context.go('/admin/hotel-management');
+      context.pop(true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
