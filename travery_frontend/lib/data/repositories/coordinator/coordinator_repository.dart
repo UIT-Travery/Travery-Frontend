@@ -4,6 +4,7 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coor
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 
 abstract class CoordinatorRepository extends ChangeNotifier {
   /// GET /api/v1/staff/coordinator/instances
@@ -34,6 +35,24 @@ abstract class CoordinatorRepository extends ChangeNotifier {
   Future<Result<CoordinatorTour>> updateTourInstanceStatus({
     required String id,
     required String status,
+  });
+
+  /// GET /api/v1/tours/templates — list tour templates.
+  Future<Result<List<CoordinatorTourTemplate>>> getTourTemplates();
+
+  /// POST /api/v1/tours/templates
+  Future<Result<void>> createTourTemplate({
+    required String name,
+    required String description,
+    required String destinationId,
+    String? hotelId,
+    required String pickupLocation,
+    required double pricePerAdult,
+    required double pricePerChild,
+    String? refundPolicyId,
+    String? requestedByUserId,
+    required bool isCustom,
+    required List<Map<String, dynamic>> itineraries,
   });
 
   // ── Stubbed methods for unused bottom sheets ─────────────────────────────

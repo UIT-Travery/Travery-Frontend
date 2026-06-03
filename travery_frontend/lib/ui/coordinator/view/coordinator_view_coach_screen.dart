@@ -125,7 +125,7 @@ class CoordinatorViewCoachScreen extends StatelessWidget {
                                         ? Image.network(
                                             coach.driver.imageUrl,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
+                                            errorBuilder: (_, _, _) =>
                                                 _buildInitials(
                                                   coach.driver.name,
                                                 ),
@@ -189,7 +189,7 @@ class CoordinatorViewCoachScreen extends StatelessWidget {
           ? Image.network(
               coach.vehicle.imageUrl,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Center(
+              errorBuilder: (_, _, _) => const Center(
                 child: Icon(
                   Icons.directions_bus_filled_rounded,
                   color: AppColors.textSecondary,

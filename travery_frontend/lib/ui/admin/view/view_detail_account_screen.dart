@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
@@ -26,33 +27,145 @@ class ViewDetailAccountScreen extends StatefulWidget {
 }
 
 class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
-  AccountStatus? _currentStatus;
-
   @override
   void initState() {
     super.initState();
-    widget.viewModel.loadAccount.addListener(_onResult);
+    widget.viewModel.loadAccount.addListener(_onLoadResult);
+    widget.viewModel.deleteAccount.addListener(_onDeleteResult);
+    widget.viewModel.banAccount.addListener(_onBanResult);
+    widget.viewModel.unbanAccount.addListener(_onUnbanResult);
+    widget.viewModel.updateReceptionistProfile.addListener(_onUpdateResult);
+    widget.viewModel.updateGuideProfile.addListener(_onUpdateResult);
+    widget.viewModel.updateCoordinatorProfile.addListener(_onUpdateResult);
+    widget.viewModel.updateAvatar.addListener(_onUpdateResult);
     widget.viewModel.loadAccount.execute(widget.accountId);
   }
 
   @override
   void didUpdateWidget(covariant ViewDetailAccountScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.viewModel.loadAccount.removeListener(_onResult);
-    widget.viewModel.loadAccount.addListener(_onResult);
+    oldWidget.viewModel.loadAccount.removeListener(_onLoadResult);
+    widget.viewModel.loadAccount.addListener(_onLoadResult);
+    oldWidget.viewModel.deleteAccount.removeListener(_onDeleteResult);
+    widget.viewModel.deleteAccount.addListener(_onDeleteResult);
+    oldWidget.viewModel.banAccount.removeListener(_onBanResult);
+    widget.viewModel.banAccount.addListener(_onBanResult);
+    oldWidget.viewModel.unbanAccount.removeListener(_onUnbanResult);
+    widget.viewModel.unbanAccount.addListener(_onUnbanResult);
+    oldWidget.viewModel.updateReceptionistProfile.removeListener(_onUpdateResult);
+    widget.viewModel.updateReceptionistProfile.addListener(_onUpdateResult);
+    oldWidget.viewModel.updateGuideProfile.removeListener(_onUpdateResult);
+    widget.viewModel.updateGuideProfile.addListener(_onUpdateResult);
+    oldWidget.viewModel.updateCoordinatorProfile.removeListener(_onUpdateResult);
+    widget.viewModel.updateCoordinatorProfile.addListener(_onUpdateResult);
+    oldWidget.viewModel.updateAvatar.removeListener(_onUpdateResult);
+    widget.viewModel.updateAvatar.addListener(_onUpdateResult);
   }
 
   @override
   void dispose() {
-    widget.viewModel.loadAccount.removeListener(_onResult);
+    widget.viewModel.loadAccount.removeListener(_onLoadResult);
+    widget.viewModel.deleteAccount.removeListener(_onDeleteResult);
+    widget.viewModel.banAccount.removeListener(_onBanResult);
+    widget.viewModel.unbanAccount.removeListener(_onUnbanResult);
+    widget.viewModel.updateReceptionistProfile.removeListener(_onUpdateResult);
+    widget.viewModel.updateGuideProfile.removeListener(_onUpdateResult);
+    widget.viewModel.updateCoordinatorProfile.removeListener(_onUpdateResult);
+    widget.viewModel.updateAvatar.removeListener(_onUpdateResult);
     super.dispose();
   }
 
-  void _onResult() {
-    setState(() {});
+  // ── Result handlers ────────────────────────────────────────────────────────
+
+  void _onLoadResult() {
+    if (mounted) setState(() {});
   }
 
-  // ── Role display text (title-case for profile header) ────────────────────
+  void _onDeleteResult() {
+    final cmd = widget.viewModel.deleteAccount;
+    if (cmd.running) return;
+    if (cmd.error) {
+      final msg = cmd.result is Error
+          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          : 'Không thể xóa tài khoản';
+      cmd.clearResult();
+      if (mounted) Utils.showErrorNotification(context, msg);
+    } else if (cmd.completed) {
+      cmd.clearResult();
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Đã xóa tài khoản thành công');
+        context.pop();
+      }
+    }
+  }
+
+  void _onBanResult() {
+    final cmd = widget.viewModel.banAccount;
+    if (cmd.running) return;
+    if (cmd.error) {
+      final msg = cmd.result is Error
+          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          : 'Không thể cấm tài khoản';
+      cmd.clearResult();
+      if (mounted) Utils.showErrorNotification(context, msg);
+    } else if (cmd.completed) {
+      cmd.clearResult();
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Tài khoản đã bị cấm');
+        // Reload to get updated status from server.
+        widget.viewModel.loadAccount.execute(widget.accountId);
+      }
+    }
+  }
+
+  void _onUnbanResult() {
+    final cmd = widget.viewModel.unbanAccount;
+    if (cmd.running) return;
+    if (cmd.error) {
+      final msg = cmd.result is Error
+          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          : 'Không thể bỏ cấm tài khoản';
+      cmd.clearResult();
+      if (mounted) Utils.showErrorNotification(context, msg);
+    } else if (cmd.completed) {
+      cmd.clearResult();
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Tài khoản đã được bỏ cấm');
+        widget.viewModel.loadAccount.execute(widget.accountId);
+      }
+    }
+  }
+
+  void _onUpdateResult() {
+    // Any of the three update commands or avatar completed.
+    final cmds = [
+      widget.viewModel.updateReceptionistProfile,
+      widget.viewModel.updateGuideProfile,
+      widget.viewModel.updateCoordinatorProfile,
+      widget.viewModel.updateAvatar,
+    ];
+    for (final cmd in cmds) {
+      if (cmd.running) return;
+      if (cmd.error) {
+        final msg = cmd.result is Error
+            ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+            : 'Không thể cập nhật thông tin';
+        cmd.clearResult();
+        if (mounted) Utils.showErrorNotification(context, msg);
+        return;
+      } else if (cmd.completed) {
+        cmd.clearResult();
+        if (mounted) {
+          Utils.showSuccessNotification(context, 'Cập nhật thông tin thành công');
+          widget.viewModel.loadAccount.execute(widget.accountId);
+        }
+        return;
+      }
+    }
+  }
+
+  // ── Role display text ──────────────────────────────────────────────────────
+
   String _roleDisplayLabel(AccountRole role) {
     switch (role) {
       case AccountRole.coordinator:
@@ -61,29 +174,21 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
         return 'Hướng dẫn viên';
       case AccountRole.receptionist:
         return 'Lễ tân';
+      case AccountRole.tourist:
+        return 'Khách hàng';
+      case AccountRole.admin:
+        return 'Quản trị viên';
     }
   }
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
-  void _onActivate() {
-    setState(() => _currentStatus = AccountStatus.active);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tài khoản đã được kích hoạt'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  void _onBan() {
+    widget.viewModel.banAccount.execute(widget.accountId);
   }
 
-  void _onDeactivate() {
-    setState(() => _currentStatus = AccountStatus.inactive);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tài khoản đã bị vô hiệu hóa'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  void _onUnban() {
+    widget.viewModel.unbanAccount.execute(widget.accountId);
   }
 
   void _onDelete(String accountName) {
@@ -101,6 +206,7 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
           TextButton(
             onPressed: () {
               context.pop();
+              widget.viewModel.deleteAccount.execute(widget.accountId);
             },
             child: Text('Xóa', style: TextStyle(color: AppColors.error)),
           ),
@@ -109,100 +215,341 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
     );
   }
 
+  void _onEditProfile(BusinessAccount account) {
+    switch (account.role) {
+      case AccountRole.receptionist:
+        _showEditReceptionistSheet(account);
+        break;
+      case AccountRole.guide:
+        _showEditGuideSheet(account);
+        break;
+      case AccountRole.coordinator:
+        _showEditCoordinatorSheet(account);
+        break;
+      default:
+        if (mounted) {
+          Utils.showErrorNotification(
+            context,
+            'Chỉ có thể chỉnh sửa thông tin nhân viên',
+          );
+        }
+    }
+  }
+
+  void _showEditReceptionistSheet(BusinessAccount account) {
+    final nameCtrl = TextEditingController(text: account.name);
+    final phoneCtrl = TextEditingController(text: account.phoneNumber ?? '');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 24,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Cập nhật thông tin Lễ tân',
+              style: TextStyle(
+                fontSize: AppTextTheme.headlineSmall,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _EditField(label: 'Họ tên', controller: nameCtrl),
+            const SizedBox(height: 12),
+            _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                widget.viewModel.updateReceptionistProfile.execute((
+                  id: widget.accountId,
+                  fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                  phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+                  shiftType: null,
+                  hotelId: null,
+                ));
+              },
+              child: const Text('Lưu thay đổi'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditGuideSheet(BusinessAccount account) {
+    final nameCtrl = TextEditingController(text: account.name);
+    final phoneCtrl = TextEditingController(text: account.phoneNumber ?? '');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 24,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Cập nhật thông tin Hướng dẫn viên',
+              style: TextStyle(
+                fontSize: AppTextTheme.headlineSmall,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _EditField(label: 'Họ tên', controller: nameCtrl),
+            const SizedBox(height: 12),
+            _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                widget.viewModel.updateGuideProfile.execute((
+                  id: widget.accountId,
+                  fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                  phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+                  guideLicense: null,
+                  yearsExperience: null,
+                  languages: null,
+                ));
+              },
+              child: const Text('Lưu thay đổi'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditCoordinatorSheet(BusinessAccount account) {
+    final nameCtrl = TextEditingController(text: account.name);
+    final phoneCtrl = TextEditingController(text: account.phoneNumber ?? '');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 24,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Cập nhật thông tin Điều phối viên',
+              style: TextStyle(
+                fontSize: AppTextTheme.headlineSmall,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _EditField(label: 'Họ tên', controller: nameCtrl),
+            const SizedBox(height: 12),
+            _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                widget.viewModel.updateCoordinatorProfile.execute((
+                  id: widget.accountId,
+                  fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                  phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+                  department: null,
+                ));
+              },
+              child: const Text('Lưu thay đổi'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final cmd = widget.viewModel.loadAccount;
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        widget.viewModel.loadAccount,
+        widget.viewModel.banAccount,
+        widget.viewModel.unbanAccount,
+        widget.viewModel.deleteAccount,
+      ]),
+      builder: (context, _) {
+        final cmd = widget.viewModel.loadAccount;
+        final isActionRunning =
+            widget.viewModel.banAccount.running ||
+            widget.viewModel.unbanAccount.running ||
+            widget.viewModel.deleteAccount.running ||
+            widget.viewModel.updateReceptionistProfile.running ||
+            widget.viewModel.updateGuideProfile.running ||
+            widget.viewModel.updateCoordinatorProfile.running ||
+            widget.viewModel.updateAvatar.running;
 
-    if (cmd.running) {
-      return const Scaffold(
-        backgroundColor: AppColors.surface,
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+        if (cmd.running) {
+          return const Scaffold(
+            backgroundColor: AppColors.surface,
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    if (cmd.error) {
-      return Scaffold(
-        backgroundColor: AppColors.surface,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Center(child: Text('Lỗi tải thông tin tài khoản')),
-            ElevatedButton(
-              onPressed: () => context.pop(),
-              child: const Text('Quay lại'),
+        if (cmd.error) {
+          return Scaffold(
+            backgroundColor: AppColors.surface,
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Center(child: Text('Lỗi tải thông tin tài khoản')),
+                ElevatedButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Quay lại'),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    }
+          );
+        }
 
-    if (cmd.result is! Ok<BusinessAccount>) {
-      return Scaffold(
-        backgroundColor: AppColors.background,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Center(child: Text('Không tìm thấy tài khoản')),
-            ElevatedButton(
-              onPressed: () => context.pop(),
-              child: const Text('Quay lại'),
+        if (cmd.result is! Ok<BusinessAccount>) {
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Center(child: Text('Không tìm thấy tài khoản')),
+                ElevatedButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Quay lại'),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    }
+          );
+        }
 
-    final account = (cmd.result as Ok<BusinessAccount>).value;
-    final displayStatus = _currentStatus ?? account.status;
+        final account = (cmd.result as Ok<BusinessAccount>).value;
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── App bar ──────────────────────────────────────────────────
-              _buildAppBar(context),
-
-              // ── Profile card (white) ─────────────────────────────────────
-              _buildProfileCard(account, displayStatus),
-
-              const SizedBox(height: 16),
-
-              // ── Info tiles ───────────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    _InfoTile(
-                      icon: Icons.badge_outlined,
-                      label: 'TÊN NHÂN VIÊN',
-                      value: account.name,
-                    ),
-                    const SizedBox(height: 10),
-                    _InfoTile(
-                      icon: Icons.phone,
-                      label: 'SỐ ĐIỆN THOẠI',
-                      value: account.email,
-                    ),
-                    const SizedBox(height: 10),
-                    _InfoTile(
-                      icon: Icons.email,
-                      label: 'EMAIL',
-                      value: account.email,
-                    ),
-                  ],
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: AppColors.surface,
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildAppBar(context),
+                      _buildProfileCard(account),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            _InfoTile(
+                              icon: Icons.badge_outlined,
+                              label: 'TÊN',
+                              value: account.name.isEmpty ? '—' : account.name,
+                            ),
+                            if (account.phoneNumber != null &&
+                                account.phoneNumber!.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              _InfoTile(
+                                icon: Icons.phone,
+                                label: 'SỐ ĐIỆN THOẠI',
+                                value: account.phoneNumber!,
+                              ),
+                            ],
+                            const SizedBox(height: 10),
+                            _InfoTile(
+                              icon: Icons.email,
+                              label: 'EMAIL',
+                              value: account.email,
+                            ),
+                            if (account.createdAt != null) ...[
+                              const SizedBox(height: 10),
+                              _InfoTile(
+                                icon: Icons.calendar_today_outlined,
+                                label: 'NGÀY TẠO',
+                                value: _formatDate(account.createdAt!),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+            if (isActionRunning)
+              Container(
+                color: Colors.black26,
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+          ],
+        );
+      },
     );
+  }
+
+  String _formatDate(String isoDate) {
+    try {
+      final dt = DateTime.parse(isoDate).toLocal();
+      return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+    } catch (_) {
+      return isoDate;
+    }
   }
 
   // ── App bar ───────────────────────────────────────────────────────────────
@@ -245,10 +592,7 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
 
   // ── Profile card ──────────────────────────────────────────────────────────
 
-  Widget _buildProfileCard(
-    BusinessAccount account,
-    AccountStatus displayStatus,
-  ) {
+  Widget _buildProfileCard(BusinessAccount account) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
@@ -265,12 +609,8 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
       ),
       child: Column(
         children: [
-          // Avatar
           _buildAvatar(account),
-
           const SizedBox(height: 14),
-
-          // Name
           Text(
             account.name,
             style: TextStyle(
@@ -279,10 +619,7 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
               color: AppColors.textPrimary,
             ),
           ),
-
           const SizedBox(height: 4),
-
-          // Role (blue)
           Text(
             _roleDisplayLabel(account.role),
             style: TextStyle(
@@ -291,23 +628,17 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
               color: AppColors.primary,
             ),
           ),
-
           const SizedBox(height: 12),
-
-          // Status badge
-          _StatusPill(status: displayStatus),
-
+          _StatusPill(status: account.status),
           const SizedBox(height: 20),
-
-          // ── Action buttons ────────────────────────────────────────────
-          _buildActionButtons(displayStatus, account.name),
+          _buildActionButtons(account),
         ],
       ),
     );
   }
 
   Widget _buildAvatar(BusinessAccount account) {
-    if (account.avatarUrl != null) {
+    if (account.avatarUrl != null && account.avatarUrl!.isNotEmpty) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Image.network(
@@ -336,43 +667,48 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
 
   // ── Action buttons ────────────────────────────────────────────────────────
 
-  Widget _buildActionButtons(AccountStatus currentStatus, String accountName) {
+  Widget _buildActionButtons(BusinessAccount account) {
+    final isBanned = account.status == AccountStatus.banned;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Kích hoạt — filled primary
-        ElevatedButton.icon(
-          onPressed: currentStatus == AccountStatus.active ? null : _onActivate,
-          icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-          label: const Text('Kích hoạt'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            disabledBackgroundColor: AppColors.primaryLight.withValues(
-              alpha: 0.4,
-            ),
-            foregroundColor: Colors.white,
-            disabledForegroundColor: Colors.white70,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(vertical: 13),
-            textStyle: TextStyle(
-              fontSize: AppTextTheme.bodyLarge,
-              fontWeight: FontWeight.w600,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
+        // Edit profile — only for staff roles
+        if (account.role == AccountRole.receptionist ||
+            account.role == AccountRole.guide ||
+            account.role == AccountRole.coordinator)
+          ElevatedButton.icon(
+            onPressed: () => _onEditProfile(account),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: const Text('Chỉnh sửa thông tin'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              textStyle: TextStyle(
+                fontSize: AppTextTheme.bodyLarge,
+                fontWeight: FontWeight.w600,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
             ),
           ),
-        ),
 
-        const SizedBox(height: 10),
+        if (account.role == AccountRole.receptionist ||
+            account.role == AccountRole.guide ||
+            account.role == AccountRole.coordinator)
+          const SizedBox(height: 10),
 
-        // Vô hiệu hóa — outlined
+        // Ban / Unban
         OutlinedButton.icon(
-          onPressed: currentStatus == AccountStatus.inactive
-              ? null
-              : _onDeactivate,
-          icon: const Icon(Icons.block_rounded, size: 18),
-          label: const Text('Vô hiệu hóa'),
+          onPressed: isBanned ? _onUnban : _onBan,
+          icon: Icon(
+            isBanned ? Icons.lock_open_rounded : Icons.block_rounded,
+            size: 18,
+          ),
+          label: Text(isBanned ? 'Bỏ cấm tài khoản' : 'Cấm tài khoản'),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primaryDarkBlackBlue,
             side: BorderSide(color: AppColors.primaryDarkBlackBlue),
@@ -389,9 +725,9 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
 
         const SizedBox(height: 10),
 
-        // Xóa tài khoản — outlined with red icon
+        // Delete
         OutlinedButton.icon(
-          onPressed: () => _onDelete(accountName),
+          onPressed: () => _onDelete(account.name),
           icon: Icon(
             Icons.delete_outline_rounded,
             size: 18,
@@ -420,6 +756,58 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Edit field widget
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _EditField extends StatelessWidget {
+  const _EditField({
+    required this.label,
+    required this.controller,
+    this.keyboardType,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: AppTextTheme.bodySmall,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppColors.inputBorder),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppColors.inputBorder),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Status pill badge
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -430,15 +818,38 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isActive = status == AccountStatus.active;
-    final label = isActive ? 'ĐANG HOẠT ĐỘNG' : 'NGỪNG HOẠT ĐỘNG';
-    final dotColor = isActive ? AppColors.success : AppColors.textSecondary;
-    const pillColor = Color(0xFFF0F4FF); // background-tinted chip
+    final (label, dotColor, bgColor) = switch (status) {
+      AccountStatus.active => (
+          'ĐANG HOẠT ĐỘNG',
+          AppColors.success,
+          const Color(0xFFE8F5E9),
+        ),
+      AccountStatus.banned => (
+          'BỊ CẤM',
+          AppColors.error,
+          const Color(0xFFFFEBEE),
+        ),
+      AccountStatus.pending => (
+          'CHỜ XÁC NHẬN',
+          AppColors.warning,
+          const Color(0xFFFFF8E1),
+        ),
+      AccountStatus.deleted => (
+          'ĐÃ XÓA',
+          AppColors.textSecondary,
+          const Color(0xFFF5F5F5),
+        ),
+      AccountStatus.inactive => (
+          'NGỪNG HOẠT ĐỘNG',
+          AppColors.textSecondary,
+          const Color(0xFFF0F4FF),
+        ),
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: pillColor,
+        color: bgColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -491,7 +902,6 @@ class _InfoTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Label row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -507,23 +917,14 @@ class _InfoTile extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
-          // Value row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: AppTextTheme.bodyLarge,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: AppTextTheme.bodyLarge,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),

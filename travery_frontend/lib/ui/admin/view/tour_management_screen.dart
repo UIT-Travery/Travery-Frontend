@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/domain/models/admin/business_tour/business_tour.dart';
 import 'package:travery_frontend/domain/models/admin/tour_summary/tour_summary.dart';
 import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.dart';
@@ -10,8 +9,8 @@ import '../../core/themes/app_text_theme.dart';
 import 'widgets/tour_card.dart';
 
 class TourManagementScreen extends StatefulWidget {
-  const TourManagementScreen({super.key});
-
+  const TourManagementScreen({super.key, required this.viewModel});
+  final TourManagementViewModel viewModel;
   @override
   State<TourManagementScreen> createState() => _TourManagementScreenState();
 }
@@ -25,15 +24,14 @@ class _TourManagementScreenState extends State<TourManagementScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final vm = context.read<TourManagementViewModel>();
-      vm.loadTours.execute();
-      vm.loadSummaryStats.execute();
+      widget.viewModel.loadTours.execute();
+      widget.viewModel.loadSummaryStats.execute();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<TourManagementViewModel>();
+    final vm = widget.viewModel;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -41,11 +39,7 @@ class _TourManagementScreenState extends State<TourManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.pop(),
-            ),
-
+            const SizedBox(height: 16),
             Expanded(
               child: ListenableBuilder(
                 listenable: Listenable.merge([

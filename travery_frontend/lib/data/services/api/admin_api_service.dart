@@ -1,0 +1,696 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:travery_frontend/config/app_config.dart';
+import 'package:travery_frontend/utils/core_result.dart';
+
+/// HTTP service covering all available admin-facing API endpoints.
+///
+/// Pattern mirrors [CoordinatorApiService]: each method takes an [accessToken]
+/// to satisfy the `Authorization: Bearer <token>` requirement.
+class AdminApiService {
+  AdminApiService({String? host, HttpClient Function()? clientFactory})
+    : _host = host ?? AppConfig.baseUrl,
+      _clientFactory = clientFactory ?? HttpClient.new;
+
+  final String _host;
+  final HttpClient Function() _clientFactory;
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  Future<String> _extractErrorMessage(
+    HttpClientResponse response,
+    String defaultMessage,
+  ) async {
+    try {
+      final stringData = await response.transform(utf8.decoder).join();
+      final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+      return jsonMap['message'] as String? ?? defaultMessage;
+    } catch (_) {
+      return defaultMessage;
+    }
+  }
+
+  HttpClientRequest _addAuth(HttpClientRequest request, String accessToken) {
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    return request;
+  }
+
+  // ── Staff / Account ────────────────────────────────────────────────────────
+
+  /// POST /api/v1/auth/create-staff
+  ///
+  /// Creates a new staff account (GUIDE, COORDINATOR, or RECEPTIONIST).
+  /// [role] must be one of: GUIDE, COORDINATOR, RECEPTIONIST (uppercase).
+  /// [department] optional; e.g. "TOUR", "HOTEL".
+  /// [guideLicense] optional – required when role is GUIDE.
+  /// [hotelId] optional – required when role is RECEPTIONIST.
+  Future<Result<void>> createStaff({
+    required String accessToken,
+    required String email,
+    required String password,
+    required String fullName,
+    required String role,
+    String? department,
+    String? guideLicense,
+    String? hotelId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/auth/create-staff');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final bodyMap = <String, dynamic>{
+        'email': email,
+        'password': password,
+        'fullName': fullName,
+        'role': role,
+      };
+      if (department != null) bodyMap['department'] = department;
+      if (guideLicense != null) bodyMap['guideLicense'] = guideLicense;
+      if (hotelId != null) bodyMap['hotelId'] = hotelId;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return const Result.ok(null);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tạo tài khoản nhân viên',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  // ── Tours ──────────────────────────────────────────────────────────────────
+
+  /// GET /api/v1/tours — paginated tour list.
+  Future<Result<List<Map<String, dynamic>>>> getTours({
+    required String accessToken,
+    String? keyword,
+    int page = 0,
+    int size = 20,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final queryParams = <String, String>{
+        'page': '$page',
+        'size': '$size',
+      };
+      if (keyword != null && keyword.isNotEmpty) {
+        queryParams['keyword'] = keyword;
+      }
+
+      final uri = Uri.https(_host, '/api/v1/tours', queryParams);
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>;
+        final content = data['content'] as List<dynamic>? ?? [];
+        return Result.ok(
+          content.map((e) => e as Map<String, dynamic>).toList(),
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách tour',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/tours/{id} — tour detail.
+  Future<Result<Map<String, dynamic>>> getTourById({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/tours/$id');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải thông tin tour',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  // ── Tours/Templates —————————————————————————————————————————————
+
+  /// GET /api/v1/tours/templates — list all tour templates.
+  Future<Result<List<Map<String, dynamic>>>> getTourTemplates({
+    required String accessToken,
+    int page = 0,
+    int size = 50,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/tours/templates', {
+        'page': '$page',
+        'size': '$size',
+      });
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final rawData = jsonMap['data'] as List<dynamic>? ?? [];
+        return Result.ok(
+          rawData.map((e) => e as Map<String, dynamic>).toList(),
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách lộ trình',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// POST /api/v1/tours/templates — create a new tour template.
+  Future<Result<Map<String, dynamic>>> createTourTemplate({
+    required String accessToken,
+    required String name,
+    required String description,
+    required String destinationId,
+    String? hotelId,
+    required String pickupLocation,
+    required double pricePerAdult,
+    required double pricePerChild,
+    String? refundPolicyId,
+    required bool isCustom,
+    required List<Map<String, dynamic>> itineraries,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/tours/templates');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final bodyMap = <String, dynamic>{
+        'name': name,
+        'description': description,
+        'destinationId': destinationId,
+        'pickupLocation': pickupLocation,
+        'pricePerAdult': pricePerAdult,
+        'pricePerChild': pricePerChild,
+        'isCustom': isCustom,
+        'itineraries': itineraries,
+      };
+      if (hotelId != null) bodyMap['hotelId'] = hotelId;
+      if (refundPolicyId != null) bodyMap['refundPolicyId'] = refundPolicyId;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(data);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tạo lộ trình',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  // ── Account Deletion ────────────────────────────────────────────────────────
+
+  /// DELETE /api/v1/auth/staff/{id}
+  Future<Result<void>> deleteAccount({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/auth/staff/$id');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể xóa tài khoản',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  // ── Admin User Controller ───────────────────────────────────────────────────
+
+  /// GET /api/v1/admin/users — list users with optional role/status filters.
+  Future<Result<Map<String, dynamic>>> getUsers({
+    required String accessToken,
+    String? role,
+    String? status,
+    int page = 0,
+    int size = 20,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final queryParams = <String, String>{
+        'page': '$page',
+        'size': '$size',
+      };
+      if (role != null && role.isNotEmpty) queryParams['role'] = role;
+      if (status != null && status.isNotEmpty) queryParams['status'] = status;
+
+      final uri = Uri.https(_host, '/api/v1/admin/users', queryParams);
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách người dùng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/admin/users/{id} — user detail.
+  Future<Result<Map<String, dynamic>>> getUserById({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/users/$id');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải thông tin người dùng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// DELETE /api/v1/admin/users/{id} — delete user.
+  Future<Result<void>> deleteUser({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/users/$id');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể xóa người dùng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PATCH /api/v1/admin/users/{id}/ban — ban a user.
+  Future<Result<Map<String, dynamic>>> banUser({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/users/$id/ban');
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      request.contentLength = 0;
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cấm người dùng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PATCH /api/v1/admin/users/{id}/unban — unban a user.
+  Future<Result<Map<String, dynamic>>> unbanUser({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/users/$id/unban');
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      request.contentLength = 0;
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể bỏ cấm người dùng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PATCH /api/v1/admin/users/receptionists/{id} — update receptionist profile.
+  Future<Result<Map<String, dynamic>>> updateReceptionistProfile({
+    required String accessToken,
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? shiftType,
+    String? hotelId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/users/receptionists/$id');
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final bodyMap = <String, dynamic>{};
+      if (fullName != null) bodyMap['fullName'] = fullName;
+      if (phoneNumber != null) bodyMap['phoneNumber'] = phoneNumber;
+      if (shiftType != null) bodyMap['shiftType'] = shiftType;
+      if (hotelId != null) bodyMap['hotelId'] = hotelId;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cập nhật thông tin lễ tân',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PATCH /api/v1/admin/users/guides/{id} — update guide profile.
+  Future<Result<Map<String, dynamic>>> updateGuideProfile({
+    required String accessToken,
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? guideLicense,
+    int? yearsExperience,
+    List<String>? languages,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/users/guides/$id');
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final bodyMap = <String, dynamic>{};
+      if (fullName != null) bodyMap['fullName'] = fullName;
+      if (phoneNumber != null) bodyMap['phoneNumber'] = phoneNumber;
+      if (guideLicense != null) bodyMap['guideLicense'] = guideLicense;
+      if (yearsExperience != null) bodyMap['yearsExperience'] = yearsExperience;
+      if (languages != null) bodyMap['languages'] = languages;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cập nhật thông tin hướng dẫn viên',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PATCH /api/v1/admin/users/coordinators/{id} — update coordinator profile.
+  Future<Result<Map<String, dynamic>>> updateCoordinatorProfile({
+    required String accessToken,
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? department,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/users/coordinators/$id');
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final bodyMap = <String, dynamic>{};
+      if (fullName != null) bodyMap['fullName'] = fullName;
+      if (phoneNumber != null) bodyMap['phoneNumber'] = phoneNumber;
+      if (department != null) bodyMap['department'] = department;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cập nhật thông tin điều phối viên',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PUT /api/v1/admin/users/{id}/avatar — update user avatar (multipart).
+  Future<Result<Map<String, dynamic>>> updateUserAvatar({
+    required String accessToken,
+    required String id,
+    required String filePath,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final file = File(filePath);
+      if (!file.existsSync()) {
+        return Result.error(Exception('File not found: $filePath'));
+      }
+
+      final boundary = 'TraveryBoundary${DateTime.now().millisecondsSinceEpoch}';
+      final uri = Uri.https(_host, '/api/v1/admin/users/$id/avatar');
+      final request = await client.putUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        'multipart/form-data; boundary=$boundary',
+      );
+
+      final fileBytes = await file.readAsBytes();
+      final fileName = file.uri.pathSegments.last;
+      final body = StringBuffer()
+        ..write('--$boundary\r\n')
+        ..write('Content-Disposition: form-data; name="file"; filename="$fileName"\r\n')
+        ..write('Content-Type: application/octet-stream\r\n\r\n');
+      final bodyBytes = [
+        ...utf8.encode(body.toString()),
+        ...fileBytes,
+        ...utf8.encode('\r\n--$boundary--\r\n'),
+      ];
+      request.contentLength = bodyBytes.length;
+      request.add(bodyBytes);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(
+          (jsonMap['data'] as Map<String, dynamic>?) ?? {},
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cập nhật ảnh đại diện',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+}

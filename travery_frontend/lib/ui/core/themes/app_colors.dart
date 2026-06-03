@@ -117,4 +117,21 @@ class AppColors {
   static const Color iconActive = Color(0xFF1A73E8);
 
   static const Color warning = Color(0xFFF2C94C);
+
+  // Additional colors matching template design
+  static const Color surfaceBlue = Color(0xFFF4F7FF);
+  static const Color surfaceGray = Color(0xFFF4F5F7);
+  static const Color surfaceContainerLow = Color(0xFFF0F3FF);
+  static const Color surfaceContainerLowest = Color(0xFFFFFFFF);
+  static const Color surfaceContainerHigh = Color(0xFFDEE9FF);
+  static const Color surfaceContainerHighest = Color(0xFFD7E3FB);
+  static const Color surfaceContainer = Color(0xFFE7EEFF);
+  static const Color outline = Color(0xFF737685);
+  static const Color outlineVariant = Color(0xFFC3C6D6);
+  static const Color secondary = Color(0xFF5D5F5F);
+  static const Color errorContainer = Color(0xFFFFDAD6);
+  static const Color successLight = Color(0xFF36B37E);
+  static const Color primaryContainer = Color(0xFF0052CC);
+  static const Color primaryFixedDim = Color(0xFFB2C5FF);
+  static const Color textDark = Color(0xFF172B4D);
 }

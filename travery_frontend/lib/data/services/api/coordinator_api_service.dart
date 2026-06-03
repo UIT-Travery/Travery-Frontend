@@ -287,4 +287,105 @@ class CoordinatorApiService {
       client.close();
     }
   }
+
+  /// GET /api/v1/tours/templates — list tour templates (paginated).
+  Future<Result<List<Map<String, dynamic>>>> getTourTemplates({
+    required String accessToken,
+    int page = 0,
+    int size = 20,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/tours/templates', {
+        'page': '$page',
+        'size': '$size',
+      });
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final rawData = jsonMap['data'] as List<dynamic>? ?? [];
+        return Result.ok(
+          rawData.map((e) => e as Map<String, dynamic>).toList(),
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Tour Templates Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// POST /api/v1/tours/templates — create a tour template.
+  Future<Result<Map<String, dynamic>>> createTourTemplate({
+    required String accessToken,
+    required String name,
+    required String description,
+    required String destinationId,
+    String? hotelId,
+    required String pickupLocation,
+    required double pricePerAdult,
+    required double pricePerChild,
+    String? refundPolicyId,
+    String? requestedByUserId,
+    required bool isCustom,
+    required List<Map<String, dynamic>> itineraries,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/tours/templates');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final bodyMap = <String, dynamic>{
+        'name': name,
+        'description': description,
+        'destinationId': destinationId,
+        'pickupLocation': pickupLocation,
+        'pricePerAdult': pricePerAdult,
+        'pricePerChild': pricePerChild,
+        'isCustom': isCustom,
+        'itineraries': itineraries,
+      };
+      if (hotelId != null) bodyMap['hotelId'] = hotelId;
+      if (refundPolicyId != null) bodyMap['refundPolicyId'] = refundPolicyId;
+      if (requestedByUserId != null) bodyMap['requestedByUserId'] = requestedByUserId;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(data);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Create Tour Template Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
 }

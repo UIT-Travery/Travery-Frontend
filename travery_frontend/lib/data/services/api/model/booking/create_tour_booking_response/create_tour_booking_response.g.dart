@@ -42,6 +42,10 @@ _TourBookingData _$TourBookingDataFromJson(Map<String, dynamic> json) =>
       payment: json['payment'] == null
           ? null
           : PaymentData.fromJson(json['payment'] as Map<String, dynamic>),
+      paymentMethod: json['paymentMethod'] as String? ?? '',
+      paymentStatus: json['paymentStatus'] as String? ?? '',
+      transactionId: json['transactionId'] as String? ?? '',
+      gatewayTransactionId: json['gatewayTransactionId'] as String? ?? '',
     );
 
 Map<String, dynamic> _$TourBookingDataToJson(_TourBookingData instance) =>
@@ -60,6 +64,10 @@ Map<String, dynamic> _$TourBookingDataToJson(_TourBookingData instance) =>
       'endDate': instance.endDate,
       'members': instance.members,
       'payment': instance.payment,
+      'paymentMethod': instance.paymentMethod,
+      'paymentStatus': instance.paymentStatus,
+      'transactionId': instance.transactionId,
+      'gatewayTransactionId': instance.gatewayTransactionId,
     };
 
 _BookingMemberData _$BookingMemberDataFromJson(Map<String, dynamic> json) =>
@@ -84,6 +92,7 @@ Map<String, dynamic> _$BookingMemberDataToJson(_BookingMemberData instance) =>
 
 _PaymentData _$PaymentDataFromJson(Map<String, dynamic> json) => _PaymentData(
   transactionId: json['transactionId'] as String? ?? '',
+  gatewayTransactionId: json['gatewayTransactionId'] as String? ?? '',
   amount: (json['amount'] as num?)?.toDouble() ?? 0,
   paymentUrl: json['paymentUrl'] as String? ?? '',
   expiresAt: json['expiresAt'] as String?,
@@ -92,6 +101,7 @@ _PaymentData _$PaymentDataFromJson(Map<String, dynamic> json) => _PaymentData(
 Map<String, dynamic> _$PaymentDataToJson(_PaymentData instance) =>
     <String, dynamic>{
       'transactionId': instance.transactionId,
+      'gatewayTransactionId': instance.gatewayTransactionId,
       'amount': instance.amount,
       'paymentUrl': instance.paymentUrl,
       'expiresAt': instance.expiresAt,

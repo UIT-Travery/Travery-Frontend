@@ -9,18 +9,24 @@ part of 'create_payment_response.dart';
 _CreatePaymentResponse _$CreatePaymentResponseFromJson(
   Map<String, dynamic> json,
 ) => _CreatePaymentResponse(
+  httpStatus: (json['httpStatus'] as num).toInt(),
+  message: json['message'] as String,
   data: PaymentResponseData.fromJson(json['data'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$CreatePaymentResponseToJson(
   _CreatePaymentResponse instance,
-) => <String, dynamic>{'data': instance.data};
+) => <String, dynamic>{
+  'httpStatus': instance.httpStatus,
+  'message': instance.message,
+  'data': instance.data,
+};
 
 _PaymentResponseData _$PaymentResponseDataFromJson(Map<String, dynamic> json) =>
     _PaymentResponseData(
-      transactionId: json['transactionId'] as String? ?? '',
-      amount: (json['amount'] as num?)?.toDouble() ?? 0,
-      paymentUrl: json['paymentUrl'] as String? ?? '',
+      transactionId: json['transactionId'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      paymentUrl: json['paymentUrl'] as String,
       expiresAt: json['expiresAt'] as String?,
     );
 

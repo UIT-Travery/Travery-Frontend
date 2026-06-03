@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ImageResponse {
 
- String get url;@JsonKey(name: 'isThumnail') bool get isThumbnail;
+ String get url; bool get isThumbnail;
 /// Create a copy of ImageResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $ImageResponseCopyWith<$Res>  {
   factory $ImageResponseCopyWith(ImageResponse value, $Res Function(ImageResponse) _then) = _$ImageResponseCopyWithImpl;
 @useResult
 $Res call({
- String url,@JsonKey(name: 'isThumnail') bool isThumbnail
+ String url, bool isThumbnail
 });
 
 
@@ -154,7 +154,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String url, @JsonKey(name: 'isThumnail')  bool isThumbnail)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String url,  bool isThumbnail)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ImageResponse() when $default != null:
 return $default(_that.url,_that.isThumbnail);case _:
@@ -175,7 +175,7 @@ return $default(_that.url,_that.isThumbnail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String url, @JsonKey(name: 'isThumnail')  bool isThumbnail)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String url,  bool isThumbnail)  $default,) {final _that = this;
 switch (_that) {
 case _ImageResponse():
 return $default(_that.url,_that.isThumbnail);case _:
@@ -195,7 +195,7 @@ return $default(_that.url,_that.isThumbnail);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String url, @JsonKey(name: 'isThumnail')  bool isThumbnail)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String url,  bool isThumbnail)?  $default,) {final _that = this;
 switch (_that) {
 case _ImageResponse() when $default != null:
 return $default(_that.url,_that.isThumbnail);case _:
@@ -210,11 +210,11 @@ return $default(_that.url,_that.isThumbnail);case _:
 @JsonSerializable()
 
 class _ImageResponse implements ImageResponse {
-  const _ImageResponse({required this.url, @JsonKey(name: 'isThumnail') this.isThumbnail = false});
+  const _ImageResponse({required this.url, this.isThumbnail = false});
   factory _ImageResponse.fromJson(Map<String, dynamic> json) => _$ImageResponseFromJson(json);
 
 @override final  String url;
-@override@JsonKey(name: 'isThumnail') final  bool isThumbnail;
+@override@JsonKey() final  bool isThumbnail;
 
 /// Create a copy of ImageResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -249,7 +249,7 @@ abstract mixin class _$ImageResponseCopyWith<$Res> implements $ImageResponseCopy
   factory _$ImageResponseCopyWith(_ImageResponse value, $Res Function(_ImageResponse) _then) = __$ImageResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String url,@JsonKey(name: 'isThumnail') bool isThumbnail
+ String url, bool isThumbnail
 });
 
 

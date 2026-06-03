@@ -28,6 +28,15 @@ class TourFeaturedItem {
       durationDays: json['durationDays'] as int?,
     );
   }
+
+  String? get fullThumbnailUrl {
+    if (thumbnailUrl == null || thumbnailUrl!.isEmpty) return null;
+    if (thumbnailUrl!.startsWith('http://') ||
+        thumbnailUrl!.startsWith('https://')) {
+      return thumbnailUrl;
+    }
+    return null;
+  }
 }
 
 class TourFeaturedResponse {

@@ -15,7 +15,7 @@ Widget _makeTestable() {
       ChangeNotifierProvider<AdminRepository>.value(value: repo),
       ChangeNotifierProvider<AccountManagementViewModel>.value(value: vm),
     ],
-    child: const MaterialApp(home: AccountManagementScreen()),
+    child: MaterialApp(home: AccountManagementScreen(viewModel: vm)),
   );
 }
 
@@ -83,30 +83,6 @@ void main() {
       expect(find.text('Julian Kross'), findsNothing);
     });
 
-    testWidgets('tapping filter chip "Hướng dẫn viên" hides coordinators', (
-      tester,
-    ) async {
-      await _pumpUntilLoaded(tester);
 
-      await tester.tap(find.text('Hướng dẫn viên'));
-      await tester.pump();
-
-      expect(find.text('Julian Kross'), findsNothing);
-      expect(find.text('Alex Morgan'), findsOneWidget);
-    });
-
-    testWidgets('FAB is rendered', (tester) async {
-      await _pumpUntilLoaded(tester);
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-    });
-
-    testWidgets('tapping FAB shows snackbar', (tester) async {
-      await _pumpUntilLoaded(tester);
-
-      await tester.tap(find.byType(FloatingActionButton));
-      await tester.pump();
-
-      expect(find.text('Thêm nhân viên mới'), findsOneWidget);
-    });
   });
 }

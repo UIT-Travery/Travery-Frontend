@@ -1,37 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:travery_frontend/routing/app_router.dart';
-import 'package:travery_frontend/data/services/deep_link_service.dart';
 import 'main_development.dart' as development;
 
-void main() {
+void main() async {
+  await dotenv.load();
   development.main();
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key, this.onRouterInitialized});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late final GoRouter _router;
-
-  @override
-  void initState() {
-    super.initState();
-    _router = appRouter(context.read());
-    // Register the router with DeepLinkService
-    DeepLinkService.instance.registerRouter(_router);
-  }
+  final void Function(GoRouter router)? onRouterInitialized;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: appRouter(
+        context.read(),
+        onInitialized: onRouterInitialized,
+      ),
       theme: ThemeData(
         extensions: [
           // Light Mode

@@ -225,7 +225,10 @@ class AuthService {
     }
   }
 
-  Future<Result<void>> logout(LogoutRequest logoutRequest) async {
+  Future<Result<void>> logout(
+    LogoutRequest logoutRequest, {
+    required String accessToken,
+  }) async {
     final client = _clientFactory();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
 
@@ -236,6 +239,10 @@ class AuthService {
       request.headers.set(
         HttpHeaders.contentTypeHeader,
         ContentType.json.value,
+      );
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
       );
       request.write(jsonEncode(logoutRequest));
       final response = await request.close();

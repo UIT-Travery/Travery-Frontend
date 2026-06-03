@@ -7,6 +7,7 @@ import 'package:travery_frontend/domain/models/admin/business_coach/business_coa
 import 'package:travery_frontend/domain/models/admin/business_hotel/business_hotel.dart';
 import 'package:travery_frontend/domain/models/admin/business_tour/business_tour.dart';
 import 'package:travery_frontend/domain/models/admin/tour_summary/tour_summary.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 
 /// Development/local implementation of [AdminRepository] that returns
 /// in-memory seed data. Simulates a network delay of 300 ms.
@@ -386,6 +387,156 @@ class AdminRepositoryDev extends AdminRepository {
     return const Result.ok(null);
   }
 
+  // ── Admin User Controller (dev stubs) ─────────────────────────────────
+
+  @override
+  Future<Result<Map<String, dynamic>>> getUsers({
+    String? role,
+    String? status,
+    int page = 0,
+    int size = 20,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    var list = _mutableAccounts.toList();
+    if (role != null && role.isNotEmpty) {
+      final r = BusinessAccount.roleFromApi(role);
+      list = list.where((a) => a.role == r).toList();
+    }
+    if (status != null && status.isNotEmpty) {
+      final s = BusinessAccount.statusFromApi(status);
+      list = list.where((a) => a.status == s).toList();
+    }
+    final start = page * size;
+    final end = (start + size).clamp(0, list.length);
+    final content = start < list.length ? list.sublist(start, end) : <BusinessAccount>[];
+    final contentJson = content.map((a) => {
+      'id': a.id,
+      'fullName': a.name,
+      'email': a.email,
+      'role': BusinessAccount.roleToApi(a.role),
+      'status': BusinessAccount.statusToApi(a.status),
+      'avatarUrl': a.avatarUrl,
+      'phoneNumber': a.phoneNumber,
+      'createdAt': a.createdAt,
+    }).toList();
+    return Result.ok({
+      'content': contentJson,
+      'totalElements': list.length,
+      'totalPages': (list.length / size).ceil(),
+      'size': size,
+      'number': page,
+      'first': page == 0,
+      'last': end >= list.length,
+    });
+  }
+
+  @override
+  Future<Result<BusinessAccount>> getUserById({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      return Result.ok(_mutableAccounts.firstWhere((a) => a.id == id));
+    } catch (_) {
+      return Result.error(Exception('User not found: $id'));
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> banUser({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) {
+      return Result.error(Exception('User not found: $id'));
+    }
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      status: AccountStatus.banned,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> unbanUser({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) {
+      return Result.error(Exception('User not found: $id'));
+    }
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      status: AccountStatus.active,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateReceptionistProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? shiftType,
+    String? hotelId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateGuideProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? guideLicense,
+    int? yearsExperience,
+    List<String>? languages,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateCoordinatorProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? department,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateUserAvatar({
+    required String id,
+    required String filePath,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    // In dev mode, just return the existing account unchanged.
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   @override
@@ -450,6 +601,66 @@ class AdminRepositoryDev extends AdminRepository {
         return AccountRole.guide;
     }
   }
+
+  // @override
+  // Future<Result<void>> addHotel({
+  //   required String name,
+  //   required String address,
+  //   required String phone,
+  //   required int totalRooms,
+  //   required String status,
+  //   required double pricePerNight,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   final newId = 'hot_${_mutableHotels.length + 1}';
+  //   _mutableHotels.add(
+  //     BusinessHotel(
+  //       id: newId,
+  //       name: name,
+  //       address: address.split(',').first,
+  //       cityProvince: address,
+  //       roomCount: totalRooms,
+  //       occupancyRate: 0.0,
+  //       starRating: 5.0,
+  //     ),
+  //   );
+  //   notifyListeners();
+  //   return const Result.ok(null);
+  // }
+
+  // @override
+  // Future<Result<void>> addRoom({
+  //   required String hotelId,
+  //   required String roomType,
+  //   required int capacity,
+  //   required double price,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   return const Result.ok(null);
+  // }
+
+  // @override
+  // Future<Result<void>> addVehicle({
+  //   required String name,
+  //   required String code,
+  //   required String licensePlate,
+  //   required int seatCount,
+  //   required String status,
+  //   required double rentalPrice,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   final newId = 'veh_${_mutableVehicles.length + 1}';
+  //   _mutableVehicles.add(
+  //     BusinessCoach(
+  //       id: newId,
+  //       plateNumber: licensePlate,
+  //       coachType: name,
+  //       seatCount: seatCount,
+  //     ),
+  //   );
+  //   notifyListeners();
+  //   return const Result.ok(null);
+  // }
 
   @override
   Future<Result<void>> deleteHotel({required String id}) async {
@@ -668,5 +879,31 @@ class AdminRepositoryDev extends AdminRepository {
   }) {
     // TODO: implement updateVehicle
     throw UnimplementedError();
+  }
+
+  // ── Tour Templates ─────────────────────────────────────────────
+
+  @override
+  Future<Result<List<CoordinatorTourTemplate>>> getTourTemplates() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createTourTemplate({
+    required String name,
+    required String description,
+    required String destinationId,
+    String? hotelId,
+    required String pickupLocation,
+    required double pricePerAdult,
+    required double pricePerChild,
+    String? refundPolicyId,
+    required bool isCustom,
+    required List<Map<String, dynamic>> itineraries,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
   }
 }

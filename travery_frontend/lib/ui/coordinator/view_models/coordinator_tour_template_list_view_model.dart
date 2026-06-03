@@ -1,16 +1,15 @@
 import 'package:flutter/foundation.dart';
+import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/utils/command.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
-/// ViewModel for the template list screen.
-/// Templates are fetched from the tours API; for now this returns an empty
-/// list until the tours-templates endpoint is wired up.
 class CoordinatorTourTemplateListViewModel {
+  final CoordinatorRepository _coordinatorRepository;
+
   CoordinatorTourTemplateListViewModel({
-    // ignore: unused_element
-    Object? coordinatorRepository,
-  }) {
+    required CoordinatorRepository coordinatorRepository,
+  }) : _coordinatorRepository = coordinatorRepository {
     loadTemplates = Command0(_loadTemplates);
     searchQuery.addListener(_applyFilters);
     loadTemplates.addListener(_onTemplatesLoaded);
@@ -22,9 +21,7 @@ class CoordinatorTourTemplateListViewModel {
       ValueNotifier([]);
 
   Future<Result<List<CoordinatorTourTemplate>>> _loadTemplates() async {
-    // TODO: wire up to a real tours/templates API service when available.
-    await Future.delayed(const Duration(milliseconds: 200));
-    return const Result.ok([]);
+    return _coordinatorRepository.getTourTemplates();
   }
 
   void _onTemplatesLoaded() {

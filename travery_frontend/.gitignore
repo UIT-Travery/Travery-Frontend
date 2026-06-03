@@ -44,7 +44,14 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Custom ignores
-Models/
+*.md
+Model_documentation
 Travery API Documentation.md
 config.json
+deeplink-integration.md
+VNPAY_FE_Integration_Guide.md
+firebase_options.dart
+.env
+.env.local
+.env.development
+!.env.example

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/domain/models/admin/business_account/business_account.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
+import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
@@ -12,19 +12,28 @@ import 'widgets/fliter_list.dart';
 import 'widgets/search_bar.dart';
 
 class AccountManagementScreen extends StatefulWidget {
-  const AccountManagementScreen({super.key});
-
+  const AccountManagementScreen({super.key, required this.viewModel});
+  final AccountManagementViewModel viewModel;
   @override
   State<AccountManagementScreen> createState() =>
       _AccountManagementScreenState();
 }
 
 class _AccountManagementScreenState extends State<AccountManagementScreen> {
+  // Filter labels: index 0 = all, 1..n = specific roles
   static const _filterLabels = [
     'Tất cả',
     'Điều phối viên',
     'Hướng dẫn viên',
     'Lễ tân',
+    'Khách hàng',
+  ];
+  static const _filterRoles = [
+    null,
+    'COORDINATOR',
+    'GUIDE',
+    'RECEPTIONIST',
+    'TOURIST',
   ];
 
   int _selectedFilterIndex = 0;
@@ -34,59 +43,160 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AccountManagementViewModel>().loadAccounts.execute();
-    });
+    widget.viewModel.loadUsers.addListener(_onLoadResult);
+    widget.viewModel.banUser.addListener(_onBanResult);
+    widget.viewModel.unbanUser.addListener(_onUnbanResult);
+    widget.viewModel.deleteUser.addListener(_onDeleteResult);
+    _loadUsers();
+  }
+
+  @override
+  void didUpdateWidget(covariant AccountManagementScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.loadUsers.removeListener(_onLoadResult);
+    widget.viewModel.loadUsers.addListener(_onLoadResult);
+    oldWidget.viewModel.banUser.removeListener(_onBanResult);
+    widget.viewModel.banUser.addListener(_onBanResult);
+    oldWidget.viewModel.unbanUser.removeListener(_onUnbanResult);
+    widget.viewModel.unbanUser.addListener(_onUnbanResult);
+    oldWidget.viewModel.deleteUser.removeListener(_onDeleteResult);
+    widget.viewModel.deleteUser.addListener(_onDeleteResult);
   }
 
   @override
   void dispose() {
+    widget.viewModel.loadUsers.removeListener(_onLoadResult);
+    widget.viewModel.banUser.removeListener(_onBanResult);
+    widget.viewModel.unbanUser.removeListener(_onUnbanResult);
+    widget.viewModel.deleteUser.removeListener(_onDeleteResult);
     _searchController.dispose();
     super.dispose();
   }
 
-  // ── Derived list ──────────────────────────────────────────────────────────
-  List<BusinessAccount> _applyFilters(List<BusinessAccount> all) {
-    var list = all.toList();
+  // ── Helpers ─────────────────────────────────────────────────────────────────
 
-    if (_selectedFilterIndex == 1) {
-      list = list.where((a) => a.role == AccountRole.coordinator).toList();
-    } else if (_selectedFilterIndex == 2) {
-      list = list.where((a) => a.role == AccountRole.guide).toList();
-    } else if (_selectedFilterIndex == 3) {
-      list = list.where((a) => a.role == AccountRole.receptionist).toList();
-    }
-
-    if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
-      list = list
-          .where(
-            (a) =>
-                a.name.toLowerCase().contains(q) ||
-                a.email.toLowerCase().contains(q),
-          )
-          .toList();
-    }
-
-    return list;
+  void _loadUsers() {
+    widget.viewModel.loadUsers.execute((
+      role: _filterRoles[_selectedFilterIndex],
+      status: null,
+      page: 0,
+      size: 100,
+    ));
   }
+
+  List<BusinessAccount> _parseAccounts() {
+    final cmd = widget.viewModel.loadUsers;
+    if (cmd.result is! Ok<Map<String, dynamic>>) return [];
+    final data = (cmd.result as Ok<Map<String, dynamic>>).value;
+    final contentRaw = data['content'] as List<dynamic>? ?? [];
+    return contentRaw.map((e) {
+      final map = e as Map<String, dynamic>;
+      return BusinessAccount(
+        id: map['id'] as String? ?? '',
+        name: map['fullName'] as String? ?? '',
+        email: map['email'] as String? ?? '',
+        role: BusinessAccount.roleFromApi(map['role'] as String?),
+        status: BusinessAccount.statusFromApi(map['status'] as String?),
+        avatarUrl: map['avatarUrl'] as String?,
+        phoneNumber: map['phoneNumber'] as String?,
+        createdAt: map['createdAt'] as String?,
+      );
+    }).toList();
+  }
+
+  List<BusinessAccount> _applySearch(List<BusinessAccount> list) {
+    if (_searchQuery.isEmpty) return list;
+    final q = _searchQuery.toLowerCase();
+    return list
+        .where(
+          (a) =>
+              a.name.toLowerCase().contains(q) ||
+              a.email.toLowerCase().contains(q),
+        )
+        .toList();
+  }
+
+  // ── Result handlers (initState/didUpdateWidget/dispose pattern) ─────────────
+
+  void _onLoadResult() {
+    if (widget.viewModel.loadUsers.error) {
+      final result = widget.viewModel.loadUsers.result;
+      var errorMessage = 'Không thể tải danh sách người dùng';
+      if (result case Error(:final error)) {
+        errorMessage = error.toString().replaceAll('HttpException: ', '');
+      }
+      widget.viewModel.loadUsers.clearResult();
+      if (mounted) Utils.showErrorNotification(context, errorMessage);
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _onBanResult() {
+    final cmd = widget.viewModel.banUser;
+    if (cmd.running) return;
+    if (cmd.error) {
+      final msg = cmd.result is Error
+          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          : 'Không thể cấm người dùng';
+      cmd.clearResult();
+      if (mounted) Utils.showErrorNotification(context, msg);
+    } else if (cmd.completed) {
+      cmd.clearResult();
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Đã cấm tài khoản thành công');
+        _loadUsers();
+      }
+    }
+  }
+
+  void _onUnbanResult() {
+    final cmd = widget.viewModel.unbanUser;
+    if (cmd.running) return;
+    if (cmd.error) {
+      final msg = cmd.result is Error
+          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          : 'Không thể bỏ cấm người dùng';
+      cmd.clearResult();
+      if (mounted) Utils.showErrorNotification(context, msg);
+    } else if (cmd.completed) {
+      cmd.clearResult();
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Đã bỏ cấm tài khoản thành công');
+        _loadUsers();
+      }
+    }
+  }
+
+  void _onDeleteResult() {
+    final cmd = widget.viewModel.deleteUser;
+    if (cmd.running) return;
+    if (cmd.error) {
+      final msg = cmd.result is Error
+          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          : 'Không thể xóa tài khoản';
+      cmd.clearResult();
+      if (mounted) Utils.showErrorNotification(context, msg);
+    } else if (cmd.completed) {
+      cmd.clearResult();
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Đã xóa tài khoản thành công');
+        _loadUsers();
+      }
+    }
+  }
+
+  // ── Build ────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<AccountManagementViewModel>();
-
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── App bar ────────────────────────────────────────────────────
             _buildAppBar(),
-
             const SizedBox(height: 16),
-
-            // ── Search bar ─────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: AdminSearchBar(
@@ -94,35 +204,28 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                 onChanged: (value) => setState(() => _searchQuery = value),
               ),
             ),
-
             const SizedBox(height: 14),
-
-            // ── Filter chips ───────────────────────────────────────────────
             FilterList(
               filters: _filterLabels,
               selectedIndex: _selectedFilterIndex,
-              onSelected: (index) =>
-                  setState(() => _selectedFilterIndex = index),
+              onSelected: (index) {
+                setState(() => _selectedFilterIndex = index);
+                _loadUsers();
+              },
             ),
-
             const SizedBox(height: 14),
-
-            // ── BusinessAccount list ───────────────────────────────────────────────
             Expanded(
               child: ListenableBuilder(
-                listenable: vm.loadAccounts,
+                listenable: widget.viewModel.loadUsers,
                 builder: (context, _) {
-                  final cmd = vm.loadAccounts;
+                  final cmd = widget.viewModel.loadUsers;
 
                   if (cmd.running) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  final allAccounts = cmd.result is Ok<List<BusinessAccount>>
-                      ? (cmd.result as Ok<List<BusinessAccount>>).value
-                      : <BusinessAccount>[];
-
-                  final filtered = _applyFilters(allAccounts);
+                  final allAccounts = _parseAccounts();
+                  final filtered = _applySearch(allAccounts);
 
                   if (filtered.isEmpty) return _buildEmptyState();
 
@@ -150,7 +253,8 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     );
   }
 
-  // ── App bar ────────────────────────────────────────────────────────────────
+  // ── App bar ──────────────────────────────────────────────────────────────────
+
   Widget _buildAppBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -183,7 +287,8 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     );
   }
 
-  // ── Empty state ────────────────────────────────────────────────────────────
+  // ── Empty state ──────────────────────────────────────────────────────────────
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -192,7 +297,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
           Icon(Icons.search_off_rounded, size: 56, color: AppColors.textHint),
           const SizedBox(height: 12),
           Text(
-            'Không tìm thấy nhân viên',
+            'Không tìm thấy người dùng',
             style: TextStyle(
               fontSize: AppTextTheme.bodyLarge,
               color: AppColors.textSecondary,
@@ -204,7 +309,8 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     );
   }
 
-  // ── Handlers ───────────────────────────────────────────────────────────────
+  // ── Handlers ─────────────────────────────────────────────────────────────────
+
   void _onAccountTap(BusinessAccount account) {
     context.push(Routes.adminViewDetailAccountWithId(account.id));
   }
@@ -216,18 +322,75 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _AccountMenuSheet(account: account),
+      builder: (_) => _AccountMenuSheet(
+        account: account,
+        onBan: () {
+          Navigator.pop(context);
+          widget.viewModel.banUser.execute(account.id);
+        },
+        onUnban: () {
+          Navigator.pop(context);
+          widget.viewModel.unbanUser.execute(account.id);
+        },
+        onDelete: () {
+          Navigator.pop(context);
+          _confirmDelete(account);
+        },
+        onViewDetail: () {
+          Navigator.pop(context);
+          _onAccountTap(account);
+        },
+      ),
+    );
+  }
+
+  void _confirmDelete(BusinessAccount account) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Xóa tài khoản'),
+        content: Text(
+          'Bạn có chắc muốn xóa tài khoản của ${account.name}? '
+          'Hành động này không thể hoàn tác.',
+        ),
+        actions: [
+          TextButton(onPressed: () => context.pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () {
+              context.pop();
+              widget.viewModel.deleteUser.execute(account.id);
+            },
+            child: Text('Xóa', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
     );
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Bottom-sheet menu
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _AccountMenuSheet extends StatelessWidget {
-  const _AccountMenuSheet({required this.account});
+  const _AccountMenuSheet({
+    required this.account,
+    required this.onBan,
+    required this.onUnban,
+    required this.onDelete,
+    required this.onViewDetail,
+  });
 
   final BusinessAccount account;
+  final VoidCallback onBan;
+  final VoidCallback onUnban;
+  final VoidCallback onDelete;
+  final VoidCallback onViewDetail;
 
   @override
   Widget build(BuildContext context) {
+    final isBanned = account.status == AccountStatus.banned;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -258,27 +421,20 @@ class _AccountMenuSheet extends StatelessWidget {
             const SizedBox(height: 8),
             const Divider(),
             _MenuOption(
-              icon: Icons.edit_outlined,
-              label: 'Chỉnh sửa thông tin',
-              onTap: () => Navigator.pop(context),
+              icon: Icons.person_outline_rounded,
+              label: 'Xem chi tiết',
+              onTap: onViewDetail,
             ),
             _MenuOption(
-              icon: Icons.lock_reset_rounded,
-              label: 'Đặt lại mật khẩu',
-              onTap: () => Navigator.pop(context),
-            ),
-            _MenuOption(
-              icon: Icons.block_rounded,
-              label: account.status == AccountStatus.active
-                  ? 'Vô hiệu hóa tài khoản'
-                  : 'Kích hoạt tài khoản',
-              onTap: () => Navigator.pop(context),
+              icon: isBanned ? Icons.lock_open_rounded : Icons.block_rounded,
+              label: isBanned ? 'Bỏ cấm tài khoản' : 'Cấm tài khoản',
+              onTap: isBanned ? onUnban : onBan,
             ),
             _MenuOption(
               icon: Icons.delete_outline_rounded,
               label: 'Xóa tài khoản',
               color: AppColors.error,
-              onTap: () => Navigator.pop(context),
+              onTap: onDelete,
             ),
           ],
         ),

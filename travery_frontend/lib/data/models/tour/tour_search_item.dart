@@ -1,3 +1,5 @@
+import 'package:travery_frontend/config/app_config.dart';
+
 class TourSearchItem {
   const TourSearchItem({
     required this.id,
@@ -27,5 +29,14 @@ class TourSearchItem {
       destinationName: json['destinationName'] as String?,
       durationDays: json['durationDays'] as int?,
     );
+  }
+
+  String? get fullThumbnailUrl {
+    if (thumbnailUrl == null || thumbnailUrl!.isEmpty) return null;
+    if (thumbnailUrl!.startsWith('http://') ||
+        thumbnailUrl!.startsWith('https://')) {
+      return thumbnailUrl;
+    }
+    return 'https://${AppConfig.baseUrl}$thumbnailUrl';
   }
 }

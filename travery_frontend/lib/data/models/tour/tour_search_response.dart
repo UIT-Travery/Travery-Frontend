@@ -44,18 +44,21 @@ class TourSearchPageData {
   final bool empty;
 
   factory TourSearchPageData.fromJson(Map<String, dynamic> json) {
+    final page = json['page'] as Map<String, dynamic>?;
     return TourSearchPageData(
-      totalElements: json['totalElements'] as int,
-      totalPages: json['totalPages'] as int,
-      size: json['size'] as int,
+      totalElements:
+          (page?['totalElements'] ?? json['totalElements']) as int? ?? 0,
+      totalPages: (page?['totalPages'] ?? json['totalPages']) as int? ?? 0,
+      size: (page?['size'] ?? json['size']) as int? ?? 0,
       content: (json['content'] as List<dynamic>)
           .map((e) => TourSearchItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      number: json['number'] as int,
-      first: json['first'] as bool,
-      last: json['last'] as bool,
-      numberOfElements: json['numberOfElements'] as int,
-      empty: json['empty'] as bool,
+      number: (page?['number'] ?? json['number']) as int? ?? 0,
+      first: (page?['first'] ?? json['first']) as bool? ?? true,
+      last: (page?['last'] ?? json['last']) as bool? ?? true,
+      numberOfElements:
+          (page?['numberOfElements'] ?? json['numberOfElements']) as int? ?? 0,
+      empty: (page?['empty'] ?? json['empty']) as bool? ?? false,
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/domain/models/admin/business_dashboard/business_dashboard.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
@@ -10,7 +9,8 @@ import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({super.key, required this.viewModel});
+  final DashboardViewModel viewModel;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -25,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     // Trigger data load after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DashboardViewModel>().loadStats.execute();
+      widget.viewModel.loadStats.execute();
     });
   }
 
@@ -35,9 +35,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: AppColors.surface,
       body: SafeArea(
         child: ListenableBuilder(
-          listenable: context.read<DashboardViewModel>().loadStats,
+          listenable: widget.viewModel.loadStats,
           builder: (context, _) {
-            final vm = context.read<DashboardViewModel>();
+            final vm = widget.viewModel;
             final cmd = vm.loadStats;
 
             if (cmd.running) {

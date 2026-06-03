@@ -7,6 +7,7 @@ import 'package:travery_frontend/domain/models/admin/business_dashboard/business
 import 'package:travery_frontend/domain/models/admin/business_hotel/business_hotel.dart';
 import 'package:travery_frontend/domain/models/admin/business_tour/business_tour.dart';
 import 'package:travery_frontend/domain/models/admin/tour_summary/tour_summary.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 
 abstract class AdminRepository extends ChangeNotifier {
   // ── Dashboard ──────────────────────────────────────────────────────────────
@@ -42,6 +43,50 @@ abstract class AdminRepository extends ChangeNotifier {
   });
 
   Future<Result<void>> deleteAccount({required String id});
+
+  /// GET /api/v1/admin/users — paginated list of users.
+  /// Returns raw page map so callers can build their own pagination UI.
+  Future<Result<Map<String, dynamic>>> getUsers({
+    String? role,
+    String? status,
+    int page = 0,
+    int size = 20,
+  });
+
+  Future<Result<BusinessAccount>> getUserById({required String id});
+
+  Future<Result<BusinessAccount>> banUser({required String id});
+
+  Future<Result<BusinessAccount>> unbanUser({required String id});
+
+  Future<Result<BusinessAccount>> updateReceptionistProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? shiftType,
+    String? hotelId,
+  });
+
+  Future<Result<BusinessAccount>> updateGuideProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? guideLicense,
+    int? yearsExperience,
+    List<String>? languages,
+  });
+
+  Future<Result<BusinessAccount>> updateCoordinatorProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? department,
+  });
+
+  Future<Result<BusinessAccount>> updateUserAvatar({
+    required String id,
+    required String filePath,
+  });
 
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
@@ -131,4 +176,21 @@ abstract class AdminRepository extends ChangeNotifier {
   Future<Result<BusinessTour>> getTour({required String id});
 
   Future<Result<TourSummary>> getTourSummaryStats();
+
+  // ── Tour Templates ─────────────────────────────────────────────
+
+  Future<Result<List<CoordinatorTourTemplate>>> getTourTemplates();
+
+  Future<Result<void>> createTourTemplate({
+    required String name,
+    required String description,
+    required String destinationId,
+    String? hotelId,
+    required String pickupLocation,
+    required double pricePerAdult,
+    required double pricePerChild,
+    String? refundPolicyId,
+    required bool isCustom,
+    required List<Map<String, dynamic>> itineraries,
+  });
 }

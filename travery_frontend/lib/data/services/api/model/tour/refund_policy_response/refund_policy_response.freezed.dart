@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RefundPolicyRuleResponse {
 
- String get id; int get daysBefore; double get refundPercentage;
+ String? get id; double? get timeBefore; String? get timeUnit; double? get refundPercentage;
 /// Create a copy of RefundPolicyRuleResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RefundPolicyRuleResponseCopyWith<RefundPolicyRuleResponse> get copyWith => _$Re
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RefundPolicyRuleResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore)&&(identical(other.refundPercentage, refundPercentage) || other.refundPercentage == refundPercentage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RefundPolicyRuleResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.timeBefore, timeBefore) || other.timeBefore == timeBefore)&&(identical(other.timeUnit, timeUnit) || other.timeUnit == timeUnit)&&(identical(other.refundPercentage, refundPercentage) || other.refundPercentage == refundPercentage));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,daysBefore,refundPercentage);
+int get hashCode => Object.hash(runtimeType,id,timeBefore,timeUnit,refundPercentage);
 
 @override
 String toString() {
-  return 'RefundPolicyRuleResponse(id: $id, daysBefore: $daysBefore, refundPercentage: $refundPercentage)';
+  return 'RefundPolicyRuleResponse(id: $id, timeBefore: $timeBefore, timeUnit: $timeUnit, refundPercentage: $refundPercentage)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $RefundPolicyRuleResponseCopyWith<$Res>  {
   factory $RefundPolicyRuleResponseCopyWith(RefundPolicyRuleResponse value, $Res Function(RefundPolicyRuleResponse) _then) = _$RefundPolicyRuleResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, int daysBefore, double refundPercentage
+ String? id, double? timeBefore, String? timeUnit, double? refundPercentage
 });
 
 
@@ -65,12 +65,13 @@ class _$RefundPolicyRuleResponseCopyWithImpl<$Res>
 
 /// Create a copy of RefundPolicyRuleResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? daysBefore = null,Object? refundPercentage = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? timeBefore = freezed,Object? timeUnit = freezed,Object? refundPercentage = freezed,}) {
   return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
-as int,refundPercentage: null == refundPercentage ? _self.refundPercentage : refundPercentage // ignore: cast_nullable_to_non_nullable
-as double,
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,timeBefore: freezed == timeBefore ? _self.timeBefore : timeBefore // ignore: cast_nullable_to_non_nullable
+as double?,timeUnit: freezed == timeUnit ? _self.timeUnit : timeUnit // ignore: cast_nullable_to_non_nullable
+as String?,refundPercentage: freezed == refundPercentage ? _self.refundPercentage : refundPercentage // ignore: cast_nullable_to_non_nullable
+as double?,
   ));
 }
 
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int daysBefore,  double refundPercentage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  double? timeBefore,  String? timeUnit,  double? refundPercentage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RefundPolicyRuleResponse() when $default != null:
-return $default(_that.id,_that.daysBefore,_that.refundPercentage);case _:
+return $default(_that.id,_that.timeBefore,_that.timeUnit,_that.refundPercentage);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.id,_that.daysBefore,_that.refundPercentage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int daysBefore,  double refundPercentage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  double? timeBefore,  String? timeUnit,  double? refundPercentage)  $default,) {final _that = this;
 switch (_that) {
 case _RefundPolicyRuleResponse():
-return $default(_that.id,_that.daysBefore,_that.refundPercentage);case _:
+return $default(_that.id,_that.timeBefore,_that.timeUnit,_that.refundPercentage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.id,_that.daysBefore,_that.refundPercentage);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int daysBefore,  double refundPercentage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  double? timeBefore,  String? timeUnit,  double? refundPercentage)?  $default,) {final _that = this;
 switch (_that) {
 case _RefundPolicyRuleResponse() when $default != null:
-return $default(_that.id,_that.daysBefore,_that.refundPercentage);case _:
+return $default(_that.id,_that.timeBefore,_that.timeUnit,_that.refundPercentage);case _:
   return null;
 
 }
@@ -211,12 +212,13 @@ return $default(_that.id,_that.daysBefore,_that.refundPercentage);case _:
 @JsonSerializable()
 
 class _RefundPolicyRuleResponse implements RefundPolicyRuleResponse {
-  const _RefundPolicyRuleResponse({required this.id, required this.daysBefore, required this.refundPercentage});
+  const _RefundPolicyRuleResponse({this.id, this.timeBefore, this.timeUnit, this.refundPercentage});
   factory _RefundPolicyRuleResponse.fromJson(Map<String, dynamic> json) => _$RefundPolicyRuleResponseFromJson(json);
 
-@override final  String id;
-@override final  int daysBefore;
-@override final  double refundPercentage;
+@override final  String? id;
+@override final  double? timeBefore;
+@override final  String? timeUnit;
+@override final  double? refundPercentage;
 
 /// Create a copy of RefundPolicyRuleResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +233,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RefundPolicyRuleResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore)&&(identical(other.refundPercentage, refundPercentage) || other.refundPercentage == refundPercentage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RefundPolicyRuleResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.timeBefore, timeBefore) || other.timeBefore == timeBefore)&&(identical(other.timeUnit, timeUnit) || other.timeUnit == timeUnit)&&(identical(other.refundPercentage, refundPercentage) || other.refundPercentage == refundPercentage));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,daysBefore,refundPercentage);
+int get hashCode => Object.hash(runtimeType,id,timeBefore,timeUnit,refundPercentage);
 
 @override
 String toString() {
-  return 'RefundPolicyRuleResponse(id: $id, daysBefore: $daysBefore, refundPercentage: $refundPercentage)';
+  return 'RefundPolicyRuleResponse(id: $id, timeBefore: $timeBefore, timeUnit: $timeUnit, refundPercentage: $refundPercentage)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$RefundPolicyRuleResponseCopyWith<$Res> implements $Refund
   factory _$RefundPolicyRuleResponseCopyWith(_RefundPolicyRuleResponse value, $Res Function(_RefundPolicyRuleResponse) _then) = __$RefundPolicyRuleResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, int daysBefore, double refundPercentage
+ String? id, double? timeBefore, String? timeUnit, double? refundPercentage
 });
 
 
@@ -268,12 +270,13 @@ class __$RefundPolicyRuleResponseCopyWithImpl<$Res>
 
 /// Create a copy of RefundPolicyRuleResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? daysBefore = null,Object? refundPercentage = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? timeBefore = freezed,Object? timeUnit = freezed,Object? refundPercentage = freezed,}) {
   return _then(_RefundPolicyRuleResponse(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
-as int,refundPercentage: null == refundPercentage ? _self.refundPercentage : refundPercentage // ignore: cast_nullable_to_non_nullable
-as double,
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,timeBefore: freezed == timeBefore ? _self.timeBefore : timeBefore // ignore: cast_nullable_to_non_nullable
+as double?,timeUnit: freezed == timeUnit ? _self.timeUnit : timeUnit // ignore: cast_nullable_to_non_nullable
+as String?,refundPercentage: freezed == refundPercentage ? _self.refundPercentage : refundPercentage // ignore: cast_nullable_to_non_nullable
+as double?,
   ));
 }
 
@@ -284,7 +287,7 @@ as double,
 /// @nodoc
 mixin _$RefundPolicyResponse {
 
- String get id; String get name; String get serviceType; List<RefundPolicyRuleResponse> get rules;
+ String? get id; String? get name; String? get serviceType; List<RefundPolicyRuleResponse> get rules;
 /// Create a copy of RefundPolicyResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -317,7 +320,7 @@ abstract mixin class $RefundPolicyResponseCopyWith<$Res>  {
   factory $RefundPolicyResponseCopyWith(RefundPolicyResponse value, $Res Function(RefundPolicyResponse) _then) = _$RefundPolicyResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String serviceType, List<RefundPolicyRuleResponse> rules
+ String? id, String? name, String? serviceType, List<RefundPolicyRuleResponse> rules
 });
 
 
@@ -334,12 +337,12 @@ class _$RefundPolicyResponseCopyWithImpl<$Res>
 
 /// Create a copy of RefundPolicyResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? serviceType = null,Object? rules = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = freezed,Object? serviceType = freezed,Object? rules = null,}) {
   return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,serviceType: null == serviceType ? _self.serviceType : serviceType // ignore: cast_nullable_to_non_nullable
-as String,rules: null == rules ? _self.rules : rules // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,serviceType: freezed == serviceType ? _self.serviceType : serviceType // ignore: cast_nullable_to_non_nullable
+as String?,rules: null == rules ? _self.rules : rules // ignore: cast_nullable_to_non_nullable
 as List<RefundPolicyRuleResponse>,
   ));
 }
@@ -425,7 +428,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String serviceType,  List<RefundPolicyRuleResponse> rules)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String? name,  String? serviceType,  List<RefundPolicyRuleResponse> rules)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RefundPolicyResponse() when $default != null:
 return $default(_that.id,_that.name,_that.serviceType,_that.rules);case _:
@@ -446,7 +449,7 @@ return $default(_that.id,_that.name,_that.serviceType,_that.rules);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String serviceType,  List<RefundPolicyRuleResponse> rules)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String? name,  String? serviceType,  List<RefundPolicyRuleResponse> rules)  $default,) {final _that = this;
 switch (_that) {
 case _RefundPolicyResponse():
 return $default(_that.id,_that.name,_that.serviceType,_that.rules);case _:
@@ -466,7 +469,7 @@ return $default(_that.id,_that.name,_that.serviceType,_that.rules);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String serviceType,  List<RefundPolicyRuleResponse> rules)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String? name,  String? serviceType,  List<RefundPolicyRuleResponse> rules)?  $default,) {final _that = this;
 switch (_that) {
 case _RefundPolicyResponse() when $default != null:
 return $default(_that.id,_that.name,_that.serviceType,_that.rules);case _:
@@ -481,12 +484,12 @@ return $default(_that.id,_that.name,_that.serviceType,_that.rules);case _:
 @JsonSerializable()
 
 class _RefundPolicyResponse implements RefundPolicyResponse {
-  const _RefundPolicyResponse({required this.id, required this.name, required this.serviceType, final  List<RefundPolicyRuleResponse> rules = const []}): _rules = rules;
+  const _RefundPolicyResponse({this.id, this.name, this.serviceType, final  List<RefundPolicyRuleResponse> rules = const []}): _rules = rules;
   factory _RefundPolicyResponse.fromJson(Map<String, dynamic> json) => _$RefundPolicyResponseFromJson(json);
 
-@override final  String id;
-@override final  String name;
-@override final  String serviceType;
+@override final  String? id;
+@override final  String? name;
+@override final  String? serviceType;
  final  List<RefundPolicyRuleResponse> _rules;
 @override@JsonKey() List<RefundPolicyRuleResponse> get rules {
   if (_rules is EqualUnmodifiableListView) return _rules;
@@ -528,7 +531,7 @@ abstract mixin class _$RefundPolicyResponseCopyWith<$Res> implements $RefundPoli
   factory _$RefundPolicyResponseCopyWith(_RefundPolicyResponse value, $Res Function(_RefundPolicyResponse) _then) = __$RefundPolicyResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String serviceType, List<RefundPolicyRuleResponse> rules
+ String? id, String? name, String? serviceType, List<RefundPolicyRuleResponse> rules
 });
 
 
@@ -545,12 +548,12 @@ class __$RefundPolicyResponseCopyWithImpl<$Res>
 
 /// Create a copy of RefundPolicyResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? serviceType = null,Object? rules = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = freezed,Object? serviceType = freezed,Object? rules = null,}) {
   return _then(_RefundPolicyResponse(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,serviceType: null == serviceType ? _self.serviceType : serviceType // ignore: cast_nullable_to_non_nullable
-as String,rules: null == rules ? _self._rules : rules // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,serviceType: freezed == serviceType ? _self.serviceType : serviceType // ignore: cast_nullable_to_non_nullable
+as String?,rules: null == rules ? _self._rules : rules // ignore: cast_nullable_to_non_nullable
 as List<RefundPolicyRuleResponse>,
   ));
 }

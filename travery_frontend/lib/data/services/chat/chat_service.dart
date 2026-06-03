@@ -5,7 +5,7 @@ import 'package:travery_frontend/config/app_config.dart';
 
 class ChatService {
   Future<void> init() async {
-    if (AppConfig.cometChatAppId.isEmpty || AppConfig.cometchatAuthKey.isEmpty) {
+    if (AppConfig.cometChatAppId.isEmpty || AppConfig.cometChatAuthKey.isEmpty) {
       debugPrint("WARNING: CometChat configuration is missing! Check your --dart-define parameters.");
       return;
     }
@@ -14,7 +14,7 @@ class ChatService {
           ..subscriptionType = CometChatSubscriptionType.allUsers
           ..region = AppConfig.cometChatRegion
           ..appId = AppConfig.cometChatAppId
-          ..authKey = AppConfig.cometchatAuthKey)
+          ..authKey = AppConfig.cometChatAuthKey)
         .build();
 
     await CometChatUIKit.init(
@@ -41,7 +41,7 @@ class ChatService {
     // Using CometChat.login directly to ensure authKey is passed if UIKit wrapper fails to do so
     await CometChat.login(
       uid,
-      AppConfig.cometchatAuthKey,
+      AppConfig.cometChatAuthKey,
       onSuccess: (User user) {
         debugPrint("CometChat Login Success: ${user.name} (${user.uid})");
         if (!completer.isCompleted) completer.complete();

@@ -10,73 +10,69 @@ class TourDetailViewModel extends ChangeNotifier {
 
   final TourService _tourService;
 
-  TourDetailPageData? _tour;
-  TourDetailPageData? get tour => _tour;
+  TourDetailPageData? _tourDetail;
+  TourDetailPageData? get tourDetail => _tourDetail;
 
-  List<TourInstance> _availableInstances = [];
-  List<TourInstance> get availableInstances => _availableInstances;
+  List<TourInstance> _instances = [];
+  List<TourInstance> get instances => _instances;
 
-  int _selectedInstanceIndex = 0;
-  int get selectedInstanceIndex => _selectedInstanceIndex;
+  String? _loadedInstancesForTourId;
+  String? get loadedInstancesForTourId => _loadedInstancesForTourId;
 
-  TourInstance? get selectedInstance {
-    if (_availableInstances.isEmpty) return null;
-    if (_selectedInstanceIndex >= _availableInstances.length) return null;
-    return _availableInstances[_selectedInstanceIndex];
-  }
+  bool _isLoadingDetail = false;
+  bool get isLoadingDetail => _isLoadingDetail;
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  bool _isLoadingInstances = false;
+  bool get isLoadingInstances => _isLoadingInstances;
 
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
+  String? _error;
+  String? get error => _error;
 
-  String? _tourId;
-  String? get tourId => _tourId;
+  String? _selectedInstanceId;
+  String? get selectedInstanceId => _selectedInstanceId;
 
-  void selectInstance(int index) {
-    if (index >= 0 && index < _availableInstances.length) {
-      _selectedInstanceIndex = index;
-      notifyListeners();
-    }
+  void selectInstance(String? instanceId) {
+    _selectedInstanceId = instanceId;
+    notifyListeners();
   }
 
   Future<void> loadTourDetail(String tourId) async {
-    _tourId = tourId;
-    _isLoading = true;
-    _errorMessage = null;
+    _isLoadingDetail = true;
+    _error = null;
     notifyListeners();
 
     final result = await _tourService.getTourById(tourId);
 
     switch (result) {
-      case Ok<TourDetailPageData?>():
-        if (result.value != null) {
-          _tour = result.value;
-        } else {
-          _errorMessage = 'Tour not found';
-        }
-      case Error<TourDetailPageData?>():
-        _errorMessage = result.error.toString();
+      case Ok(value: final data):
+        _tourDetail = data;
+      case Error(error: final e):
+        _error = e.toString();
     }
 
-    final instancesResult = await _tourService.getTourInstances(tourId);
-    switch (instancesResult) {
-      case Ok<List<TourInstance>>():
-        _availableInstances = instancesResult.value;
-      case Error<List<TourInstance>>():
-        _availableInstances = [];
-    }
-
-    _isLoading = false;
+    _isLoadingDetail = false;
     notifyListeners();
   }
 
-  void clear() {
-    _tour = null;
-    _availableInstances = [];
-    _selectedInstanceIndex = 0;
-    _errorMessage = null;
-    _tourId = null;
+  Future<void> loadTourInstances(String tourId) async {
+    _isLoadingInstances = true;
+    _selectedInstanceId = null;
+    notifyListeners();
+
+    final result = await _tourService.getTourInstances(tourId);
+
+    switch (result) {
+      case Ok(value: final data):
+        final now = DateTime.now();
+        final cutoff = now.add(const Duration(days: 5));
+        _instances = data.where((i) => i.startDate.isAfter(cutoff)).toList()
+          ..sort((a, b) => a.startDate.compareTo(b.startDate));
+        _loadedInstancesForTourId = tourId;
+      case Error(error: final e):
+        _error = e.toString();
+    }
+
+    _isLoadingInstances = false;
+    notifyListeners();
   }
 }

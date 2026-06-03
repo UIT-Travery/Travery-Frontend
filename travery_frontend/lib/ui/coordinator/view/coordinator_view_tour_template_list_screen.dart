@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_list_view_model.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
 class CoordinatorViewTourTemplateListScreen extends StatefulWidget {
@@ -95,14 +97,12 @@ class _CoordinatorViewTourTemplateListScreenState
                     borderRadius: BorderRadius.circular(8.0),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8.0),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Chức năng tạo lộ trình đang được phát triển',
-                            ),
-                          ),
+                      onTap: () async {
+                        await context.push(
+                          Routes.coordinatorCreateTourTemplate,
                         );
+                        // Refresh list after returning from create screen
+                        widget.viewModel.loadTemplates.execute();
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(

@@ -5,8 +5,10 @@ part 'verify_otp_request.g.dart';
 
 @freezed
 abstract class VerifyOtpRequest with _$VerifyOtpRequest {
-  const factory VerifyOtpRequest({required String email, required String otp}) =
-      _VerifyOtpRequest;
+  const factory VerifyOtpRequest({
+    required String email,
+    required String otp,
+  }) = _VerifyOtpRequest;
 
   factory VerifyOtpRequest.fromJson(Map<String, dynamic> json) =>
       _$VerifyOtpRequestFromJson(json);

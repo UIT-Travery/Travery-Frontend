@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/room_card.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/dropdown_button.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/input_text_field.dart';
 import '../../core/themes/app_colors.dart';
+import '../../core/themes/app_text_theme.dart';
 
-class RoomData {
+class _RoomData {
   final TextEditingController numberController;
   final TextEditingController priceController;
   final TextEditingController capacityController;
@@ -13,13 +16,12 @@ class RoomData {
   final TextEditingController maxChildrenController;
   String? type;
 
-  RoomData({
+  _RoomData({
     String? initialNumber,
     String? initialPrice,
     String? initialCapacity,
     String? initialMaxAdults,
     String? initialMaxChildren,
-    this.type,
   }) : numberController = TextEditingController(text: initialNumber),
        priceController = TextEditingController(text: initialPrice),
        capacityController = TextEditingController(text: initialCapacity),
@@ -35,20 +37,12 @@ class RoomData {
   }
 }
 
-class Room {
-  final TextEditingController numberController;
-  String? type;
-
-  Room({String? initialNumber, this.type})
-    : numberController = TextEditingController(text: initialNumber);
-
-  void dispose() {
-    numberController.dispose();
-  }
-}
-
 class UpdateHotelScreen extends StatefulWidget {
-  const UpdateHotelScreen({super.key});
+  /// The hotel ID to load and update. Required for API integration.
+  final String? hotelId;
+  final UpdateHotelViewModel viewModel;
+
+  const UpdateHotelScreen({super.key, required this.viewModel, this.hotelId});
 
   @override
   State<UpdateHotelScreen> createState() => _UpdateHotelScreenState();
@@ -59,17 +53,38 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
   final _addressController = TextEditingController();
   String? _selectedCity;
 
-  final List<RoomData> _rooms = [];
+  final List<_RoomData> _rooms = [];
+
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
-    // Initialize with mock values from Image 4
-    _rooms.add(RoomData(initialNumber: '101', type: 'Đôi'));
+    _rooms.add(_RoomData());
+
+    widget.viewModel.updateHotel.addListener(_onUpdateHotelChanged);
+    widget.viewModel.loadHotel.addListener(_onLoadHotelChanged);
+
+    // Load hotel data if we have an ID
+    if (widget.hotelId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.viewModel.loadHotel.execute(widget.hotelId!);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(UpdateHotelScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.hotelId != oldWidget.hotelId && widget.hotelId != null) {
+      widget.viewModel.loadHotel.execute(widget.hotelId!);
+    }
   }
 
   @override
   void dispose() {
+    widget.viewModel.updateHotel.removeListener(_onUpdateHotelChanged);
+    widget.viewModel.loadHotel.removeListener(_onLoadHotelChanged);
     _nameController.dispose();
     _addressController.dispose();
     for (var room in _rooms) {
@@ -78,11 +93,86 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
     super.dispose();
   }
 
-  void _addRoom() {
-    setState(() {
-      _rooms.add(RoomData());
-    });
+  // ── Command listeners ──────────────────────────────────────────────────────
+
+  void _onLoadHotelChanged() {
+    final cmd = context.read<UpdateHotelViewModel>().loadHotel;
+    if (cmd.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không thể tải thông tin khách sạn.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+    // Populate fields when hotel is loaded
+    // (When real API is connected, fill controllers from cmd.result)
   }
+
+  void _onUpdateHotelChanged() {
+    final cmd = context.read<UpdateHotelViewModel>().updateHotel;
+    if (cmd.completed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Đã cập nhật khách sạn: ${_nameController.text.trim()}',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      context.pop();
+    } else if (cmd.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không thể cập nhật khách sạn. Vui lòng thử lại.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  void _onSave() {
+    if (_nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng nhập tên khách sạn'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    if (_addressController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng nhập địa chỉ'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    if (_selectedCity == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn tỉnh/thành phố'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    widget.viewModel.updateHotel.execute((
+      id: widget.hotelId ?? '',
+      name: _nameController.text.trim(),
+      address: _addressController.text.trim(),
+      starRating: 5,
+      cityProvince: _selectedCity!,
+      status: 'ACTIVE',
+    ));
+  }
+
+  void _addRoom() => setState(() => _rooms.add(_RoomData()));
 
   void _removeRoom(int index) {
     setState(() {
@@ -90,6 +180,8 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
       _rooms.removeAt(index);
     });
   }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -211,6 +303,8 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
     );
   }
 
+  // ── Builders ───────────────────────────────────────────────────────────────
+
   Widget _buildAppBar() {
     return Row(
       children: [
@@ -241,53 +335,74 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
   }
 
   Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Chỉnh sửa khách sạn',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryDarkBlackBlue,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Nhập thông tin khách sạn và phòng',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-            ],
-          ),
-        ),
-        Row(
+    return ListenableBuilder(
+      listenable: widget.viewModel.updateHotel,
+      builder: (context, _) {
+        final isRunning = widget.viewModel.updateHotel.running;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text(
-                'Hủy',
-                style: TextStyle(fontWeight: FontWeight.bold),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Chỉnh sửa khách sạn',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryDarkBlackBlue,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Nhập thông tin khách sạn và phòng',
+                    style: TextStyle(
+                      fontSize: AppTextTheme.bodySmall,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryDarkBlackBlue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
+            Row(
+              children: [
+                TextButton(
+                  onPressed: isRunning ? null : () => context.pop(),
+                  child: const Text(
+                    'Hủy',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              child: const Text('Lưu', style: TextStyle(color: Colors.white)),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: isRunning ? null : _onSave,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryDarkBlackBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  child: isRunning
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Lưu',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -311,15 +426,18 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
   Widget _buildHotelImage() {
     return Container(
       width: double.infinity,
-      height: 180,
+      height: 120,
       decoration: BoxDecoration(
+        color: Colors.blue[50],
         borderRadius: BorderRadius.circular(10),
-        image: const DecorationImage(
-          image: NetworkImage(
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-          ), // Placeholder hotel image
-          fit: BoxFit.cover,
-        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.image_outlined, color: Colors.black54, size: 30),
+          const SizedBox(height: 8),
+          const Text('Ảnh khách sạn', style: TextStyle(fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }

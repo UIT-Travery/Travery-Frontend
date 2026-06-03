@@ -2,6 +2,20 @@ enum PassengerType { adult, child }
 
 enum CheckInStatus { pending, arrived, noShow }
 
+enum AttendanceStatus { notChecked, checkedIn, noShow }
+
+class MemberAttendance {
+  final String memberId;
+  final AttendanceStatus status;
+
+  const MemberAttendance({required this.memberId, required this.status});
+
+  Map<String, dynamic> toJson() => {
+    'memberId': memberId,
+    'status': status.name.toUpperCase(),
+  };
+}
+
 class CheckInPassenger {
   final String id;
   final String name;

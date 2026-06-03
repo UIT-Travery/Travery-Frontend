@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
 import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
@@ -34,7 +33,8 @@ final _roleOptions = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 class CreateAccountScreen extends StatefulWidget {
-  const CreateAccountScreen({super.key});
+  const CreateAccountScreen({super.key, required this.viewModel});
+  final CreateAccountViewModel viewModel;
 
   @override
   State<CreateAccountScreen> createState() => _CreateAccountScreenState();
@@ -56,16 +56,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   void initState() {
     super.initState();
     // Listen to command result to navigate on success
-    context.read<CreateAccountViewModel>().createAccount.addListener(
-      _onCommandChanged,
-    );
+    widget.viewModel.createAccount.addListener(_onCommandChanged);
   }
 
   @override
   void dispose() {
-    context.read<CreateAccountViewModel>().createAccount.removeListener(
-      _onCommandChanged,
-    );
+    widget.viewModel.createAccount.removeListener(_onCommandChanged);
     _nameController.dispose();
     _emailController.dispose();
     _employeeIdController.dispose();
@@ -73,7 +69,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   }
 
   void _onCommandChanged() {
-    final cmd = context.read<CreateAccountViewModel>().createAccount;
+    final cmd = widget.viewModel.createAccount;
     if (cmd.completed) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -104,7 +100,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return;
     }
 
-    context.read<CreateAccountViewModel>().createAccount.execute((
+    widget.viewModel.createAccount.execute((
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
       employeeId: _employeeIdController.text.trim(),
@@ -338,12 +334,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   // ── Bottom action bar ──────────────────────────────────────────────────────
   Widget _buildBottomBar() {
     return ListenableBuilder(
-      listenable: context.read<CreateAccountViewModel>().createAccount,
+      listenable: widget.viewModel.createAccount,
       builder: (context, _) {
-        final isRunning = context
-            .read<CreateAccountViewModel>()
-            .createAccount
-            .running;
+        final isRunning = widget.viewModel.createAccount.running;
         return Container(
           color: AppColors.surface,
           padding: const EdgeInsets.symmetric(

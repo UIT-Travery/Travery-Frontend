@@ -296,7 +296,7 @@ $TourBookingDataCopyWith<$Res> get data {
 /// @nodoc
 mixin _$TourBookingData {
 
- String get id; String get customerName; String get customerPhone; String get specialRequests; String get status; double get totalPrice; double get pricePerAdultAtBooking; double get pricePerChildAtBooking; String? get paymentDeadline; String get tourName; String get startDate; String get endDate; List<BookingMemberData> get members; PaymentData? get payment;
+ String get id; String get customerName; String get customerPhone; String get specialRequests; String get status; double get totalPrice; double get pricePerAdultAtBooking; double get pricePerChildAtBooking; String? get paymentDeadline; String get tourName; String get startDate; String get endDate; List<BookingMemberData> get members; PaymentData? get payment; String get paymentMethod; String get paymentStatus; String get transactionId; String get gatewayTransactionId;
 /// Create a copy of TourBookingData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -309,16 +309,16 @@ $TourBookingDataCopyWith<TourBookingData> get copyWith => _$TourBookingDataCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TourBookingData&&(identical(other.id, id) || other.id == id)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.customerPhone, customerPhone) || other.customerPhone == customerPhone)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.status, status) || other.status == status)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.pricePerAdultAtBooking, pricePerAdultAtBooking) || other.pricePerAdultAtBooking == pricePerAdultAtBooking)&&(identical(other.pricePerChildAtBooking, pricePerChildAtBooking) || other.pricePerChildAtBooking == pricePerChildAtBooking)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&const DeepCollectionEquality().equals(other.members, members)&&(identical(other.payment, payment) || other.payment == payment));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TourBookingData&&(identical(other.id, id) || other.id == id)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.customerPhone, customerPhone) || other.customerPhone == customerPhone)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.status, status) || other.status == status)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.pricePerAdultAtBooking, pricePerAdultAtBooking) || other.pricePerAdultAtBooking == pricePerAdultAtBooking)&&(identical(other.pricePerChildAtBooking, pricePerChildAtBooking) || other.pricePerChildAtBooking == pricePerChildAtBooking)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&const DeepCollectionEquality().equals(other.members, members)&&(identical(other.payment, payment) || other.payment == payment)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.paymentStatus, paymentStatus) || other.paymentStatus == paymentStatus)&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.gatewayTransactionId, gatewayTransactionId) || other.gatewayTransactionId == gatewayTransactionId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,customerName,customerPhone,specialRequests,status,totalPrice,pricePerAdultAtBooking,pricePerChildAtBooking,paymentDeadline,tourName,startDate,endDate,const DeepCollectionEquality().hash(members),payment);
+int get hashCode => Object.hash(runtimeType,id,customerName,customerPhone,specialRequests,status,totalPrice,pricePerAdultAtBooking,pricePerChildAtBooking,paymentDeadline,tourName,startDate,endDate,const DeepCollectionEquality().hash(members),payment,paymentMethod,paymentStatus,transactionId,gatewayTransactionId);
 
 @override
 String toString() {
-  return 'TourBookingData(id: $id, customerName: $customerName, customerPhone: $customerPhone, specialRequests: $specialRequests, status: $status, totalPrice: $totalPrice, pricePerAdultAtBooking: $pricePerAdultAtBooking, pricePerChildAtBooking: $pricePerChildAtBooking, paymentDeadline: $paymentDeadline, tourName: $tourName, startDate: $startDate, endDate: $endDate, members: $members, payment: $payment)';
+  return 'TourBookingData(id: $id, customerName: $customerName, customerPhone: $customerPhone, specialRequests: $specialRequests, status: $status, totalPrice: $totalPrice, pricePerAdultAtBooking: $pricePerAdultAtBooking, pricePerChildAtBooking: $pricePerChildAtBooking, paymentDeadline: $paymentDeadline, tourName: $tourName, startDate: $startDate, endDate: $endDate, members: $members, payment: $payment, paymentMethod: $paymentMethod, paymentStatus: $paymentStatus, transactionId: $transactionId, gatewayTransactionId: $gatewayTransactionId)';
 }
 
 
@@ -329,7 +329,7 @@ abstract mixin class $TourBookingDataCopyWith<$Res>  {
   factory $TourBookingDataCopyWith(TourBookingData value, $Res Function(TourBookingData) _then) = _$TourBookingDataCopyWithImpl;
 @useResult
 $Res call({
- String id, String customerName, String customerPhone, String specialRequests, String status, double totalPrice, double pricePerAdultAtBooking, double pricePerChildAtBooking, String? paymentDeadline, String tourName, String startDate, String endDate, List<BookingMemberData> members, PaymentData? payment
+ String id, String customerName, String customerPhone, String specialRequests, String status, double totalPrice, double pricePerAdultAtBooking, double pricePerChildAtBooking, String? paymentDeadline, String tourName, String startDate, String endDate, List<BookingMemberData> members, PaymentData? payment, String paymentMethod, String paymentStatus, String transactionId, String gatewayTransactionId
 });
 
 
@@ -346,7 +346,7 @@ class _$TourBookingDataCopyWithImpl<$Res>
 
 /// Create a copy of TourBookingData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? customerName = null,Object? customerPhone = null,Object? specialRequests = null,Object? status = null,Object? totalPrice = null,Object? pricePerAdultAtBooking = null,Object? pricePerChildAtBooking = null,Object? paymentDeadline = freezed,Object? tourName = null,Object? startDate = null,Object? endDate = null,Object? members = null,Object? payment = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? customerName = null,Object? customerPhone = null,Object? specialRequests = null,Object? status = null,Object? totalPrice = null,Object? pricePerAdultAtBooking = null,Object? pricePerChildAtBooking = null,Object? paymentDeadline = freezed,Object? tourName = null,Object? startDate = null,Object? endDate = null,Object? members = null,Object? payment = freezed,Object? paymentMethod = null,Object? paymentStatus = null,Object? transactionId = null,Object? gatewayTransactionId = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,customerName: null == customerName ? _self.customerName : customerName // ignore: cast_nullable_to_non_nullable
@@ -362,7 +362,11 @@ as String,startDate: null == startDate ? _self.startDate : startDate // ignore: 
 as String,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as String,members: null == members ? _self.members : members // ignore: cast_nullable_to_non_nullable
 as List<BookingMemberData>,payment: freezed == payment ? _self.payment : payment // ignore: cast_nullable_to_non_nullable
-as PaymentData?,
+as PaymentData?,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as String,paymentStatus: null == paymentStatus ? _self.paymentStatus : paymentStatus // ignore: cast_nullable_to_non_nullable
+as String,transactionId: null == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
+as String,gatewayTransactionId: null == gatewayTransactionId ? _self.gatewayTransactionId : gatewayTransactionId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 /// Create a copy of TourBookingData
@@ -459,10 +463,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String customerName,  String customerPhone,  String specialRequests,  String status,  double totalPrice,  double pricePerAdultAtBooking,  double pricePerChildAtBooking,  String? paymentDeadline,  String tourName,  String startDate,  String endDate,  List<BookingMemberData> members,  PaymentData? payment)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String customerName,  String customerPhone,  String specialRequests,  String status,  double totalPrice,  double pricePerAdultAtBooking,  double pricePerChildAtBooking,  String? paymentDeadline,  String tourName,  String startDate,  String endDate,  List<BookingMemberData> members,  PaymentData? payment,  String paymentMethod,  String paymentStatus,  String transactionId,  String gatewayTransactionId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TourBookingData() when $default != null:
-return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialRequests,_that.status,_that.totalPrice,_that.pricePerAdultAtBooking,_that.pricePerChildAtBooking,_that.paymentDeadline,_that.tourName,_that.startDate,_that.endDate,_that.members,_that.payment);case _:
+return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialRequests,_that.status,_that.totalPrice,_that.pricePerAdultAtBooking,_that.pricePerChildAtBooking,_that.paymentDeadline,_that.tourName,_that.startDate,_that.endDate,_that.members,_that.payment,_that.paymentMethod,_that.paymentStatus,_that.transactionId,_that.gatewayTransactionId);case _:
   return orElse();
 
 }
@@ -480,10 +484,10 @@ return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialReq
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String customerName,  String customerPhone,  String specialRequests,  String status,  double totalPrice,  double pricePerAdultAtBooking,  double pricePerChildAtBooking,  String? paymentDeadline,  String tourName,  String startDate,  String endDate,  List<BookingMemberData> members,  PaymentData? payment)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String customerName,  String customerPhone,  String specialRequests,  String status,  double totalPrice,  double pricePerAdultAtBooking,  double pricePerChildAtBooking,  String? paymentDeadline,  String tourName,  String startDate,  String endDate,  List<BookingMemberData> members,  PaymentData? payment,  String paymentMethod,  String paymentStatus,  String transactionId,  String gatewayTransactionId)  $default,) {final _that = this;
 switch (_that) {
 case _TourBookingData():
-return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialRequests,_that.status,_that.totalPrice,_that.pricePerAdultAtBooking,_that.pricePerChildAtBooking,_that.paymentDeadline,_that.tourName,_that.startDate,_that.endDate,_that.members,_that.payment);case _:
+return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialRequests,_that.status,_that.totalPrice,_that.pricePerAdultAtBooking,_that.pricePerChildAtBooking,_that.paymentDeadline,_that.tourName,_that.startDate,_that.endDate,_that.members,_that.payment,_that.paymentMethod,_that.paymentStatus,_that.transactionId,_that.gatewayTransactionId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -500,10 +504,10 @@ return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialReq
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String customerName,  String customerPhone,  String specialRequests,  String status,  double totalPrice,  double pricePerAdultAtBooking,  double pricePerChildAtBooking,  String? paymentDeadline,  String tourName,  String startDate,  String endDate,  List<BookingMemberData> members,  PaymentData? payment)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String customerName,  String customerPhone,  String specialRequests,  String status,  double totalPrice,  double pricePerAdultAtBooking,  double pricePerChildAtBooking,  String? paymentDeadline,  String tourName,  String startDate,  String endDate,  List<BookingMemberData> members,  PaymentData? payment,  String paymentMethod,  String paymentStatus,  String transactionId,  String gatewayTransactionId)?  $default,) {final _that = this;
 switch (_that) {
 case _TourBookingData() when $default != null:
-return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialRequests,_that.status,_that.totalPrice,_that.pricePerAdultAtBooking,_that.pricePerChildAtBooking,_that.paymentDeadline,_that.tourName,_that.startDate,_that.endDate,_that.members,_that.payment);case _:
+return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialRequests,_that.status,_that.totalPrice,_that.pricePerAdultAtBooking,_that.pricePerChildAtBooking,_that.paymentDeadline,_that.tourName,_that.startDate,_that.endDate,_that.members,_that.payment,_that.paymentMethod,_that.paymentStatus,_that.transactionId,_that.gatewayTransactionId);case _:
   return null;
 
 }
@@ -515,7 +519,7 @@ return $default(_that.id,_that.customerName,_that.customerPhone,_that.specialReq
 @JsonSerializable()
 
 class _TourBookingData implements TourBookingData {
-  const _TourBookingData({required this.id, this.customerName = '', this.customerPhone = '', this.specialRequests = '', this.status = 'PENDING', this.totalPrice = 0, this.pricePerAdultAtBooking = 0, this.pricePerChildAtBooking = 0, this.paymentDeadline, this.tourName = '', this.startDate = '', this.endDate = '', final  List<BookingMemberData> members = const [], this.payment}): _members = members;
+  const _TourBookingData({required this.id, this.customerName = '', this.customerPhone = '', this.specialRequests = '', this.status = 'PENDING', this.totalPrice = 0, this.pricePerAdultAtBooking = 0, this.pricePerChildAtBooking = 0, this.paymentDeadline, this.tourName = '', this.startDate = '', this.endDate = '', final  List<BookingMemberData> members = const [], this.payment, this.paymentMethod = '', this.paymentStatus = '', this.transactionId = '', this.gatewayTransactionId = ''}): _members = members;
   factory _TourBookingData.fromJson(Map<String, dynamic> json) => _$TourBookingDataFromJson(json);
 
 @override final  String id;
@@ -538,6 +542,10 @@ class _TourBookingData implements TourBookingData {
 }
 
 @override final  PaymentData? payment;
+@override@JsonKey() final  String paymentMethod;
+@override@JsonKey() final  String paymentStatus;
+@override@JsonKey() final  String transactionId;
+@override@JsonKey() final  String gatewayTransactionId;
 
 /// Create a copy of TourBookingData
 /// with the given fields replaced by the non-null parameter values.
@@ -552,16 +560,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TourBookingData&&(identical(other.id, id) || other.id == id)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.customerPhone, customerPhone) || other.customerPhone == customerPhone)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.status, status) || other.status == status)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.pricePerAdultAtBooking, pricePerAdultAtBooking) || other.pricePerAdultAtBooking == pricePerAdultAtBooking)&&(identical(other.pricePerChildAtBooking, pricePerChildAtBooking) || other.pricePerChildAtBooking == pricePerChildAtBooking)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&const DeepCollectionEquality().equals(other._members, _members)&&(identical(other.payment, payment) || other.payment == payment));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TourBookingData&&(identical(other.id, id) || other.id == id)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.customerPhone, customerPhone) || other.customerPhone == customerPhone)&&(identical(other.specialRequests, specialRequests) || other.specialRequests == specialRequests)&&(identical(other.status, status) || other.status == status)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.pricePerAdultAtBooking, pricePerAdultAtBooking) || other.pricePerAdultAtBooking == pricePerAdultAtBooking)&&(identical(other.pricePerChildAtBooking, pricePerChildAtBooking) || other.pricePerChildAtBooking == pricePerChildAtBooking)&&(identical(other.paymentDeadline, paymentDeadline) || other.paymentDeadline == paymentDeadline)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&const DeepCollectionEquality().equals(other._members, _members)&&(identical(other.payment, payment) || other.payment == payment)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.paymentStatus, paymentStatus) || other.paymentStatus == paymentStatus)&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.gatewayTransactionId, gatewayTransactionId) || other.gatewayTransactionId == gatewayTransactionId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,customerName,customerPhone,specialRequests,status,totalPrice,pricePerAdultAtBooking,pricePerChildAtBooking,paymentDeadline,tourName,startDate,endDate,const DeepCollectionEquality().hash(_members),payment);
+int get hashCode => Object.hash(runtimeType,id,customerName,customerPhone,specialRequests,status,totalPrice,pricePerAdultAtBooking,pricePerChildAtBooking,paymentDeadline,tourName,startDate,endDate,const DeepCollectionEquality().hash(_members),payment,paymentMethod,paymentStatus,transactionId,gatewayTransactionId);
 
 @override
 String toString() {
-  return 'TourBookingData(id: $id, customerName: $customerName, customerPhone: $customerPhone, specialRequests: $specialRequests, status: $status, totalPrice: $totalPrice, pricePerAdultAtBooking: $pricePerAdultAtBooking, pricePerChildAtBooking: $pricePerChildAtBooking, paymentDeadline: $paymentDeadline, tourName: $tourName, startDate: $startDate, endDate: $endDate, members: $members, payment: $payment)';
+  return 'TourBookingData(id: $id, customerName: $customerName, customerPhone: $customerPhone, specialRequests: $specialRequests, status: $status, totalPrice: $totalPrice, pricePerAdultAtBooking: $pricePerAdultAtBooking, pricePerChildAtBooking: $pricePerChildAtBooking, paymentDeadline: $paymentDeadline, tourName: $tourName, startDate: $startDate, endDate: $endDate, members: $members, payment: $payment, paymentMethod: $paymentMethod, paymentStatus: $paymentStatus, transactionId: $transactionId, gatewayTransactionId: $gatewayTransactionId)';
 }
 
 
@@ -572,7 +580,7 @@ abstract mixin class _$TourBookingDataCopyWith<$Res> implements $TourBookingData
   factory _$TourBookingDataCopyWith(_TourBookingData value, $Res Function(_TourBookingData) _then) = __$TourBookingDataCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String customerName, String customerPhone, String specialRequests, String status, double totalPrice, double pricePerAdultAtBooking, double pricePerChildAtBooking, String? paymentDeadline, String tourName, String startDate, String endDate, List<BookingMemberData> members, PaymentData? payment
+ String id, String customerName, String customerPhone, String specialRequests, String status, double totalPrice, double pricePerAdultAtBooking, double pricePerChildAtBooking, String? paymentDeadline, String tourName, String startDate, String endDate, List<BookingMemberData> members, PaymentData? payment, String paymentMethod, String paymentStatus, String transactionId, String gatewayTransactionId
 });
 
 
@@ -589,7 +597,7 @@ class __$TourBookingDataCopyWithImpl<$Res>
 
 /// Create a copy of TourBookingData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? customerName = null,Object? customerPhone = null,Object? specialRequests = null,Object? status = null,Object? totalPrice = null,Object? pricePerAdultAtBooking = null,Object? pricePerChildAtBooking = null,Object? paymentDeadline = freezed,Object? tourName = null,Object? startDate = null,Object? endDate = null,Object? members = null,Object? payment = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? customerName = null,Object? customerPhone = null,Object? specialRequests = null,Object? status = null,Object? totalPrice = null,Object? pricePerAdultAtBooking = null,Object? pricePerChildAtBooking = null,Object? paymentDeadline = freezed,Object? tourName = null,Object? startDate = null,Object? endDate = null,Object? members = null,Object? payment = freezed,Object? paymentMethod = null,Object? paymentStatus = null,Object? transactionId = null,Object? gatewayTransactionId = null,}) {
   return _then(_TourBookingData(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,customerName: null == customerName ? _self.customerName : customerName // ignore: cast_nullable_to_non_nullable
@@ -605,7 +613,11 @@ as String,startDate: null == startDate ? _self.startDate : startDate // ignore: 
 as String,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as String,members: null == members ? _self._members : members // ignore: cast_nullable_to_non_nullable
 as List<BookingMemberData>,payment: freezed == payment ? _self.payment : payment // ignore: cast_nullable_to_non_nullable
-as PaymentData?,
+as PaymentData?,paymentMethod: null == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
+as String,paymentStatus: null == paymentStatus ? _self.paymentStatus : paymentStatus // ignore: cast_nullable_to_non_nullable
+as String,transactionId: null == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
+as String,gatewayTransactionId: null == gatewayTransactionId ? _self.gatewayTransactionId : gatewayTransactionId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -906,7 +918,7 @@ as String,
 /// @nodoc
 mixin _$PaymentData {
 
- String get transactionId; double get amount; String get paymentUrl; String? get expiresAt;
+ String get transactionId; String get gatewayTransactionId; double get amount; String get paymentUrl; String? get expiresAt;
 /// Create a copy of PaymentData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -919,16 +931,16 @@ $PaymentDataCopyWith<PaymentData> get copyWith => _$PaymentDataCopyWithImpl<Paym
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentData&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paymentUrl, paymentUrl) || other.paymentUrl == paymentUrl)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentData&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.gatewayTransactionId, gatewayTransactionId) || other.gatewayTransactionId == gatewayTransactionId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paymentUrl, paymentUrl) || other.paymentUrl == paymentUrl)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,transactionId,amount,paymentUrl,expiresAt);
+int get hashCode => Object.hash(runtimeType,transactionId,gatewayTransactionId,amount,paymentUrl,expiresAt);
 
 @override
 String toString() {
-  return 'PaymentData(transactionId: $transactionId, amount: $amount, paymentUrl: $paymentUrl, expiresAt: $expiresAt)';
+  return 'PaymentData(transactionId: $transactionId, gatewayTransactionId: $gatewayTransactionId, amount: $amount, paymentUrl: $paymentUrl, expiresAt: $expiresAt)';
 }
 
 
@@ -939,7 +951,7 @@ abstract mixin class $PaymentDataCopyWith<$Res>  {
   factory $PaymentDataCopyWith(PaymentData value, $Res Function(PaymentData) _then) = _$PaymentDataCopyWithImpl;
 @useResult
 $Res call({
- String transactionId, double amount, String paymentUrl, String? expiresAt
+ String transactionId, String gatewayTransactionId, double amount, String paymentUrl, String? expiresAt
 });
 
 
@@ -956,9 +968,10 @@ class _$PaymentDataCopyWithImpl<$Res>
 
 /// Create a copy of PaymentData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? transactionId = null,Object? amount = null,Object? paymentUrl = null,Object? expiresAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? transactionId = null,Object? gatewayTransactionId = null,Object? amount = null,Object? paymentUrl = null,Object? expiresAt = freezed,}) {
   return _then(_self.copyWith(
 transactionId: null == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
+as String,gatewayTransactionId: null == gatewayTransactionId ? _self.gatewayTransactionId : gatewayTransactionId // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,paymentUrl: null == paymentUrl ? _self.paymentUrl : paymentUrl // ignore: cast_nullable_to_non_nullable
 as String,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
@@ -1047,10 +1060,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String transactionId,  double amount,  String paymentUrl,  String? expiresAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String transactionId,  String gatewayTransactionId,  double amount,  String paymentUrl,  String? expiresAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PaymentData() when $default != null:
-return $default(_that.transactionId,_that.amount,_that.paymentUrl,_that.expiresAt);case _:
+return $default(_that.transactionId,_that.gatewayTransactionId,_that.amount,_that.paymentUrl,_that.expiresAt);case _:
   return orElse();
 
 }
@@ -1068,10 +1081,10 @@ return $default(_that.transactionId,_that.amount,_that.paymentUrl,_that.expiresA
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String transactionId,  double amount,  String paymentUrl,  String? expiresAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String transactionId,  String gatewayTransactionId,  double amount,  String paymentUrl,  String? expiresAt)  $default,) {final _that = this;
 switch (_that) {
 case _PaymentData():
-return $default(_that.transactionId,_that.amount,_that.paymentUrl,_that.expiresAt);case _:
+return $default(_that.transactionId,_that.gatewayTransactionId,_that.amount,_that.paymentUrl,_that.expiresAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1088,10 +1101,10 @@ return $default(_that.transactionId,_that.amount,_that.paymentUrl,_that.expiresA
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String transactionId,  double amount,  String paymentUrl,  String? expiresAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String transactionId,  String gatewayTransactionId,  double amount,  String paymentUrl,  String? expiresAt)?  $default,) {final _that = this;
 switch (_that) {
 case _PaymentData() when $default != null:
-return $default(_that.transactionId,_that.amount,_that.paymentUrl,_that.expiresAt);case _:
+return $default(_that.transactionId,_that.gatewayTransactionId,_that.amount,_that.paymentUrl,_that.expiresAt);case _:
   return null;
 
 }
@@ -1103,10 +1116,11 @@ return $default(_that.transactionId,_that.amount,_that.paymentUrl,_that.expiresA
 @JsonSerializable()
 
 class _PaymentData implements PaymentData {
-  const _PaymentData({this.transactionId = '', this.amount = 0, this.paymentUrl = '', this.expiresAt});
+  const _PaymentData({this.transactionId = '', this.gatewayTransactionId = '', this.amount = 0, this.paymentUrl = '', this.expiresAt});
   factory _PaymentData.fromJson(Map<String, dynamic> json) => _$PaymentDataFromJson(json);
 
 @override@JsonKey() final  String transactionId;
+@override@JsonKey() final  String gatewayTransactionId;
 @override@JsonKey() final  double amount;
 @override@JsonKey() final  String paymentUrl;
 @override final  String? expiresAt;
@@ -1124,16 +1138,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentData&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paymentUrl, paymentUrl) || other.paymentUrl == paymentUrl)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentData&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.gatewayTransactionId, gatewayTransactionId) || other.gatewayTransactionId == gatewayTransactionId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paymentUrl, paymentUrl) || other.paymentUrl == paymentUrl)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,transactionId,amount,paymentUrl,expiresAt);
+int get hashCode => Object.hash(runtimeType,transactionId,gatewayTransactionId,amount,paymentUrl,expiresAt);
 
 @override
 String toString() {
-  return 'PaymentData(transactionId: $transactionId, amount: $amount, paymentUrl: $paymentUrl, expiresAt: $expiresAt)';
+  return 'PaymentData(transactionId: $transactionId, gatewayTransactionId: $gatewayTransactionId, amount: $amount, paymentUrl: $paymentUrl, expiresAt: $expiresAt)';
 }
 
 
@@ -1144,7 +1158,7 @@ abstract mixin class _$PaymentDataCopyWith<$Res> implements $PaymentDataCopyWith
   factory _$PaymentDataCopyWith(_PaymentData value, $Res Function(_PaymentData) _then) = __$PaymentDataCopyWithImpl;
 @override @useResult
 $Res call({
- String transactionId, double amount, String paymentUrl, String? expiresAt
+ String transactionId, String gatewayTransactionId, double amount, String paymentUrl, String? expiresAt
 });
 
 
@@ -1161,9 +1175,10 @@ class __$PaymentDataCopyWithImpl<$Res>
 
 /// Create a copy of PaymentData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? transactionId = null,Object? amount = null,Object? paymentUrl = null,Object? expiresAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? transactionId = null,Object? gatewayTransactionId = null,Object? amount = null,Object? paymentUrl = null,Object? expiresAt = freezed,}) {
   return _then(_PaymentData(
 transactionId: null == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
+as String,gatewayTransactionId: null == gatewayTransactionId ? _self.gatewayTransactionId : gatewayTransactionId // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as double,paymentUrl: null == paymentUrl ? _self.paymentUrl : paymentUrl // ignore: cast_nullable_to_non_nullable
 as String,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable

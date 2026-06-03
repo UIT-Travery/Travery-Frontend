@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DestinationResponse {
 
- String get id; String get code; String get name; String get region; String? get imageUrl; String? get description;
+ String? get id; String? get code; String? get name; String? get region; String? get imageUrl; String? get description;
 /// Create a copy of DestinationResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $DestinationResponseCopyWith<$Res>  {
   factory $DestinationResponseCopyWith(DestinationResponse value, $Res Function(DestinationResponse) _then) = _$DestinationResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String code, String name, String region, String? imageUrl, String? description
+ String? id, String? code, String? name, String? region, String? imageUrl, String? description
 });
 
 
@@ -65,13 +65,13 @@ class _$DestinationResponseCopyWithImpl<$Res>
 
 /// Create a copy of DestinationResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? code = null,Object? name = null,Object? region = null,Object? imageUrl = freezed,Object? description = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? code = freezed,Object? name = freezed,Object? region = freezed,Object? imageUrl = freezed,Object? description = freezed,}) {
   return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
-as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,code: freezed == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,region: freezed == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
+as String?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -158,7 +158,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String code,  String name,  String region,  String? imageUrl,  String? description)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String? code,  String? name,  String? region,  String? imageUrl,  String? description)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DestinationResponse() when $default != null:
 return $default(_that.id,_that.code,_that.name,_that.region,_that.imageUrl,_that.description);case _:
@@ -179,7 +179,7 @@ return $default(_that.id,_that.code,_that.name,_that.region,_that.imageUrl,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String code,  String name,  String region,  String? imageUrl,  String? description)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String? code,  String? name,  String? region,  String? imageUrl,  String? description)  $default,) {final _that = this;
 switch (_that) {
 case _DestinationResponse():
 return $default(_that.id,_that.code,_that.name,_that.region,_that.imageUrl,_that.description);case _:
@@ -199,7 +199,7 @@ return $default(_that.id,_that.code,_that.name,_that.region,_that.imageUrl,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String code,  String name,  String region,  String? imageUrl,  String? description)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String? code,  String? name,  String? region,  String? imageUrl,  String? description)?  $default,) {final _that = this;
 switch (_that) {
 case _DestinationResponse() when $default != null:
 return $default(_that.id,_that.code,_that.name,_that.region,_that.imageUrl,_that.description);case _:
@@ -214,13 +214,13 @@ return $default(_that.id,_that.code,_that.name,_that.region,_that.imageUrl,_that
 @JsonSerializable()
 
 class _DestinationResponse implements DestinationResponse {
-  const _DestinationResponse({required this.id, required this.code, required this.name, required this.region, this.imageUrl, this.description});
+  const _DestinationResponse({this.id, this.code, this.name, this.region, this.imageUrl, this.description});
   factory _DestinationResponse.fromJson(Map<String, dynamic> json) => _$DestinationResponseFromJson(json);
 
-@override final  String id;
-@override final  String code;
-@override final  String name;
-@override final  String region;
+@override final  String? id;
+@override final  String? code;
+@override final  String? name;
+@override final  String? region;
 @override final  String? imageUrl;
 @override final  String? description;
 
@@ -257,7 +257,7 @@ abstract mixin class _$DestinationResponseCopyWith<$Res> implements $Destination
   factory _$DestinationResponseCopyWith(_DestinationResponse value, $Res Function(_DestinationResponse) _then) = __$DestinationResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String code, String name, String region, String? imageUrl, String? description
+ String? id, String? code, String? name, String? region, String? imageUrl, String? description
 });
 
 
@@ -274,13 +274,13 @@ class __$DestinationResponseCopyWithImpl<$Res>
 
 /// Create a copy of DestinationResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? code = null,Object? name = null,Object? region = null,Object? imageUrl = freezed,Object? description = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? code = freezed,Object? name = freezed,Object? region = freezed,Object? imageUrl = freezed,Object? description = freezed,}) {
   return _then(_DestinationResponse(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
-as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,code: freezed == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,region: freezed == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
+as String?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

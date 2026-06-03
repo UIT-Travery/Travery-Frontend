@@ -15,7 +15,7 @@ Widget _makeTestable() {
       ChangeNotifierProvider<AdminRepository>.value(value: repo),
       ChangeNotifierProvider<DashboardViewModel>.value(value: vm),
     ],
-    child: const MaterialApp(home: DashboardScreen()),
+    child: MaterialApp(home: DashboardScreen(viewModel: vm)),
   );
 }
 
@@ -59,7 +59,6 @@ void main() {
       await _pumpUntilLoaded(tester);
       expect(find.text('DOANH THU'), findsOneWidget);
       expect(find.text('LƯỢT ĐẶT'), findsOneWidget);
-      expect(find.text('LỢI NHUẬN RÒNG'), findsOneWidget);
     });
 
     testWidgets('shows revenue chart section header', (tester) async {

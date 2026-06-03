@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/small_button.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -11,7 +10,9 @@ import 'package:travery_frontend/domain/models/admin/business_hotel/business_hot
 import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
 
 class HotelManagementScreen extends StatefulWidget {
-  const HotelManagementScreen({super.key});
+  const HotelManagementScreen({super.key, required this.viewModel});
+
+  final HotelManagementViewModel viewModel;
 
   @override
   State<HotelManagementScreen> createState() => _HotelManagementScreenState();
@@ -22,13 +23,13 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HotelManagementViewModel>().loadHotels.execute();
+      widget.viewModel.loadHotels.execute();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<HotelManagementViewModel>();
+    final vm = widget.viewModel;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -36,10 +37,7 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.pop(),
-            ),
+            const SizedBox(height: 16),
             // ── Content ──────────────────────────────────────────────────────
             Expanded(
               child: ListenableBuilder(
@@ -165,15 +163,6 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
           ],
         ),
       ),
-
-      // ── FAB ──────────────────────────────────────────────────────────────────
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onAddHotel,
-        backgroundColor: AppColors.primary,
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add_rounded, color: Colors.white),
-      ),
     );
   }
 
@@ -183,16 +172,6 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
       SnackBar(
         content: Text('Xem chi tiết: ${h.name}'),
         duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  void _onAddHotel() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Thêm khách sạn mới'),
-        duration: Duration(seconds: 1),
         behavior: SnackBarBehavior.floating,
       ),
     );

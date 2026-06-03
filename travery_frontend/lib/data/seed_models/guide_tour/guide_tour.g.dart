@@ -27,6 +27,11 @@ _GuideTour _$GuideTourFromJson(Map<String, dynamic> json) => _GuideTour(
   updatedAt: json['updated_at'] == null
       ? null
       : DateTime.parse(json['updated_at'] as String),
+  driverPhone: json['driverPhone'] as String?,
+  coachType: json['coachType'] as String?,
+  pickupLocation: json['pickupLocation'] as String?,
+  passengerCount: (json['passengerCount'] as num?)?.toInt(),
+  bookingsCount: (json['bookingsCount'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$GuideTourToJson(_GuideTour instance) =>
@@ -47,6 +52,11 @@ Map<String, dynamic> _$GuideTourToJson(_GuideTour instance) =>
       'driver_name': instance.driverName,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
+      'driverPhone': instance.driverPhone,
+      'coachType': instance.coachType,
+      'pickupLocation': instance.pickupLocation,
+      'passengerCount': instance.passengerCount,
+      'bookingsCount': instance.bookingsCount,
     };
 
 const _$GuideTourStatusEnumMap = {

@@ -1,7 +1,7 @@
 class AppTextTheme {
   AppTextTheme._();
 
-  // Display / Headline
+  // Display / Headline - giữ nguyên, chỉ giảm những chỗ hardcode > 20
   static const double displayLarge = 32.0;
   static const double headlineLarge = 26.0;
   static const double headlineMedium = 22.0;

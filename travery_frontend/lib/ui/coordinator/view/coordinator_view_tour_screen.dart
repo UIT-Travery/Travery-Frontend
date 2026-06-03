@@ -13,11 +13,11 @@ class CoordinatorViewTourScreen extends StatefulWidget {
       _CoordinatorViewTourScreenState();
 }
 
-class _CoordinatorViewTourScreenState
-    extends State<CoordinatorViewTourScreen> {
+class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
   // Collapse/Expand state flags
   bool _isDetailsExpanded = false;
   bool _isBookingsExpanded = false;
+  bool _isItineraryExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,19 +28,15 @@ class _CoordinatorViewTourScreenState
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // ── Premium Rounded Custom App Bar ─────────────────────────────────
+          // ── App Bar ─────────────────────────────────
           Container(
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(16, statusBarHeight + 10, 16, 20),
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primaryDarkBlackBlue],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: AppColors.primary,
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
               ),
             ),
             child: Stack(
@@ -52,7 +48,7 @@ class _CoordinatorViewTourScreenState
                     icon: const Icon(
                       Icons.arrow_back,
                       color: Colors.white,
-                      size: 28,
+                      size: 24,
                     ),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -73,61 +69,51 @@ class _CoordinatorViewTourScreenState
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Tour name hero ────────────────────────────────────────
+                  // ── Tour Image Hero ────────────────────────────────────────
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    height: 200,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          AppColors.primary,
-                          AppColors.primaryDarkBlackBlue,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                      border: Border.all(color: AppColors.primary, width: 2),
+                      image: const DecorationImage(
+                        image: NetworkImage(
+                          'https://vnn-imgs-f.vgcloud.vn/2019/10/24/16/du-lich-dai-loan-tu-tuc-nhung-dieu-can-biet.jpg',
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          tour.tourName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withValues(alpha: 0.8),
+                            Colors.transparent
+                          ],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          tour.destinationName,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
+                      ),
+                      child: Text(
+                        tour.tourName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 12),
-                        _buildStatusChip(tour.status),
-                      ],
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // ── Date and Departure Info Fields ─────────────────────────
+                  // ── Date Info Fields ─────────────────────────
                   Row(
                     children: [
                       Expanded(
@@ -150,43 +136,121 @@ class _CoordinatorViewTourScreenState
 
                   const SizedBox(height: 16),
 
-                  CoordinatorTourInfoField(
-                    label: 'Điểm xuất phát',
-                    content: tour.pickupLocation.isNotEmpty
-                        ? tour.pickupLocation
-                        : 'Chưa cập nhật',
-                    prefixIcon: Icons.location_on_outlined,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Participants info
+                  // ── Location Info Fields ─────────────────────────
                   Row(
                     children: [
                       Expanded(
                         child: CoordinatorTourInfoField(
-                          label: 'Hiện tại',
-                          content:
-                              '${tour.currentParticipants} / ${tour.maxParticipants}',
-                          prefixIcon: Icons.people_outline,
+                          label: 'Nơi khởi hành',
+                          content: tour.pickupLocation.isNotEmpty
+                              ? tour.pickupLocation
+                              : 'Tp.HCM',
+                          prefixIcon: Icons.location_on_outlined,
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: CoordinatorTourInfoField(
-                          label: 'Tối thiểu',
-                          content: '${tour.minParticipants}',
-                          prefixIcon: Icons.group_add_outlined,
+                          label: 'Nơi đến',
+                          content: tour.destinationName.isNotEmpty
+                              ? tour.destinationName
+                              : 'Tp.HCM',
+                          prefixIcon: Icons.location_on_outlined,
                         ),
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ── Participants Info Fields ─────────────────────────
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CoordinatorTourInfoField(
+                          label: 'Số người tối thiểu',
+                          content: '${tour.minParticipants}',
+                          prefixIcon: Icons.person_outline,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: CoordinatorTourInfoField(
+                          label: 'Số người tối đa',
+                          content: '${tour.maxParticipants}',
+                          prefixIcon: Icons.person_outline,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // ── Đơn giá (Price) ─────────────────────────
+                  const Text(
+                    'Đơn giá',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Người lớn',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                            Text(
+                              '14.000.000 VNĐ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Trẻ em',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                            Text(
+                              '14.000.000 VNĐ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 24),
 
                   // ── Expandable Section: Thông tin chi tiết ──────────────────
                   _buildExpandableHeader(
-                    title: 'Thông tin nhân viên',
+                    title: 'Thông tin chi tiết',
                     isExpanded: _isDetailsExpanded,
                     onTap: () => setState(
                       () => _isDetailsExpanded = !_isDetailsExpanded,
@@ -234,8 +298,7 @@ class _CoordinatorViewTourScreenState
                                     tour.driverName == null &&
                                     tour.coachLicensePlate == null)
                                   const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
                                     child: Text(
                                       'Chưa phân công nhân sự',
                                       style: TextStyle(
@@ -250,13 +313,7 @@ class _CoordinatorViewTourScreenState
                         : const SizedBox.shrink(),
                   ),
 
-                  const Divider(
-                    height: 1,
-                    thickness: 0.5,
-                    color: AppColors.inputBorder,
-                  ),
-
-                  // ── Expandable Section: Bookings placeholder ────────────────
+                  // ── Expandable Section: Danh sách Booking ────────────────
                   _buildExpandableHeader(
                     title: 'Danh sách Booking',
                     isExpanded: _isBookingsExpanded,
@@ -278,31 +335,34 @@ class _CoordinatorViewTourScreenState
                         : const SizedBox.shrink(),
                   ),
 
+                  // ── Expandable Section: Lịch trình chi tiết ────────────────
+                  _buildExpandableHeader(
+                    title: 'Lịch trình chi tiết',
+                    isExpanded: _isItineraryExpanded,
+                    onTap: () => setState(
+                      () => _isItineraryExpanded = !_isItineraryExpanded,
+                    ),
+                  ),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: _isItineraryExpanded
+                        ? const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.0),
+                            child: Text(
+                              'Chức năng xem lịch trình chi tiết đang được phát triển.',
+                              style: TextStyle(color: AppColors.textSecondary),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+
                   const SizedBox(height: 40),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatusChip(String status) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white38),
-      ),
-      child: Text(
-        status,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
       ),
     );
   }
@@ -376,12 +436,12 @@ class _CoordinatorViewTourScreenState
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
         child: Row(
           children: [
             Container(
-              width: 8,
-              height: 8,
+              width: 6,
+              height: 6,
               decoration: const BoxDecoration(
                 color: AppColors.primary,
                 shape: BoxShape.circle,
@@ -392,7 +452,7 @@ class _CoordinatorViewTourScreenState
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
@@ -403,7 +463,7 @@ class _CoordinatorViewTourScreenState
                   ? Icons.keyboard_arrow_up_rounded
                   : Icons.keyboard_arrow_down_rounded,
               color: AppColors.textPrimary,
-              size: 28,
+              size: 24,
             ),
           ],
         ),

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CreatePaymentResponse {
 
- PaymentResponseData get data;
+ int get httpStatus; String get message; PaymentResponseData get data;
 /// Create a copy of CreatePaymentResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CreatePaymentResponseCopyWith<CreatePaymentResponse> get copyWith => _$CreatePa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreatePaymentResponse&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreatePaymentResponse&&(identical(other.httpStatus, httpStatus) || other.httpStatus == httpStatus)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode => Object.hash(runtimeType,httpStatus,message,data);
 
 @override
 String toString() {
-  return 'CreatePaymentResponse(data: $data)';
+  return 'CreatePaymentResponse(httpStatus: $httpStatus, message: $message, data: $data)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CreatePaymentResponseCopyWith<$Res>  {
   factory $CreatePaymentResponseCopyWith(CreatePaymentResponse value, $Res Function(CreatePaymentResponse) _then) = _$CreatePaymentResponseCopyWithImpl;
 @useResult
 $Res call({
- PaymentResponseData data
+ int httpStatus, String message, PaymentResponseData data
 });
 
 
@@ -65,9 +65,11 @@ class _$CreatePaymentResponseCopyWithImpl<$Res>
 
 /// Create a copy of CreatePaymentResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? data = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? httpStatus = null,Object? message = null,Object? data = null,}) {
   return _then(_self.copyWith(
-data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
+httpStatus: null == httpStatus ? _self.httpStatus : httpStatus // ignore: cast_nullable_to_non_nullable
+as int,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
 as PaymentResponseData,
   ));
 }
@@ -162,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PaymentResponseData data)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int httpStatus,  String message,  PaymentResponseData data)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreatePaymentResponse() when $default != null:
-return $default(_that.data);case _:
+return $default(_that.httpStatus,_that.message,_that.data);case _:
   return orElse();
 
 }
@@ -183,10 +185,10 @@ return $default(_that.data);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PaymentResponseData data)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int httpStatus,  String message,  PaymentResponseData data)  $default,) {final _that = this;
 switch (_that) {
 case _CreatePaymentResponse():
-return $default(_that.data);case _:
+return $default(_that.httpStatus,_that.message,_that.data);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +205,10 @@ return $default(_that.data);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PaymentResponseData data)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int httpStatus,  String message,  PaymentResponseData data)?  $default,) {final _that = this;
 switch (_that) {
 case _CreatePaymentResponse() when $default != null:
-return $default(_that.data);case _:
+return $default(_that.httpStatus,_that.message,_that.data);case _:
   return null;
 
 }
@@ -218,9 +220,11 @@ return $default(_that.data);case _:
 @JsonSerializable()
 
 class _CreatePaymentResponse implements CreatePaymentResponse {
-  const _CreatePaymentResponse({required this.data});
+  const _CreatePaymentResponse({required this.httpStatus, required this.message, required this.data});
   factory _CreatePaymentResponse.fromJson(Map<String, dynamic> json) => _$CreatePaymentResponseFromJson(json);
 
+@override final  int httpStatus;
+@override final  String message;
 @override final  PaymentResponseData data;
 
 /// Create a copy of CreatePaymentResponse
@@ -236,16 +240,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreatePaymentResponse&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreatePaymentResponse&&(identical(other.httpStatus, httpStatus) || other.httpStatus == httpStatus)&&(identical(other.message, message) || other.message == message)&&(identical(other.data, data) || other.data == data));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode => Object.hash(runtimeType,httpStatus,message,data);
 
 @override
 String toString() {
-  return 'CreatePaymentResponse(data: $data)';
+  return 'CreatePaymentResponse(httpStatus: $httpStatus, message: $message, data: $data)';
 }
 
 
@@ -256,7 +260,7 @@ abstract mixin class _$CreatePaymentResponseCopyWith<$Res> implements $CreatePay
   factory _$CreatePaymentResponseCopyWith(_CreatePaymentResponse value, $Res Function(_CreatePaymentResponse) _then) = __$CreatePaymentResponseCopyWithImpl;
 @override @useResult
 $Res call({
- PaymentResponseData data
+ int httpStatus, String message, PaymentResponseData data
 });
 
 
@@ -273,9 +277,11 @@ class __$CreatePaymentResponseCopyWithImpl<$Res>
 
 /// Create a copy of CreatePaymentResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? data = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? httpStatus = null,Object? message = null,Object? data = null,}) {
   return _then(_CreatePaymentResponse(
-data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
+httpStatus: null == httpStatus ? _self.httpStatus : httpStatus // ignore: cast_nullable_to_non_nullable
+as int,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
 as PaymentResponseData,
   ));
 }
@@ -493,12 +499,12 @@ return $default(_that.transactionId,_that.amount,_that.paymentUrl,_that.expiresA
 @JsonSerializable()
 
 class _PaymentResponseData implements PaymentResponseData {
-  const _PaymentResponseData({this.transactionId = '', this.amount = 0, this.paymentUrl = '', this.expiresAt});
+  const _PaymentResponseData({required this.transactionId, required this.amount, required this.paymentUrl, this.expiresAt});
   factory _PaymentResponseData.fromJson(Map<String, dynamic> json) => _$PaymentResponseDataFromJson(json);
 
-@override@JsonKey() final  String transactionId;
-@override@JsonKey() final  double amount;
-@override@JsonKey() final  String paymentUrl;
+@override final  String transactionId;
+@override final  double amount;
+@override final  String paymentUrl;
 @override final  String? expiresAt;
 
 /// Create a copy of PaymentResponseData

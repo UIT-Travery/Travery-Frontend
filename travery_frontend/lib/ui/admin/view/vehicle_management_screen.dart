@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/domain/models/admin/business_coach/business_coach.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/small_button.dart';
@@ -13,8 +12,8 @@ import 'widgets/search_bar.dart';
 import 'widgets/vehicle_card.dart';
 
 class VehicleManagementScreen extends StatefulWidget {
-  const VehicleManagementScreen({super.key});
-
+  const VehicleManagementScreen({super.key, required this.viewModel});
+  final VehicleManagementViewModel viewModel;
   @override
   State<VehicleManagementScreen> createState() =>
       _VehicleManagementScreenState();
@@ -36,7 +35,7 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<VehicleManagementViewModel>().loadVehicles.execute();
+      widget.viewModel.loadVehicles.execute();
     });
   }
 
@@ -72,8 +71,6 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<VehicleManagementViewModel>();
-
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -86,10 +83,7 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => context.pop(),
-                  ),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -127,9 +121,9 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
             // ── Content ──────────────────────────────────────────────────────
             Expanded(
               child: ListenableBuilder(
-                listenable: vm.loadVehicles,
+                listenable: widget.viewModel.loadVehicles,
                 builder: (context, _) {
-                  final cmd = vm.loadVehicles;
+                  final cmd = widget.viewModel.loadVehicles;
 
                   if (cmd.running) {
                     return const Center(child: CircularProgressIndicator());
@@ -257,15 +251,6 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
             ),
           ],
         ),
-      ),
-
-      // ── FAB ─────────────────────────────────────────────────────────────────
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {},
-        backgroundColor: AppColors.primary,
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }

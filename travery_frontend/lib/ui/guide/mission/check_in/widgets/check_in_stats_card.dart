@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 
 class CheckInStatsCard extends StatelessWidget {
   final int current;
