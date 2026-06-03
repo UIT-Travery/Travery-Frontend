@@ -41,6 +41,7 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
 
     widget.viewModel.updateVehicle.addListener(_onUpdateVehicleChanged);
     widget.viewModel.loadVehicle.addListener(_onLoadVehicleChanged);
+    widget.viewModel.deleteVehicle.addListener(_onDeleteVehicleChanged);
 
     if (widget.vehicleId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -62,6 +63,7 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
     final vm = widget.viewModel;
     vm.updateVehicle.removeListener(_onUpdateVehicleChanged);
     vm.loadVehicle.removeListener(_onLoadVehicleChanged);
+    vm.deleteVehicle.removeListener(_onDeleteVehicleChanged);
     _plateController.dispose();
     _seatsController.dispose();
     super.dispose();
@@ -131,7 +133,54 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
     }
   }
 
+  void _onDeleteVehicleChanged() {
+    final cmd = widget.viewModel.deleteVehicle;
+    if (cmd.completed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã xóa phương tiện'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      context.pop();
+    } else if (cmd.error) {
+      final e = cmd.result as Error?;
+      final errorMsg = e != null ? e.error.toString() : 'Không thể xóa phương tiện. Vui lòng thử lại.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMsg),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   // ── Actions ────────────────────────────────────────────────────────────────
+
+  void _onDelete() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xóa phương tiện'),
+        content: const Text('Bạn có chắc chắn muốn xóa phương tiện này không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (widget.vehicleId != null) {
+                widget.viewModel.deleteVehicle.execute(widget.vehicleId!);
+              }
+            },
+            child: const Text('Xóa', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _onSave() {
     if (_plateController.text.trim().isEmpty) {
@@ -154,13 +203,23 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
     }
 
     final seatCount = int.tryParse(_seatsController.text.trim()) ?? 0;
+    
+    // In order to get the correct seatLayoutId, we must extract it from the loaded BusinessCoach.
+    // If not available, we use a placeholder or handle the error.
+    final result = widget.viewModel.loadVehicle.result;
+    String layoutId = 'dummy-seat-layout';
+    if (result != null && result is Ok<BusinessCoach>) {
+      layoutId = result.value.seatLayoutId ?? layoutId;
+    }
 
     widget.viewModel.updateVehicle.execute((
       id: widget.vehicleId ?? '',
       registrationNumber: _plateController.text.trim(),
       type: _selectedVehicleType!,
-      seatLayoutId: 'dummy-seat-layout', // TODO: Get actual layout ID if needed
+      seatLayoutId: layoutId,
       seatCount: seatCount,
+      seatItems: _coachSeats,
+      layoutName: 'Layout - ${_plateController.text.trim()}',
     ));
   }
 
@@ -249,6 +308,12 @@ class _UpdateVehicleScreenState extends State<UpdateVehicleScreen> {
               LargeButton(
                 text: 'Lưu',
                 onTap: widget.viewModel.updateVehicle.running ? null : _onSave,
+              ),
+              const SizedBox(height: 16),
+              LargeButton(
+                text: 'Xóa',
+                color: AppColors.error,
+                onTap: widget.viewModel.deleteVehicle.running ? null : _onDelete,
               ),
               const SizedBox(height: 30),
             ],

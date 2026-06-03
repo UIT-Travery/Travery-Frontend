@@ -10,6 +10,7 @@ import 'package:travery_frontend/domain/models/admin/business_hotel/business_hot
 import 'package:travery_frontend/domain/models/admin/business_tour/business_tour.dart';
 import 'package:travery_frontend/domain/models/admin/tour_summary/tour_summary.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
+import 'package:travery_frontend/domain/models/admin/business_coach_seat/business_coach_seat.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Remote implementation of [AdminRepository] that calls the real backend API.
@@ -17,6 +18,9 @@ import 'package:travery_frontend/utils/core_result.dart';
 /// Methods backed by real endpoints delegate to [AdminApiService].
 /// Methods whose endpoints are not yet available (hotel, vehicle, dashboard)
 /// return a [Result.error] so the UI can handle them gracefully.
+import 'dart:convert';
+import 'dart:io';
+
 class AdminRepositoryRemote extends AdminRepository {
   AdminRepositoryRemote({
     required AdminApiService adminApiService,
@@ -435,7 +439,109 @@ class AdminRepositoryRemote extends AdminRepository {
 
   @override
   Future<Result<BusinessCoach>> getVehicle({required String id}) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.getCoachDetail(accessToken: token, id: id);
+
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        final map = result.value;
+        final coach = CoachResponse.fromJson(map);
+
+        List<BusinessCoachSeat>? seats;
+        List<dynamic>? items;
+        String? layoutId;
+
+        if (map['seatLayout'] != null && map['seatLayout']['items'] != null) {
+          items = map['seatLayout']['items'] as List<dynamic>;
+        } else {
+          try {
+            File('C:\\Users\\5560\\AppData\\Local\\Temp\\travery_log.txt').writeAsStringSync(jsonEncode(map));
+          } catch (_) {}
+          
+          if (map['seatLayoutId'] != null) {
+            layoutId = map['seatLayoutId'] as String;
+          } else if (map['seatLayout'] != null && map['seatLayout']['id'] != null) {
+            layoutId = map['seatLayout']['id'] as String;
+          }
+
+          if (layoutId != null) {
+            final layoutResult = await _adminApiService.getSeatLayoutDetail(accessToken: token, id: layoutId);
+            if (layoutResult is Ok<Map<String, dynamic>>) {
+              final layoutMap = layoutResult.value;
+              if (layoutMap['items'] != null) {
+                items = layoutMap['items'] as List<dynamic>;
+              }
+            }
+          } else {
+            // Fallback: try to find the layout by seatLayoutName
+            final layoutName = map['seatLayoutName'] as String?;
+            if (layoutName != null && layoutName.isNotEmpty) {
+              final layoutsResult = await _adminApiService.getSeatLayouts(accessToken: token);
+              if (layoutsResult is Ok<dynamic>) {
+                final layoutsData = layoutsResult.value;
+                List<dynamic>? allLayouts;
+                if (layoutsData is List) {
+                  allLayouts = layoutsData;
+                } else if (layoutsData is Map && layoutsData['content'] != null) {
+                  allLayouts = layoutsData['content'] as List<dynamic>;
+                }
+
+                if (allLayouts != null) {
+                  final matchedLayout = allLayouts.cast<Map<String, dynamic>>().firstWhere(
+                    (l) => l['name'] == layoutName || l['seatLayoutName'] == layoutName,
+                    orElse: () => <String, dynamic>{},
+                  );
+
+                  final matchedId = matchedLayout['id'] as String?;
+                  if (matchedId != null) {
+                    layoutId = matchedId;
+                    final layoutDetailResult = await _adminApiService.getSeatLayoutDetail(accessToken: token, id: matchedId);
+                    if (layoutDetailResult is Ok<Map<String, dynamic>>) {
+                      final layoutMap = layoutDetailResult.value;
+                      if (layoutMap['items'] != null) {
+                        items = layoutMap['items'] as List<dynamic>;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (items != null) {
+          seats = items.map((e) {
+            final itemMap = e as Map<String, dynamic>;
+            return BusinessCoachSeat(
+              seatName: itemMap['seatName'] as String? ?? '',
+              price: '0',
+              tier: (itemMap['tier'] == 'UPPER') ? CoachSeatTier.upper : CoachSeatTier.lower,
+              position: (itemMap['position'] == 'FRONT') ? CoachSeatPosition.front : 
+                        (itemMap['position'] == 'MIDDLE') ? CoachSeatPosition.middle : CoachSeatPosition.back,
+              rowNumber: itemMap['rowNumber'] as int? ?? 0,
+              columnNumber: itemMap['columnNumber'] as int? ?? 0,
+            );
+          }).toList();
+        }
+
+        return Result.ok(
+          BusinessCoach(
+            id: coach.id,
+            plateNumber: coach.licensePlate,
+            coachType: coach.coachType,
+            seatCount: coach.capacity,
+            status: coach.status,
+            seats: seats,
+            seatLayoutId: layoutId,
+          ),
+        );
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
@@ -479,12 +585,50 @@ class AdminRepositoryRemote extends AdminRepository {
     required String seatLayoutId,
     required int seatCount,
   }) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.updateCoach(
+      accessToken: token,
+      id: id,
+      bodyMap: {
+        'licensePlate': registrationNumber,
+        'coachType': type,
+        'seatLayoutId': seatLayoutId,
+        'capacity': seatCount,
+      },
+    );
+
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
   Future<Result<void>> deleteVehicle({required String id}) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.deleteCoach(
+      accessToken: token,
+      id: id,
+    );
+
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
   }
 
 

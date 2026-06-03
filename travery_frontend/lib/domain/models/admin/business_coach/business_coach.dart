@@ -10,6 +10,7 @@ class BusinessCoach {
     required this.seatCount,
     required this.status,
     this.seats,
+    this.seatLayoutId,
   });
 
   final String id;
@@ -18,4 +19,5 @@ class BusinessCoach {
   final int seatCount;
   final String status;
   final List<BusinessCoachSeat>? seats;
+  final String? seatLayoutId;
 }
