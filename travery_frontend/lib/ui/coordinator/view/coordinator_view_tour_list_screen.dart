@@ -117,13 +117,23 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
               ],
             ),
           ),
-          IconButton(
-            onPressed: () {
-              context.push(Routes.coordinatorViewProfile);
-            },
-            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 28),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => context.push(Routes.notifications),
+                icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 28),
+                padding: const EdgeInsets.only(right: 8),
+                constraints: const BoxConstraints(),
+              ),
+              IconButton(
+                onPressed: () {
+                  context.push(Routes.coordinatorViewProfile);
+                },
+                icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 28),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
           ),
         ],
       ),
