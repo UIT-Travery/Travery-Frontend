@@ -570,8 +570,10 @@ class AdminRepositoryDev extends AdminRepository {
   // ── Hotels ────────────────────────────────────────────────────────────────
 
   @override
-  Future<Result<List<BusinessHotel>>> getAllHotels() =>
-      _delay(List.unmodifiable(_mutableHotels));
+  Future<Result<List<BusinessHotel>>> getAllHotels({
+    int page = 0,
+    int size = 20,
+  }) => _delay(List.unmodifiable(_mutableHotels));
 
   @override
   Future<Result<BusinessHotel>> getHotel({required String id}) async {
@@ -684,6 +686,174 @@ class AdminRepositoryDev extends AdminRepository {
     if (_mutableHotels.length == lengthBefore) {
       return Result.error(Exception('Hotel not found: $id'));
     }
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> createHotel({
+    required String name,
+    String? description,
+    required String address,
+    required String cityProvince,
+    required String checkInTime,
+    required String checkOutTime,
+    List<String> amenityIds = const [],
+    required String refundPolicyId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final newId = 'hot_${_mutableHotels.length + 1}';
+    _mutableHotels.add(
+      BusinessHotel(
+        id: newId,
+        name: name,
+        address: address,
+        cityProvince: cityProvince,
+      ),
+    );
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> updateHotel({
+    required String hotelId,
+    String? name,
+    String? description,
+    String? address,
+    String? cityProvince,
+    String? checkInTime,
+    String? checkOutTime,
+    List<String>? amenityIds,
+    String? refundPolicyId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> uploadHotelImages({
+    required String hotelId,
+    required List<String> filePaths,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> deleteHotelImage({
+    required String hotelId,
+    required String imageId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> setHotelThumbnail({
+    required String hotelId,
+    required String imageId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelServices({
+    required String hotelId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createHotelService({
+    required String hotelId,
+    required String name,
+    required String category,
+    required double price,
+    required String unit,
+    String? description,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelRoomTypes({
+    required String hotelId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createHotelRoomType({
+    required String hotelId,
+    required String name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    required double basePrice,
+    required String bedType,
+    int? area,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelRooms({required String hotelId}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createHotelRoom({
+    required String hotelId,
+    required String roomNumber,
+    required int floor,
+    required String roomTypeId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  // ── Amenities ──────────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<dynamic>>> getAllAmenities() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createAmenity({
+    required String name,
+    required String type,
+    String? iconImagePath,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> updateAmenity({
+    required String amenityId,
+    String? name,
+    String? type,
+    String? iconImagePath,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> deleteAmenity({required String amenityId}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
     notifyListeners();
     return const Result.ok(null);
   }
@@ -821,18 +991,18 @@ class AdminRepositoryDev extends AdminRepository {
     throw UnimplementedError();
   }
 
-  @override
-  Future<Result<void>> createHotel({
-    required String id,
-    required String name,
-    required String address,
-    required String cityProvince,
-    required double starRating,
-    required String status,
-  }) {
-    // TODO: implement createHotel
-    throw UnimplementedError();
-  }
+  // @override
+  // Future<Result<void>> createHotel({
+  //   required String id,
+  //   required String name,
+  //   required String address,
+  //   required String cityProvince,
+  //   required double starRating,
+  //   required String status,
+  // }) {
+  //   // TODO: implement createHotel
+  //   throw UnimplementedError();
+  // }
 
   @override
   Future<Result<void>> createRoom({
@@ -856,18 +1026,17 @@ class AdminRepositoryDev extends AdminRepository {
   }
 
   @override
-  Future<Result<void>> updateHotel({
-    required String id,
-    required String name,
-    required String address,
-    required int starRating,
-    required String cityProvince,
-    required String status,
-  }) {
-    // TODO: implement updateHotel
-    throw UnimplementedError();
-  }
-
+  // Future<Result<void>> updateHotel({
+  //   required String id,
+  //   required String name,
+  //   required String address,
+  //   required int starRating,
+  //   required String cityProvince,
+  //   required String status,
+  // }) {
+  //   // TODO: implement updateHotel
+  //   throw UnimplementedError();
+  // }
   @override
   Future<Result<void>> updateRoom({
     required String id,

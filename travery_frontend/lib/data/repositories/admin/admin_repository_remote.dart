@@ -656,8 +656,31 @@ class AdminRepositoryRemote extends AdminRepository {
   // ── Hotels ─────────────────────────────────────────────────────────────────
 
   @override
-  Future<Result<List<BusinessHotel>>> getAllHotels() async {
-    return const Result.ok([]);
+  Future<Result<List<BusinessHotel>>> getAllHotels({int page = 0, int size = 20}) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminGetAllHotels(
+      accessToken: token,
+      page: page,
+      size: size,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        final content = result.value['content'] as List<dynamic>? ?? [];
+        final hotels = content.map((e) {
+          final map = e as Map<String, dynamic>;
+          return BusinessHotel(
+            id: map['id'] as String? ?? '',
+            name: map['name'] as String? ?? '',
+            address: map['address'] as String? ?? '',
+            cityProvince: map['cityProvince'] as String? ?? '',
+          );
+        }).toList();
+        return Result.ok(hotels);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
@@ -667,31 +690,386 @@ class AdminRepositoryRemote extends AdminRepository {
 
   @override
   Future<Result<void>> createHotel({
-    required String id,
     required String name,
+    String? description,
     required String address,
     required String cityProvince,
-    required double starRating,
-    required String status,
+    required String checkInTime,
+    required String checkOutTime,
+    List<String> amenityIds = const [],
+    required String refundPolicyId,
   }) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final body = <String, dynamic>{
+      'name': name,
+      'address': address,
+      'cityProvince': cityProvince,
+      'checkInTime': checkInTime,
+      'checkOutTime': checkOutTime,
+      'amenityIds': amenityIds,
+      'refundPolicyId': refundPolicyId,
+      if (description != null) 'description': description,
+    };
+
+    final result = await _adminApiService.adminCreateHotel(
+      accessToken: token,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
   Future<Result<void>> updateHotel({
-    required String id,
-    required String name,
-    required String address,
-    required int starRating,
-    required String cityProvince,
-    required String status,
+    required String hotelId,
+    String? name,
+    String? description,
+    String? address,
+    String? cityProvince,
+    String? checkInTime,
+    String? checkOutTime,
+    List<String>? amenityIds,
+    String? refundPolicyId,
   }) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name;
+    if (description != null) body['description'] = description;
+    if (address != null) body['address'] = address;
+    if (cityProvince != null) body['cityProvince'] = cityProvince;
+    if (checkInTime != null) body['checkInTime'] = checkInTime;
+    if (checkOutTime != null) body['checkOutTime'] = checkOutTime;
+    if (amenityIds != null) body['amenityIds'] = amenityIds;
+    if (refundPolicyId != null) body['refundPolicyId'] = refundPolicyId;
+
+    final result = await _adminApiService.adminUpdateHotel(
+      accessToken: token,
+      hotelId: hotelId,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
   Future<Result<void>> deleteHotel({required String id}) async {
     return Result.error(_notImplemented);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> uploadHotelImages({
+    required String hotelId,
+    required List<String> filePaths,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminUploadHotelImages(
+      accessToken: token,
+      hotelId: hotelId,
+      filePaths: filePaths,
+    );
+    switch (result) {
+      case Ok<List<dynamic>>():
+        notifyListeners();
+        return Result.ok(result.value);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteHotelImage({
+    required String hotelId,
+    required String imageId,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminDeleteHotelImage(
+      accessToken: token,
+      hotelId: hotelId,
+      imageId: imageId,
+    );
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> setHotelThumbnail({
+    required String hotelId,
+    required String imageId,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminSetHotelThumbnail(
+      accessToken: token,
+      hotelId: hotelId,
+      imageId: imageId,
+    );
+    switch (result) {
+      case Ok<void>():
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelServices({required String hotelId}) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminGetHotelServices(
+      accessToken: token,
+      hotelId: hotelId,
+    );
+    switch (result) {
+      case Ok<List<dynamic>>():
+        return Result.ok(result.value);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> createHotelService({
+    required String hotelId,
+    required String name,
+    required String category,
+    required double price,
+    required String unit,
+    String? description,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final body = <String, dynamic>{
+      'name': name,
+      'category': category,
+      'price': price,
+      'unit': unit,
+      if (description != null) 'description': description,
+    };
+
+    final result = await _adminApiService.adminCreateHotelService(
+      accessToken: token,
+      hotelId: hotelId,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelRoomTypes({required String hotelId}) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminGetRoomTypes(
+      accessToken: token,
+      hotelId: hotelId,
+    );
+    switch (result) {
+      case Ok<List<dynamic>>():
+        return Result.ok(result.value);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> createHotelRoomType({
+    required String hotelId,
+    required String name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    required double basePrice,
+    required String bedType,
+    int? area,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final body = <String, dynamic>{
+      'name': name,
+      'basePrice': basePrice,
+      'bedType': bedType,
+      if (description != null) 'description': description,
+      if (capacityAdults != null) 'capacityAdults': capacityAdults,
+      if (capacityChildren != null) 'capacityChildren': capacityChildren,
+      if (area != null) 'area': area,
+    };
+
+    final result = await _adminApiService.adminCreateRoomType(
+      accessToken: token,
+      hotelId: hotelId,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelRooms({required String hotelId}) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminGetRooms(
+      accessToken: token,
+      hotelId: hotelId,
+    );
+    switch (result) {
+      case Ok<List<dynamic>>():
+        return Result.ok(result.value);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> createHotelRoom({
+    required String hotelId,
+    required String roomNumber,
+    required int floor,
+    required String roomTypeId,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final body = <String, dynamic>{
+      'roomNumber': roomNumber,
+      'floor': floor,
+      'roomTypeId': roomTypeId,
+    };
+
+    final result = await _adminApiService.adminCreateRoom(
+      accessToken: token,
+      hotelId: hotelId,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  // ── Amenities ──────────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<dynamic>>> getAllAmenities() async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminGetAllAmenities(accessToken: token);
+    switch (result) {
+      case Ok<List<dynamic>>():
+        return Result.ok(result.value);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> createAmenity({
+    required String name,
+    required String type,
+    String? iconImagePath,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminCreateAmenity(
+      accessToken: token,
+      name: name,
+      type: type,
+      iconImagePath: iconImagePath,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> updateAmenity({
+    required String amenityId,
+    String? name,
+    String? type,
+    String? iconImagePath,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminUpdateAmenity(
+      accessToken: token,
+      amenityId: amenityId,
+      name: name,
+      type: type,
+      iconImagePath: iconImagePath,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteAmenity({required String amenityId}) async {
+    final token = await _getAccessToken();
+    if (token == null) return Result.error(Exception('Phiên đăng nhập hết hạn'));
+
+    final result = await _adminApiService.adminDeleteAmenity(
+      accessToken: token,
+      amenityId: amenityId,
+    );
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
   }
 
   // ── Rooms ──────────────────────────────────────────────────────────────────

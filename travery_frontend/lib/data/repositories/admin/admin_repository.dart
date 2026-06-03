@@ -123,29 +123,101 @@ abstract class AdminRepository extends ChangeNotifier {
 
   // ── Hotels ────────────────────────────────────────────────────────────────
 
-  Future<Result<List<BusinessHotel>>> getAllHotels();
+  Future<Result<List<BusinessHotel>>> getAllHotels({int page = 0, int size = 20});
 
   Future<Result<BusinessHotel>> getHotel({required String id});
 
   Future<Result<void>> createHotel({
-    required String id,
     required String name,
+    String? description,
     required String address,
     required String cityProvince,
-    required double starRating,
-    required String status,
+    required String checkInTime,
+    required String checkOutTime,
+    List<String> amenityIds,
+    required String refundPolicyId,
   });
 
   Future<Result<void>> updateHotel({
-    required String id,
-    required String name,
-    required String address,
-    required int starRating,
-    required String cityProvince,
-    required String status,
+    required String hotelId,
+    String? name,
+    String? description,
+    String? address,
+    String? cityProvince,
+    String? checkInTime,
+    String? checkOutTime,
+    List<String>? amenityIds,
+    String? refundPolicyId,
   });
 
   Future<Result<void>> deleteHotel({required String id});
+
+  Future<Result<List<dynamic>>> uploadHotelImages({
+    required String hotelId,
+    required List<String> filePaths,
+  });
+
+  Future<Result<void>> deleteHotelImage({
+    required String hotelId,
+    required String imageId,
+  });
+
+  Future<Result<void>> setHotelThumbnail({
+    required String hotelId,
+    required String imageId,
+  });
+
+  Future<Result<List<dynamic>>> getHotelServices({required String hotelId});
+
+  Future<Result<void>> createHotelService({
+    required String hotelId,
+    required String name,
+    required String category,
+    required double price,
+    required String unit,
+    String? description,
+  });
+
+  Future<Result<List<dynamic>>> getHotelRoomTypes({required String hotelId});
+
+  Future<Result<void>> createHotelRoomType({
+    required String hotelId,
+    required String name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    required double basePrice,
+    required String bedType,
+    int? area,
+  });
+
+  Future<Result<List<dynamic>>> getHotelRooms({required String hotelId});
+
+  Future<Result<void>> createHotelRoom({
+    required String hotelId,
+    required String roomNumber,
+    required int floor,
+    required String roomTypeId,
+  });
+
+  // ── Amenities ─────────────────────────────────────────────────────────────
+
+  Future<Result<List<dynamic>>> getAllAmenities();
+
+  Future<Result<void>> createAmenity({
+    required String name,
+    required String type,
+    String? iconImagePath,
+  });
+
+  Future<Result<void>> updateAmenity({
+    required String amenityId,
+    String? name,
+    String? type,
+    String? iconImagePath,
+  });
+
+  Future<Result<void>> deleteAmenity({required String amenityId});
 
   // ── Rooms ──────────────────────────────────────────────────────────────────
 
