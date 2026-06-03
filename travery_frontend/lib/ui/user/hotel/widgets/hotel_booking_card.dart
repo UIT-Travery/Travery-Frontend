@@ -1,43 +1,23 @@
 import 'package:flutter/material.dart';
 
-class TripBookingCard extends StatelessWidget {
-  const TripBookingCard({
+class HotelBookingCard extends StatelessWidget {
+  const HotelBookingCard({
     super.key,
-    required this.departureTime,
-    required this.arrivalTime,
-    required this.originDestination,
-    required this.destinationDestination,
-    required this.bookedSeatNames,
-    required this.basePrice,
-    required this.totalPrice,
-    required this.status,
+    required this.booking,
     required this.statusLabel,
     required this.onTap,
-    this.coachLicensePlate,
-    this.paymentDeadline,
-    this.paymentMethod,
-    this.paymentStatus,
+    this.onPaymentTap,
   });
 
-  final DateTime departureTime;
-  final DateTime? arrivalTime;
-  final String originDestination;
-  final String destinationDestination;
-  final List<String> bookedSeatNames;
-  final double basePrice;
-  final double totalPrice;
-  final String status;
+  final dynamic booking;
   final String statusLabel;
   final VoidCallback onTap;
-  final String? coachLicensePlate;
-  final DateTime? paymentDeadline;
-  final String? paymentMethod;
-  final String? paymentStatus;
+  final VoidCallback? onPaymentTap;
 
-  bool get _isPending => status == 'PENDING';
+  bool get _isPending => booking.status == 'PENDING';
 
   Color _getStatusColor() {
-    switch (status.toUpperCase()) {
+    switch (booking.status.toUpperCase()) {
       case 'PAID':
         return const Color(0xFF10B981);
       case 'PENDING':
@@ -103,9 +83,9 @@ class TripBookingCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Route as title
+                  // Hotel name as title
                   Text(
-                    '$originDestination → $destinationDestination',
+                    booking.hotelName ?? '',
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
@@ -125,15 +105,7 @@ class TripBookingCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        _formatDate(departureTime),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF414755),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${_formatTime(departureTime)} → ${arrivalTime != null ? _formatTime(arrivalTime!) : "--:--"}',
+                        _formatDateRange(),
                         style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xFF414755),
@@ -142,7 +114,7 @@ class TripBookingCard extends StatelessWidget {
                     ],
                   ),
                   // Payment deadline
-                  if (_isPending && paymentDeadline != null) ...[
+                  if (_isPending && booking.paymentDeadline != null) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -153,7 +125,7 @@ class TripBookingCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Hạn: ${_formatDate(paymentDeadline!)} ${_formatTime(paymentDeadline!)}',
+                          'Hạn: ${_formatDateTime(booking.paymentDeadline!)}',
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.orange,
@@ -180,7 +152,7 @@ class TripBookingCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            _formatPrice(totalPrice),
+                            _formatPrice(booking.totalPrice ?? 0),
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
@@ -189,9 +161,9 @@ class TripBookingCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if (_isPending)
+                      if (_isPending && onPaymentTap != null)
                         ElevatedButton(
-                          onPressed: onTap,
+                          onPressed: onPaymentTap,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B35),
                             foregroundColor: Colors.white,
@@ -249,25 +221,51 @@ class TripBookingCard extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime dt) =>
-      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  String _formatDateRange() {
+    final checkIn = booking.checkInDate;
+    final checkOut = booking.checkOutDate;
+    if (checkIn != null && checkOut != null) {
+      return '${_formatDate(checkIn)} - ${_formatDate(checkOut)}';
+    } else if (checkIn != null) {
+      return _formatDate(checkIn);
+    }
+    return 'N/A';
+  }
 
-  String _formatDate(DateTime dt) {
-    const months = [
-      'Th1',
-      'Th2',
-      'Th3',
-      'Th4',
-      'Th5',
-      'Th6',
-      'Th7',
-      'Th8',
-      'Th9',
-      'Th10',
-      'Th11',
-      'Th12',
-    ];
-    return '${dt.day.toString().padLeft(2, '0')}/${months[dt.month - 1]}/${dt.year}';
+  String _formatDate(dynamic date) {
+    if (date == null) return 'N/A';
+    try {
+      final d = date is DateTime ? date : DateTime.parse(date.toString());
+      const months = [
+        'Th1',
+        'Th2',
+        'Th3',
+        'Th4',
+        'Th5',
+        'Th6',
+        'Th7',
+        'Th8',
+        'Th9',
+        'Th10',
+        'Th11',
+        'Th12',
+      ];
+      return '${d.day.toString().padLeft(2, '0')}/${months[d.month - 1]}/${d.year}';
+    } catch (_) {
+      return date.toString();
+    }
+  }
+
+  String _formatDateTime(dynamic dateTime) {
+    if (dateTime == null) return 'N/A';
+    try {
+      final dt = dateTime is DateTime
+          ? dateTime
+          : DateTime.parse(dateTime.toString());
+      return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return dateTime.toString();
+    }
   }
 
   String _formatPrice(double price) {

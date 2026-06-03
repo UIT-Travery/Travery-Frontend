@@ -188,8 +188,7 @@ class _BookingListScreenState extends State<BookingListScreen> {
                                   subtitle: 'Hãy khám phá và đặt tour ngay!',
                                 )
                               : RefreshIndicator(
-                                  onRefresh: () =>
-                                      vm.loadBookings(refresh: true),
+                                  onRefresh: () async => vm.loadBookings(refresh: true),
                                   child: ListView.builder(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
