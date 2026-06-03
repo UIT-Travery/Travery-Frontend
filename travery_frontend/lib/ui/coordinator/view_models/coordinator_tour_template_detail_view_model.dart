@@ -12,19 +12,28 @@ class CoordinatorTourTemplateDetailViewModel extends ChangeNotifier {
     required CoordinatorRepository coordinatorRepository,
   }) : _coordinatorRepository = coordinatorRepository {
     updateTemplate =
-        Command1<CoordinatorTourTemplate, TourUpdateTemplateParams>(_updateTemplate);
+        Command1<CoordinatorTourTemplate, TourUpdateTemplateParams>(
+          _updateTemplate,
+        );
     deleteTemplate = Command1<void, String>(_deleteTemplate);
     createInstanceFromTemplate =
-        Command1<CoordinatorTour, TourCreateInstanceParams>(_createInstanceFromTemplate);
+        Command1<CoordinatorTour, TourCreateInstanceParams>(
+          _createInstanceFromTemplate,
+        );
 
     updateTemplate.addListener(_onChanged);
     deleteTemplate.addListener(_onChanged);
     createInstanceFromTemplate.addListener(_onChanged);
+    loadTemplate = Command1<CoordinatorTourTemplate, String>(_loadTemplate);
+    loadTemplate.addListener(_onChanged);
   }
 
-  late final Command1<CoordinatorTourTemplate, TourUpdateTemplateParams> updateTemplate;
+  late final Command1<CoordinatorTourTemplate, TourUpdateTemplateParams>
+  updateTemplate;
   late final Command1<void, String> deleteTemplate;
-  late final Command1<CoordinatorTour, TourCreateInstanceParams> createInstanceFromTemplate;
+  late final Command1<CoordinatorTourTemplate, String> loadTemplate;
+  late final Command1<CoordinatorTour, TourCreateInstanceParams>
+  createInstanceFromTemplate;
 
   Future<Result<CoordinatorTourTemplate>> _updateTemplate(
     TourUpdateTemplateParams params,
@@ -37,6 +46,10 @@ class CoordinatorTourTemplateDetailViewModel extends ChangeNotifier {
 
   Future<Result<void>> _deleteTemplate(String id) async {
     return _coordinatorRepository.deleteTemplate(id);
+  }
+
+  Future<Result<CoordinatorTourTemplate>> _loadTemplate(String id) async {
+    return _coordinatorRepository.getTourTemplateById(id);
   }
 
   Future<Result<CoordinatorTour>> _createInstanceFromTemplate(
@@ -73,9 +86,11 @@ class CoordinatorTourTemplateDetailViewModel extends ChangeNotifier {
     updateTemplate.removeListener(_onChanged);
     deleteTemplate.removeListener(_onChanged);
     createInstanceFromTemplate.removeListener(_onChanged);
+    loadTemplate.removeListener(_onChanged);
     updateTemplate.dispose();
     deleteTemplate.dispose();
     createInstanceFromTemplate.dispose();
+    loadTemplate.dispose();
     super.dispose();
   }
 }

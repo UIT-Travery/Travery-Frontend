@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_tour_view_model.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
@@ -6,17 +7,12 @@ import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 class CoordinatorCreateTourScreen extends StatefulWidget {
   final CoordinatorCreateTourViewModel viewModel;
 
-  /// The tour template ID selected from the template list screen.
-  final String tourId;
-
-  /// Optional display name for the selected template.
-  final String? tourName;
+  final CoordinatorTourTemplate? template;
 
   const CoordinatorCreateTourScreen({
     super.key,
     required this.viewModel,
-    required this.tourId,
-    this.tourName,
+    this.template,
   });
 
   @override
@@ -46,9 +42,9 @@ class _CoordinatorCreateTourScreenState
       Navigator.of(context).pop(true);
     } else if (widget.viewModel.createTour.error) {
       final error = widget.viewModel.createTour.result;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã xảy ra lỗi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Đã xảy ra lỗi: $error')));
     }
     setState(() {});
   }
@@ -123,7 +119,7 @@ class _CoordinatorCreateTourScreenState
       return;
     }
     widget.viewModel.execute(
-      tourId: widget.tourId,
+      tourId: widget.template?.id ?? '',
       startDate: _formatDateApi(_startDate!),
       endDate: _formatDateApi(_endDate!),
     );
@@ -133,7 +129,7 @@ class _CoordinatorCreateTourScreenState
   Widget build(BuildContext context) {
     final isLoading = widget.viewModel.createTour.running;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surface,
       bottomNavigationBar: _buildBottomBar(),
       body: SafeArea(
         child: Column(
@@ -176,36 +172,36 @@ class _CoordinatorCreateTourScreenState
                   ),
                   Material(
                     color: isLoading
-                        ? AppColors.primaryDarkBlackBlue.withOpacity(0.6)
+                        ? AppColors.primaryDarkBlackBlue.withValues(alpha: 0.6)
                         : AppColors.primaryDarkBlackBlue,
                     borderRadius: BorderRadius.circular(8),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: isLoading ? null : _onConfirm,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text(
-                                'Xác nhận',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: AppTextTheme.bodyMedium,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-                    ),
+                    // child: InkWell(
+                    //   borderRadius: BorderRadius.circular(8),
+                    //   onTap: isLoading ? null : _onConfirm,
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 16,
+                    //       vertical: 8,
+                    //     ),
+                    //     child: isLoading
+                    //         ? const SizedBox(
+                    //             width: 20,
+                    //             height: 20,
+                    //             child: CircularProgressIndicator(
+                    //               color: Colors.white,
+                    //               strokeWidth: 2,
+                    //             ),
+                    //           )
+                    //         : const Text(
+                    //             'Xác nhận',
+                    //             style: TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: AppTextTheme.bodyMedium,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //   ),
+                    // ),
                   ),
                 ],
               ),
@@ -320,9 +316,7 @@ class _CoordinatorCreateTourScreenState
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColors.primaryDarkBlackBlue.withOpacity(0.1),
-        ),
+        border: Border.all(color: AppColors.primaryDarkBlackBlue),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -337,7 +331,8 @@ class _CoordinatorCreateTourScreenState
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             child: Image.network(
-              'https://images.unsplash.com/photo-1599708153386-62bf3f034eb1?q=80&w=2070&auto=format&fit=crop',
+              widget.template?.imageUrl ??
+                  'https://images.unsplash.com/photo-1599708153386-62bf3f034eb1?q=80&w=2070&auto=format&fit=crop',
               height: 160,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -345,8 +340,12 @@ class _CoordinatorCreateTourScreenState
                 return Container(
                   height: 160,
                   width: double.infinity,
-                  color: AppColors.primary.withOpacity(0.1),
-                  child: const Icon(Icons.image, size: 50, color: AppColors.primary),
+                  color: AppColors.primary,
+                  child: const Icon(
+                    Icons.image,
+                    size: 50,
+                    color: AppColors.primary,
+                  ),
                 );
               },
             ),
@@ -357,7 +356,7 @@ class _CoordinatorCreateTourScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.tourName ?? 'Hà Nội - Sapa - Fansipan 3N2Đ',
+                  widget.template?.name ?? 'Chưa xác định',
                   style: const TextStyle(
                     fontSize: AppTextTheme.bodyMedium,
                     fontWeight: FontWeight.bold,
@@ -365,9 +364,9 @@ class _CoordinatorCreateTourScreenState
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  '2.450.000đ',
-                  style: TextStyle(
+                Text(
+                  '${widget.template?.adultPrice ?? 0} VNĐ',
+                  style: const TextStyle(
                     fontSize: AppTextTheme.bodyMedium,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
@@ -422,7 +421,10 @@ class _CoordinatorCreateTourScreenState
                       color: AppColors.textHint,
                     ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
                     isDense: true,
                   ),
                   style: const TextStyle(
@@ -457,10 +459,7 @@ class _CoordinatorCreateTourScreenState
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppColors.primaryDarkBlackBlue,
-            width: 1.5,
-          ),
+          border: Border.all(color: AppColors.primaryDarkBlackBlue, width: 1.5),
         ),
         child: Column(
           children: const [
@@ -483,9 +482,7 @@ class _CoordinatorCreateTourScreenState
     final isLoading = widget.viewModel.createTour.running;
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-      ),
+      decoration: const BoxDecoration(color: AppColors.surface),
       child: SafeArea(
         child: ElevatedButton(
           onPressed: isLoading ? null : _onConfirm,

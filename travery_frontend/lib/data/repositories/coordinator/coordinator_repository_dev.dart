@@ -132,4 +132,10 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     return const Result.ok(null);
   }
+
+  @override
+  Future<Result<CoordinatorTourTemplate>> getTourTemplateById(String id) {
+    // TODO: implement getTourTemplateById
+    throw UnimplementedError();
+  }
 }

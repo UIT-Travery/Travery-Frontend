@@ -226,6 +226,8 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
               id: r.id,
               name: r.name,
               imageUrl: '',
+              thumbnailUrl: '',
+              images: [],
               description: r.description,
               adultPrice: r.pricePerAdult.toString(),
               childPrice: r.pricePerChild.toString(),
@@ -233,11 +235,62 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
               endTime: '',
               minTotalPerson: 0,
               maxTotalPerson: 0,
+              startLocation: '',
+              destination: '',
               itineraries: [],
             );
           }).toList();
           notifyListeners();
           return Result.ok(templates);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<CoordinatorTourTemplate>> getTourTemplateById(String id) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getTourDetail(
+        accessToken: token,
+        id: id,
+      );
+
+      switch (result) {
+        case Ok():
+          final r = result.value;
+          return Result.ok(
+            CoordinatorTourTemplate(
+              id: r.id,
+              name: r.name,
+              imageUrl: r.images.isNotEmpty
+                  ? r.images
+                      .firstWhere((img) => !img.isThumbnail, orElse: () => r.images.first)
+                      .url
+                  : '',
+              thumbnailUrl: r.images.isNotEmpty
+                  ? r.images
+                      .firstWhere((img) => img.isThumbnail, orElse: () => r.images.first)
+                      .url
+                  : '',
+              images: r.images.map((img) => img.url).toList(),
+              description: r.description,
+              adultPrice: r.pricePerAdult.toString(),
+              childPrice: r.pricePerChild.toString(),
+              startTime: '',
+              endTime: '',
+              minTotalPerson: 0,
+              maxTotalPerson: 0,
+              startLocation: r.startLocation,
+              destination: r.destination?.name ?? '',
+              itineraries: [],
+            ),
+          );
         case Error():
           return Result.error(result.error);
       }
@@ -306,7 +359,9 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
               startDate: r.startDate,
               endDate: r.endDate ?? '',
               minParticipants: 0,
-              maxParticipants: r.availableSlots ?? ((r.maxParticipants ?? 0) - r.currentParticipants),
+              maxParticipants:
+                  r.availableSlots ??
+                  ((r.maxParticipants ?? 0) - r.currentParticipants),
               currentParticipants: 0,
               status: r.status,
             );
@@ -344,6 +399,8 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
               id: r.id,
               name: r.name,
               imageUrl: '',
+              thumbnailUrl: '',
+              images: [],
               description: r.description,
               adultPrice: r.pricePerAdult.toString(),
               childPrice: r.pricePerChild.toString(),
@@ -351,6 +408,8 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
               endTime: '',
               minTotalPerson: 0,
               maxTotalPerson: 0,
+              startLocation: '',
+              destination: '',
               itineraries: [],
             ),
           );

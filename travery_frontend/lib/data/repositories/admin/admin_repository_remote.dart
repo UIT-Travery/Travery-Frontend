@@ -217,10 +217,7 @@ class AdminRepositoryRemote extends AdminRepository {
       return Result.error(Exception('Phiên đăng nhập hết hạn'));
     }
 
-    final result = await _adminApiService.banUser(
-      accessToken: token,
-      id: id,
-    );
+    final result = await _adminApiService.banUser(accessToken: token, id: id);
     switch (result) {
       case Ok<Map<String, dynamic>>():
         notifyListeners();
@@ -237,10 +234,7 @@ class AdminRepositoryRemote extends AdminRepository {
       return Result.error(Exception('Phiên đăng nhập hết hạn'));
     }
 
-    final result = await _adminApiService.unbanUser(
-      accessToken: token,
-      id: id,
-    );
+    final result = await _adminApiService.unbanUser(accessToken: token, id: id);
     switch (result) {
       case Ok<Map<String, dynamic>>():
         notifyListeners();
@@ -381,8 +375,14 @@ class AdminRepositoryRemote extends AdminRepository {
       if (e is Map<String, dynamic>) return e;
       return {
         'seatName': (e as dynamic).seatName,
-        'tier': ((e as dynamic).tier.toString().contains('upper')) ? 'UPPER' : 'LOWER',
-        'position': ((e as dynamic).position.toString().contains('front')) ? 'FRONT' : ((e as dynamic).position.toString().contains('middle') ? 'MIDDLE' : 'BACK'),
+        'tier': ((e as dynamic).tier.toString().contains('upper'))
+            ? 'UPPER'
+            : 'LOWER',
+        'position': ((e as dynamic).position.toString().contains('front'))
+            ? 'FRONT'
+            : ((e as dynamic).position.toString().contains('middle')
+                  ? 'MIDDLE'
+                  : 'BACK'),
         'rowNumber': (e as dynamic).rowNumber,
         'columnNumber': (e as dynamic).columnNumber,
       };
@@ -444,7 +444,10 @@ class AdminRepositoryRemote extends AdminRepository {
       return Result.error(Exception('Phiên đăng nhập hết hạn'));
     }
 
-    final result = await _adminApiService.getCoachDetail(accessToken: token, id: id);
+    final result = await _adminApiService.getCoachDetail(
+      accessToken: token,
+      id: id,
+    );
 
     switch (result) {
       case Ok<Map<String, dynamic>>():
@@ -459,17 +462,23 @@ class AdminRepositoryRemote extends AdminRepository {
           items = map['seatLayout']['items'] as List<dynamic>;
         } else {
           try {
-            File('C:\\Users\\5560\\AppData\\Local\\Temp\\travery_log.txt').writeAsStringSync(jsonEncode(map));
+            File(
+              'C:\\Users\\5560\\AppData\\Local\\Temp\\travery_log.txt',
+            ).writeAsStringSync(jsonEncode(map));
           } catch (_) {}
-          
+
           if (map['seatLayoutId'] != null) {
             layoutId = map['seatLayoutId'] as String;
-          } else if (map['seatLayout'] != null && map['seatLayout']['id'] != null) {
+          } else if (map['seatLayout'] != null &&
+              map['seatLayout']['id'] != null) {
             layoutId = map['seatLayout']['id'] as String;
           }
 
           if (layoutId != null) {
-            final layoutResult = await _adminApiService.getSeatLayoutDetail(accessToken: token, id: layoutId);
+            final layoutResult = await _adminApiService.getSeatLayoutDetail(
+              accessToken: token,
+              id: layoutId,
+            );
             if (layoutResult is Ok<Map<String, dynamic>>) {
               final layoutMap = layoutResult.value;
               if (layoutMap['items'] != null) {
@@ -480,26 +489,34 @@ class AdminRepositoryRemote extends AdminRepository {
             // Fallback: try to find the layout by seatLayoutName
             final layoutName = map['seatLayoutName'] as String?;
             if (layoutName != null && layoutName.isNotEmpty) {
-              final layoutsResult = await _adminApiService.getSeatLayouts(accessToken: token);
+              final layoutsResult = await _adminApiService.getSeatLayouts(
+                accessToken: token,
+              );
               if (layoutsResult is Ok<dynamic>) {
                 final layoutsData = layoutsResult.value;
                 List<dynamic>? allLayouts;
                 if (layoutsData is List) {
                   allLayouts = layoutsData;
-                } else if (layoutsData is Map && layoutsData['content'] != null) {
+                } else if (layoutsData is Map &&
+                    layoutsData['content'] != null) {
                   allLayouts = layoutsData['content'] as List<dynamic>;
                 }
 
                 if (allLayouts != null) {
-                  final matchedLayout = allLayouts.cast<Map<String, dynamic>>().firstWhere(
-                    (l) => l['name'] == layoutName || l['seatLayoutName'] == layoutName,
-                    orElse: () => <String, dynamic>{},
-                  );
+                  final matchedLayout = allLayouts
+                      .cast<Map<String, dynamic>>()
+                      .firstWhere(
+                        (l) =>
+                            l['name'] == layoutName ||
+                            l['seatLayoutName'] == layoutName,
+                        orElse: () => <String, dynamic>{},
+                      );
 
                   final matchedId = matchedLayout['id'] as String?;
                   if (matchedId != null) {
                     layoutId = matchedId;
-                    final layoutDetailResult = await _adminApiService.getSeatLayoutDetail(accessToken: token, id: matchedId);
+                    final layoutDetailResult = await _adminApiService
+                        .getSeatLayoutDetail(accessToken: token, id: matchedId);
                     if (layoutDetailResult is Ok<Map<String, dynamic>>) {
                       final layoutMap = layoutDetailResult.value;
                       if (layoutMap['items'] != null) {
@@ -519,9 +536,14 @@ class AdminRepositoryRemote extends AdminRepository {
             return BusinessCoachSeat(
               seatName: itemMap['seatName'] as String? ?? '',
               price: '0',
-              tier: (itemMap['tier'] == 'UPPER') ? CoachSeatTier.upper : CoachSeatTier.lower,
-              position: (itemMap['position'] == 'FRONT') ? CoachSeatPosition.front : 
-                        (itemMap['position'] == 'MIDDLE') ? CoachSeatPosition.middle : CoachSeatPosition.back,
+              tier: (itemMap['tier'] == 'UPPER')
+                  ? CoachSeatTier.upper
+                  : CoachSeatTier.lower,
+              position: (itemMap['position'] == 'FRONT')
+                  ? CoachSeatPosition.front
+                  : (itemMap['position'] == 'MIDDLE')
+                  ? CoachSeatPosition.middle
+                  : CoachSeatPosition.back,
               rowNumber: itemMap['rowNumber'] as int? ?? 0,
               columnNumber: itemMap['columnNumber'] as int? ?? 0,
             );
@@ -630,7 +652,6 @@ class AdminRepositoryRemote extends AdminRepository {
         return Result.error(result.error);
     }
   }
-
 
   // ── Hotels ─────────────────────────────────────────────────────────────────
 
@@ -802,6 +823,8 @@ class AdminRepositoryRemote extends AdminRepository {
             id: map['id'] as String? ?? '',
             name: map['name'] as String? ?? '',
             imageUrl: '',
+            thumbnailUrl: '',
+            images: [],
             description: map['description'] as String? ?? '',
             adultPrice: (map['pricePerAdult'] ?? 0).toString(),
             childPrice: (map['pricePerChild'] ?? 0).toString(),
@@ -809,6 +832,8 @@ class AdminRepositoryRemote extends AdminRepository {
             endTime: '',
             minTotalPerson: 0,
             maxTotalPerson: 0,
+            startLocation: map['startLocation'] as String? ?? '',
+            destination: (map['destination'] as Map<String, dynamic>?)?['name'] as String? ?? '',
             itineraries: [],
           );
         }).toList();

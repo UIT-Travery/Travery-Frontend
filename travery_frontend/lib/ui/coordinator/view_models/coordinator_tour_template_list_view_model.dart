@@ -16,7 +16,7 @@ class CoordinatorTourTemplateListViewModel extends ChangeNotifier {
     deleteTemplate = Command1<void, String>(_deleteTemplate);
 
     searchQuery.addListener(_applyFilters);
-    loadTemplates.addListener(_onTemplatesLoaded);
+    loadTours.addListener(_onToursLoaded);
     deleteTemplate.addListener(_onDeleteTemplate);
   }
 
@@ -29,7 +29,7 @@ class CoordinatorTourTemplateListViewModel extends ChangeNotifier {
   late final Command1<void, String> deleteTemplate;
 
   final ValueNotifier<String> searchQuery = ValueNotifier('');
-  final ValueNotifier<List<CoordinatorTourTemplate>> filteredTemplates =
+  final ValueNotifier<List<TourSummaryResponse>> filteredTours =
       ValueNotifier([]);
 
   Future<Result<List<CoordinatorTourTemplate>>> _loadTemplates() async {
@@ -44,38 +44,38 @@ class CoordinatorTourTemplateListViewModel extends ChangeNotifier {
     return _coordinatorRepository.deleteTemplate(id);
   }
 
-  void _onTemplatesLoaded() {
-    if (loadTemplates.completed) {
+  void _onToursLoaded() {
+    if (loadTours.completed) {
       _applyFilters();
-    } else {
-      filteredTemplates.value = [];
+    } else if (loadTours.error) {
+      filteredTours.value = [];
     }
   }
 
   void _onDeleteTemplate() {
     if (deleteTemplate.completed) {
       // Refresh the list after successful deletion
-      loadTemplates.execute();
+      loadTours.execute();
     }
     notifyListeners();
   }
 
   void _applyFilters() {
-    if (!loadTemplates.completed) return;
+    if (!loadTours.completed) return;
 
-    final allTemplates =
-        (loadTemplates.result as Ok<List<CoordinatorTourTemplate>>).value;
+    final allTours =
+        (loadTours.result as Ok<List<TourSummaryResponse>>).value;
     final query = searchQuery.value.trim().toLowerCase();
 
     if (query.isEmpty) {
-      filteredTemplates.value = List.from(allTemplates);
+      filteredTours.value = List.from(allTours);
     } else {
-      filteredTemplates.value =
-          allTemplates.where((template) {
-            final nameMatches = template.name.toLowerCase().contains(query);
-            final descMatches =
-                template.description.toLowerCase().contains(query);
-            return nameMatches || descMatches;
+      filteredTours.value =
+          allTours.where((tour) {
+            final nameMatches = tour.name.toLowerCase().contains(query);
+            final destMatches =
+                tour.destinationName.toLowerCase().contains(query);
+            return nameMatches || destMatches;
           }).toList();
     }
   }
@@ -83,8 +83,8 @@ class CoordinatorTourTemplateListViewModel extends ChangeNotifier {
   @override
   void dispose() {
     searchQuery.dispose();
-    filteredTemplates.dispose();
-    loadTemplates.removeListener(_onTemplatesLoaded);
+    filteredTours.dispose();
+    loadTours.removeListener(_onToursLoaded);
     deleteTemplate.removeListener(_onDeleteTemplate);
     loadTemplates.dispose();
     loadTours.dispose();

@@ -289,9 +289,10 @@ GoRouter appRouter(
         builder: (context, state) {
           final template = state.extra as CoordinatorTourTemplate?;
           return CoordinatorCreateTourScreen(
-            viewModel: context.read<CoordinatorCreateTourViewModel>(),
-            tourId: template?.id ?? '',
-            tourName: template?.name,
+            viewModel: CoordinatorCreateTourViewModel(
+              coordinatorRepository: context.read<CoordinatorRepository>(),
+            ),
+            template: template,
           );
         },
       ),

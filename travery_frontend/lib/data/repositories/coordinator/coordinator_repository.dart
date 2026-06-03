@@ -41,6 +41,9 @@ abstract class CoordinatorRepository extends ChangeNotifier {
   /// GET /api/v1/tours/templates — list tour templates.
   Future<Result<List<CoordinatorTourTemplate>>> getTourTemplates();
 
+  /// GET /api/v1/tours/{id} — get a single tour template by id.
+  Future<Result<CoordinatorTourTemplate>> getTourTemplateById(String id);
+
   /// GET /api/v1/tours — search tours (paginated). Returns summary list.
   Future<Result<List<TourSummaryResponse>>> getTours({
     String? keyword,
