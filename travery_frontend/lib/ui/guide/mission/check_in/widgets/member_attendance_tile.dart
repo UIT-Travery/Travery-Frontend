@@ -8,11 +8,13 @@ class MemberAttendanceTile extends StatelessWidget {
     required this.member,
     required this.currentStatus,
     required this.onStatusChanged,
+    this.isEditable = true,
   });
 
   final GuideMember member;
   final String currentStatus;
   final ValueChanged<String> onStatusChanged;
+  final bool isEditable;
 
   Color get _borderColor {
     switch (currentStatus) {
@@ -115,7 +117,7 @@ class MemberAttendanceTile extends StatelessWidget {
                         width: 96,
                         child: _CompactStatusPicker(
                           value: currentStatus,
-                          onChanged: onStatusChanged,
+                          onChanged: isEditable ? onStatusChanged : null,
                         ),
                       ),
                     ],
@@ -134,7 +136,7 @@ class _CompactStatusPicker extends StatelessWidget {
   const _CompactStatusPicker({required this.value, required this.onChanged});
 
   final String value;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onChanged;
 
   Color get _statusColor {
     switch (value) {
@@ -170,6 +172,9 @@ class _CompactStatusPicker extends StatelessWidget {
   }
 
   void _showOptions(BuildContext context) {
+    final callback = onChanged;
+    if (callback == null) return;
+
     final RenderBox button = context.findRenderObject() as RenderBox;
     final Offset offset = button.localToGlobal(Offset.zero);
 
@@ -211,7 +216,7 @@ class _CompactStatusPicker extends StatelessWidget {
                       textColor: AppColors.textPrimary,
                       onTap: () {
                         Navigator.of(ctx).pop();
-                        onChanged('NOT_CHECKED');
+                        callback('NOT_CHECKED');
                       },
                       isSelected: value == 'NOT_CHECKED',
                     ),
@@ -223,7 +228,7 @@ class _CompactStatusPicker extends StatelessWidget {
                       textColor: const Color(0xFF22c55e),
                       onTap: () {
                         Navigator.of(ctx).pop();
-                        onChanged('CHECKED_IN');
+                        callback('CHECKED_IN');
                       },
                       isSelected: value == 'CHECKED_IN',
                     ),
@@ -235,7 +240,7 @@ class _CompactStatusPicker extends StatelessWidget {
                       textColor: const Color(0xFFef4444),
                       onTap: () {
                         Navigator.of(ctx).pop();
-                        onChanged('NO_SHOW');
+                        callback('NO_SHOW');
                       },
                       isSelected: value == 'NO_SHOW',
                     ),
@@ -257,6 +262,7 @@ class _CompactStatusPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEditable = onChanged != null;
     return GestureDetector(
       onTap: () => _showOptions(context),
       child: Container(
@@ -276,7 +282,11 @@ class _CompactStatusPicker extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(_statusIcon, size: 14, color: _statusColor),
+            Icon(
+              isEditable ? _statusIcon : Icons.lock_outline,
+              size: 14,
+              color: isEditable ? _statusColor : AppColors.textSecondary,
+            ),
             const SizedBox(width: 4),
             Expanded(
               child: Text(
@@ -284,13 +294,17 @@ class _CompactStatusPicker extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: _statusColor,
+                  color: isEditable ? _statusColor : AppColors.textSecondary,
                 ),
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 16, color: _statusColor),
+            Icon(
+              isEditable ? Icons.arrow_drop_down : Icons.remove,
+              size: 16,
+              color: isEditable ? _statusColor : AppColors.textSecondary,
+            ),
           ],
         ),
       ),

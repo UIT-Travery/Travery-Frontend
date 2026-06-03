@@ -195,7 +195,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
   }
 
   @override
-  Future<Result<void>> updateAttendance(
+  Future<Result<GuideMissionDetail>> updateAttendance(
     String instanceId,
     List<Map<String, String>> attendances,
   ) async {
@@ -219,7 +219,13 @@ class GuideMissionServiceImpl implements GuideMissionService {
       final response = await request.close();
 
       if (response.statusCode == 200) {
-        return const Result.ok(null);
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>?;
+        if (data == null) {
+          return Result.error(const HttpException('Không tìm thấy dữ liệu'));
+        }
+        return Result.ok(_parseMissionDetail(data));
       } else {
         final errorMsg = await _extractErrorMessage(
           response,

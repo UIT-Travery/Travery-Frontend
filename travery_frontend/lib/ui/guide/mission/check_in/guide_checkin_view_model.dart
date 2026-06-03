@@ -105,13 +105,14 @@ class GuideCheckinViewModel extends ChangeNotifier {
         attendances,
       );
 
-      switch (result) {
-        case core_result.Ok():
-          attendanceChanges.value = {};
-          return true;
-        case core_result.Error(:final error):
-          saveError.value = error.toString();
-          return false;
+      final missionResult = result;
+      if (missionResult is core_result.Ok<GuideMissionDetail>) {
+        loadMission.setData(missionResult.value);
+        attendanceChanges.value = {};
+        return true;
+      } else {
+        saveError.value = missionResult.toString();
+        return false;
       }
     } catch (e) {
       saveError.value = e.toString();
@@ -154,6 +155,13 @@ class AsyncTask<T> extends ChangeNotifier {
 
     _running = false;
     _result = result;
+    notifyListeners();
+  }
+
+  /// Replace the current result with fresh data (used after receiving updated
+  /// data from an API response that already returns the full model).
+  void setData(T data) {
+    _result = core_result.Result.ok(data);
     notifyListeners();
   }
 }
