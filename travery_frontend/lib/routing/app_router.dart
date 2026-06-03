@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
+import 'package:travery_frontend/domain/models/admin/business_hotel/business_hotel.dart';
 import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
@@ -149,6 +150,11 @@ import '../ui/admin/view/admin_view_profile_screen.dart';
 import '../ui/admin/view_model/amenity_management_view_model.dart';
 import '../ui/admin/view_model/create_amenity_view_model.dart';
 import '../ui/admin/view_model/update_amenity_view_model.dart';
+import '../ui/admin/view_model/room_type_list_view_model.dart';
+import '../ui/admin/view_model/hotel_service_list_view_model.dart';
+import '../ui/admin/view_model/create_room_type_view_model.dart';
+import '../ui/admin/view_model/create_hotel_service_view_model.dart';
+import '../ui/admin/view/admin_hotel_detail_screen.dart';
 
 // Admin Refund Policy imports
 import '../ui/admin/view/refund_policy_management_screen.dart';
@@ -785,6 +791,13 @@ GoRouter appRouter(
         },
       ),
       GoRoute(
+        path: Routes.adminHotelDetail,
+        builder: (context, state) {
+          final hotel = state.extra as BusinessHotel;
+          return AdminHotelDetailScreen(hotel: hotel);
+        },
+      ),
+      GoRoute(
         path: Routes.adminCreateVehicle,
         builder: (context, state) => CreateVehicleScreen(
           viewModel: CreateVehicleViewModel(
@@ -893,24 +906,48 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.adminViewRoomtypeList,
-        builder: (context, state) => const ViewRoomtypeListScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final hotelId = extra?['hotelId'] as String? ?? '';
+          return ViewRoomtypeListScreen(
+            viewModel: RoomTypeListViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            hotelId: hotelId,
+          );
+        },
       ),
       GoRoute(
         path: Routes.adminViewRoomtype,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return ViewRoomtypeScreen(roomType: extra?['roomType']);
+          return ViewRoomtypeScreen(
+            roomTypeResponse: extra?['roomTypeResponse'],
+            hotelId: extra?['hotelId'] as String? ?? '',
+          );
         },
       ),
       GoRoute(
         path: Routes.adminCreateRoomType,
-        builder: (context, state) => const CreateRoomTypeScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final hotelId = extra?['hotelId'] as String? ?? '';
+          return CreateRoomTypeScreen(
+            viewModel: CreateRoomTypeViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            hotelId: hotelId,
+          );
+        },
       ),
       GoRoute(
         path: Routes.adminUpdateRoomType,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return UpdateRoomTypeScreen(roomType: extra?['roomType']);
+          return UpdateRoomTypeScreen(
+            roomTypeResponse: extra?['roomTypeResponse'],
+            hotelId: extra?['hotelId'] as String? ?? '',
+          );
         },
       ),
       GoRoute(
@@ -974,11 +1011,29 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.adminHotelServiceList,
-        builder: (context, state) => const ViewHotelServiceListScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final hotelId = extra?['hotelId'] as String? ?? '';
+          return ViewHotelServiceListScreen(
+            viewModel: HotelServiceListViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            hotelId: hotelId,
+          );
+        },
       ),
       GoRoute(
         path: Routes.adminCreateHotelService,
-        builder: (context, state) => const CreateHotelServiceScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final hotelId = extra?['hotelId'] as String? ?? '';
+          return CreateHotelServiceScreen(
+            viewModel: CreateHotelServiceViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            hotelId: hotelId,
+          );
+        },
       ),
       GoRoute(
         path: Routes.adminUpdateHotelService,
@@ -989,6 +1044,9 @@ GoRouter appRouter(
             serviceName: extra?['serviceName'] as String?,
             unit: extra?['unit'] as String?,
             price: extra?['price'] as String?,
+            hotelId: extra?['hotelId'] as String?,
+            serviceId: extra?['serviceId'] as String?,
+            description: extra?['description'] as String?,
           );
         },
       ),

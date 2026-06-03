@@ -189,12 +189,9 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   void _onHotelTap(BusinessHotel h) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Xem chi tiết: ${h.name}'),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
+    context.push(
+      Routes.adminHotelDetail,
+      extra: h,
     );
   }
 }

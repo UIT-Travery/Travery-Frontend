@@ -42,6 +42,9 @@ class Routes {
   static const String adminViewProfile = '/admin/view-profile';
   static const String adminUpdateProfile = '/admin/update-profile';
 
+  // Admin Hotel Detail
+  static const String adminHotelDetail = '/admin/hotel-detail';
+
   // Admin Room Type
   static const String adminViewRoomtypeList = '/admin/room-types';
   static const String adminViewRoomtype = '/admin/room-types/view';

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../domain/models/admin/business_room_type/business_room_type.dart';
+import 'package:travery_frontend/data/services/api/model/hotel/room_type_response.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
 import 'widgets/large_button.dart';
 
 class UpdateRoomTypeScreen extends StatefulWidget {
-  final BusinessRoomType? roomType;
+  final RoomTypeResponse? roomTypeResponse;
+  final String hotelId;
 
-  const UpdateRoomTypeScreen({super.key, this.roomType});
+  const UpdateRoomTypeScreen({
+    super.key,
+    this.roomTypeResponse,
+    required this.hotelId,
+  });
 
   @override
   State<UpdateRoomTypeScreen> createState() => _UpdateRoomTypeScreenState();
@@ -16,62 +21,78 @@ class UpdateRoomTypeScreen extends StatefulWidget {
 
 class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
   late TextEditingController _nameController;
+  late TextEditingController _descriptionController;
   late TextEditingController _adultController;
   late TextEditingController _childController;
   late TextEditingController _priceController;
+  late TextEditingController _areaController;
 
-  String? _selectedBedType;
+  RoomBedType? _selectedBedType;
   final List<String> _bedTypes = ['Single', 'Double', 'Twin'];
-
-  String? _selectedHotel;
-  final List<String> _hotels = [
-    'Khách sạn Mường Thanh',
-    'Khách sạn Rex',
-    'Khách sạn Caravelle',
-  ];
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(
-      text: widget.roomType?.name ?? 'Very VIP',
-    );
+    final rt = widget.roomTypeResponse;
+    _nameController = TextEditingController(text: rt?.name ?? '');
+    _descriptionController = TextEditingController(text: rt?.description ?? '');
     _adultController = TextEditingController(
-      text: widget.roomType?.aldultCapacity.toString() ?? '2',
+      text: rt?.capacityAdults?.toString() ?? '',
     );
     _childController = TextEditingController(
-      text: widget.roomType?.childCapacity.toString() ?? '2',
+      text: rt?.capacityChildren?.toString() ?? '',
     );
     _priceController = TextEditingController(
-      text: widget.roomType != null
-          ? widget.roomType!.pricePerNight.toStringAsFixed(0)
-          : '2000000',
+      text: rt != null ? rt.basePrice.toStringAsFixed(0) : '',
     );
-
-    if (widget.roomType != null) {
-      switch (widget.roomType!.bedType) {
-        case BedType.single:
-          _selectedBedType = 'Single';
-          break;
-        case BedType.double:
-          _selectedBedType = 'Double';
-          break;
-        case BedType.twin:
-          _selectedBedType = 'Twin';
-          break;
-      }
-    } else {
-      _selectedBedType = 'Twin';
-    }
+    _areaController = TextEditingController();
+    _selectedBedType = rt?.bedType;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _descriptionController.dispose();
     _adultController.dispose();
     _childController.dispose();
     _priceController.dispose();
+    _areaController.dispose();
     super.dispose();
+  }
+
+  RoomBedType? _bedTypeFromLabel(String? label) {
+    switch (label) {
+      case 'Single':
+        return RoomBedType.single;
+      case 'Double':
+        return RoomBedType.double_;
+      case 'Twin':
+        return RoomBedType.twin;
+      default:
+        return null;
+    }
+  }
+
+  String? _labelFromBedType(RoomBedType? type) {
+    if (type == null) return null;
+    switch (type) {
+      case RoomBedType.single:
+        return 'Single';
+      case RoomBedType.double_:
+        return 'Double';
+      case RoomBedType.twin:
+        return 'Twin';
+    }
+  }
+
+  void _submit() {
+    // TODO: wire up UpdateRoomTypeViewModel when update endpoint is available
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Chức năng cập nhật đang được phát triển'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   @override
@@ -106,44 +127,33 @@ class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
-            CustomDropdownButton(
-              label: 'Khách sạn',
-              textholder: 'Chọn loại khách sạn',
-              items: _hotels,
-              value: _selectedHotel,
-              prefixIcon: const Icon(
-                Icons.hotel_outlined,
-                color: Colors.black54,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _selectedHotel = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
             InputTextField(
               label: 'Tên loại phòng',
               textholder: 'Nhập tên loại phòng',
               controller: _nameController,
               textInputType: TextInputType.text,
               prefixIcon: const Icon(Icons.format_size, color: Colors.black54),
-              suffixIcon: const Icon(
-                Icons.edit,
-                size: 20,
-                color: Colors.black54,
-              ),
+              suffixIcon: const Icon(Icons.edit, size: 20, color: Colors.black54),
+            ),
+            const SizedBox(height: 16),
+            InputTextField(
+              label: 'Mô tả (tuỳ chọn)',
+              textholder: 'Nhập mô tả loại phòng',
+              controller: _descriptionController,
+              textInputType: TextInputType.multiline,
+              prefixIcon: const Icon(Icons.description_outlined, color: Colors.black54),
+              suffixIcon: const Icon(Icons.edit, size: 20, color: Colors.black54),
             ),
             const SizedBox(height: 16),
             CustomDropdownButton(
               label: 'Loại giường',
               textholder: 'Chọn loại giường',
               items: _bedTypes,
-              value: _selectedBedType,
+              value: _labelFromBedType(_selectedBedType),
               prefixIcon: const Icon(Icons.bed_outlined, color: Colors.black54),
               onChanged: (value) {
                 setState(() {
-                  _selectedBedType = value;
+                  _selectedBedType = _bedTypeFromLabel(value);
                 });
               },
             ),
@@ -156,15 +166,10 @@ class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
                     textholder: 'Nhập số người lớn',
                     controller: _adultController,
                     textInputType: TextInputType.number,
-                    prefixIcon: const Icon(
-                      Icons.person_outline,
-                      color: Colors.black54,
-                    ),
-                    suffixIcon: const Icon(
-                      Icons.edit,
-                      size: 20,
-                      color: Colors.black54,
-                    ),
+                    prefixIcon:
+                        const Icon(Icons.person_outline, color: Colors.black54),
+                    suffixIcon:
+                        const Icon(Icons.edit, size: 20, color: Colors.black54),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -174,47 +179,34 @@ class _UpdateRoomTypeScreenState extends State<UpdateRoomTypeScreen> {
                     textholder: 'Nhập số trẻ em',
                     controller: _childController,
                     textInputType: TextInputType.number,
-                    prefixIcon: const Icon(
-                      Icons.person_outline,
-                      color: Colors.black54,
-                    ),
-                    suffixIcon: const Icon(
-                      Icons.edit,
-                      size: 20,
-                      color: Colors.black54,
-                    ),
+                    prefixIcon:
+                        const Icon(Icons.person_outline, color: Colors.black54),
+                    suffixIcon:
+                        const Icon(Icons.edit, size: 20, color: Colors.black54),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             InputTextField(
-              label: 'Giá tiền / đêm',
+              label: 'Giá tiền / đêm (VND)',
               textholder: 'Nhập số tiền',
               controller: _priceController,
               textInputType: TextInputType.number,
               prefixIcon: const Icon(Icons.attach_money, color: Colors.black54),
-              suffixIcon: const Icon(
-                Icons.edit,
-                size: 20,
-                color: Colors.black54,
-              ),
+              suffixIcon: const Icon(Icons.edit, size: 20, color: Colors.black54),
             ),
             const SizedBox(height: 32),
             LargeButton(
               text: 'Xác nhận chỉnh sửa',
               color: const Color(0xFF0055C3),
-              onTap: () {
-                // Handle confirm edit
-              },
+              onTap: _submit,
             ),
             const SizedBox(height: 12),
             LargeButton(
               text: 'Hủy bỏ',
-              color: const Color(0xFFC80000), // Red color
-              onTap: () {
-                context.pop();
-              },
+              color: const Color(0xFFC80000),
+              onTap: () => context.pop(),
             ),
             const SizedBox(height: 32),
           ],

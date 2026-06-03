@@ -8,6 +8,9 @@ class UpdateHotelServiceScreen extends StatefulWidget {
   final String? serviceName;
   final String? unit;
   final String? price;
+  final String? hotelId;
+  final String? serviceId;
+  final String? description;
 
   const UpdateHotelServiceScreen({
     super.key,
@@ -15,37 +18,38 @@ class UpdateHotelServiceScreen extends StatefulWidget {
     this.serviceName,
     this.unit,
     this.price,
+    this.hotelId,
+    this.serviceId,
+    this.description,
   });
 
   @override
-  State<UpdateHotelServiceScreen> createState() => _UpdateHotelServiceScreenState();
+  State<UpdateHotelServiceScreen> createState() =>
+      _UpdateHotelServiceScreenState();
 }
 
 class _UpdateHotelServiceScreenState extends State<UpdateHotelServiceScreen> {
   late TextEditingController nameController;
   late TextEditingController priceController;
+  late TextEditingController unitController;
+  late TextEditingController descriptionController;
 
   String? selectedServiceType;
-  String? selectedUnit;
-  String? selectedHotel;
 
-  final List<String> serviceTypes = ['Spa', 'Ăn uống', 'Giặt ủi', 'Khác'];
-  final List<String> units = ['Người', 'Suất', 'KG', 'Lần'];
-  final List<String> hotels = ['Khách sạn Mường Thanh', 'Khách sạn Rex', 'Khách sạn Caravelle'];
+  final List<String> serviceTypes = ['Ăn uống', 'Spa', 'Giặt ủi', 'Khác'];
 
   @override
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.serviceName);
     priceController = TextEditingController(text: widget.price);
+    unitController = TextEditingController(text: widget.unit);
+    descriptionController = TextEditingController(text: widget.description);
     selectedServiceType = widget.serviceType;
-    selectedUnit = widget.unit;
-    
-    if (selectedServiceType != null && !serviceTypes.contains(selectedServiceType)) {
-      serviceTypes.add(selectedServiceType!);
-    }
-    if (selectedUnit != null && !units.contains(selectedUnit)) {
-      units.add(selectedUnit!);
+
+    if (selectedServiceType != null &&
+        !serviceTypes.contains(selectedServiceType)) {
+      selectedServiceType = serviceTypes.last;
     }
   }
 
@@ -53,7 +57,19 @@ class _UpdateHotelServiceScreenState extends State<UpdateHotelServiceScreen> {
   void dispose() {
     nameController.dispose();
     priceController.dispose();
+    unitController.dispose();
+    descriptionController.dispose();
     super.dispose();
+  }
+
+  void _submit() {
+    // TODO: wire up UpdateHotelServiceViewModel when update endpoint is available
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Chức năng cập nhật đang được phát triển'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   @override
@@ -74,7 +90,6 @@ class _UpdateHotelServiceScreenState extends State<UpdateHotelServiceScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             const Text(
               'Chỉnh sửa Dịch vụ',
               style: TextStyle(
@@ -86,29 +101,14 @@ class _UpdateHotelServiceScreenState extends State<UpdateHotelServiceScreen> {
             const SizedBox(height: 8),
             const Text(
               'Thay đổi thông tin của dịch vụ đã chọn',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF64748B),
-              ),
+              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 24),
             CustomDropdownButton(
-              label: 'Khách sạn',
-              textholder: 'Chọn loại khách sạn',
-              prefixIcon: const Icon(Icons.hotel_outlined, color: Colors.black54),
-              items: hotels,
-              value: selectedHotel,
-              onChanged: (value) {
-                setState(() {
-                  selectedHotel = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            CustomDropdownButton(
               label: 'Loại dịch vụ',
               textholder: 'Chọn loại dịch vụ',
-              prefixIcon: const Icon(Icons.category_outlined, color: Colors.black54),
+              prefixIcon:
+                  const Icon(Icons.category_outlined, color: Colors.black54),
               items: serviceTypes,
               value: selectedServiceType,
               onChanged: (value) {
@@ -120,45 +120,50 @@ class _UpdateHotelServiceScreenState extends State<UpdateHotelServiceScreen> {
             const SizedBox(height: 16),
             InputTextField(
               label: 'Tên dịch vụ',
-              textholder: 'Nhập tên loại phòng', 
+              textholder: 'Nhập tên dịch vụ',
               prefixIcon: const Icon(Icons.text_format, color: Colors.black54),
               suffixIcon: const Icon(Icons.edit, color: Colors.black54),
               controller: nameController,
               textInputType: TextInputType.text,
             ),
             const SizedBox(height: 16),
-            CustomDropdownButton(
+            InputTextField(
               label: 'Đơn vị tính',
-              textholder: 'Chọn đơn vị tính',
-              prefixIcon: const Icon(Icons.category_outlined, color: Colors.black54),
-              items: units,
-              value: selectedUnit,
-              onChanged: (value) {
-                setState(() {
-                  selectedUnit = value;
-                });
-              },
+              textholder: 'Ví dụ: Người, Suất, KG, Lần...',
+              prefixIcon:
+                  const Icon(Icons.straighten_outlined, color: Colors.black54),
+              suffixIcon: const Icon(Icons.edit, color: Colors.black54),
+              controller: unitController,
+              textInputType: TextInputType.text,
             ),
             const SizedBox(height: 16),
             InputTextField(
-              label: 'Đơn giá',
+              label: 'Đơn giá (VND)',
               textholder: 'Nhập số tiền',
               prefixIcon: const Icon(Icons.attach_money, color: Colors.black54),
               suffixIcon: const Icon(Icons.edit, color: Colors.black54),
               controller: priceController,
               textInputType: TextInputType.number,
             ),
+            const SizedBox(height: 16),
+            InputTextField(
+              label: 'Mô tả (tuỳ chọn)',
+              textholder: 'Nhập mô tả dịch vụ',
+              prefixIcon:
+                  const Icon(Icons.description_outlined, color: Colors.black54),
+              suffixIcon: const Icon(Icons.edit, color: Colors.black54),
+              controller: descriptionController,
+              textInputType: TextInputType.multiline,
+            ),
             const SizedBox(height: 32),
             LargeButton(
               text: 'Xác nhận',
-              onTap: () {
-                // Submit action
-              },
+              onTap: _submit,
             ),
             const SizedBox(height: 12),
             LargeButton(
               text: 'Hủy bỏ',
-              color: const Color(0xFFCC0000), // Red color
+              color: const Color(0xFFCC0000),
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 32),
