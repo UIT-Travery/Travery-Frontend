@@ -4,20 +4,121 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_temp
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_button.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_detail_view_model.dart';
+import 'package:travery_frontend/utils/alert.dart';
+import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
-class CoordinatorViewTemplateScreen extends StatelessWidget {
+class CoordinatorViewTemplateScreen extends StatefulWidget {
   final CoordinatorTourTemplate template;
+  final CoordinatorTourTemplateDetailViewModel viewModel;
 
-  const CoordinatorViewTemplateScreen({super.key, required this.template});
+  const CoordinatorViewTemplateScreen({
+    super.key,
+    required this.template,
+    required this.viewModel,
+  });
 
+  @override
+  State<CoordinatorViewTemplateScreen> createState() =>
+      _CoordinatorViewTemplateScreenState();
+}
+
+class _CoordinatorViewTemplateScreenState
+    extends State<CoordinatorViewTemplateScreen> {
   String _formatPrice(String priceStr) {
     final price = double.tryParse(priceStr) ?? 0.0;
     final formatter = NumberFormat('#,###', 'vi_VN');
     return '${formatter.format(price)} VNĐ';
   }
 
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.deleteTemplate.addListener(_onDeleteResult);
+    widget.viewModel.createInstanceFromTemplate.addListener(_onCreateResult);
+  }
+
+  @override
+  void didUpdateWidget(covariant CoordinatorViewTemplateScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.deleteTemplate.removeListener(_onDeleteResult);
+    oldWidget.viewModel.createInstanceFromTemplate.removeListener(_onCreateResult);
+    widget.viewModel.deleteTemplate.addListener(_onDeleteResult);
+    widget.viewModel.createInstanceFromTemplate.addListener(_onCreateResult);
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.deleteTemplate.removeListener(_onDeleteResult);
+    widget.viewModel.createInstanceFromTemplate.removeListener(_onCreateResult);
+    super.dispose();
+  }
+
+  void _onDeleteResult() {
+    if (!mounted) return;
+    if (widget.viewModel.deleteTemplate.error) {
+      final result = widget.viewModel.deleteTemplate.result;
+      String msg = 'Xóa lộ trình thất bại';
+      if (result != null && result is core_result.Error) {
+        msg = (result as core_result.Error).error
+            .toString()
+            .replaceAll('HttpException: ', '');
+      }
+      widget.viewModel.deleteTemplate.clearResult();
+      Utils.showErrorNotification(context, msg);
+    } else if (widget.viewModel.deleteTemplate.completed) {
+      widget.viewModel.deleteTemplate.clearResult();
+      Utils.showSuccessNotification(context, 'Xóa lộ trình thành công');
+      Navigator.of(context).pop();
+    }
+    setState(() {});
+  }
+
+  void _onCreateResult() {
+    if (!mounted) return;
+    if (widget.viewModel.createInstanceFromTemplate.error) {
+      final result = widget.viewModel.createInstanceFromTemplate.result;
+      String msg = 'Tạo tour thất bại';
+      if (result != null && result is core_result.Error) {
+        msg = (result as core_result.Error).error
+            .toString()
+            .replaceAll('HttpException: ', '');
+      }
+      widget.viewModel.createInstanceFromTemplate.clearResult();
+      Utils.showErrorNotification(context, msg);
+    } else if (widget.viewModel.createInstanceFromTemplate.completed) {
+      widget.viewModel.createInstanceFromTemplate.clearResult();
+      Utils.showSuccessNotification(context, 'Tạo tour thành công!');
+      Navigator.of(context).pop();
+    }
+    setState(() {});
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
+    final template = widget.template;
+    final isLoading = widget.viewModel.deleteTemplate.running ||
+        widget.viewModel.createInstanceFromTemplate.running;
+
+    return Stack(
+      children: [
+        _buildScaffold(context, template),
+        if (isLoading)
+          Container(
+            color: Colors.black26,
+            child: const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, CoordinatorTourTemplate template) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
@@ -188,10 +289,7 @@ class CoordinatorViewTemplateScreen extends StatelessWidget {
                   text: 'Tạo tour mới từ lộ trình này',
                   color: AppColors.primary,
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Đang chuyển sang tạo tour mới...')),
-                    );
+                    _showCreateTourDialog(context, template);
                   },
                 ),
                 const SizedBox(height: 10),
@@ -200,7 +298,7 @@ class CoordinatorViewTemplateScreen extends StatelessWidget {
                   color: AppColors.error,
                   prefixIcon: Icons.delete_outline,
                   onTap: () {
-                    _showDeleteConfirmDialog(context);
+                    _showDeleteConfirmDialog(context, template);
                   },
                 ),
               ],
@@ -347,7 +445,7 @@ class CoordinatorViewTemplateScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmDialog(BuildContext context) {
+  void _showDeleteConfirmDialog(BuildContext context, CoordinatorTourTemplate template) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -362,9 +460,55 @@ class CoordinatorViewTemplateScreen extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              Navigator.of(context).pop();
+              widget.viewModel.deleteTemplate.execute(template.id);
             },
             child: const Text('Xóa', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCreateTourDialog(BuildContext context, CoordinatorTourTemplate template) {
+    final startDateController = TextEditingController();
+    final endDateController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Tạo tour mới'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: startDateController,
+              decoration: const InputDecoration(
+                labelText: 'Ngày bắt đầu (YYYY-MM-DD)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: endDateController,
+              decoration: const InputDecoration(
+                labelText: 'Ngày kết thúc (YYYY-MM-DD)',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              widget.viewModel.executeCreateInstance(
+                tourId: template.id,
+                startDate: startDateController.text.trim(),
+                endDate: endDateController.text.trim(),
+              );
+            },
+            child: const Text('Tạo'),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:travery_frontend/data/repositories/coordinator/coordinator_repos
 import 'package:travery_frontend/data/services/api/coordinator_api_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/tour_instance_detail_response/tour_instance_detail_response.dart';
+import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
@@ -72,15 +73,16 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
           final tours = result.value.map((r) {
             return CoordinatorTour(
               id: r.id,
-              tourName: '',
+              tourName: r.tourName,
               destinationName: '',
               pickupLocation: '',
               startDate: r.startDate,
-              endDate: r.endDate,
+              endDate: r.endDate ?? '',
               minParticipants: 0,
-              maxParticipants: r.availableSlots,
-              currentParticipants: 0,
+              maxParticipants: r.maxParticipants ?? 0,
+              currentParticipants: r.currentParticipants,
               status: r.status,
+              imageUrl: r.imageUrl,
             );
           }).toList();
           notifyListeners();
@@ -88,8 +90,8 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
         case Error():
           return Result.error(result.error);
       }
-    } on Exception catch (e) {
-      return Result.error(e);
+    } catch (e) {
+      return Result.error(Exception(e.toString()));
     }
   }
 
@@ -219,14 +221,14 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
 
       switch (result) {
         case Ok():
-          final templates = result.value.map((map) {
+          final templates = result.value.map((r) {
             return CoordinatorTourTemplate(
-              id: map['id'] as String? ?? '',
-              name: map['name'] as String? ?? '',
+              id: r.id,
+              name: r.name,
               imageUrl: '',
-              description: map['description'] as String? ?? '',
-              adultPrice: (map['pricePerAdult'] ?? 0).toString(),
-              childPrice: (map['pricePerChild'] ?? 0).toString(),
+              description: r.description,
+              adultPrice: r.pricePerAdult.toString(),
+              childPrice: r.pricePerChild.toString(),
               startTime: '',
               endTime: '',
               minTotalPerson: 0,
@@ -236,6 +238,145 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
           }).toList();
           notifyListeners();
           return Result.ok(templates);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<TourSummaryResponse>>> getTours({
+    String? keyword,
+    double? minPrice,
+    double? maxPrice,
+    String? startDate,
+    String? destinationId,
+    int? minRating,
+    int page = 0,
+    int size = 20,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getTours(
+        accessToken: token,
+        keyword: keyword,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        startDate: startDate,
+        destinationId: destinationId,
+        minRating: minRating,
+        page: page,
+        size: size,
+      );
+
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<CoordinatorTour>>> getTourInstances(String tourId) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getTourInstances(
+        accessToken: token,
+        id: tourId,
+      );
+
+      switch (result) {
+        case Ok():
+          final tours = result.value.map((r) {
+            return CoordinatorTour(
+              id: r.id,
+              tourName: '',
+              destinationName: '',
+              pickupLocation: '',
+              startDate: r.startDate,
+              endDate: r.endDate ?? '',
+              minParticipants: 0,
+              maxParticipants: r.availableSlots ?? ((r.maxParticipants ?? 0) - r.currentParticipants),
+              currentParticipants: 0,
+              status: r.status,
+            );
+          }).toList();
+          return Result.ok(tours);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<CoordinatorTourTemplate>> updateTemplate({
+    required String id,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.updateTourTemplate(
+        accessToken: token,
+        id: id,
+        data: data,
+      );
+
+      switch (result) {
+        case Ok():
+          final r = result.value;
+          notifyListeners();
+          return Result.ok(
+            CoordinatorTourTemplate(
+              id: r.id,
+              name: r.name,
+              imageUrl: '',
+              description: r.description,
+              adultPrice: r.pricePerAdult.toString(),
+              childPrice: r.pricePerChild.toString(),
+              startTime: '',
+              endTime: '',
+              minTotalPerson: 0,
+              maxTotalPerson: 0,
+              itineraries: [],
+            ),
+          );
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteTemplate(String id) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.deleteTourTemplate(
+        accessToken: token,
+        id: id,
+      );
+
+      switch (result) {
+        case Ok():
+          notifyListeners();
+          return const Result.ok(null);
         case Error():
           return Result.error(result.error);
       }

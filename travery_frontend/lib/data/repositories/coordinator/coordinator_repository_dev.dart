@@ -1,4 +1,5 @@
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
@@ -54,6 +55,42 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return Result.error(Exception('Not implemented in dev mode'));
+  }
+
+  @override
+  Future<Result<List<TourSummaryResponse>>> getTours({
+    String? keyword,
+    double? minPrice,
+    double? maxPrice,
+    String? startDate,
+    String? destinationId,
+    int? minRating,
+    int page = 0,
+    int size = 20,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<List<CoordinatorTour>>> getTourInstances(String tourId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<CoordinatorTourTemplate>> updateTemplate({
+    required String id,
+    required Map<String, dynamic> data,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return Result.error(Exception('Not implemented in dev mode'));
+  }
+
+  @override
+  Future<Result<void>> deleteTemplate(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
   }
 
   // ── Stubbed methods for unused bottom sheets ─────────────────────────────

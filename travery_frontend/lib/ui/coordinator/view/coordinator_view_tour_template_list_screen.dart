@@ -5,6 +5,7 @@ import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_list_view_model.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
 class CoordinatorViewTourTemplateListScreen extends StatefulWidget {
@@ -27,16 +28,63 @@ class _CoordinatorViewTourTemplateListScreenState
   @override
   void initState() {
     super.initState();
+    widget.viewModel.loadTemplates.addListener(_onResult);
+    widget.viewModel.deleteTemplate.addListener(_onDeleteResult);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.viewModel.loadTemplates.execute();
     });
   }
 
   @override
+  void didUpdateWidget(covariant CoordinatorViewTourTemplateListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.loadTemplates.removeListener(_onResult);
+    oldWidget.viewModel.deleteTemplate.removeListener(_onDeleteResult);
+    widget.viewModel.loadTemplates.addListener(_onResult);
+    widget.viewModel.deleteTemplate.addListener(_onDeleteResult);
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
-    widget.viewModel.dispose();
+    widget.viewModel.loadTemplates.removeListener(_onResult);
+    widget.viewModel.deleteTemplate.removeListener(_onDeleteResult);
     super.dispose();
+  }
+
+  void _onResult() {
+    if (!mounted) return;
+    if (widget.viewModel.loadTemplates.error) {
+      final result = widget.viewModel.loadTemplates.result;
+      String msg = 'Không thể tải danh sách lộ trình';
+      if (result != null && result is core_result.Error) {
+        msg = (result as core_result.Error).error
+            .toString()
+            .replaceAll('HttpException: ', '');
+      }
+      widget.viewModel.loadTemplates.clearResult();
+      Utils.showErrorNotification(context, msg);
+    }
+    setState(() {});
+  }
+
+  void _onDeleteResult() {
+    if (!mounted) return;
+    if (widget.viewModel.deleteTemplate.error) {
+      final result = widget.viewModel.deleteTemplate.result;
+      String msg = 'Xóa lộ trình thất bại';
+      if (result != null && result is core_result.Error) {
+        msg = (result as core_result.Error).error
+            .toString()
+            .replaceAll('HttpException: ', '');
+      }
+      widget.viewModel.deleteTemplate.clearResult();
+      Utils.showErrorNotification(context, msg);
+    } else if (widget.viewModel.deleteTemplate.completed) {
+      widget.viewModel.deleteTemplate.clearResult();
+      Utils.showSuccessNotification(context, 'Xóa lộ trình thành công');
+    }
+    setState(() {});
   }
 
   @override
@@ -146,12 +194,14 @@ class _CoordinatorViewTourTemplateListScreenState
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (viewModel.loadTemplates.error) {
-                      final error =
-                          (viewModel.loadTemplates.result as core_result.Error)
-                              .error;
+                      final errorResult = viewModel.loadTemplates.result;
+                      final errorMsg = errorResult != null &&
+                              errorResult is core_result.Error
+                          ? (errorResult as core_result.Error).error.toString()
+                          : 'Lỗi không xác định';
                       return Center(
                         child: Text(
-                          error.toString(),
+                          errorMsg,
                           style: const TextStyle(color: AppColors.error),
                         ),
                       );

@@ -100,6 +100,8 @@ import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_t
 import 'package:travery_frontend/ui/coordinator/view/coordinator_create_tour_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_tour_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_template_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_detail_view_model.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/home/hotel_home_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/hotel_detail_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
@@ -258,7 +260,12 @@ GoRouter appRouter(
         path: Routes.coordinatorTourDetail,
         builder: (context, state) {
           final tour = state.extra as CoordinatorTour;
-          return CoordinatorViewTourScreen(tour: tour);
+          return CoordinatorViewTourScreen(
+            tour: tour,
+            viewModel: CoordinatorTourDetailViewModel(
+              coordinatorRepository: context.read<CoordinatorRepository>(),
+            ),
+          );
         },
       ),
       GoRoute(
@@ -292,7 +299,12 @@ GoRouter appRouter(
         path: Routes.coordinatorViewTemplate,
         builder: (context, state) {
           final template = state.extra as CoordinatorTourTemplate;
-          return CoordinatorViewTemplateScreen(template: template);
+          return CoordinatorViewTemplateScreen(
+            template: template,
+            viewModel: CoordinatorTourTemplateDetailViewModel(
+              coordinatorRepository: context.read<CoordinatorRepository>(),
+            ),
+          );
         },
       ),
       GoRoute(
