@@ -34,17 +34,6 @@ class CoordinatorViewCoachScreen extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
                 const Text(
                   'Chi tiết xe',
                   style: TextStyle(

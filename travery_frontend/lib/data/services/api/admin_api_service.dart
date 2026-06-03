@@ -695,7 +695,7 @@ class AdminApiService {
   }
   // ── Seat Layouts ──────────────────────────────────────────────────────────
 
-  Future<Result<Map<String, dynamic>>> getSeatLayouts({
+  Future<Result<dynamic>> getSeatLayouts({
     required String accessToken,
     String? coachType,
   }) async {
@@ -715,7 +715,7 @@ class AdminApiService {
       if (response.statusCode == 200) {
         final stringData = await response.transform(utf8.decoder).join();
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
-        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+        return Result.ok(jsonMap['data']);
       } else {
         final errorMsg = await _extractErrorMessage(
           response,
@@ -865,6 +865,43 @@ class AdminApiService {
     }
   }
 
+  Future<Result<Map<String, dynamic>>> updateCoach({
+    required String accessToken,
+    required String id,
+    required Map<String, dynamic> bodyMap,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/coaches/$id');
+      final request = await client.putUrl(uri); // Assuming PUT is used
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cập nhật phương tiện',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
   Future<Result<Map<String, dynamic>>> getCoachDetail({
     required String accessToken,
     required String id,
@@ -886,6 +923,35 @@ class AdminApiService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Không thể tải chi tiết phương tiện',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<void>> deleteCoach({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/coaches/$id');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể xóa phương tiện',
         );
         return Result.error(HttpException(errorMsg));
       }

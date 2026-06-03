@@ -30,6 +30,8 @@ abstract class Command<T> extends ChangeNotifier {
 
     try {
       _result = await action();
+    } catch (e) {
+      _result = Result.error(Exception(e.toString()));
     } finally {
       _running = false;
       notifyListeners();

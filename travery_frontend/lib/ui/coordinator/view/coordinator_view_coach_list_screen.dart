@@ -17,7 +17,6 @@ class _CoordinatorViewCoachListScreenState
     with AutomaticKeepAliveClientMixin {
   final TextEditingController _searchController = TextEditingController();
 
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -63,13 +62,6 @@ class _CoordinatorViewCoachListScreenState
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 26),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
           const Text(
             'Danh sách đặt xe',
             style: TextStyle(
@@ -114,8 +106,11 @@ class _CoordinatorViewCoachListScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.directions_bus_outlined,
-                color: AppColors.textSecondary, size: 56),
+            Icon(
+              Icons.directions_bus_outlined,
+              color: AppColors.textSecondary,
+              size: 56,
+            ),
             SizedBox(height: 16),
             Text(
               'Chức năng đặt xe đang được phát triển',
@@ -131,5 +126,3 @@ class _CoordinatorViewCoachListScreenState
     );
   }
 }
-
-

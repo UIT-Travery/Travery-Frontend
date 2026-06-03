@@ -204,6 +204,88 @@
           }
         }
       },
+      "UpdateCoachRequest": {
+        "required": [
+          "coachType",
+          "licensePlate",
+          "seatLayoutId"
+        ],
+        "type": "object",
+        "properties": {
+          "licensePlate": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "coachType": {
+            "type": "string",
+            "enum": [
+              "SEAT",
+              "BED",
+              "LIMOUSINE"
+            ]
+          },
+          "capacity": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "seatLayoutId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CoachResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "licensePlate": {
+            "type": "string"
+          },
+          "coachType": {
+            "type": "string",
+            "enum": [
+              "SEAT",
+              "BED",
+              "LIMOUSINE"
+            ]
+          },
+          "capacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "MAINTENANCE",
+              "INACTIVE"
+            ]
+          },
+          "seatLayoutName": {
+            "type": "string"
+          }
+        }
+      },
+      "SingleResponseCoachResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CoachResponse"
+          }
+        }
+      },
       "SingleResponseTourResponse": {
         "type": "object",
         "properties": {
@@ -246,6 +328,14 @@
           },
           "pricePerChild": {
             "type": "number"
+          },
+          "minParticipants": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxParticipants": {
+            "type": "integer",
+            "format": "int32"
           },
           "custom": {
             "type": "boolean"
@@ -1565,55 +1655,6 @@
           }
         }
       },
-      "CoachResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "licensePlate": {
-            "type": "string"
-          },
-          "coachType": {
-            "type": "string",
-            "enum": [
-              "SEAT",
-              "BED",
-              "LIMOUSINE"
-            ]
-          },
-          "capacity": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "MAINTENANCE"
-            ]
-          },
-          "seatLayoutName": {
-            "type": "string"
-          }
-        }
-      },
-      "SingleResponseCoachResponse": {
-        "type": "object",
-        "properties": {
-          "httpStatus": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/CoachResponse"
-          }
-        }
-      },
       "TourProgressUpdateRequest": {
         "required": [
           "status"
@@ -1898,6 +1939,22 @@
           }
         }
       },
+      "UpdateCoachStatusRequest": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "MAINTENANCE",
+              "INACTIVE"
+            ]
+          }
+        }
+      },
       "TourSearchRequest": {
         "type": "object",
         "properties": {
@@ -1972,21 +2029,21 @@
             "type": "integer",
             "format": "int32"
           },
-          "pageable": {
-            "$ref": "#/components/schemas/PageableObject"
-          },
-          "sort": {
-            "$ref": "#/components/schemas/SortObject"
-          },
-          "numberOfElements": {
-            "type": "integer",
-            "format": "int32"
-          },
           "first": {
             "type": "boolean"
           },
           "last": {
             "type": "boolean"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
           },
           "empty": {
             "type": "boolean"
@@ -2000,22 +2057,22 @@
             "type": "integer",
             "format": "int64"
           },
-          "paged": {
+          "unpaged": {
             "type": "boolean"
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
           },
           "pageSize": {
             "type": "integer",
             "format": "int32"
           },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paged": {
+            "type": "boolean"
+          },
           "sort": {
             "$ref": "#/components/schemas/SortObject"
-          },
-          "unpaged": {
-            "type": "boolean"
           }
         }
       },
@@ -2040,10 +2097,10 @@
           "empty": {
             "type": "boolean"
           },
-          "sorted": {
+          "unsorted": {
             "type": "boolean"
           },
-          "unsorted": {
+          "sorted": {
             "type": "boolean"
           }
         }
@@ -2267,11 +2324,10 @@
             "type": "string",
             "format": "uuid"
           },
-          "startDate": {
-            "type": "string",
-            "format": "date"
+          "tourName": {
+            "type": "string"
           },
-          "endDate": {
+          "startDate": {
             "type": "string",
             "format": "date"
           },
@@ -2286,7 +2342,11 @@
               "CANCELLED"
             ]
           },
-          "availableSlots": {
+          "currentParticipants": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxParticipants": {
             "type": "integer",
             "format": "int32"
           }
@@ -2360,6 +2420,24 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TourIncidentResponse"
+            }
+          }
+        }
+      },
+      "SingleResponseListDestinationResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DestinationResponse"
             }
           }
         }
@@ -2761,6 +2839,21 @@
             "items": {
               "$ref": "#/components/schemas/CoachResponse"
             }
+          }
+        }
+      },
+      "SingleResponseVoid": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
           }
         }
       }
