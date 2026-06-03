@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import 'package:travery_frontend/data/seed_models/guide_tour/guide_tour.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
@@ -43,93 +42,34 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surfaceBlue,
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: ListenableBuilder(
-              listenable: _viewModel.loadTours,
-              builder: (context, _) {
-                return ListenableBuilder(
-                  listenable: _viewModel.filteredTours,
-                  builder: (context, _) {
-                    return _buildContent();
-                  },
-                );
-              },
-            ),
+      appBar: AppBar(
+        backgroundColor: AppColors.surfaceBlue,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'Chuyến đi của tôi',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-        ],
+        ),
+        centerTitle: true,
+      ),
+      body: ListenableBuilder(
+        listenable: _viewModel.loadTours,
+        builder: (context, _) {
+          return ListenableBuilder(
+            listenable: _viewModel.filteredTours,
+            builder: (context, _) {
+              return _buildContent();
+            },
+          );
+        },
       ),
       bottomNavigationBar: GuideBottomNavBar(
         currentIndex: _currentNavIndex,
         onTap: _onNavTap,
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.fromLTRB(20, statusBarHeight + 16, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDarkBlackBlue],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Travery',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.notifications_outlined,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Chuyến đi của tôi',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Quản lý lịch trình và các chuyến hành trình sắp tới.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.8),
-            ),
-          ),
-        ],
       ),
     );
   }

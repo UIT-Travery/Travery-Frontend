@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 
 class GuideBottomNavBar extends StatelessWidget {
@@ -60,7 +62,7 @@ class GuideBottomNavBar extends StatelessWidget {
                 activeIcon: Icons.person,
                 label: 'Cá nhân',
                 isActive: currentIndex == 3,
-                onTap: () => onTap(3),
+                onTap: () => context.push(Routes.userProfile),
               ),
             ],
           ),

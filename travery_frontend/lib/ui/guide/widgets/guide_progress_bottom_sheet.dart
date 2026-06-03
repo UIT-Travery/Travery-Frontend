@@ -38,43 +38,23 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
       widget.currentStatus == 'COMPLETED' ||
       widget.currentStatus == 'CANCELLED';
 
-  /// Get available statuses: current (disabled), next in sequence (enabled),
-  /// COMPLETED and CANCELLED. Past statuses are hidden.
+  /// Get available statuses: always show IN_PROGRESS, COMPLETED, CANCELLED.
+  /// Current status is shown as disabled; everything else is selectable.
   List<_TourStatusOption> _getAvailableStatuses() {
-    const sequence = ['PLANNING', 'OPEN', 'FULL', 'IN_PROGRESS'];
-    final currentIndex = sequence.indexOf(widget.currentStatus);
-
-    // Terminal statuses: include everything (no restriction on next steps)
-    if (currentIndex == -1) {
-      return _buildAllStatusOptions();
-    }
-
+    const selectable = ['IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
     final result = <_TourStatusOption>[];
 
-    // Add current status (disabled)
-    result.add(_buildOption(sequence[currentIndex]));
+    // Add current status first (disabled)
+    result.add(_buildOption(widget.currentStatus));
 
-    // Add next status in sequence (enabled) — only one forward step
-    if (currentIndex < sequence.length - 1) {
-      result.add(_buildOption(sequence[currentIndex + 1]));
+    // Add selectable forward statuses
+    for (final status in selectable) {
+      if (status != widget.currentStatus) {
+        result.add(_buildOption(status));
+      }
     }
 
-    // Always allow COMPLETED and CANCELLED
-    result.add(_buildOption('COMPLETED'));
-    result.add(_buildOption('CANCELLED'));
-
     return result;
-  }
-
-  List<_TourStatusOption> _buildAllStatusOptions() {
-    return [
-      'PLANNING',
-      'OPEN',
-      'FULL',
-      'IN_PROGRESS',
-      'COMPLETED',
-      'CANCELLED',
-    ].map(_buildOption).toList();
   }
 
   _TourStatusOption _buildOption(String status) {
