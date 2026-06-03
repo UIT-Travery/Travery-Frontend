@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tiến độ tour - Travery</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Custom Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'travery-blue': '#0066FF',
+            'travery-bg': '#F8FAFF',
+            'travery-card-bg': '#FFFFFF',
+            'travery-light-blue': '#EBF2FF',
+            'travery-gray': '#F1F3F9',
+            'travery-text-muted': '#6B7280',
+            'travery-status-bg': '#D1E3FF',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-shadows">
+    .card-shadow {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    .timeline-line {
+      width: 2px;
+      background-color: #E5E7EB;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 11px;
+      z-index: 0;
+    }
+    .timeline-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="bg-travery-bg font-sans text-slate-800 min-h-screen">
+<!-- BEGIN: MainHeader -->
+<header class="bg-white px-4 py-4 sticky top-0 z-50 border-b border-gray-100" data-purpose="app-header">
+<div class="flex items-center">
+<!-- Back Arrow -->
+<button aria-label="Go back" class="text-travery-blue">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- Title Group -->
+<div class="flex-1 text-center pr-6">
+<h1 class="text-lg font-bold text-slate-900 leading-tight">Tiến độ tour</h1>
+<p class="text-xs text-slate-500 font-medium">HL240502-VIP</p>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<main class="p-4 space-y-6">
+<!-- BEGIN: CurrentTourCard -->
+<section class="bg-white rounded-3xl p-6 card-shadow relative overflow-hidden" data-purpose="current-tour-info">
+<!-- Decorative circle in top right -->
+<div class="absolute -top-10 -right-10 w-32 height-32 bg-travery-light-blue rounded-full opacity-50"></div>
+<div class="relative z-10">
+<span class="text-xs font-bold text-travery-blue tracking-wider uppercase">TOUR HIỆN TẠI</span>
+<h2 class="text-xl font-bold mt-3 leading-snug">Khám phá Vịnh Hạ Long - Đảo Tuần Châu</h2>
+<div class="mt-4 flex items-center text-slate-500 text-sm">
+<svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Mã tour: HL240502-VIP</span>
+</div>
+</div>
+</section>
+<!-- END: CurrentTourCard -->
+<!-- BEGIN: PersonnelSection -->
+<div class="grid grid-cols-2 gap-4" data-purpose="personnel-cards">
+<!-- Driver Card -->
+<div class="bg-travery-light-blue rounded-2xl p-4">
+<div class="flex items-center space-x-2 mb-3">
+<div class="bg-travery-blue bg-opacity-20 p-1.5 rounded-lg">
+<svg class="h-4 w-4 text-travery-blue" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
+<path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v4.05a2.5 2.5 0 014.9 0H18V9a2 2 0 00-2-2h-2z"></path>
+</svg>
+</div>
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">TÀI XẾ</span>
+</div>
+<p class="font-bold text-sm text-slate-900">Nguyễn Văn An</p>
+<p class="text-xs text-slate-500 mt-1">Xe: 29B-123.45</p>
+</div>
+<!-- Member Card -->
+<div class="bg-travery-light-blue rounded-2xl p-4">
+<div class="flex items-center space-x-2 mb-3">
+<div class="bg-travery-blue bg-opacity-20 p-1.5 rounded-lg">
+<svg class="h-4 w-4 text-travery-blue" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+</svg>
+</div>
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">THÀNH VIÊN</span>
+</div>
+<p class="font-bold text-sm text-slate-900">24 thành viên</p>
+</div>
+</div>
+<!-- END: PersonnelSection -->
+<!-- BEGIN: TimelineSection -->
+<section data-purpose="trip-progress">
+<h3 class="text-lg font-bold mb-6">Tiến độ chuyến đi</h3>
+<div class="relative">
+<!-- Vertical Line Background -->
+<div class="timeline-line"></div>
+<!-- Step 1: Planning (Completed) -->
+<div class="relative flex items-start mb-8">
+<div class="timeline-dot bg-travery-blue">
+<svg class="h-4 w-4 text-white" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<div class="ml-4 flex-1 bg-white rounded-2xl p-4 card-shadow flex justify-between items-center">
+<span class="font-bold text-sm text-slate-800">PLANNING</span>
+<span class="bg-travery-light-blue text-travery-blue text-[10px] font-bold px-2 py-1 rounded-full uppercase">HOÀN THÀNH</span>
+</div>
+</div>
+<!-- Step 2: Open (Active) -->
+<div class="relative flex items-start mb-8">
+<div class="timeline-dot bg-travery-blue ring-4 ring-travery-light-blue">
+<div class="w-2 h-2 bg-white rounded-full"></div>
+</div>
+<div class="ml-4 flex-1 bg-travery-light-blue rounded-2xl p-4 card-shadow border border-travery-blue border-opacity-10">
+<div class="flex justify-between items-center mb-4">
+<span class="font-bold text-sm text-travery-blue">OPEN</span>
+<div class="flex items-center space-x-1">
+<div class="w-1.5 h-1.5 bg-travery-blue rounded-full animate-pulse"></div>
+<span class="text-travery-blue text-[10px] font-bold uppercase">ĐANG DIỄN RA</span>
+</div>
+</div>
+<button class="w-full bg-travery-blue text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center space-x-2 active:scale-95 transition-transform">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Xác nhận hoàn thành</span>
+</button>
+</div>
+</div>
+<!-- Step 3: Full (Upcoming) -->
+<div class="relative flex items-start mb-6 opacity-60">
+<div class="timeline-dot bg-gray-300"></div>
+<div class="ml-4 flex-1 bg-travery-gray rounded-2xl p-5">
+<span class="font-bold text-sm text-slate-500">FULL</span>
+</div>
+</div>
+<!-- Step 4: In Progress (Upcoming) -->
+<div class="relative flex items-start mb-6 opacity-60">
+<div class="timeline-dot bg-gray-300"></div>
+<div class="ml-4 flex-1 bg-travery-gray rounded-2xl p-5">
+<span class="font-bold text-sm text-slate-500">IN_PROGRESS</span>
+</div>
+</div>
+<!-- Step 5: Completed (Upcoming) -->
+<div class="relative flex items-start mb-6 opacity-60">
+<div class="timeline-dot bg-gray-300"></div>
+<div class="ml-4 flex-1 bg-travery-gray rounded-2xl p-5">
+<span class="font-bold text-sm text-slate-400">COMPLETED</span>
+</div>
+</div>
+<!-- Step 6: Cancelled (Upcoming) -->
+<div class="relative flex items-start opacity-60">
+<div class="timeline-dot bg-gray-300"></div>
+<div class="ml-4 flex-1 bg-travery-gray rounded-2xl p-5">
+<span class="font-bold text-sm text-slate-700">CANCELLED</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: TimelineSection -->
+</main>
+</body></html>
