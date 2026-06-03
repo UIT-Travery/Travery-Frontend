@@ -260,29 +260,82 @@ class _TripBookingReviewScreenState extends State<TripBookingReviewScreen> {
             ],
           ),
           const SizedBox(height: 24),
+
+          // Timeline — Boarding / Alighting
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Left column: icons stacked with vertical line between them
                 SizedBox(
                   width: 24,
-                  child: CustomPaint(
-                    size: const Size(24, double.infinity),
-                    painter: _DashedLinePainter(
-                      color: AppColors.primary,
-                      strokeWidth: 1.5,
-                      dashHeight: 4,
-                      dashSpace: 3,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      // Dashed vertical line (full height of the two nodes)
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _DashedLinePainter(
+                            color: AppColors.primary,
+                            strokeWidth: 1.5,
+                            dashHeight: 4,
+                            dashSpace: 3,
+                          ),
+                        ),
+                      ),
+                      // First icon (Lên xe)
+                      Positioned(
+                        top: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.success,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.trip_origin,
+                            size: 12,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                      // Second icon (Xuống xe)
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.error,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.location_on,
+                            size: 12,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
+                // Right column: text content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStationNode(
-                        icon: Icons.trip_origin,
+                        icon: null,
                         iconColor: AppColors.success,
                         title: 'Lên xe: ',
                         stationName: originName,
@@ -324,7 +377,7 @@ class _TripBookingReviewScreenState extends State<TripBookingReviewScreen> {
                       ),
                       const SizedBox(height: 12),
                       _buildStationNode(
-                        icon: Icons.location_on,
+                        icon: null,
                         iconColor: AppColors.error,
                         title: 'Xuống xe: ',
                         stationName: destinationName,
@@ -345,7 +398,7 @@ class _TripBookingReviewScreenState extends State<TripBookingReviewScreen> {
   }
 
   Widget _buildStationNode({
-    required IconData icon,
+    required IconData? icon,
     required Color iconColor,
     required String title,
     required String stationName,
@@ -358,19 +411,9 @@ class _TripBookingReviewScreenState extends State<TripBookingReviewScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: iconColor, width: 2),
-                color: Colors.white,
-              ),
-              child: Icon(icon, size: 12, color: iconColor),
-            ),
-            const SizedBox(width: 10),
+            // Icon is now rendered in the Stack, so no icon here
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,7 +467,7 @@ class _TripBookingReviewScreenState extends State<TripBookingReviewScreen> {
         ),
         if (isBoarding && timeLabel != null && timeValue != null)
           Padding(
-            padding: const EdgeInsets.only(left: 34, top: 6),
+            padding: const EdgeInsets.only(top: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
