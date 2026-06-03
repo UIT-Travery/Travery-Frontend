@@ -45,10 +45,19 @@ class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
       backgroundColor: const Color(
         0xFFF8FAFC,
       ), // slightly off-white background as seen in design
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
             const Text(
@@ -355,6 +364,7 @@ class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
             const SizedBox(height: 32),
           ],
         ),
+      ),
       ),
     );
   }

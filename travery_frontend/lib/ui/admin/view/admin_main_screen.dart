@@ -5,6 +5,7 @@ import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/admin/view/admin_view_profile_screen.dart';
 import 'package:travery_frontend/ui/admin/view/view_roomtype_list_sreen.dart';
 import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/amenity_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.dart';
@@ -77,7 +78,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
       case 5:
         return const ViewRoomtypeListScreen();
       case 6:
-        return const AmenityManagementScreen();
+        return AmenityManagementScreen(
+          viewModel: context.read<AmenityManagementViewModel>(),
+        );
       case 8:
         return AdminViewProfileScreen(
           viewModel: context.read<AdminProfileViewModel>(),

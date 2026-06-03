@@ -164,12 +164,15 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
     }
 
     widget.viewModel.updateHotel.execute((
-      id: widget.hotelId ?? '',
+      hotelId: widget.hotelId ?? '',
       name: _nameController.text.trim(),
+      description: null,
       address: _addressController.text.trim(),
-      starRating: 5,
       cityProvince: _selectedCity!,
-      status: 'ACTIVE',
+      checkInTime: null,
+      checkOutTime: null,
+      amenityIds: null,
+      refundPolicyId: null,
     ));
   }
 

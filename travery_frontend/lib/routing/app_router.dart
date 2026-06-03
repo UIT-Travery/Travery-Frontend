@@ -145,6 +145,9 @@ import '../ui/admin/view/view_hotel_service_list_screen.dart';
 import '../ui/admin/view/create_hotel_service.dart';
 import '../ui/admin/view/update_hotel_service_screen.dart';
 import '../ui/admin/view/admin_view_profile_screen.dart';
+import '../ui/admin/view_model/amenity_management_view_model.dart';
+import '../ui/admin/view_model/create_amenity_view_model.dart';
+import '../ui/admin/view_model/update_amenity_view_model.dart';
 
 // Coordinator new imports
 import 'package:travery_frontend/ui/coordinator/view/coordinator_create_coach_screen.dart';
@@ -892,17 +895,29 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.adminAmenityManagement,
-        builder: (context, state) => const AmenityManagementScreen(),
+        builder: (context, state) => AmenityManagementScreen(
+          viewModel: AmenityManagementViewModel(
+            adminRepository: context.read<AdminRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.adminCreateAmenity,
-        builder: (context, state) => const CreateAmenityScreen(),
+        builder: (context, state) => CreateAmenityScreen(
+          viewModel: CreateAmenityViewModel(
+            adminRepository: context.read<AdminRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.adminUpdateAmenity,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return UpdateAmenityScreen(
+            viewModel: UpdateAmenityViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            amenityId: extra?['amenityId'] as String? ?? '',
             amenityType: extra?['amenityType'] as String?,
             amenityName: extra?['amenityName'] as String?,
             iconData: extra?['iconData'] as IconData?,

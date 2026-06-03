@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/data/services/api/model/amenity/create_amenity_request.dart';
+import 'package:travery_frontend/ui/admin/view_model/update_amenity_view_model.dart';
 import 'widgets/dropdown_button.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/large_button.dart';
 
 class UpdateAmenityScreen extends StatefulWidget {
+  final UpdateAmenityViewModel viewModel;
+  final String amenityId;
   final String? amenityType;
   final String? amenityName;
   final IconData? iconData;
 
   const UpdateAmenityScreen({
     super.key,
+    required this.viewModel,
+    required this.amenityId,
     this.amenityType,
     this.amenityName,
     this.iconData,
@@ -20,25 +27,82 @@ class UpdateAmenityScreen extends StatefulWidget {
 }
 
 class _UpdateAmenityScreenState extends State<UpdateAmenityScreen> {
-  late TextEditingController nameController;
-  String? selectedAmenityType;
-  final List<String> amenityTypes = ['Khách sạn', 'Phòng', 'Khác'];
+  late TextEditingController _nameController;
+  AmenityType? _selectedType;
+  final List<String> _typeLabels = ['Khách sạn', 'Phòng'];
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.amenityName);
-    selectedAmenityType = widget.amenityType;
-    
-    if (selectedAmenityType != null && !amenityTypes.contains(selectedAmenityType)) {
-      amenityTypes.add(selectedAmenityType!);
+    _nameController = TextEditingController(text: widget.amenityName ?? '');
+    _selectedType = _typeFromLabel(widget.amenityType);
+    widget.viewModel.updateAmenity.addListener(_onResult);
+  }
+
+  @override
+  void didUpdateWidget(UpdateAmenityScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.updateAmenity.removeListener(_onResult);
+      widget.viewModel.updateAmenity.addListener(_onResult);
     }
   }
 
   @override
   void dispose() {
-    nameController.dispose();
+    widget.viewModel.updateAmenity.removeListener(_onResult);
+    _nameController.dispose();
     super.dispose();
+  }
+
+  void _onResult() {
+    final cmd = widget.viewModel.updateAmenity;
+    if (cmd.completed) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã cập nhật cơ sở vật chất thành công'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      context.pop();
+    } else if (cmd.error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi: ${cmd.error.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _submit() {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập tên cơ sở vật chất')),
+      );
+      return;
+    }
+    widget.viewModel.updateAmenity.execute((
+      amenityId: widget.amenityId,
+      name: name,
+      type: _selectedType,
+      iconImagePath: null,
+    ));
+  }
+
+  AmenityType? _typeFromLabel(String? label) {
+    if (label == 'Khách sạn') return AmenityType.hotelAmenity;
+    if (label == 'Phòng') return AmenityType.roomAmenity;
+    return null;
+  }
+
+  String? _labelFromType(AmenityType? type) {
+    if (type == AmenityType.hotelAmenity) return 'Khách sạn';
+    if (type == AmenityType.roomAmenity) return 'Phòng';
+    return null;
   }
 
   @override
@@ -59,7 +123,6 @@ class _UpdateAmenityScreenState extends State<UpdateAmenityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             const Text(
               'Chỉnh sửa Cơ sở vật chất',
               style: TextStyle(
@@ -71,10 +134,7 @@ class _UpdateAmenityScreenState extends State<UpdateAmenityScreen> {
             const SizedBox(height: 8),
             const Text(
               'Chỉnh sửa thông tin cơ sở vật chất',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF64748B),
-              ),
+              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 24),
             Center(
@@ -96,10 +156,7 @@ class _UpdateAmenityScreenState extends State<UpdateAmenityScreen> {
                   const SizedBox(height: 8),
                   const Text(
                     'Icon',
-                    style: TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
                   ),
                 ],
               ),
@@ -108,35 +165,40 @@ class _UpdateAmenityScreenState extends State<UpdateAmenityScreen> {
             CustomDropdownButton(
               label: 'Loại cơ sở vật chất',
               textholder: 'Chọn loại cơ sở vật chất',
-              prefixIcon: const Icon(Icons.category_outlined, color: Colors.black54),
-              items: amenityTypes,
-              value: selectedAmenityType,
+              prefixIcon: const Icon(
+                Icons.category_outlined,
+                color: Colors.black54,
+              ),
+              items: _typeLabels,
+              value: _labelFromType(_selectedType),
               onChanged: (value) {
-                setState(() {
-                  selectedAmenityType = value;
-                });
+                setState(() => _selectedType = _typeFromLabel(value));
               },
             ),
             const SizedBox(height: 16),
             InputTextField(
               label: 'Tên cơ sở vật chất',
-              textholder: 'Nhập tên loại phòng', 
+              textholder: 'Nhập tên cơ sở vật chất',
               prefixIcon: const Icon(Icons.text_format, color: Colors.black54),
               suffixIcon: const Icon(Icons.edit, color: Colors.black54),
-              controller: nameController,
+              controller: _nameController,
               textInputType: TextInputType.text,
             ),
             const SizedBox(height: 48),
-            LargeButton(
-              text: 'Xác nhận',
-              onTap: () {
-                // Submit action
+            ListenableBuilder(
+              listenable: widget.viewModel.updateAmenity,
+              builder: (context, _) {
+                final running = widget.viewModel.updateAmenity.running;
+                return LargeButton(
+                  text: running ? 'Đang xử lý...' : 'Xác nhận',
+                  onTap: running ? () {} : _submit,
+                );
               },
             ),
             const SizedBox(height: 12),
             LargeButton(
               text: 'Hủy bỏ',
-              color: const Color(0xFFCC0000), // Red color
+              color: const Color(0xFFCC0000),
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 32),
