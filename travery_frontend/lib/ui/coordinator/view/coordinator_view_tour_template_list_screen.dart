@@ -303,7 +303,7 @@ class _CoordinatorViewTourTemplateListScreenState
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16.0),
-          onTap: () {
+          onTap: () async {
             final dummyTemplate = CoordinatorTourTemplate(
               id: tour.id,
               name: tour.name,
@@ -321,7 +321,13 @@ class _CoordinatorViewTourTemplateListScreenState
               maxTotalPerson: 0,
               itineraries: [],
             );
-            context.push(Routes.coordinatorViewTemplate, extra: dummyTemplate);
+            final result = await context.push<bool>(
+              Routes.coordinatorViewTemplate,
+              extra: dummyTemplate,
+            );
+            if (result == true) {
+              widget.viewModel.loadTours.execute();
+            }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

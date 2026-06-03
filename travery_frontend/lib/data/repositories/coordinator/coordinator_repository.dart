@@ -72,6 +72,10 @@ abstract class CoordinatorRepository extends ChangeNotifier {
     String? requestedByUserId,
     required bool isCustom,
     required List<Map<String, dynamic>> itineraries,
+    List<List<int>>? tourImageBytes,
+    List<String>? tourImageNames,
+    List<List<int>>? itineraryImageBytes,
+    List<String>? itineraryImageNames,
   });
 
   /// PATCH /api/v1/tours/templates/{id}

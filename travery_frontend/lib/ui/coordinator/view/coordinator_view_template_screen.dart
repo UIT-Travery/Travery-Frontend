@@ -86,7 +86,7 @@ class _CoordinatorViewTemplateScreenState
     } else if (widget.viewModel.deleteTemplate.completed) {
       widget.viewModel.deleteTemplate.clearResult();
       Utils.showSuccessNotification(context, 'Xóa lộ trình thành công');
-      Navigator.of(context).pop();
+      context.pop();
     }
     setState(() {});
   }

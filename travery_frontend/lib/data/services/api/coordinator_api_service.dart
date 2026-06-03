@@ -614,6 +614,10 @@ class CoordinatorApiService {
     String? requestedByUserId,
     required bool isCustom,
     required List<Map<String, dynamic>> itineraries,
+    List<List<int>>? tourImageBytes,
+    List<String>? tourImageNames,
+    List<List<int>>? itineraryImageBytes,
+    List<String>? itineraryImageNames,
   }) async {
     final client = _clientFactory();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
@@ -622,7 +626,13 @@ class CoordinatorApiService {
       final uri = Uri.https(_host, '/api/v1/tours/templates');
       final request = await client.postUrl(uri);
       _addAuth(request, accessToken);
-      request.headers.contentType = ContentType.json;
+      
+      final boundary = 'boundary${DateTime.now().millisecondsSinceEpoch}';
+      request.headers.contentType = ContentType(
+        'multipart',
+        'form-data',
+        parameters: {'boundary': boundary},
+      );
 
       final bodyMap = <String, dynamic>{
         'name': name,
@@ -639,9 +649,16 @@ class CoordinatorApiService {
       if (requestedByUserId != null)
         bodyMap['requestedByUserId'] = requestedByUserId;
 
-      final body = jsonEncode(bodyMap);
-      request.contentLength = utf8.encode(body).length;
-      request.write(body);
+      final bodyBytes = _buildMultipartBody(
+        boundary: boundary,
+        data: bodyMap,
+        tourImageBytes: tourImageBytes,
+        tourImageNames: tourImageNames,
+        itineraryImageBytes: itineraryImageBytes,
+        itineraryImageNames: itineraryImageNames,
+      );
+      request.contentLength = bodyBytes.length;
+      request.add(bodyBytes);
       final response = await request.close();
 
       if (response.statusCode == 200 || response.statusCode == 201) {

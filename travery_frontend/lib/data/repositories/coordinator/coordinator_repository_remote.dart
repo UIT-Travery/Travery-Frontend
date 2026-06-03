@@ -457,6 +457,10 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
     String? requestedByUserId,
     required bool isCustom,
     required List<Map<String, dynamic>> itineraries,
+    List<List<int>>? tourImageBytes,
+    List<String>? tourImageNames,
+    List<List<int>>? itineraryImageBytes,
+    List<String>? itineraryImageNames,
   }) async {
     try {
       final token = await _getToken();
@@ -475,6 +479,10 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
         requestedByUserId: requestedByUserId,
         isCustom: isCustom,
         itineraries: itineraries,
+        tourImageBytes: tourImageBytes,
+        tourImageNames: tourImageNames,
+        itineraryImageBytes: itineraryImageBytes,
+        itineraryImageNames: itineraryImageNames,
       );
 
       switch (result) {

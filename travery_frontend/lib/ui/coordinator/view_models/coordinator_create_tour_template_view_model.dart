@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/utils/command.dart';
@@ -16,6 +17,43 @@ class CoordinatorCreateTourTemplateViewModel extends ChangeNotifier {
   late final Command1<void, Map<String, dynamic>> createTemplate;
 
   Future<Result<void>> _createTemplate(Map<String, dynamic> data) async {
+    final tourImageBytes = <List<int>>[];
+    final tourImageNames = <String>[];
+
+    if (data['thumbnailImage'] != null) {
+      final file = data['thumbnailImage'] as File;
+      tourImageBytes.add(file.readAsBytesSync());
+      tourImageNames.add(file.path.split(RegExp(r'[/\\]')).last);
+    }
+    
+    if (data['otherImages'] != null) {
+      final files = data['otherImages'] as List<File>;
+      for (final file in files) {
+        tourImageBytes.add(file.readAsBytesSync());
+        tourImageNames.add(file.path.split(RegExp(r'[/\\]')).last);
+      }
+    }
+
+    final rawItineraries = data['itineraries'] as List<Map<String, dynamic>>;
+    final itineraries = <Map<String, dynamic>>[];
+    final itineraryImageBytes = <List<int>>[];
+    final itineraryImageNames = <String>[];
+
+    for (int i = 0; i < rawItineraries.length; i++) {
+      final item = rawItineraries[i];
+      itineraries.add({
+        'dayNumber': item['dayNumber'],
+        'title': item['title'],
+        'description': item['description'],
+      });
+      
+      if (item['imageFile'] != null) {
+        final file = item['imageFile'] as File;
+        itineraryImageBytes.add(file.readAsBytesSync());
+        itineraryImageNames.add(file.path.split(RegExp(r'[/\\]')).last);
+      }
+    }
+
     return _coordinatorRepository.createTourTemplate(
       name: data['name'] as String,
       description: data['description'] as String,
@@ -27,8 +65,11 @@ class CoordinatorCreateTourTemplateViewModel extends ChangeNotifier {
       refundPolicyId: data['refundPolicyId'] as String?,
       requestedByUserId: data['requestedByUserId'] as String?,
       isCustom: data['isCustom'] as bool? ?? false,
-      itineraries:
-          (data['itineraries'] as List<Map<String, dynamic>>),
+      itineraries: itineraries,
+      tourImageBytes: tourImageBytes.isNotEmpty ? tourImageBytes : null,
+      tourImageNames: tourImageNames.isNotEmpty ? tourImageNames : null,
+      itineraryImageBytes: itineraryImageBytes.isNotEmpty ? itineraryImageBytes : null,
+      itineraryImageNames: itineraryImageNames.isNotEmpty ? itineraryImageNames : null,
     );
   }
 

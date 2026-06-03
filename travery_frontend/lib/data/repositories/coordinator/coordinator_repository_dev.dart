@@ -115,6 +115,30 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
     return const Result.ok([]);
   }
 
+  // @override
+  // Future<Result<void>> createTourTemplate({
+  //   required String name,
+  //   required String description,
+  //   required String destinationId,
+  //   String? hotelId,
+  //   required String pickupLocation,
+  //   required double pricePerAdult,
+  //   required double pricePerChild,
+  //   String? refundPolicyId,
+  //   String? requestedByUserId,
+  //   required bool isCustom,
+  //   required List<Map<String, dynamic>> itineraries,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   return const Result.ok(null);
+  // }
+
+  @override
+  Future<Result<CoordinatorTourTemplate>> getTourTemplateById(String id) {
+    // TODO: implement getTourTemplateById
+    throw UnimplementedError();
+  }
+
   @override
   Future<Result<void>> createTourTemplate({
     required String name,
@@ -128,14 +152,12 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
     String? requestedByUserId,
     required bool isCustom,
     required List<Map<String, dynamic>> itineraries,
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return const Result.ok(null);
-  }
-
-  @override
-  Future<Result<CoordinatorTourTemplate>> getTourTemplateById(String id) {
-    // TODO: implement getTourTemplateById
+    List<dynamic>? tourImageBytes,
+    List<String>? tourImageNames,
+    List<dynamic>? itineraryImageBytes,
+    List<String>? itineraryImageNames,
+  }) {
+    // TODO: implement createTourTemplate
     throw UnimplementedError();
   }
 }
