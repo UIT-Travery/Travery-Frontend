@@ -120,7 +120,7 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
             ),
             // Title
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(16, 8, 12, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -129,29 +129,35 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                       const Icon(
                         Icons.update,
                         color: AppColors.primary,
-                        size: 24,
+                        size: 20,
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Cập nhật tiến độ',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Cập nhật tiến độ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(Icons.close, size: 20),
                         onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
-                    'Trạng thái hiện tại: ${_getStatusLabel(widget.currentStatus)}',
+                    'Hiện tại: ${_getStatusLabel(widget.currentStatus)}',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -164,10 +170,10 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
               _buildTerminalState()
             else
               _buildStatusOptions(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             // Action buttons
             _buildActions(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -200,32 +206,38 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
   Widget _buildStatusOptions() {
     final statuses = _getAvailableStatuses();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          const Text(
-            'Chọn trạng thái tiếp theo:',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: (statuses.length * 64.0).clamp(0, 280),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: statuses.length,
+            itemBuilder: (context, index) {
+              final status = statuses[index];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (index == 0) const SizedBox(height: 8),
+                  _buildStatusOption(status),
+                  if (index == statuses.length - 1) const SizedBox(height: 8),
+                ],
+              );
+            },
+          ),
+        ),
+        if (_error != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(
+              _error!,
+              style: const TextStyle(fontSize: 12, color: AppColors.error),
             ),
           ),
-          const SizedBox(height: 12),
-          ...statuses.map((status) => _buildStatusOption(status)),
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(
-                _error!,
-                style: const TextStyle(fontSize: 13, color: AppColors.error),
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -236,15 +248,15 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     return GestureDetector(
       onTap: isCurrent ? null : () => _selectStatus(status.value),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(14),
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.1)
               : isCurrent
               ? AppColors.surfaceGray
               : AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.surfaceGray,
             width: isSelected ? 2 : 1,
@@ -253,8 +265,8 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
         child: Row(
           children: [
             Container(
-              width: 24,
-              height: 24,
+              width: 22,
+              height: 22,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
@@ -272,10 +284,10 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  ? const Icon(Icons.check, size: 14, color: Colors.white)
                   : null,
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +295,7 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                   Text(
                     status.label,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: isCurrent ? AppColors.icon : AppColors.textPrimary,
                     ),
@@ -291,7 +303,7 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                   Text(
                     status.description,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: isCurrent
                           ? AppColors.icon
                           : AppColors.textSecondary,
@@ -302,15 +314,15 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
             ),
             if (isCurrent)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.icon.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
                   'HIỆN TẠI',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 9,
                     fontWeight: FontWeight.bold,
                     color: AppColors.icon,
                   ),
@@ -331,17 +343,17 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
 
   Widget _buildActions() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           Expanded(
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 side: const BorderSide(color: AppColors.icon),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: const Text(
@@ -349,11 +361,12 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             flex: 2,
             child: ElevatedButton(
@@ -363,15 +376,15 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: _isLoading
                   ? const SizedBox(
-                      width: 20,
-                      height: 20,
+                      width: 18,
+                      height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -379,7 +392,10 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                     )
                   : const Text(
                       'Xác nhận',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
                     ),
             ),
           ),

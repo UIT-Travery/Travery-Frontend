@@ -15,12 +15,123 @@ class MemberAttendanceTile extends StatelessWidget {
   final ValueChanged<String> onStatusChanged;
 
   Color get _borderColor {
+    switch (currentStatus) {
+      case 'CHECKED_IN':
+        return const Color(0xFF22c55e);
+      case 'NO_SHOW':
+        return const Color(0xFFef4444);
+      default:
+        return AppColors.icon;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              Container(width: 3, color: _borderColor),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.person,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              member.fullName,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                Icon(
+                                  member.memberType == 'ADULT'
+                                      ? Icons.person_outline
+                                      : Icons.child_care,
+                                  size: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                                const SizedBox(width: 3),
+                                Flexible(
+                                  child: Text(
+                                    member.memberType == 'ADULT'
+                                        ? 'Người lớn'
+                                        : 'Trẻ em',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      SizedBox(
+                        width: 96,
+                        child: _CompactStatusPicker(
+                          value: currentStatus,
+                          onChanged: onStatusChanged,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _CompactStatusPicker extends StatelessWidget {
-  const _CompactStatusPicker({
-    required this.value,
-    required this.onChanged,
-  });
+  const _CompactStatusPicker({required this.value, required this.onChanged});
 
   final String value;
   final ValueChanged<String> onChanged;
@@ -68,7 +179,6 @@ class _CompactStatusPicker extends StatelessWidget {
       barrierDismissible: true,
       builder: (ctx) => Stack(
         children: [
-          // Tap outside to dismiss
           Positioned.fill(
             child: GestureDetector(
               onTap: () => Navigator.of(ctx).pop(),
@@ -76,7 +186,6 @@ class _CompactStatusPicker extends StatelessWidget {
               child: Container(color: Colors.transparent),
             ),
           ),
-          // Popup positioned below the button
           Positioned(
             right: 0,
             top: offset.dy + button.size.height + 2,
@@ -88,7 +197,9 @@ class _CompactStatusPicker extends StatelessWidget {
                 width: 140,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.surfaceGray.withValues(alpha: 0.5)),
+                  border: Border.all(
+                    color: AppColors.surfaceGray.withValues(alpha: 0.5),
+                  ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -104,7 +215,7 @@ class _CompactStatusPicker extends StatelessWidget {
                       },
                       isSelected: value == 'NOT_CHECKED',
                     ),
-                    _divider(),
+                    _buildDivider(),
                     _OptionTile(
                       icon: Icons.check_circle,
                       label: 'Đã có mặt',
@@ -116,7 +227,7 @@ class _CompactStatusPicker extends StatelessWidget {
                       },
                       isSelected: value == 'CHECKED_IN',
                     ),
-                    _divider(),
+                    _buildDivider(),
                     _OptionTile(
                       icon: Icons.cancel,
                       label: 'Vắng mặt',
@@ -138,7 +249,7 @@ class _CompactStatusPicker extends StatelessWidget {
     );
   }
 
-  Widget _divider() => Container(
+  Widget _buildDivider() => Container(
     height: 1,
     margin: const EdgeInsets.symmetric(horizontal: 8),
     color: AppColors.surfaceGray.withValues(alpha: 0.4),
@@ -179,11 +290,7 @@ class _CompactStatusPicker extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            Icon(
-              Icons.arrow_drop_down,
-              size: 16,
-              color: _statusColor,
-            ),
+            Icon(Icons.arrow_drop_down, size: 16, color: _statusColor),
           ],
         ),
       ),
@@ -215,7 +322,9 @@ class _OptionTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(6),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        color: isSelected ? AppColors.surfaceGray.withValues(alpha: 0.15) : null,
+        color: isSelected
+            ? AppColors.surfaceGray.withValues(alpha: 0.15)
+            : null,
         child: Row(
           children: [
             Icon(icon, size: 16, color: iconColor),
@@ -230,8 +339,7 @@ class _OptionTile extends StatelessWidget {
                 ),
               ),
             ),
-            if (isSelected)
-              Icon(Icons.check, size: 14, color: textColor),
+            if (isSelected) Icon(Icons.check, size: 14, color: textColor),
           ],
         ),
       ),
