@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
@@ -193,6 +192,7 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
   }
 
   Widget _buildBottomActions(GuideMissionDetail mission) {
+    final isProgressEditable = _isProgressEditable(mission.status);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -227,12 +227,22 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
             Expanded(
               flex: 2,
               child: ElevatedButton.icon(
-                onPressed: () => _showProgressBottomSheet(mission),
+                onPressed: isProgressEditable
+                    ? () => _showProgressBottomSheet(mission)
+                    : null,
                 icon: const Icon(Icons.update),
-                label: const Text('Cập nhật tiến độ'),
+                label: Text(
+                  isProgressEditable
+                      ? 'Cập nhật tiến độ'
+                      : 'Chưa đến hạn cập nhật',
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: isProgressEditable
+                      ? AppColors.primary
+                      : AppColors.surfaceGray,
+                  foregroundColor: isProgressEditable
+                      ? Colors.white
+                      : AppColors.textSecondary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -244,6 +254,10 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
         ),
       ),
     );
+  }
+
+  bool _isProgressEditable(String status) {
+    return status == 'FULL' || status == 'IN_PROGRESS';
   }
 
   void _navigateToCheckin(String missionId) {
