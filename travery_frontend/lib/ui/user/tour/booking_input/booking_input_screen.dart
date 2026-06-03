@@ -51,10 +51,29 @@ String? Function(String?) _identityValidator() {
   };
 }
 
-String? Function(String?) _dobValidator() {
+String? Function(String?) _dobValidator(bool isAdult) {
   return (value) {
     if (value == null || value.trim().isEmpty) {
       return 'Vui lòng nhập ngày sinh';
+    }
+    final dob = _tryParseDob(value);
+    if (dob == null) {
+      return 'Ngày sinh không hợp lệ';
+    }
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    if (isAdult) {
+      if (age < 12) {
+        return 'Người lớn phải từ 12 tuổi trở lên';
+      }
+    } else {
+      if (age > 11) {
+        return 'Trẻ em phải từ 11 tuổi trở xuống';
+      }
     }
     return null;
   };
@@ -366,12 +385,6 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
 
   Future<void> _onSubmit(BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập đầy đủ thông tin hành khách'),
-          backgroundColor: Colors.red,
-        ),
-      );
       return;
     }
 
@@ -603,7 +616,8 @@ class _MemberCard extends StatelessWidget {
             label: 'Ngày sinh *',
             controller: dobController,
             onChanged: (_) => onChanged(),
-            validator: _dobValidator(),
+            validator: _dobValidator(isAdult),
+            isAdult: isAdult,
           ),
         ],
       ),
@@ -681,7 +695,8 @@ class _DatePickerFormField extends FormField<String> {
     required String label,
     required TextEditingController? controller,
     required ValueChanged<String> onChanged,
-    String? Function(String?)? validator,
+    required String? Function(String?)? validator,
+    bool isAdult = true,
   }) : super(
          builder: (FormFieldState<String> state) {
            return Column(
@@ -701,11 +716,35 @@ class _DatePickerFormField extends FormField<String> {
                  onTap: () async {
                    final now = DateTime.now();
                    final initial = _tryParseDob(controller?.text ?? '');
+
+                   // Calculate date range based on member type
+                   // Adult: born on or before (today - 12 years)
+                   // Child: born on or after (today - 11 years)
+                   DateTime firstDate;
+                   DateTime lastDate;
+                   if (isAdult) {
+                     // Adult must be 12 years or older
+                     firstDate = DateTime(1900);
+                     lastDate = DateTime(now.year - 12, now.month, now.day);
+                   } else {
+                     // Child must be 11 years or younger
+                     firstDate = DateTime(
+                       now.year - 11,
+                       now.month,
+                       now.day,
+                     ).add(const Duration(days: 1));
+                     lastDate = now;
+                   }
+
                    final picked = await showDatePicker(
                      context: state.context,
-                     initialDate: initial ?? DateTime(2000),
-                     firstDate: DateTime(1900),
-                     lastDate: now,
+                     initialDate:
+                         initial ??
+                         (isAdult
+                             ? DateTime(now.year - 30)
+                             : DateTime(now.year - 5)),
+                     firstDate: firstDate,
+                     lastDate: lastDate,
                      helpText: 'Chọn ngày sinh',
                      cancelText: 'Hủy',
                      confirmText: 'Xác nhận',
