@@ -95,8 +95,9 @@ class GuideCheckinViewModel extends ChangeNotifier {
     saveError.value = null;
 
     try {
+      // API expects 'PRESENT', 'NOT_CHECKED', 'NO_SHOW' — not 'CHECKED_IN'
       final attendances = attendanceChanges.value.entries
-          .map((e) => {'memberId': e.key, 'status': e.value})
+          .map((e) => {'memberId': e.key, 'status': _toApiStatus(e.value)})
           .toList();
 
       final result = await _missionService.updateAttendance(
@@ -118,6 +119,11 @@ class GuideCheckinViewModel extends ChangeNotifier {
     } finally {
       isSaving.value = false;
     }
+  }
+
+  /// Convert internal 'CHECKED_IN' → API 'PRESENT', pass others through.
+  String _toApiStatus(String internal) {
+    return internal == 'CHECKED_IN' ? 'PRESENT' : internal;
   }
 
   @override

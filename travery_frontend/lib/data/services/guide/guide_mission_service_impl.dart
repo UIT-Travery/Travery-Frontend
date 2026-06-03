@@ -88,7 +88,9 @@ class GuideMissionServiceImpl implements GuideMissionService {
           dateOfBirth:
               DateTime.tryParse(m['dateOfBirth'] as String? ?? '') ??
               DateTime.now(),
-          status: m['attendanceStatus'] as String? ?? 'NOT_CHECKED',
+          status: _normalizeAttendance(
+            m['attendanceStatus'] as String? ?? 'NOT_CHECKED',
+          ),
           memberType: m['memberType'] as String? ?? 'ADULT',
         );
       }).toList();
@@ -127,6 +129,11 @@ class GuideMissionServiceImpl implements GuideMissionService {
       bookings: bookings,
       steps: const [],
     );
+  }
+
+  /// Normalize API attendance status to internal 'CHECKED_IN' convention.
+  String _normalizeAttendance(String apiStatus) {
+    return apiStatus.toUpperCase() == 'PRESENT' ? 'CHECKED_IN' : apiStatus;
   }
 
   @override
