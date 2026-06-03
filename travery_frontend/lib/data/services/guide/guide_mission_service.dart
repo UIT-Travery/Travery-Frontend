@@ -14,7 +14,8 @@ abstract class GuideMissionService {
 
   /// PATCH /api/v1/staff/guide/instances/{id}/attendance
   /// Body: { "attendances": [{ "memberId": "uuid", "status": "PRESENT" }] }
-  Future<Result<void>> updateAttendance(
+  /// Returns the full updated mission detail on success.
+  Future<Result<GuideMissionDetail>> updateAttendance(
     String instanceId,
     List<Map<String, String>> attendances,
   );

@@ -88,7 +88,9 @@ class GuideMissionServiceImpl implements GuideMissionService {
           dateOfBirth:
               DateTime.tryParse(m['dateOfBirth'] as String? ?? '') ??
               DateTime.now(),
-          status: m['attendanceStatus'] as String? ?? 'NOT_CHECKED',
+          status: _normalizeAttendance(
+            m['attendanceStatus'] as String? ?? 'NOT_CHECKED',
+          ),
           memberType: m['memberType'] as String? ?? 'ADULT',
         );
       }).toList();
@@ -127,6 +129,11 @@ class GuideMissionServiceImpl implements GuideMissionService {
       bookings: bookings,
       steps: const [],
     );
+  }
+
+  /// Normalize API attendance status to internal 'CHECKED_IN' convention.
+  String _normalizeAttendance(String apiStatus) {
+    return apiStatus.toUpperCase() == 'PRESENT' ? 'CHECKED_IN' : apiStatus;
   }
 
   @override
@@ -188,7 +195,7 @@ class GuideMissionServiceImpl implements GuideMissionService {
   }
 
   @override
-  Future<Result<void>> updateAttendance(
+  Future<Result<GuideMissionDetail>> updateAttendance(
     String instanceId,
     List<Map<String, String>> attendances,
   ) async {
@@ -212,7 +219,13 @@ class GuideMissionServiceImpl implements GuideMissionService {
       final response = await request.close();
 
       if (response.statusCode == 200) {
-        return const Result.ok(null);
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>?;
+        if (data == null) {
+          return Result.error(const HttpException('Không tìm thấy dữ liệu'));
+        }
+        return Result.ok(_parseMissionDetail(data));
       } else {
         final errorMsg = await _extractErrorMessage(
           response,
