@@ -130,14 +130,24 @@ class _GuideCoachTripPassengersScreenState
       return _buildEmptyMemberList();
     }
 
+    final isReadOnly = !_viewModel.isTripEditable;
+
     return RefreshIndicator(
       color: AppColors.primary,
       onRefresh: () => _viewModel.load(widget.tripId),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        itemCount: _viewModel.bookings.length,
+        itemCount: _viewModel.bookings.length + (isReadOnly ? 1 : 0),
         itemBuilder: (context, index) {
-          final booking = _viewModel.bookings[index];
+          if (isReadOnly && index == 0) {
+            return const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: _ReadOnlyNotice(),
+            );
+          }
+
+          final bookingIndex = isReadOnly ? index - 1 : index;
+          final booking = _viewModel.bookings[bookingIndex];
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: _CoachPassengerAttendanceTile(
@@ -291,6 +301,38 @@ class _GuideCoachTripPassengersScreenState
     return booking.contactName.trim().isEmpty
         ? 'hành khách này'
         : booking.contactName;
+  }
+}
+
+class _ReadOnlyNotice extends StatelessWidget {
+  const _ReadOnlyNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.14)),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.visibility_outlined, size: 18, color: AppColors.primary),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Chuyến xe hiện không ở trạng thái đang chạy. Bạn có thể xem lại danh sách điểm danh nhưng không thể chỉnh sửa.',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

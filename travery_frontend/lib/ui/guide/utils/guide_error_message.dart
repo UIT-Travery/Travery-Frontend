@@ -43,6 +43,17 @@ String guideFriendlyErrorMessage(
   }
 
   if (_containsAny(lower, const [
+    'action only allowed',
+    'only allowed when trip is in progress',
+    'trip is in progress',
+    'in progress',
+    'chuyến đang chạy',
+    'đang diễn ra',
+  ])) {
+    return 'Chỉ có thể cập nhật điểm danh khi chuyến xe đang chạy. Vui lòng làm mới trạng thái chuyến.';
+  }
+
+  if (_containsAny(lower, const [
     '409',
     'conflict',
     'already',

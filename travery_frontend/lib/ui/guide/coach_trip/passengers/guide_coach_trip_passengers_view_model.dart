@@ -36,7 +36,7 @@ class GuideCoachTripPassengersViewModel extends ChangeNotifier {
       _bookings.where((booking) => booking.isPending).length;
   bool get isTripEditable {
     final status = _trip?.status.toUpperCase();
-    return status != 'COMPLETED' && status != 'CANCELLED';
+    return status == 'IN_PROGRESS';
   }
 
   Future<void> load(String tripId) async {

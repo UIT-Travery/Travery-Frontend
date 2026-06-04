@@ -305,7 +305,7 @@ class _GuideCoachTripDetailScreenState
   }
 
   Widget _buildBottomActions(CoachTripDetail trip) {
-    final isAttendanceEditable = _isAttendanceEditable(trip.status);
+    final canOpenAttendance = _canOpenAttendanceList(trip.status);
     final isProgressEditable = _isProgressEditable(trip.status);
 
     return Container(
@@ -325,16 +325,16 @@ class _GuideCoachTripDetailScreenState
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: isAttendanceEditable
+                onPressed: canOpenAttendance
                     ? () => _navigateToPassengers(trip.id)
                     : null,
                 icon: const Icon(Icons.check_circle_outline),
-                label: const Text('Điểm danh'),
+                label: Text(_attendanceButtonLabel(trip.status)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   disabledForegroundColor: AppColors.textSecondary,
                   side: BorderSide(
-                    color: isAttendanceEditable
+                    color: canOpenAttendance
                         ? AppColors.primary
                         : AppColors.surfaceGray,
                   ),
@@ -374,14 +374,20 @@ class _GuideCoachTripDetailScreenState
     );
   }
 
-  bool _isAttendanceEditable(String status) {
+  bool _canOpenAttendanceList(String status) {
     final normalized = status.toUpperCase();
-    return normalized != 'COMPLETED' && normalized != 'CANCELLED';
+    return normalized != 'CANCELLED';
   }
 
   bool _isProgressEditable(String status) {
     final normalized = status.toUpperCase();
     return normalized != 'COMPLETED' && normalized != 'CANCELLED';
+  }
+
+  String _attendanceButtonLabel(String status) {
+    final normalized = status.toUpperCase();
+    if (normalized == 'COMPLETED') return 'Xem điểm danh';
+    return 'Điểm danh';
   }
 
   String _progressButtonLabel(String status) {
