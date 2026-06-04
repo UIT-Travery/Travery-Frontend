@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:travery_frontend/data/services/api/model/hotel/room_type_response.dart';
+import 'package:travery_frontend/ui/admin/view_model/delete_room_type_view_model.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'widgets/large_button.dart';
 
 class ViewRoomtypeScreen extends StatefulWidget {
+  final DeleteRoomTypeViewModel viewModel;
   final RoomTypeResponse? roomTypeResponse;
   final String hotelId;
 
   const ViewRoomtypeScreen({
     super.key,
+    required this.viewModel,
     this.roomTypeResponse,
     required this.hotelId,
   });
@@ -20,11 +24,86 @@ class ViewRoomtypeScreen extends StatefulWidget {
 }
 
 class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
+  late RoomTypeResponse? _roomType;
+  final bool _isModified = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _roomType = widget.roomTypeResponse;
+    widget.viewModel.deleteRoomType.addListener(_onResult);
+  }
+
+  @override
+  void didUpdateWidget(ViewRoomtypeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.deleteRoomType.removeListener(_onResult);
+      widget.viewModel.deleteRoomType.addListener(_onResult);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.deleteRoomType.removeListener(_onResult);
+    super.dispose();
+  }
+
+  void _onResult() {
+    final cmd = widget.viewModel.deleteRoomType;
+    if (cmd.completed) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã xóa loại phòng thành công'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      context.pop(true);
+    } else if (cmd.error) {
+      if (!mounted) return;
+      final result = cmd.result;
+      String errorMessage = 'Xóa loại phòng thất bại';
+      if (result is Error<void>) {
+        errorMessage = result.error.toString().replaceAll('Exception: ', '');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+      cmd.clearResult();
+    }
+  }
+
+  void _confirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: const Text('Bạn có chắc chắn muốn xóa loại phòng này?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              widget.viewModel.deleteRoomType.execute(
+                widget.roomTypeResponse!.id,
+              );
+            },
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final formatCurrency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
-    final rt = widget.roomTypeResponse;
+    final rt = _roomType;
 
     if (rt == null) {
       return const Scaffold(
@@ -37,7 +116,7 @@ class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () => context.pop(_isModified),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -193,8 +272,7 @@ class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
                         color: const Color(0xFFDBEAFE),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child:
-                          const Icon(Icons.people, color: Color(0xFF0055C3)),
+                      child: const Icon(Icons.people, color: Color(0xFF0055C3)),
                     ),
                     const SizedBox(width: 16),
                     Column(
@@ -283,14 +361,14 @@ class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
               LargeButton(
                 text: 'Chỉnh sửa',
                 color: const Color(0xFF0055C3),
-                onTap: () {
-                  context.push(
+                onTap: () async {
+                  final result = await context.push(
                     Routes.adminUpdateRoomType,
-                    extra: {
-                      'roomTypeResponse': rt,
-                      'hotelId': widget.hotelId,
-                    },
+                    extra: {'roomTypeResponse': rt, 'hotelId': widget.hotelId},
                   );
+                  if (result == true && mounted) {
+                    context.pop(true);
+                  }
                 },
               ),
               const SizedBox(height: 12),
@@ -298,7 +376,7 @@ class _ViewRoomtypeScreenState extends State<ViewRoomtypeScreen> {
                 text: 'Xóa',
                 color: const Color(0xFFC80000),
                 onTap: () {
-                  // Handle delete — TODO: wire up delete VM
+                  _confirmDelete(context);
                 },
               ),
               const SizedBox(height: 32),

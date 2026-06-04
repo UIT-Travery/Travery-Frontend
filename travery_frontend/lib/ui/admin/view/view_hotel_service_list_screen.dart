@@ -98,22 +98,31 @@ class _ViewHotelServiceListScreenState
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Quản lý Dịch vụ',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8F9FB),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Quản lý Dịch vụ',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
-                ),
                 SmallButton(
                   label: 'Thêm',
                   prefixIcon: const Icon(
@@ -319,6 +328,7 @@ class _ViewHotelServiceListScreenState
               ),
             ),
           ],
+        ),
         ),
       ),
     );

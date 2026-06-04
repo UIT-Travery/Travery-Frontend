@@ -194,6 +194,19 @@ abstract class AdminRepository extends ChangeNotifier {
     int? area,
   });
 
+  Future<Result<void>> updateHotelRoomType({
+    required String roomTypeId,
+    String? name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    double? basePrice,
+    String? bedType,
+    int? area,
+  });
+
+  Future<Result<void>> deleteHotelRoomType({required String roomTypeId});
+
   Future<Result<List<dynamic>>> getHotelRooms({required String hotelId});
 
   Future<Result<void>> createHotelRoom({

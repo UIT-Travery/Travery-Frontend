@@ -977,6 +977,66 @@ class AdminRepositoryRemote extends AdminRepository {
   }
 
   @override
+  Future<Result<void>> updateHotelRoomType({
+    required String roomTypeId,
+    String? name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    double? basePrice,
+    String? bedType,
+    int? area,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final body = <String, dynamic>{
+      if (name != null) 'name': name,
+      if (basePrice != null) 'basePrice': basePrice,
+      if (bedType != null) 'bedType': bedType,
+      if (description != null) 'description': description,
+      if (capacityAdults != null) 'capacityAdults': capacityAdults,
+      if (capacityChildren != null) 'capacityChildren': capacityChildren,
+      if (area != null) 'area': area,
+    };
+
+    final result = await _adminApiService.adminUpdateRoomType(
+      accessToken: token,
+      roomTypeId: roomTypeId,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteHotelRoomType({required String roomTypeId}) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.adminDeleteRoomType(
+      accessToken: token,
+      roomTypeId: roomTypeId,
+    );
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
   Future<Result<List<dynamic>>> getHotelRooms({required String hotelId}) async {
     final token = await _getAccessToken();
     if (token == null) {

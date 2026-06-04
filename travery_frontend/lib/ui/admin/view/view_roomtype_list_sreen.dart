@@ -77,20 +77,29 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Quản lý Loại phòng',
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Quản lý Loại phòng',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -201,14 +210,17 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
                       return _RoomTypeCard(
                         roomType: rt,
                         bedTypeLabel: _getBedTypeLabel(rt.bedType),
-                        onTap: () {
-                          context.push(
+                        onTap: () async {
+                          await context.push(
                             Routes.adminViewRoomtype,
                             extra: {
                               'roomTypeResponse': rt,
                               'hotelId': widget.hotelId,
                             },
                           );
+                          if (mounted) {
+                            widget.viewModel.loadRoomTypes.execute(widget.hotelId);
+                          }
                         },
                       );
                     },
@@ -217,6 +229,7 @@ class _ViewRoomtypeListScreenState extends State<ViewRoomtypeListScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

@@ -1189,4 +1189,25 @@ class AdminRepositoryDev extends AdminRepository {
     // TODO: implement updateRefundPolicy
     throw UnimplementedError();
   }
+
+  @override
+  Future<Result<void>> deleteHotelRoomType({required String roomTypeId}) {
+    // TODO: implement deleteHotelRoomType
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> updateHotelRoomType({
+    required String roomTypeId,
+    String? name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    double? basePrice,
+    String? bedType,
+    int? area,
+  }) {
+    // TODO: implement updateHotelRoomType
+    throw UnimplementedError();
+  }
 }

@@ -1273,6 +1273,63 @@ class AdminApiService {
     }
   }
 
+  /// PATCH /api/v1/admin/room-types/{roomTypeId}
+  Future<Result<Map<String, dynamic>>> adminUpdateRoomType({
+    required String accessToken,
+    required String roomTypeId,
+    required Map<String, dynamic> body,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/room-types/$roomTypeId');
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+      final encoded = jsonEncode(body);
+      request.contentLength = utf8.encode(encoded).length;
+      request.write(encoded);
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể cập nhật loại phòng');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// DELETE /api/v1/admin/room-types/{roomTypeId}
+  Future<Result<void>> adminDeleteRoomType({
+    required String accessToken,
+    required String roomTypeId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/room-types/$roomTypeId');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể xóa loại phòng');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
   /// GET /api/v1/admin/hotels/{hotelId}/rooms
   Future<Result<List<dynamic>>> adminGetRooms({
     required String accessToken,

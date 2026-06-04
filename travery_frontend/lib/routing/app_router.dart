@@ -153,6 +153,8 @@ import '../ui/admin/view_model/update_amenity_view_model.dart';
 import '../ui/admin/view_model/room_type_list_view_model.dart';
 import '../ui/admin/view_model/hotel_service_list_view_model.dart';
 import '../ui/admin/view_model/create_room_type_view_model.dart';
+import '../ui/admin/view_model/update_room_type_view_model.dart';
+import '../ui/admin/view_model/delete_room_type_view_model.dart';
 import '../ui/admin/view_model/create_hotel_service_view_model.dart';
 import '../ui/admin/view/admin_hotel_detail_screen.dart';
 
@@ -739,6 +741,11 @@ GoRouter appRouter(
                 adminRepository: context.read<AdminRepository>(),
               ),
             ),
+            ChangeNotifierProvider(
+              create: (context) => AmenityManagementViewModel(
+                adminRepository: context.read<AdminRepository>(),
+              ),
+            ),
           ],
           child: const AdminMainScreen(),
         ),
@@ -921,9 +928,19 @@ GoRouter appRouter(
         path: Routes.adminViewRoomtype,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return ViewRoomtypeScreen(
-            roomTypeResponse: extra?['roomTypeResponse'],
-            hotelId: extra?['hotelId'] as String? ?? '',
+          return ChangeNotifierProvider(
+            create: (context) => DeleteRoomTypeViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            child: Consumer<DeleteRoomTypeViewModel>(
+              builder: (context, viewModel, child) {
+                return ViewRoomtypeScreen(
+                  viewModel: viewModel,
+                  roomTypeResponse: extra?['roomTypeResponse'],
+                  hotelId: extra?['hotelId'] as String? ?? '',
+                );
+              },
+            ),
           );
         },
       ),
@@ -944,9 +961,19 @@ GoRouter appRouter(
         path: Routes.adminUpdateRoomType,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return UpdateRoomTypeScreen(
-            roomTypeResponse: extra?['roomTypeResponse'],
-            hotelId: extra?['hotelId'] as String? ?? '',
+          return ChangeNotifierProvider(
+            create: (context) => UpdateRoomTypeViewModel(
+              adminRepository: context.read<AdminRepository>(),
+            ),
+            child: Consumer<UpdateRoomTypeViewModel>(
+              builder: (context, viewModel, child) {
+                return UpdateRoomTypeScreen(
+                  viewModel: viewModel,
+                  roomTypeResponse: extra?['roomTypeResponse'],
+                  hotelId: extra?['hotelId'] as String? ?? '',
+                );
+              },
+            ),
           );
         },
       ),
