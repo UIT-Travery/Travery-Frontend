@@ -28,6 +28,12 @@ abstract class TripService {
 
   Future<Result<TripPaymentData>> createTripPayment(String bookingId);
 
+  Future<Result<bool>> createReview({
+    required String bookingId,
+    required int rating,
+    required String content,
+  });
+
   Future<Result<List<StationData>>> getStations();
 
   Future<Result<List<DestinationData>>> searchDestinations(String keyword);

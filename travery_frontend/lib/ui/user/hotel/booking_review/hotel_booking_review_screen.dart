@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 
 class HotelBookingReviewScreen extends StatefulWidget {
   const HotelBookingReviewScreen({super.key});
@@ -12,6 +15,89 @@ class HotelBookingReviewScreen extends StatefulWidget {
 }
 
 class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
+  bool _isSubmitting = false;
+  Map<String, dynamic>? _bookingData;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      if (extra != null) {
+        setState(() {
+          _bookingData = extra;
+        });
+      }
+    });
+  }
+
+  Future<void> _handleCreateBooking() async {
+    if (_bookingData == null || _isSubmitting) return;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final hotelService = context.read<HotelService>();
+      final rooms = _bookingData!['rooms'] as List<Map<String, dynamic>>? ?? [];
+      final members =
+          _bookingData!['members'] as List<Map<String, dynamic>>? ?? [];
+
+      final result = await hotelService.createBooking(
+        rooms: rooms,
+        startDate: _bookingData!['startDate'] as String,
+        endDate: _bookingData!['endDate'] as String,
+        members: members,
+        contactName: _bookingData!['contactName'] as String,
+        contactPhone: _bookingData!['contactPhone'] as String,
+        specialRequests: _bookingData!['specialRequests'] as String?,
+        ipAddress: '127.0.0.1',
+      );
+
+      if (!mounted) return;
+
+      if (result is Ok) {
+        final response = (result as Ok<HotelCreateBookingResponse>).value;
+
+        if (response.paymentUrl != null && response.paymentUrl!.isNotEmpty) {
+          context.push(
+            Routes.hotelPayment,
+            extra: {
+              'bookingId': response.bookingId,
+              'paymentUrl': response.paymentUrl,
+              'transactionId': response.transactionId,
+              'totalPrice': response.totalPrice,
+            },
+          );
+        } else {
+          context.go(
+            Routes.hotelPaymentResult,
+            extra: {
+              'bookingId': response.bookingId,
+              'status': 'success',
+              'totalPrice': response.totalPrice,
+            },
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Không thể tạo đặt phòng. Vui lòng thử lại.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  String _formatPrice(double price) {
+    final str = price.toStringAsFixed(0);
+    return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +120,10 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
   }
 
   Widget _buildBookingInfo() {
+    final rooms = _bookingData?['rooms'] as List<Map<String, dynamic>>? ?? [];
+    final startDate = _bookingData?['startDate'] as String? ?? '';
+    final endDate = _bookingData?['endDate'] as String? ?? '';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -66,9 +156,9 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
                 'Loại phòng',
                 style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
               ),
-              const Text(
-                'VIP, DELUXE',
-                style: TextStyle(
+              Text(
+                rooms.isNotEmpty ? '${rooms.length} phòng' : 'N/A',
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1F2937),
@@ -81,12 +171,30 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Số lượng phòng',
+                'Ngày nhận phòng',
                 style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
               ),
+              Text(
+                startDate,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1F2937),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               const Text(
-                '2 phòng',
-                style: TextStyle(
+                'Ngày trả phòng',
+                style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+              ),
+              Text(
+                endDate,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1F2937),
@@ -100,6 +208,9 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
   }
 
   Widget _buildContactInfo() {
+    final contactName = _bookingData?['contactName'] as String? ?? '';
+    final contactPhone = _bookingData?['contactPhone'] as String? ?? '';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -136,21 +247,21 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
                   ),
                 ),
               ),
-              const Icon(Icons.edit, color: Color(0xFF007AFF), size: 20),
             ],
           ),
           const SizedBox(height: 16),
-          _buildInfoRow('Họ và tên', 'Nguyen Van A'),
+          _buildInfoRow('Họ và tên', contactName),
           const SizedBox(height: 10),
-          _buildInfoRow('Email', 'abc@xyz.com'),
-          const SizedBox(height: 10),
-          _buildInfoRow('Số điện thoại', '+84 90 123 4567'),
+          _buildInfoRow('Số điện thoại', contactPhone),
         ],
       ),
     );
   }
 
   Widget _buildGuestInfo() {
+    final members =
+        _bookingData?['members'] as List<Map<String, dynamic>>? ?? [];
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -180,29 +291,41 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
                   ),
                 ),
               ),
-              const Icon(Icons.edit, color: Color(0xFF007AFF), size: 20),
             ],
           ),
           const SizedBox(height: 16),
-          _GuestInfoCard(
-            label: 'Khách 1',
-            name: 'NGUYEN VAN A',
-            idNumber: '012345678xxx',
-            dob: '15/05/1990',
-          ),
-          const SizedBox(height: 10),
-          _GuestInfoCard(
-            label: 'Khách 2',
-            name: 'TRAN THI B',
-            idNumber: '098765432xxx',
-            dob: '20/10/1992',
-          ),
+          if (members.isEmpty)
+            const Text(
+              'Chưa có thông tin khách',
+              style: TextStyle(color: Color(0xFF9CA3AF)),
+            )
+          else
+            ...members.asMap().entries.map((entry) {
+              final index = entry.key;
+              final member = entry.value;
+              return Column(
+                children: [
+                  if (index > 0) const SizedBox(height: 10),
+                  _GuestInfoCard(
+                    label: 'Khách ${index + 1}',
+                    name: member['fullName'] as String? ?? '',
+                    idNumber: member['identityNumber'] as String? ?? '',
+                    dob: member['dateOfBirth'] as String? ?? '',
+                  ),
+                ],
+              );
+            }),
         ],
       ),
     );
   }
 
   Widget _buildPricingSection() {
+    final totalPrice = (_bookingData?['totalPrice'] as num?)?.toDouble() ?? 0.0;
+    final pricePerNight =
+        (_bookingData?['pricePerNight'] as num?)?.toDouble() ?? 0.0;
+    final nights = _bookingData?['nights'] as int? ?? 1;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -218,9 +341,9 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
                 'Giá phòng',
                 style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
               ),
-              const Text(
-                '160.000đ x2',
-                style: TextStyle(
+              Text(
+                '$pricePerNight x$nights đêm',
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1F2937),
@@ -235,12 +358,12 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Thanh toán mặc định',
+                'Tổng thanh toán',
                 style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
               ),
-              const Text(
-                '320.000đ',
-                style: TextStyle(
+              Text(
+                _formatPrice(totalPrice),
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1F2937),
@@ -268,7 +391,7 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
         ),
         const SizedBox(height: 2),
         Text(
-          value,
+          value.isNotEmpty ? value : 'N/A',
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -287,43 +410,51 @@ class _HotelBookingReviewScreenState extends State<HotelBookingReviewScreen> {
         16,
         MediaQuery.of(context).padding.bottom + 12,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: const Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {
-              // TODO: Khi có VNPay API thì navigate đến Routes.hotelPayment
-              // Hiện tại skip qua payment để test flow
-              context.go(
-                Routes.hotelPaymentResult,
-                extra: {'bookingId': 'BK-TEST-001', 'status': 'success'},
-              );
-            },
+            onPressed: _isSubmitting ? null : _handleCreateBooking,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF007AFF),
               foregroundColor: Colors.white,
+              disabledBackgroundColor: const Color(
+                0xFF007AFF,
+              ).withValues(alpha: 0.7),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 0,
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Thanh toán',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(width: 8),
-                Icon(Icons.arrow_forward, size: 20),
-              ],
-            ),
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Thanh toán',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward, size: 20),
+                    ],
+                  ),
           ),
         ),
       ),

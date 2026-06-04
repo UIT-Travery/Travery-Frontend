@@ -15,13 +15,15 @@ class BookingReviewScreen extends StatefulWidget {
     required this.instanceId,
     required this.tourName,
     this.destinationName,
-    // this.startLocation,
+
     required this.tourImageUrl,
     required this.members,
     required this.adultCount,
     required this.childCount,
     required this.pricePerAdult,
     required this.pricePerChild,
+    required this.contactName,
+    required this.contactPhone,
     required this.specialRequests,
     required this.startDate,
     required this.endDate,
@@ -32,13 +34,15 @@ class BookingReviewScreen extends StatefulWidget {
   final String instanceId;
   final String tourName;
   final String? destinationName;
-  // final String? startLocation;
+
   final String? tourImageUrl;
   final List<Map<String, dynamic>> members;
   final int adultCount;
   final int childCount;
   final double pricePerAdult;
   final double pricePerChild;
+  final String contactName;
+  final String contactPhone;
   final String specialRequests;
   final String startDate;
   final String endDate;
@@ -84,10 +88,8 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
-            // ── Contact Info ──
             _buildContactSection(vm),
 
-            // ── Section 1: Tour Info & Members ──
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -124,15 +126,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                       text: widget.destinationName!,
                     ),
                   ],
-                  // if (widget.startLocation != null &&
-                  //     widget.startLocation!.isNotEmpty) ...[
-                  //   const SizedBox(height: 6),
-                  //   _buildInfoRow(
-                  //     icon: Icons.flight_takeoff_outlined,
-                  //     label: 'Điểm xuất phát',
-                  //     text: widget.startLocation!,
-                  //   ),
-                  // ],
+
                   const SizedBox(height: 16),
                   if (widget.startDate.isNotEmpty) ...[
                     _buildInfoRow(
@@ -233,7 +227,6 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
 
             const SizedBox(height: 16),
 
-            // ── Section 2: Special Requests ──
             if (widget.specialRequests.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(20),
@@ -297,7 +290,6 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
               const SizedBox(height: 16),
             ],
 
-            // ── Section 3: Terms Checkbox ──
             GestureDetector(
               onTap: () => setState(() => _termsAccepted = !_termsAccepted),
               behavior: HitTestBehavior.opaque,
@@ -529,10 +521,14 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       );
     }
 
-    final name = vm.userName?.isNotEmpty == true
+    final name = widget.contactName.isNotEmpty
+        ? widget.contactName
+        : vm.userName?.isNotEmpty == true
         ? vm.userName!
         : 'Chưa cập nhật';
-    final phone = vm.userPhone?.isNotEmpty == true
+    final phone = widget.contactPhone.isNotEmpty
+        ? widget.contactPhone
+        : vm.userPhone?.isNotEmpty == true
         ? vm.userPhone!
         : 'Chưa cập nhật';
     final email = vm.userEmail?.isNotEmpty == true
@@ -623,7 +619,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       specialRequests: widget.specialRequests,
     );
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (!success) {
       _showErrorDialog(context, vm.error ?? 'Error');
@@ -638,6 +634,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
         booking.payment!.transactionId,
         booking.id,
       );
+      if (!context.mounted) return;
     }
 
     if (booking.payment != null && booking.payment!.paymentUrl.isNotEmpty) {

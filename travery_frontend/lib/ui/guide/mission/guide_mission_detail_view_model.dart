@@ -26,11 +26,6 @@ class GuideMissionDetailViewModel extends ChangeNotifier {
   }
 
   GuideMissionDetail? get mission => loadMission.value;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 /// Async task wrapper for reactive state management

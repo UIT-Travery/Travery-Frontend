@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/services/api/model/booking/user_booking_list_response/user_booking_list_response.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/tour/booking_list/view_models/booking_list_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/empty_state.dart';
@@ -18,7 +19,7 @@ class BookingListScreen extends StatefulWidget {
 }
 
 class _BookingListScreenState extends State<BookingListScreen> {
-  Future<void> _handleBookingTap(booking) async {
+  Future<void> _handleBookingTap(UserBookingItem booking) async {
     debugPrint('=== _handleBookingTap - status: ${booking.status}');
     if (booking.status != 'PENDING') {
       context.push(
@@ -28,7 +29,7 @@ class _BookingListScreenState extends State<BookingListScreen> {
     }
   }
 
-  Future<void> _handlePaymentTap(booking) async {
+  Future<void> _handlePaymentTap(UserBookingItem booking) async {
     debugPrint('=== _handlePaymentTap called for booking: ${booking.id}');
 
     final vm = context.read<VNPayPaymentViewModel>();
@@ -129,39 +130,42 @@ class _BookingListScreenState extends State<BookingListScreen> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
-                              children: vm.statusFilters.map((filter) {
-                                final isSelected =
-                                    (vm.selectedStatus ?? 'Tất cả') == filter;
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: GestureDetector(
-                                    onTap: () =>
-                                        vm.loadBookings(status: filter),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 8,
+                              children: [
+                                for (final filter in vm.statusFilters)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: GestureDetector(
+                                      onTap: () => vm.loadBookings(
+                                        status: filter,
+                                        refresh: true,
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? const Color(0xFF0058BC)
-                                            : const Color(0xFFDAE2FD),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        _getStatusDisplayName(filter),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : const Color(0xFF414755),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: vm.selectedStatus == filter
+                                              ? _getChipColor(filter)
+                                              : const Color(0xFFDAE2FD),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          _getStatusDisplayName(filter),
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: vm.selectedStatus == filter
+                                                ? Colors.white
+                                                : const Color(0xFF414755),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                );
-                              }).toList(),
+                              ],
                             ),
                           ),
                         ),
@@ -224,10 +228,34 @@ class _BookingListScreenState extends State<BookingListScreen> {
         return 'Đang chờ';
       case 'PAID':
         return 'Đã thanh toán';
+      case 'CHECKED_IN':
+        return 'Đã check-in';
+      case 'CHECKED_OUT':
+        return 'Đã check-out';
       case 'CANCELLED':
         return 'Đã hủy';
+      case 'NO_SHOW':
+        return 'Không đến';
       default:
         return filter;
+    }
+  }
+
+  Color _getChipColor(String filter) {
+    switch (filter) {
+      case 'PAID':
+        return const Color(0xFF10B981);
+      case 'CHECKED_IN':
+        return const Color(0xFF007AFF);
+      case 'CHECKED_OUT':
+        return const Color(0xFF6B7280);
+      case 'CANCELLED':
+        return const Color(0xFFEF4444);
+      case 'NO_SHOW':
+        return const Color(0xFFF59E0B);
+      case 'PENDING':
+      default:
+        return const Color(0xFFF59E0B);
     }
   }
 }

@@ -34,7 +34,6 @@ class BookingSuccessScreen extends StatelessWidget {
             children: [
               const Spacer(),
 
-              // Success Icon
               Container(
                 width: 96,
                 height: 96,
@@ -88,7 +87,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
               const SizedBox(height: 40),
 
-              // Booking Info Card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
@@ -105,7 +103,6 @@ class BookingSuccessScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // Booking Code
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -134,7 +131,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
                     const Divider(height: 32),
 
-                    // Tour Name
                     InfoRow(
                       icon: Icons.map,
                       label: 'Chuyến đi',
@@ -143,7 +139,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // Date
                     InfoRow(
                       icon: Icons.calendar_today,
                       label: 'Ngày khởi hành',
@@ -154,7 +149,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // Guest Count
                     InfoRow(
                       icon: Icons.group,
                       label: 'Số lượng khách',
@@ -163,7 +157,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
                     const Divider(height: 32),
 
-                    // Total Price
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -188,7 +181,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // Pending Status
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -220,7 +212,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
               const Spacer(),
 
-              // Actions
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

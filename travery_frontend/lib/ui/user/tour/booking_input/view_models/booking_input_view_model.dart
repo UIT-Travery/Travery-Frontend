@@ -24,7 +24,6 @@ class MemberFormData {
     memberType: memberType,
   );
 
-  /// Converts date from DD/MM/YYYY to YYYY-MM-DD (ISO 8601) format.
   static String _toIsoDate(String dateStr) {
     if (dateStr.isEmpty) return '';
     final parts = dateStr.split('/');

@@ -9,6 +9,7 @@ import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/ui/user/trip/widgets/trip_booking_card.dart';
 import 'package:travery_frontend/ui/user/widgets/empty_state.dart';
 import 'package:travery_frontend/ui/user/widgets/error_state.dart';
+import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 import 'package:travery_frontend/ui/user/tour/booking_list/booking_list_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/my_booking/hotel_my_booking_screen.dart';
 
@@ -27,20 +28,9 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFF),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text(
-          _titles[_selectedIndex],
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF131B2E),
-          ),
-        ),
-        centerTitle: true,
+      appBar: UserAppBar(
+        title: _titles[_selectedIndex],
+        showBackButton: false,
         actions: [
           IconButton(
             onPressed: () => setState(() => _showRail = !_showRail),
@@ -50,13 +40,6 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
             ),
           ),
         ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: SizedBox(
-            height: 1,
-            child: ColoredBox(color: Color(0xFFE8EAF0)),
-          ),
-        ),
       ),
       body: Row(
         children: [
@@ -139,15 +122,6 @@ class _TripBookingListContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<MyTripBookingViewModel>(
       builder: (context, vm, _) {
-        if (vm.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (vm.error != null) {
-          return ErrorState(
-            message: '',
-            onRetry: () => vm.loadBookings(refresh: true),
-          );
-        }
         return Column(
           children: [
             Padding(
@@ -156,12 +130,12 @@ class _TripBookingListContent extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: vm.statusFilters.map((filter) {
-                    final isSelected =
-                        (vm.selectedStatus ?? 'Tất cả') == filter;
+                    final isSelected = vm.selectedStatus == filter;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
-                        onTap: () => vm.loadBookings(status: filter),
+                        onTap: () =>
+                            vm.loadBookings(status: filter, refresh: true),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -169,7 +143,7 @@ class _TripBookingListContent extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFF0058BC)
+                                ? _getChipColor(filter)
                                 : const Color(0xFFDAE2FD),
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -191,7 +165,14 @@ class _TripBookingListContent extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: vm.bookings.isEmpty
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : vm.error != null
+                  ? ErrorState(
+                      message: '',
+                      onRetry: () => vm.loadBookings(refresh: true),
+                    )
+                  : vm.bookings.isEmpty
                   ? const EmptyState(
                       icon: Icons.directions_bus_outlined,
                       title: 'Chưa có đơn đặt xe nào',
@@ -240,8 +221,9 @@ class _TripBookingListContent extends StatelessWidget {
                                   Error() => null,
                                 };
                               }
-                              if (!context.mounted || paymentUrl == null)
+                              if (!context.mounted || paymentUrl == null) {
                                 return;
+                              }
                               context.push(
                                 Routes.tripPayment,
                                 extra: {
@@ -274,10 +256,33 @@ class _TripBookingListContent extends StatelessWidget {
         return 'Đang chờ';
       case 'PAID':
         return 'Đã thanh toán';
+      case 'CHECKED_IN':
+        return 'Đã check-in';
+      case 'CHECKED_OUT':
+        return 'Đã check-out';
       case 'CANCELLED':
         return 'Đã hủy';
+      case 'NO_SHOW':
+        return 'Không đến';
       default:
         return filter;
+    }
+  }
+
+  Color _getChipColor(String filter) {
+    switch (filter) {
+      case 'PAID':
+        return const Color(0xFF10B981);
+      case 'CHECKED_IN':
+        return const Color(0xFF007AFF);
+      case 'CHECKED_OUT':
+        return const Color(0xFF6B7280);
+      case 'CANCELLED':
+        return const Color(0xFFEF4444);
+      case 'NO_SHOW':
+      case 'PENDING':
+      default:
+        return const Color(0xFFF59E0B);
     }
   }
 }
