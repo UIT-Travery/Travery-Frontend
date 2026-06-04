@@ -8,24 +8,16 @@ class BusinessCoach {
     required this.plateNumber,
     required this.coachType,
     required this.seatCount,
-<<<<<<< HEAD
-    this.seats,
-=======
     required this.status,
     this.seats,
     this.seatLayoutId,
->>>>>>> develop
   });
 
   final String id;
   final String plateNumber;
   final String coachType;
   final int seatCount;
-<<<<<<< HEAD
-  final List<BusinessCoachSeat>? seats;
-=======
   final String status;
   final List<BusinessCoachSeat>? seats;
   final String? seatLayoutId;
->>>>>>> develop
 }

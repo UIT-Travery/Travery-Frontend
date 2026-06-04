@@ -21,12 +21,9 @@ abstract class TripService {
   Future<Result<CancelTripData>> cancelTripBooking(
     String bookingId, {
     String? reason,
-<<<<<<< HEAD
-=======
     String? bankName,
     String? accountNumber,
     String? accountHolderName,
->>>>>>> develop
   });
 
   Future<Result<TripPaymentData>> createTripPayment(String bookingId);

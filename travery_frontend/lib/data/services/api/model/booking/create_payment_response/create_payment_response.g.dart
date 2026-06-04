@@ -6,33 +6,32 @@ part of 'create_payment_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CreatePaymentResponseImpl _$$CreatePaymentResponseImplFromJson(
+_CreatePaymentResponse _$CreatePaymentResponseFromJson(
   Map<String, dynamic> json,
-) => _$CreatePaymentResponseImpl(
+) => _CreatePaymentResponse(
   httpStatus: (json['httpStatus'] as num).toInt(),
   message: json['message'] as String,
   data: PaymentResponseData.fromJson(json['data'] as Map<String, dynamic>),
 );
 
-Map<String, dynamic> _$$CreatePaymentResponseImplToJson(
-  _$CreatePaymentResponseImpl instance,
+Map<String, dynamic> _$CreatePaymentResponseToJson(
+  _CreatePaymentResponse instance,
 ) => <String, dynamic>{
   'httpStatus': instance.httpStatus,
   'message': instance.message,
   'data': instance.data,
 };
 
-_$PaymentResponseDataImpl _$$PaymentResponseDataImplFromJson(
-  Map<String, dynamic> json,
-) => _$PaymentResponseDataImpl(
-  transactionId: json['transactionId'] as String,
-  amount: (json['amount'] as num).toDouble(),
-  paymentUrl: json['paymentUrl'] as String,
-  expiresAt: json['expiresAt'] as String?,
-);
+_PaymentResponseData _$PaymentResponseDataFromJson(Map<String, dynamic> json) =>
+    _PaymentResponseData(
+      transactionId: json['transactionId'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      paymentUrl: json['paymentUrl'] as String,
+      expiresAt: json['expiresAt'] as String?,
+    );
 
-Map<String, dynamic> _$$PaymentResponseDataImplToJson(
-  _$PaymentResponseDataImpl instance,
+Map<String, dynamic> _$PaymentResponseDataToJson(
+  _PaymentResponseData instance,
 ) => <String, dynamic>{
   'transactionId': instance.transactionId,
   'amount': instance.amount,

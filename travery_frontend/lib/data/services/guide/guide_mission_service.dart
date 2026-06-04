@@ -1,9 +1,5 @@
 import 'package:travery_frontend/data/seed_models/tour_progress/tour_progress.dart';
 import 'package:travery_frontend/data/seed_models/incident/incident.dart';
-<<<<<<< HEAD
-import 'package:travery_frontend/data/seed_models/check_in/check_in_passenger.dart';
-=======
->>>>>>> develop
 import 'package:travery_frontend/utils/core_result.dart';
 
 abstract class GuideMissionService {
@@ -17,15 +13,6 @@ abstract class GuideMissionService {
   });
 
   /// PATCH /api/v1/staff/guide/instances/{id}/attendance
-<<<<<<< HEAD
-  Future<Result<void>> updateAttendance(
-    String instanceId,
-    Map<String, String> attendanceMap,
-  );
-
-  /// PATCH /api/v1/staff/guide/instances/{id}/progress
-  Future<Result<void>> updateProgress(String instanceId, String stepId);
-=======
   /// Body: { "attendances": [{ "memberId": "uuid", "status": "PRESENT" }] }
   /// Returns the full updated mission detail on success.
   Future<Result<GuideMissionDetail>> updateAttendance(
@@ -35,7 +22,6 @@ abstract class GuideMissionService {
 
   /// PATCH /api/v1/staff/guide/instances/{id}/progress
   Future<Result<void>> updateProgress(String instanceId, String status);
->>>>>>> develop
 
   /// POST /api/v1/staff/guide/instances/{id}/incidents
   Future<Result<Incident>> reportIncident(
@@ -47,8 +33,6 @@ abstract class GuideMissionService {
 
   /// GET /api/v1/staff/guide/instances/{id}/incidents
   Future<Result<List<Incident>>> getIncidents(String instanceId);
-<<<<<<< HEAD
-=======
 
   /// PUT /api/v1/guide/coach-trips/{id}/status
   /// Body: { "status": "OPEN|FULL|IN_PROGRESS|COMPLETED|CANCELLED" }
@@ -59,7 +43,6 @@ abstract class GuideMissionService {
 
   /// PUT /api/v1/guide/coach-trips/{id}/bookings/{bookingId}/no-show
   Future<Result<void>> markPassengerNoShow(String tripId, String bookingId);
->>>>>>> develop
 }
 
 // ─── Response Models ────────────────────────────────────────────────────────────
@@ -181,8 +164,6 @@ class GuidePassenger {
   bool get isNoShow => attendanceStatus == 'NO_SHOW';
   bool get isAdult => memberType == 'ADULT';
 }
-<<<<<<< HEAD
-=======
 
 class CoachTripStatusResponse {
   final String id;
@@ -225,4 +206,3 @@ class CoachTripStatusResponse {
     this.passengersCount = 0,
   });
 }
->>>>>>> develop

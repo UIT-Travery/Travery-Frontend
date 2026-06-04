@@ -88,8 +88,6 @@ class TripBookingRepository {
       client.close();
     }
   }
-<<<<<<< HEAD
-=======
 
   Future<Result<TripPaymentData>> createPayment(String bookingId) async {
     final client = HttpClient();
@@ -137,5 +135,4 @@ class TripBookingRepository {
       client.close();
     }
   }
->>>>>>> develop
 }
