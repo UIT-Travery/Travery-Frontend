@@ -126,11 +126,6 @@ class GuideCheckinViewModel extends ChangeNotifier {
   String _toApiStatus(String internal) {
     return internal == 'CHECKED_IN' ? 'PRESENT' : internal;
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 /// Async task wrapper for reactive state management

@@ -30,24 +30,19 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
   void initState() {
     super.initState();
     final statuses = _getAvailableStatuses();
-    // First option is always current (disabled); pre-select the first selectable one
-    _selectedStatus = statuses.length > 1 ? statuses[1].value : null;
+    _selectedStatus = _firstSelectableStatus(statuses);
   }
 
   bool get _isTerminalStatus =>
       widget.currentStatus == 'COMPLETED' ||
       widget.currentStatus == 'CANCELLED';
 
-  /// Get available statuses: always show IN_PROGRESS, COMPLETED, CANCELLED.
-  /// Current status is shown as disabled; everything else is selectable.
   List<_TourStatusOption> _getAvailableStatuses() {
-    const selectable = ['IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+    const selectable = ['IN_PROGRESS', 'COMPLETED'];
     final result = <_TourStatusOption>[];
 
-    // Add current status first (disabled)
     result.add(_buildOption(widget.currentStatus));
 
-    // Add selectable forward statuses
     for (final status in selectable) {
       if (status != widget.currentStatus) {
         result.add(_buildOption(status));
@@ -57,48 +52,59 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     return result;
   }
 
+  String? _firstSelectableStatus(List<_TourStatusOption> statuses) {
+    if (_isTerminalStatus) return null;
+    for (final status in statuses) {
+      if (status.value != widget.currentStatus) {
+        return status.value;
+      }
+    }
+    return null;
+  }
+
   _TourStatusOption _buildOption(String status) {
     switch (status) {
       case 'PLANNING':
+      case 'PENDING':
         return _TourStatusOption(
           value: status,
-          label: status,
-          description: 'Đang lập kế hoạch',
+          label: _getStatusLabel(status),
+          description: 'Chờ bắt đầu',
         );
       case 'OPEN':
         return _TourStatusOption(
           value: status,
-          label: status,
+          label: _getStatusLabel(status),
           description: 'Mở đăng ký',
         );
       case 'FULL':
         return _TourStatusOption(
           value: status,
-          label: status,
+          label: _getStatusLabel(status),
           description: 'Đã đủ khách',
         );
       case 'IN_PROGRESS':
         return _TourStatusOption(
           value: status,
-          label: status,
+          label: _getStatusLabel(status),
           description: 'Đang diễn ra',
         );
       case 'COMPLETED':
         return _TourStatusOption(
           value: status,
-          label: status,
+          label: _getStatusLabel(status),
           description: 'Hoàn thành',
         );
       case 'CANCELLED':
         return _TourStatusOption(
           value: status,
-          label: status,
+          label: _getStatusLabel(status),
           description: 'Đã hủy',
         );
       default:
         return _TourStatusOption(
           value: status,
-          label: status,
+          label: _getStatusLabel(status),
           description: status,
         );
     }
@@ -380,7 +386,8 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
           Expanded(
             flex: 2,
             child: ElevatedButton(
-              onPressed: _isLoading || _selectedStatus == null
+              onPressed:
+                  _isLoading || _selectedStatus == null || _isTerminalStatus
                   ? null
                   : _confirmStatus,
               style: ElevatedButton.styleFrom(
@@ -415,7 +422,7 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
   }
 
   Future<void> _confirmStatus() async {
-    if (_selectedStatus == null) return;
+    if (_selectedStatus == null || !_canSubmitStatus(_selectedStatus!)) return;
 
     setState(() {
       _isLoading = true;
@@ -457,10 +464,16 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     }
   }
 
+  bool _canSubmitStatus(String status) {
+    return status == 'IN_PROGRESS' || status == 'COMPLETED';
+  }
+
   String _getStatusLabel(String status) {
     switch (status) {
       case 'PLANNING':
         return 'Đang lập kế hoạch';
+      case 'PENDING':
+        return 'Chờ bắt đầu';
       case 'OPEN':
         return 'Mở đăng ký';
       case 'FULL':
