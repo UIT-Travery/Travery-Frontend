@@ -13,32 +13,36 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
+  ProfileViewModel? _viewModel;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final viewModel = context.read<ProfileViewModel>();
-      viewModel.loadProfile.addListener(_onLoadProfileStateChanged);
-      viewModel.logout.addListener(_onLogoutResult);
-      viewModel.loadProfile.execute();
+      if (!mounted) return;
+      _viewModel = context.read<ProfileViewModel>();
+      _viewModel!.loadProfile.addListener(_onLoadProfileStateChanged);
+      _viewModel!.logout.addListener(_onLogoutResult);
+      _viewModel!.loadProfile.execute();
     });
   }
 
   @override
   void dispose() {
-    final viewModel = context.read<ProfileViewModel>();
-    viewModel.loadProfile.removeListener(_onLoadProfileStateChanged);
-    viewModel.logout.removeListener(_onLogoutResult);
+    _viewModel?.loadProfile.removeListener(_onLoadProfileStateChanged);
+    _viewModel?.logout.removeListener(_onLogoutResult);
     super.dispose();
   }
 
   void _onLoadProfileStateChanged() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _onLogoutResult() {
-    final viewModel = context.read<ProfileViewModel>();
-    if (viewModel.logout.completed) {
+    final viewModel = _viewModel;
+    if (viewModel != null && viewModel.logout.completed) {
       viewModel.logout.clearResult();
       if (mounted) {
         context.go(Routes.login);
@@ -66,8 +70,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
 
     if (confirmed == true && mounted) {
-      final viewModel = context.read<ProfileViewModel>();
-      viewModel.logout.execute();
+      _viewModel?.logout.execute();
     }
   }
 
