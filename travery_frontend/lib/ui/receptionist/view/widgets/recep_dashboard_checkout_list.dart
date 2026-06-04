@@ -8,10 +8,12 @@ class RecepDashboardCheckoutList extends StatefulWidget {
   const RecepDashboardCheckoutList({super.key, this.queue});
 
   @override
-  State<RecepDashboardCheckoutList> createState() => _RecepDashboardCheckoutListState();
+  State<RecepDashboardCheckoutList> createState() =>
+      _RecepDashboardCheckoutListState();
 }
 
-class _RecepDashboardCheckoutListState extends State<RecepDashboardCheckoutList> {
+class _RecepDashboardCheckoutListState
+    extends State<RecepDashboardCheckoutList> {
   bool _showAll = false;
 
   @override
@@ -35,7 +37,7 @@ class _RecepDashboardCheckoutListState extends State<RecepDashboardCheckoutList>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Chi tiết Check-out',
+                  'Check-out Hôm nay',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -43,7 +45,10 @@ class _RecepDashboardCheckoutListState extends State<RecepDashboardCheckoutList>
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primaryLightWhiteBlue,
                     borderRadius: BorderRadius.circular(4),
@@ -60,10 +65,10 @@ class _RecepDashboardCheckoutListState extends State<RecepDashboardCheckoutList>
               ],
             ),
           ),
-          
+
           // Table Headers
           Container(
-            color: const Color(0xFFF8FAFC), 
+            color: const Color(0xFFF8FAFC),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
@@ -114,79 +119,69 @@ class _RecepDashboardCheckoutListState extends State<RecepDashboardCheckoutList>
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(width: 80), // Space for button
               ],
             ),
           ),
-          
+
           // List Items
-          ...itemsToShow.map((item) => Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey.shade100),
+          ...itemsToShow.map(
+            (item) => Container(
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      item.touristName,
+                      style: const TextStyle(
+                        color: Color(0xFF111827),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        item.touristName,
-                        style: const TextStyle(
-                          color: Color(0xFF111827),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      item.phoneNumber,
+                      style: const TextStyle(
+                        color: AppColors.primaryDarkBlackBlue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        item.phoneNumber,
-                        style: const TextStyle(
-                          color: AppColors.primaryDarkBlackBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      '${item.totalRooms}',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        '${item.totalRooms}',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      '${item.memberCount}',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        '${item.memberCount}',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 80,
-                      child: RecepSmallButton(
-                        label: 'Check-out',
-                        onTap: () {
-                          // TODO: Implement checkout
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-          
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // Xem tất cả button
           InkWell(
             onTap: () {
@@ -212,4 +207,3 @@ class _RecepDashboardCheckoutListState extends State<RecepDashboardCheckoutList>
     );
   }
 }
-

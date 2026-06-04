@@ -7,6 +7,9 @@ import 'package:travery_frontend/ui/receptionist/view/widgets/recep_dashboard_in
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_dashboard_checkin_list.dart';
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_dashboard_checkout_list.dart';
 import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_view_model.dart';
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
+import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/ui/core/widgets/loading_overlay.dart';
 
@@ -27,6 +30,7 @@ class _RecepDashboardScreenState extends State<RecepDashboardScreen> {
     _viewModel.loadDashboard.addListener(_onResult);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _viewModel.loadDashboard.execute();
+      context.read<AdminProfileViewModel>().loadProfile.execute();
     });
   }
 
@@ -98,10 +102,21 @@ class _RecepDashboardScreenState extends State<RecepDashboardScreen> {
                   padding: const EdgeInsets.only(right: 16.0),
                   child: GestureDetector(
                     onTap: () => context.push(Routes.recepProfile),
-                    child: const CircleAvatar(
-                      radius: 16,
-                      backgroundImage:
-                          NetworkImage('https://i.pravatar.cc/150?img=11'),
+                    child: ListenableBuilder(
+                      listenable: context.read<AdminProfileViewModel>().loadProfile,
+                      builder: (context, child) {
+                        final result = context.read<AdminProfileViewModel>().loadProfile.result;
+                        String? avatarUrl;
+                        if (result is Ok<ProfileData>) {
+                          avatarUrl = result.value.avatarUrl;
+                        }
+                        return CircleAvatar(
+                          radius: 16,
+                          backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
+                              ? NetworkImage(avatarUrl)
+                              : const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                        );
+                      },
                     ),
                   ),
                 ),

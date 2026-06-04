@@ -5,6 +5,8 @@ import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/data/services/api/model/receptionist/recep_dashboard_response.dart';
 import 'package:travery_frontend/data/services/api/model/receptionist/available_room_response.dart';
+import 'package:travery_frontend/data/services/api/model/receptionist/recep_room_response.dart';
+import 'package:travery_frontend/data/services/api/model/receptionist/recep_add_on_order_response.dart';
 
 class ReceptionistApiService {
   ReceptionistApiService({String? host, HttpClient Function()? clientFactory})
@@ -93,6 +95,144 @@ class ReceptionistApiService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Không thể tải danh sách phòng trống',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<List<RecepRoomResponse>>> getRooms({
+    required String accessToken,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/staff/receptionist/rooms');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        
+        final dataList = jsonMap['data'] as List<dynamic>;
+        final rooms = dataList
+            .map((e) => RecepRoomResponse.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return Result.ok(rooms);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách phòng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<void>> updateRoomStatus({
+    required String accessToken,
+    required String roomId,
+    required String status,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/staff/receptionist/rooms/$roomId/status', {
+        'status': status,
+      });
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        return const Result.ok(null);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cập nhật trạng thái phòng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<List<RecepAddOnOrderResponse>>> getAddOnOrders({
+    required String accessToken,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/staff/receptionist/add-on-orders');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        
+        final dataList = jsonMap['data'] as List<dynamic>;
+        final orders = dataList
+            .map((e) => RecepAddOnOrderResponse.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return Result.ok(orders);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách tiện ích',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Result<void>> updateAddOnOrderStatus({
+    required String accessToken,
+    required String orderId,
+    required String status,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/staff/receptionist/add-on-orders/$orderId/status', {
+        'status': status,
+      });
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        return const Result.ok(null);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể cập nhật trạng thái tiện ích',
         );
         return Result.error(HttpException(errorMsg));
       }

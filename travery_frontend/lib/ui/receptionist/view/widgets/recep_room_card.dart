@@ -1,94 +1,68 @@
 import 'package:flutter/material.dart';
-import '../../../../domain/models/receptionist/recep_room/recep_room.dart';
+import 'package:travery_frontend/data/services/api/model/receptionist/recep_room_response.dart';
 
 class RecepRoomCard extends StatelessWidget {
-  final RecepRoom room;
+  final RecepRoomResponse room;
+  final VoidCallback? onTap;
 
-  const RecepRoomCard({
-    super.key,
-    required this.room,
-  });
+  const RecepRoomCard({super.key, required this.room, this.onTap});
 
-  Color _getBorderColor(RecepRoomStatus status) {
-    switch (status) {
-      case RecepRoomStatus.ready:
+  Color _getBorderColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'AVAILABLE':
+      case 'READY':
         return Colors.green;
-      case RecepRoomStatus.dirty:
+      case 'DIRTY':
+      case 'CLEANING':
         return Colors.orange;
-      case RecepRoomStatus.occupied:
+      case 'OCCUPIED':
         return Colors.blue;
-      case RecepRoomStatus.maintenance:
+      case 'MAINTENANCE':
         return Colors.red;
-    }
-  }
-
-  String _getRoomTypeName(RecepRoomType type) {
-    switch (type) {
-      case RecepRoomType.standard:
-        return 'Standard';
-      case RecepRoomType.vip:
-        return 'VIP';
-      case RecepRoomType.suite:
-        return 'Suite';
-    }
-  }
-
-  String _getBedDescription(RecepBedType type) {
-    switch (type) {
-      case RecepBedType.single:
-        return '1 Giường đơn';
-      case RecepBedType.double:
-        return '1 Giường đôi';
+      default:
+        return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      clipBehavior: Clip.antiAlias,
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
+        height: 80,
+        width: double.infinity,
         decoration: BoxDecoration(
-          border: Border(
-            left: BorderSide(
-              color: _getBorderColor(room.roomStatus),
-              width: 5,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: _getBorderColor(room.status), width: 5),
             ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              room.roomNumber,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                room.roomNumber,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
               ),
-            ),
-            Text(
-              _getRoomTypeName(room.roomType),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
+              Text(
+                room.roomTypeName,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              _getBedDescription(room.bedType),
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black54,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -16,6 +16,7 @@ import 'package:travery_frontend/ui/admin/view_model/image_management_view_model
 import 'package:travery_frontend/ui/admin/view/view_hotel_room_list.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_addon_list_view_model.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
@@ -187,6 +188,7 @@ import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_vie
 import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_room_selection_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selection_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_hotel_room_view_model.dart';
 
 GoRouter appRouter(
   AuthRepository authRepository, {
@@ -823,7 +825,9 @@ GoRouter appRouter(
           final hotelId = extra['hotelId'] as String? ?? '';
           return ImageManagementScreen(
             hotelId: hotelId,
-            viewModel: ImageManagementViewModel(adminRepository: context.read()),
+            viewModel: ImageManagementViewModel(
+              adminRepository: context.read(),
+            ),
           );
         },
       ),
@@ -1113,19 +1117,39 @@ GoRouter appRouter(
       //======Receptionist========
       GoRoute(
         path: Routes.recepMain,
-        builder: (context, state) => Provider(
-          create: (context) => RecepDashboardViewModel(
-            repository: context.read<ReceptionistRepository>(),
-          ),
+        builder: (context, state) => MultiProvider(
+          providers: [
+            Provider(
+              create: (context) => RecepDashboardViewModel(
+                repository: context.read<ReceptionistRepository>(),
+              ),
+            ),
+            ChangeNotifierProvider(
+              create: (context) => AdminProfileViewModel(
+                authRepository: context.read<AuthRepository>(),
+                profileRepository: context.read<ProfileRepository>(),
+              ),
+            ),
+          ],
           child: const RecepMainScreen(),
         ),
       ),
       GoRoute(
         path: Routes.recepDashboard,
-        builder: (context, state) => Provider(
-          create: (context) => RecepDashboardViewModel(
-            repository: context.read<ReceptionistRepository>(),
-          ),
+        builder: (context, state) => MultiProvider(
+          providers: [
+            Provider(
+              create: (context) => RecepDashboardViewModel(
+                repository: context.read<ReceptionistRepository>(),
+              ),
+            ),
+            ChangeNotifierProvider(
+              create: (context) => AdminProfileViewModel(
+                authRepository: context.read<AuthRepository>(),
+                profileRepository: context.read<ProfileRepository>(),
+              ),
+            ),
+          ],
           child: const RecepDashboardScreen(),
         ),
       ),
@@ -1135,15 +1159,28 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.recepHotel,
-        builder: (context, state) => const RecepViewHotelRoomScreen(),
+        builder: (context, state) => RecepViewHotelRoomScreen(
+          viewModel: RecepViewHotelRoomViewModel(
+            repository: context.read<ReceptionistRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.recepAddon,
-        builder: (context, state) => const RecepViewAddonListScreen(),
+        builder: (context, state) => RecepViewAddonListScreen(
+          viewModel: RecepViewAddonListViewModel(
+            repository: context.read<ReceptionistRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.recepProfile,
-        builder: (context, state) => const RecepViewProfileScreen(),
+        builder: (context, state) => RecepViewProfileScreen(
+          viewModel: AdminProfileViewModel(
+            authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.recepRoomSelection,
