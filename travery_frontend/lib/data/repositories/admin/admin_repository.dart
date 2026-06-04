@@ -181,6 +181,8 @@ abstract class AdminRepository extends ChangeNotifier {
     String? description,
   });
 
+  Future<Result<void>> deleteHotelService({required String serviceId});
+
   Future<Result<List<dynamic>>> getHotelRoomTypes({required String hotelId});
 
   Future<Result<String>> createHotelRoomType({

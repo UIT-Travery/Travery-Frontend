@@ -20,6 +20,8 @@ class AmenityManagementScreen extends StatefulWidget {
 class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
   String _selectedFilter = 'Tất cả';
   final List<String> _filters = ['Tất cả', 'Phòng', 'Khách sạn'];
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
   void dispose() {
     widget.viewModel.loadAmenities.removeListener(_onLoadResult);
     widget.viewModel.deleteAmenity.removeListener(_onDeleteResult);
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -84,11 +87,19 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
   }
 
   List<AmenityResponse> _filtered(List<AmenityResponse> all) {
-    if (_selectedFilter == 'Tất cả') return all;
-    final typeFilter = _selectedFilter == 'Phòng'
-        ? 'ROOM_AMENITY'
-        : 'HOTEL_AMENITY';
-    return all.where((a) => a.type == typeFilter).toList();
+    var filtered = all;
+    if (_selectedFilter != 'Tất cả') {
+      final typeFilter = _selectedFilter == 'Phòng'
+          ? 'ROOM_AMENITY'
+          : 'HOTEL_AMENITY';
+      filtered = filtered.where((a) => a.type == typeFilter).toList();
+    }
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered
+          .where((a) => a.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .toList();
+    }
+    return filtered;
   }
 
   IconData _iconForAmenity(String name) {
@@ -151,6 +162,23 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
             const Text(
               'Danh sách các cơ sở vật chất',
               style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _searchController,
+              onChanged: (value) => setState(() => _searchQuery = value),
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm cơ sở vật chất...',
+                prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B)),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -255,6 +283,28 @@ class _AmenityManagementScreenState extends State<AmenityManagementScreen> {
                             },
                           );
                           widget.viewModel.loadAmenities.execute();
+                        },
+                        onDelete: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Xác nhận xóa'),
+                              content: Text('Bạn có chắc chắn muốn xóa "${item.name}" không?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Hủy'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    widget.viewModel.deleteAmenity.execute(item.id);
+                                  },
+                                  child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
                         },
                       );
                     },

@@ -1241,6 +1241,31 @@ class AdminApiService {
     }
   }
 
+  /// DELETE /api/v1/admin/services/{serviceId}
+  Future<Result<void>> adminDeleteHotelService({
+    required String accessToken,
+    required String serviceId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/services/$serviceId');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể xóa dịch vụ');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
   /// GET /api/v1/admin/hotels/{hotelId}/room-types
   Future<Result<List<dynamic>>> adminGetRoomTypes({
     required String accessToken,

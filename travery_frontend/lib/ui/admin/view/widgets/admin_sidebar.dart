@@ -64,9 +64,13 @@ class AdminSidebar extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 20,
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
                           ? NetworkImage(avatarUrl)
-                          : const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                          : null,
+                      child: (avatarUrl == null || avatarUrl.isEmpty)
+                          ? const Icon(Icons.person, color: AppColors.primary, size: 24)
+                          : null,
                     ),
                     const SizedBox(width: 12),
                     Expanded(

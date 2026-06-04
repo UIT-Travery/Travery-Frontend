@@ -781,6 +781,15 @@ class AdminRepositoryDev extends AdminRepository {
   }
 
   @override
+  Future<Result<void>> deleteHotelService({
+    required String serviceId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
   Future<Result<List<dynamic>>> getHotelRoomTypes({
     required String hotelId,
   }) async {

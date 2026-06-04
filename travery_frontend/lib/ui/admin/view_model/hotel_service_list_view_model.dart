@@ -33,9 +33,14 @@ class HotelServiceListViewModel extends ChangeNotifier {
     }
   }
 
-  // Placeholder for future delete endpoint
   Future<Result<void>> _deleteService(String serviceId) async {
-    return const Result.ok(null);
+    final result = await _adminRepository.deleteHotelService(serviceId: serviceId);
+    switch (result) {
+      case Ok<void>():
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
   }
 
   String? get currentHotelId => _currentHotelId;

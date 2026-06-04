@@ -950,6 +950,28 @@ class AdminRepositoryRemote extends AdminRepository {
   }
 
   @override
+  Future<Result<void>> deleteHotelService({
+    required String serviceId,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.adminDeleteHotelService(
+      accessToken: token,
+      serviceId: serviceId,
+    );
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
   Future<Result<List<dynamic>>> getHotelRoomTypes({
     required String hotelId,
   }) async {
