@@ -46,10 +46,6 @@ class _RecepDashboardScreenState extends State<RecepDashboardScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            onPressed: () => context.push(Routes.notifications),
-            icon: const Icon(Icons.notifications_outlined, color: Color(0xFF1E3A8A)),
-          ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(

@@ -1,283 +1,181 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:travery_frontend/data/seed_models/guide_tour/guide_tour.dart';
+import 'package:travery_frontend/data/services/guide/guide_service.dart';
+import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
-import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
-import 'package:travery_frontend/routing/routes.dart';
-import 'package:travery_frontend/ui/guide/widgets/guide_tour_card.dart';
+import 'package:travery_frontend/ui/guide/home/widgets/guide_tour_card.dart';
+import 'package:travery_frontend/ui/guide/home/widgets/guide_filter_chips.dart';
+import 'package:travery_frontend/ui/guide/widgets/guide_bottom_nav_bar.dart';
 
 class GuideHomeScreen extends StatefulWidget {
-  final GuideHomeViewModel viewModel;
-
-  const GuideHomeScreen({super.key, required this.viewModel});
+  const GuideHomeScreen({super.key});
 
   @override
   State<GuideHomeScreen> createState() => _GuideHomeScreenState();
 }
 
 class _GuideHomeScreenState extends State<GuideHomeScreen> {
+  late GuideHomeViewModel _viewModel;
+  int _currentNavIndex = 0;
+
   @override
   void initState() {
     super.initState();
-    if (widget.viewModel.allTours.isEmpty && !widget.viewModel.isLoading) {
-      widget.viewModel.loadGuideTours();
-    }
+    _viewModel = GuideHomeViewModel(guideService: context.read<GuideService>());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewModel.fetchTours();
+    });
+  }
+
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
+      backgroundColor: AppColors.surfaceBlue,
+      appBar: AppBar(
+        backgroundColor: AppColors.surfaceBlue,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'Chuyến đi của tôi',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: ListenableBuilder(
+        listenable: _viewModel.loadTours,
+        builder: (context, _) {
+          return ListenableBuilder(
+            listenable: _viewModel.filteredTours,
+            builder: (context, _) {
+              return _buildContent();
+            },
+          );
+        },
+      ),
+      bottomNavigationBar: GuideBottomNavBar(
+        currentIndex: _currentNavIndex,
+        onTap: _onNavTap,
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        // Filter chips
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GuideFilterChips(
+            selectedFilter: _viewModel.selectedFilter,
+            onFilterChanged: (filter) {
+              _viewModel.selectedFilter.value = filter;
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Tour list
+        Expanded(child: _buildTourList()),
+      ],
+    );
+  }
+
+  Widget _buildTourList() {
+    if (_viewModel.loadTours.running) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
+
+    if (_viewModel.loadTours.error) {
+      return Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildHeader(),
-            Expanded(
-              child: Consumer<GuideHomeViewModel>(
-                builder: (context, vm, _) {
-                  if (vm.isLoading && vm.allTours.isEmpty) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    );
-                  }
+            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+            const SizedBox(height: 12),
+            const Text(
+              'Đã xảy ra lỗi khi tải dữ liệu',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: AppTextTheme.bodyMedium,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _viewModel.fetchTours,
+              child: const Text('Thử lại'),
+            ),
+          ],
+        ),
+      );
+    }
 
-                  if (vm.errorMessage != null && vm.allTours.isEmpty) {
-                    return _buildError(vm.errorMessage!);
-                  }
+    final tours = _viewModel.filteredTours.value;
 
-                  return _buildBody(vm);
-                },
+    if (tours.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.inbox_outlined,
+              color: AppColors.textSecondary,
+              size: 48,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Không có chuyến đi nào',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: AppTextTheme.bodyMedium,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildHeader() {
-    return Container(
-      color: AppColors.surface,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Hướng dẫn viên',
-                style: TextStyle(
-                  fontSize: AppTextTheme.headlineSmall,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
-              GestureDetector(
-                onTap: () => context.push(Routes.notifications),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.notifications_outlined,
-                    color: AppColors.primary,
-                    size: 22,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Consumer<ProfileViewModel>(
-            builder: (context, profileVm, _) {
-              final guideName = profileVm.profile?.fullName;
-              return Text(
-                guideName != null && guideName.isNotEmpty
-                    ? 'Xin chào, $guideName'
-                    : 'Xin chào, Hướng dẫn viên',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 4),
-          Consumer<GuideHomeViewModel>(
-            builder: (context, vm, _) {
-              final ongoing = vm.ongoingCount;
-              final ongoingTour = ongoing == 1
-                  ? vm.ongoingTours.firstOrNull
-                  : null;
-              final text = ongoing == 0
-                  ? 'Chưa có tour nào được phân công'
-                  : (ongoing == 1
-                        ? 'Tour đang diễn ra: ${ongoingTour?.tourName ?? ''}'
-                        : 'Bạn có $ongoing tour trong tuần này');
-              return Text(
-                text,
-                style: const TextStyle(
-                  fontSize: AppTextTheme.bodyMedium,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
-                ),
-                maxLines: ongoing == 1 ? 2 : 1,
-                overflow: TextOverflow.ellipsis,
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-          _buildTabBar(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabBar() {
-    return Consumer<GuideHomeViewModel>(
-      builder: (context, vm, _) {
-        return Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F6FF),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.all(4),
-          child: Row(
-            children: [
-              _buildTab('Tất cả', 0, vm.selectedTabIndex, vm.allTours.length),
-              _buildTab(
-                'Đang diễn ra',
-                1,
-                vm.selectedTabIndex,
-                vm.ongoingCount,
-              ),
-              _buildTab(
-                'Đã hoàn thành',
-                2,
-                vm.selectedTabIndex,
-                vm.completedCount,
-              ),
-            ],
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: tours.length,
+      itemBuilder: (context, index) {
+        final tour = tours[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: GuideTourCard(
+            tour: tour,
+            onTap: () => _navigateToDetail(tour),
           ),
         );
       },
     );
   }
 
-  Widget _buildTab(String label, int index, int selected, int count) {
-    final isSelected = selected == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          final vm = context.read<GuideHomeViewModel>();
-          vm.setSelectedTab(index);
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.surface : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
+  void _navigateToDetail(GuideTour tour) {
+    if (tour.tourInstanceId.isEmpty) return;
+    context.push(Routes.missionDetail.replaceFirst(':id', tour.tourInstanceId));
   }
 
-  Widget _buildBody(GuideHomeViewModel vm) {
-    final tours = vm.displayedTours;
-
-    if (tours.isEmpty) {
-      return _buildEmpty();
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => vm.loadGuideTours(),
-      color: AppColors.primary,
-      child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        itemCount: tours.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 16),
-        itemBuilder: (context, index) {
-          final tour = tours[index];
-          return GuideTourCard(
-            tour: tour,
-            onTap: () {
-              final missionId = tour.id ?? tour.tourInstanceId;
-              if (tour.status.name == 'completed') {
-                context.push('/guide/mission/$missionId/completed');
-              } else {
-                context.push('/guide/mission/$missionId');
-              }
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildEmpty() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.inbox_outlined,
-            size: 64,
-            color: AppColors.textSecondary.withValues(alpha: 0.4),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Không có tour nào',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildError(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: AppColors.error, size: 48),
-          const SizedBox(height: 16),
-          Text('Đã xảy ra lỗi', style: TextStyle(color: AppColors.textPrimary)),
-          const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: () {
-              context.read<GuideHomeViewModel>().loadGuideTours();
-            },
-            child: const Text('Thử lại'),
-          ),
-        ],
-      ),
-    );
+  void _onNavTap(int index) {
+    setState(() {
+      _currentNavIndex = index;
+    });
+    // Navigation handled by bottom nav
   }
 }

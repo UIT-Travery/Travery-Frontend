@@ -11,6 +11,12 @@ class BusinessHotel {
     this.roomCount,
     this.imageUrl,
     this.rooms = const [],
+    this.images = const [],
+    this.description,
+    this.checkInTime,
+    this.checkOutTime,
+    this.refundPolicy,
+    this.amenities = const [],
   });
 
   final String id;
@@ -22,4 +28,10 @@ class BusinessHotel {
   final int? roomCount;
   final String? imageUrl;
   final List<Room> rooms;
+  final List<dynamic> images;
+  final String? description;
+  final String? checkInTime;
+  final String? checkOutTime;
+  final Map<String, dynamic>? refundPolicy;
+  final List<dynamic> amenities;
 }

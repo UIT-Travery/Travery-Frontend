@@ -6,15 +6,15 @@ part of 'update_tourist_profile_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_UpdateTouristProfileRequest _$UpdateTouristProfileRequestFromJson(
+_$UpdateTouristProfileRequestImpl _$$UpdateTouristProfileRequestImplFromJson(
   Map<String, dynamic> json,
-) => _UpdateTouristProfileRequest(
+) => _$UpdateTouristProfileRequestImpl(
   fullName: json['fullName'] as String?,
   phoneNumber: json['phoneNumber'] as String?,
 );
 
-Map<String, dynamic> _$UpdateTouristProfileRequestToJson(
-  _UpdateTouristProfileRequest instance,
+Map<String, dynamic> _$$UpdateTouristProfileRequestImplToJson(
+  _$UpdateTouristProfileRequestImpl instance,
 ) => <String, dynamic>{
   'fullName': instance.fullName,
   'phoneNumber': instance.phoneNumber,

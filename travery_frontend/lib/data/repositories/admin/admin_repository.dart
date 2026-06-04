@@ -28,9 +28,11 @@ abstract class AdminRepository extends ChangeNotifier {
   Future<Result<void>> createAccount({
     required String name,
     required String email,
-    required String employeeId,
+    required String password,
     required String role,
     required bool isActive,
+    String? guideLicense,
+    String? hotelId,
   });
 
   Future<Result<void>> updateAccount({
@@ -88,6 +90,14 @@ abstract class AdminRepository extends ChangeNotifier {
     required String filePath,
   });
 
+  // ── Seat Layouts ──────────────────────────────────────────────────────────
+
+  Future<Result<String>> createSeatLayout({
+    required String name,
+    required String coachType,
+    required List<dynamic> items, // dynamic to accept BusinessCoachSeat or Map
+  });
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   Future<Result<List<BusinessCoach>>> getAllVehicles();
@@ -96,48 +106,146 @@ abstract class AdminRepository extends ChangeNotifier {
 
   Future<Result<void>> createVehicle({
     required String registrationNumber,
-    required String model,
     required String type,
+    required String seatLayoutId,
     required int seatCount,
-    required bool isAvailable,
   });
 
   Future<Result<void>> updateVehicle({
     required String id,
     required String registrationNumber,
-    required String model,
     required String type,
+    required String seatLayoutId,
     required int seatCount,
-    required bool isAvailable,
   });
 
   Future<Result<void>> deleteVehicle({required String id});
 
   // ── Hotels ────────────────────────────────────────────────────────────────
 
-  Future<Result<List<BusinessHotel>>> getAllHotels();
+  Future<Result<List<BusinessHotel>>> getAllHotels({
+    int page = 0,
+    int size = 20,
+  });
 
   Future<Result<BusinessHotel>> getHotel({required String id});
 
-  Future<Result<void>> createHotel({
-    required String id,
+  Future<Result<String>> createHotel({
     required String name,
+    String? description,
     required String address,
     required String cityProvince,
-    required double starRating,
-    required String status,
+    required String checkInTime,
+    required String checkOutTime,
+    List<String> amenityIds,
+    required String refundPolicyId,
   });
 
   Future<Result<void>> updateHotel({
-    required String id,
-    required String name,
-    required String address,
-    required int starRating,
-    required String cityProvince,
-    required String status,
+    required String hotelId,
+    String? name,
+    String? description,
+    String? address,
+    String? cityProvince,
+    String? checkInTime,
+    String? checkOutTime,
+    List<String>? amenityIds,
+    String? refundPolicyId,
   });
 
   Future<Result<void>> deleteHotel({required String id});
+
+  Future<Result<List<dynamic>>> uploadHotelImages({
+    required String hotelId,
+    required List<String> filePaths,
+  });
+
+  Future<Result<void>> deleteHotelImage({
+    required String hotelId,
+    required String imageId,
+  });
+
+  Future<Result<void>> setHotelThumbnail({
+    required String hotelId,
+    required String imageId,
+  });
+
+  Future<Result<List<dynamic>>> getHotelServices({required String hotelId});
+
+  Future<Result<void>> createHotelService({
+    required String hotelId,
+    required String name,
+    required String category,
+    required double price,
+    required String unit,
+    String? description,
+  });
+
+  Future<Result<void>> deleteHotelService({required String serviceId});
+
+  Future<Result<List<dynamic>>> getHotelRoomTypes({required String hotelId});
+
+  Future<Result<String>> createHotelRoomType({
+    required String hotelId,
+    required String name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    required double basePrice,
+    required String bedType,
+    int? area,
+  });
+
+  Future<Result<void>> updateHotelRoomType({
+    required String roomTypeId,
+    String? name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    double? basePrice,
+    String? bedType,
+    int? area,
+  });
+
+  Future<Result<void>> deleteHotelRoomType({required String roomTypeId});
+
+  Future<Result<List<dynamic>>> uploadRoomTypeImages({
+    required String roomTypeId,
+    required List<String> filePaths,
+  });
+
+  Future<Result<void>> deleteRoomTypeImage({
+    required String roomTypeId,
+    required String imageId,
+  });
+
+  Future<Result<List<dynamic>>> getHotelRooms({required String hotelId});
+
+  Future<Result<void>> createHotelRoom({
+    required String hotelId,
+    required String roomNumber,
+    required int floor,
+    required String roomTypeId,
+  });
+
+  // ── Amenities ─────────────────────────────────────────────────────────────
+
+  Future<Result<List<dynamic>>> getAllAmenities();
+
+  Future<Result<void>> createAmenity({
+    required String name,
+    required String type,
+    String? iconImagePath,
+  });
+
+  Future<Result<void>> updateAmenity({
+    required String amenityId,
+    String? name,
+    String? type,
+    String? iconImagePath,
+  });
+
+  Future<Result<void>> deleteAmenity({required String amenityId});
 
   // ── Rooms ──────────────────────────────────────────────────────────────────
 
@@ -157,14 +265,10 @@ abstract class AdminRepository extends ChangeNotifier {
   });
 
   Future<Result<void>> updateRoom({
-    required String id,
-    required String roomNumber,
-    required String roomType,
-    required double pricePerNight,
-    required int capacity,
-    required int maxAdults,
-    required int maxChildren,
-    required String status,
+    required String roomId,
+    String? roomNumber,
+    int? floor,
+    String? roomTypeId,
   });
 
   Future<Result<void>> deleteRoom({required String id});
@@ -193,4 +297,33 @@ abstract class AdminRepository extends ChangeNotifier {
     required bool isCustom,
     required List<Map<String, dynamic>> itineraries,
   });
+
+  // ── Refund Policies ─────────────────────────────────────────────────────────
+
+  Future<Result<List<dynamic>>> getAllRefundPolicies({
+    int page = 0,
+    int size = 20,
+    String? sort,
+  });
+
+  Future<Result<dynamic>> getRefundPolicyById({required String id});
+
+  Future<Result<void>> createRefundPolicy({
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  });
+
+  Future<Result<void>> updateRefundPolicy({
+    required String id,
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  });
+
+  Future<Result<void>> deleteRefundPolicy({required String id});
+
+  // ── Destinations ────────────────────────────────────────────────────────────
+
+  Future<Result<List<dynamic>>> searchDestinations({required String keyword});
 }

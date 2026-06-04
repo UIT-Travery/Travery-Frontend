@@ -26,7 +26,6 @@ class VehicleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
         border: Border.all(color: AppColors.inputBorder, width: 1),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -38,69 +37,73 @@ class VehicleCard extends StatelessWidget {
           ),
         ],
       ),
-      child: InkWell(
+      child: Material(
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Row 1: Plate number ────────────
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Plate number
-                  Text(
-                    plateNumber,
-                    style: TextStyle(
-                      fontSize: AppTextTheme.bodyLarge,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.bold,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Row 1: Plate number ────────────
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Plate number
+                    Text(
+                      plateNumber,
+                      style: TextStyle(
+                        fontSize: AppTextTheme.bodyLarge,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              // ── Row 2: Vehicle type / seats ── Driver name ───────────────
-              Row(
-                children: [
-                  // Category icon + vehicle type + seat count
-                  Icon(
-                    Icons.category,
-                    size: 15,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    vehicleType,
-                    style: TextStyle(
-                      fontSize: AppTextTheme.bodySmall,
+                // ── Row 2: Vehicle type / seats ── Driver name ───────────────
+                Row(
+                  children: [
+                    // Category icon + vehicle type + seat count
+                    Icon(
+                      Icons.category,
+                      size: 15,
                       color: AppColors.textSecondary,
                     ),
-                  ),
+                    const SizedBox(width: 4),
+                    Text(
+                      vehicleType,
+                      style: TextStyle(
+                        fontSize: AppTextTheme.bodySmall,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
 
-                  const Spacer(),
+                    const Spacer(),
 
-                  // Person icon + seatcount
-                  Icon(
-                    Icons.event_seat_rounded,
-                    size: 15,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Số chỗ ngồi: $seatCount',
-                    style: TextStyle(
-                      fontSize: AppTextTheme.bodySmall,
+                    // Person icon + seatcount
+                    Icon(
+                      Icons.event_seat_rounded,
+                      size: 15,
                       color: AppColors.textSecondary,
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    const SizedBox(width: 4),
+                    Text(
+                      'Số chỗ ngồi: $seatCount',
+                      style: TextStyle(
+                        fontSize: AppTextTheme.bodySmall,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,89 +1,126 @@
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/seed_models/guide_tour/guide_tour.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
-import 'package:travery_frontend/utils/core_result.dart';
+import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
+/// Filter options for guide tours
+enum GuideFilterOption {
+  all('Tất cả', null),
+  open('Đang mở', 'OPEN'),
+  ongoing('Đang diễn ra', 'IN_PROGRESS'),
+  completed('Hoàn thành', 'COMPLETED');
+
+  const GuideFilterOption(this.label, this.apiStatus);
+  final String label;
+  final String? apiStatus;
+}
+
+/// ViewModel for Guide Home Screen
 class GuideHomeViewModel extends ChangeNotifier {
   GuideHomeViewModel({required GuideService guideService})
-    : _guideService = guideService;
+      : _guideService = guideService {
+    selectedFilter.addListener(_applyFilter);
+    searchQuery.addListener(_applyFilter);
+    loadTours.addListener(_onLoadToursChanged);
+  }
 
   final GuideService _guideService;
 
-  List<GuideTour> _allTours = [];
-  List<GuideTour> get allTours => _allTours;
+  final GuideLoadToursAsyncTask loadTours = GuideLoadToursAsyncTask();
+  final ValueNotifier<GuideFilterOption> selectedFilter = ValueNotifier(
+    GuideFilterOption.all,
+  );
+  final ValueNotifier<String> searchQuery = ValueNotifier('');
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  ValueNotifier<List<GuideTour>> get filteredTours => _filteredTours;
+  final ValueNotifier<List<GuideTour>> _filteredTours = ValueNotifier([]);
 
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
+  void _onLoadToursChanged() {
+    if (loadTours.hasData) {
+      _applyFilter();
+    }
+  }
 
-  int _selectedTabIndex = 0;
-  int get selectedTabIndex => _selectedTabIndex;
+  Future<void> fetchTours() async {
+    loadTours.execute(_guideService);
+  }
 
-  List<GuideTour> _ongoingTours = [];
-  List<GuideTour> _completedTours = [];
-  List<GuideTour> _displayedTours = [];
+  Future<void> _applyFilter() async {
+    if (loadTours.value == null) return;
 
-  List<GuideTour> get ongoingTours => _ongoingTours;
-  List<GuideTour> get completedTours => _completedTours;
-  List<GuideTour> get displayedTours => _displayedTours;
-  int get ongoingCount => _ongoingTours.length;
-  int get completedCount => _completedTours.length;
+    final allTours = loadTours.value!;
+    final filter = selectedFilter.value;
+    final query = searchQuery.value.toLowerCase();
 
-  void setSelectedTab(int index) {
-    _selectedTabIndex = index;
-    _updateDisplayedTours();
+    List<GuideTour> filtered;
+
+    // Apply status filter
+    if (filter == GuideFilterOption.all) {
+      filtered = allTours;
+    } else {
+      filtered = allTours.where((tour) {
+        return _matchApiStatus(tour.status, filter.apiStatus);
+      }).toList();
+    }
+
+    // Apply search filter
+    if (query.isNotEmpty) {
+      filtered = filtered.where((tour) {
+        return tour.tourName.toLowerCase().contains(query) ||
+            (tour.pickupLocation?.toLowerCase().contains(query) ?? false);
+      }).toList();
+    }
+
+    _filteredTours.value = filtered;
     notifyListeners();
   }
 
-  void _updateDisplayedTours() {
-    switch (_selectedTabIndex) {
-      case 0:
-        _displayedTours = _allTours;
-        break;
-      case 1:
-        _displayedTours = _ongoingTours;
-        break;
-      case 2:
-        _displayedTours = _completedTours;
-        break;
+  bool _matchApiStatus(GuideTourStatus status, String? filterStatus) {
+    if (filterStatus == null) return true;
+
+    switch (filterStatus) {
+      case 'OPEN':
+        return status == GuideTourStatus.upcoming;
+      case 'IN_PROGRESS':
+        return status == GuideTourStatus.ongoing;
+      case 'COMPLETED':
+        return status == GuideTourStatus.completed;
       default:
-        _displayedTours = _allTours;
+        return true;
     }
   }
 
-  void _recomputeCaches() {
-    _ongoingTours = _allTours
-        .where(
-          (t) =>
-              t.status == GuideTourStatus.ongoing ||
-              t.status == GuideTourStatus.upcoming,
-        )
-        .toList();
-    _completedTours = _allTours
-        .where((t) => t.status == GuideTourStatus.completed)
-        .toList();
-    _updateDisplayedTours();
+  @override
+  void dispose() {
+    selectedFilter.removeListener(_applyFilter);
+    searchQuery.removeListener(_applyFilter);
+    loadTours.removeListener(_onLoadToursChanged);
+    super.dispose();
   }
+}
 
-  Future<void> loadGuideTours() async {
-    if (_isLoading) return;
-    _isLoading = true;
-    _errorMessage = null;
+/// Async task for loading guide tours
+class GuideLoadToursAsyncTask extends ChangeNotifier {
+  core_result.Result<List<GuideTour>>? _result;
+  bool _running = false;
+
+  core_result.Result<List<GuideTour>>? get result => _result;
+  bool get running => _running;
+  bool get hasData => _result is core_result.Ok;
+  bool get error => _result is core_result.Error;
+  List<GuideTour>? get value => _result is core_result.Ok<List<GuideTour>>
+      ? (_result as core_result.Ok<List<GuideTour>>).value
+      : null;
+
+  Future<void> execute(GuideService guideService) async {
+    _running = true;
+    _result = null;
     notifyListeners();
 
-    final result = await _guideService.getGuideTours();
+    final result = await guideService.getGuideTours();
 
-    switch (result) {
-      case Ok(value: final tours):
-        _allTours = tours;
-        _recomputeCaches();
-      case Error(error: final e):
-        _errorMessage = e.toString();
-    }
-
-    _isLoading = false;
+    _running = false;
+    _result = result;
     notifyListeners();
   }
 }

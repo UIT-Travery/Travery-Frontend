@@ -6,11 +6,11 @@ part of 'image_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_ImageResponse _$ImageResponseFromJson(Map<String, dynamic> json) =>
-    _ImageResponse(
+_$ImageResponseImpl _$$ImageResponseImplFromJson(Map<String, dynamic> json) =>
+    _$ImageResponseImpl(
       url: json['url'] as String,
       isThumbnail: json['isThumbnail'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$ImageResponseToJson(_ImageResponse instance) =>
+Map<String, dynamic> _$$ImageResponseImplToJson(_$ImageResponseImpl instance) =>
     <String, dynamic>{'url': instance.url, 'isThumbnail': instance.isThumbnail};

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelDetailScreen extends StatefulWidget {
   const HotelDetailScreen({super.key});
@@ -47,6 +48,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
+      appBar: const HotelAppBar(title: 'Chi tiết khách sạn'),
       body: Consumer<HotelDetailViewModel>(
         builder: (context, vm, _) {
           if (vm.isLoading) {
@@ -157,7 +159,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           Text(
             hotel.name,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1F2937),
             ),
@@ -312,7 +314,12 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push(
+                    Routes.hotelRoomList.replaceFirst(':id', hotel.id),
+                    extra: {'hotel': hotel},
+                  );
+                },
                 child: const Text(
                   'Xem thêm',
                   style: TextStyle(fontSize: 14, color: Color(0xFF007AFF)),
@@ -548,15 +555,16 @@ class _RoomCard extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: 20,
-                    height: 20,
+                  top: 10,
+                  right: 10,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: isSelected
                           ? const Color(0xFF10B981)
-                          : (room.isAvailable ? Colors.white : Colors.grey),
+                          : Colors.white.withValues(alpha: 0.9),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isSelected
@@ -564,10 +572,28 @@ class _RoomCard extends StatelessWidget {
                             : const Color(0xFFD1D5DB),
                         width: 2,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: isSelected
-                        ? const Icon(Icons.check, size: 12, color: Colors.white)
-                        : null,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.white,
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ],

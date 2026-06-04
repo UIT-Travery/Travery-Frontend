@@ -79,16 +79,9 @@ class _BookingNavigationShellState extends State<BookingNavigationShell> {
       body: Row(
         children: [
           Expanded(
-            child: Stack(
-              children: List.generate(widget.children.length, (index) {
-                return Visibility(
-                  visible: _selectedIndex == index,
-                  maintainState: false,
-                  maintainAnimation: false,
-                  maintainSize: false,
-                  child: widget.children[index],
-                );
-              }),
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: widget.children,
             ),
           ),
           if (widget.children.length > 1)

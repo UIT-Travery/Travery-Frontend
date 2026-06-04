@@ -1,6 +1,9 @@
 import 'package:travery_frontend/data/seed_models/tour_progress/tour_progress.dart';
 import 'package:travery_frontend/data/seed_models/incident/incident.dart';
+<<<<<<< HEAD
 import 'package:travery_frontend/data/seed_models/check_in/check_in_passenger.dart';
+=======
+>>>>>>> develop
 import 'package:travery_frontend/utils/core_result.dart';
 
 abstract class GuideMissionService {
@@ -14,6 +17,7 @@ abstract class GuideMissionService {
   });
 
   /// PATCH /api/v1/staff/guide/instances/{id}/attendance
+<<<<<<< HEAD
   Future<Result<void>> updateAttendance(
     String instanceId,
     Map<String, String> attendanceMap,
@@ -21,6 +25,17 @@ abstract class GuideMissionService {
 
   /// PATCH /api/v1/staff/guide/instances/{id}/progress
   Future<Result<void>> updateProgress(String instanceId, String stepId);
+=======
+  /// Body: { "attendances": [{ "memberId": "uuid", "status": "PRESENT" }] }
+  /// Returns the full updated mission detail on success.
+  Future<Result<GuideMissionDetail>> updateAttendance(
+    String instanceId,
+    List<Map<String, String>> attendances,
+  );
+
+  /// PATCH /api/v1/staff/guide/instances/{id}/progress
+  Future<Result<void>> updateProgress(String instanceId, String status);
+>>>>>>> develop
 
   /// POST /api/v1/staff/guide/instances/{id}/incidents
   Future<Result<Incident>> reportIncident(
@@ -32,6 +47,19 @@ abstract class GuideMissionService {
 
   /// GET /api/v1/staff/guide/instances/{id}/incidents
   Future<Result<List<Incident>>> getIncidents(String instanceId);
+<<<<<<< HEAD
+=======
+
+  /// PUT /api/v1/guide/coach-trips/{id}/status
+  /// Body: { "status": "OPEN|FULL|IN_PROGRESS|COMPLETED|CANCELLED" }
+  Future<Result<CoachTripStatusResponse>> updateCoachTripStatus(
+    String tripId,
+    String status,
+  );
+
+  /// PUT /api/v1/guide/coach-trips/{id}/bookings/{bookingId}/no-show
+  Future<Result<void>> markPassengerNoShow(String tripId, String bookingId);
+>>>>>>> develop
 }
 
 // ─── Response Models ────────────────────────────────────────────────────────────
@@ -153,3 +181,48 @@ class GuidePassenger {
   bool get isNoShow => attendanceStatus == 'NO_SHOW';
   bool get isAdult => memberType == 'ADULT';
 }
+<<<<<<< HEAD
+=======
+
+class CoachTripStatusResponse {
+  final String id;
+  final DateTime? departureTime;
+  final DateTime? arrivalTime;
+  final String status;
+  final String? routeId;
+  final String? originDestinationName;
+  final String? destinationDestinationName;
+  final double? basePrice;
+  final String? coachId;
+  final String? coachLicensePlate;
+  final String? coachType;
+  final String? driverId;
+  final String? driverName;
+  final String? driverPhone;
+  final int totalSeats;
+  final int availableSeats;
+  final int bookingsCount;
+  final int passengersCount;
+
+  const CoachTripStatusResponse({
+    required this.id,
+    this.departureTime,
+    this.arrivalTime,
+    required this.status,
+    this.routeId,
+    this.originDestinationName,
+    this.destinationDestinationName,
+    this.basePrice,
+    this.coachId,
+    this.coachLicensePlate,
+    this.coachType,
+    this.driverId,
+    this.driverName,
+    this.driverPhone,
+    this.totalSeats = 0,
+    this.availableSeats = 0,
+    this.bookingsCount = 0,
+    this.passengersCount = 0,
+  });
+}
+>>>>>>> develop

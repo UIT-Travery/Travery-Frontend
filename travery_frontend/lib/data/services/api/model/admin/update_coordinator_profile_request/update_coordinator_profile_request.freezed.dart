@@ -1,5 +1,5 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,277 +9,236 @@ part of 'update_coordinator_profile_request.dart';
 // FreezedGenerator
 // **************************************************************************
 
-// dart format off
 T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
+
+UpdateCoordinatorProfileRequest _$UpdateCoordinatorProfileRequestFromJson(
+  Map<String, dynamic> json,
+) {
+  return _UpdateCoordinatorProfileRequest.fromJson(json);
+}
 
 /// @nodoc
 mixin _$UpdateCoordinatorProfileRequest {
+  String? get fullName => throw _privateConstructorUsedError;
+  String? get phoneNumber => throw _privateConstructorUsedError;
 
- String? get fullName; String? get phoneNumber;/// One of: TOUR, HOTEL, COACH
- String? get department;
-/// Create a copy of UpdateCoordinatorProfileRequest
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$UpdateCoordinatorProfileRequestCopyWith<UpdateCoordinatorProfileRequest> get copyWith => _$UpdateCoordinatorProfileRequestCopyWithImpl<UpdateCoordinatorProfileRequest>(this as UpdateCoordinatorProfileRequest, _$identity);
+  /// One of: TOUR, HOTEL, COACH
+  String? get department => throw _privateConstructorUsedError;
 
   /// Serializes this UpdateCoordinatorProfileRequest to a JSON map.
-  Map<String, dynamic> toJson();
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateCoordinatorProfileRequest&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.department, department) || other.department == department));
-}
-
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,fullName,phoneNumber,department);
-
-@override
-String toString() {
-  return 'UpdateCoordinatorProfileRequest(fullName: $fullName, phoneNumber: $phoneNumber, department: $department)';
-}
-
-
+  /// Create a copy of UpdateCoordinatorProfileRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $UpdateCoordinatorProfileRequestCopyWith<UpdateCoordinatorProfileRequest>
+  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract mixin class $UpdateCoordinatorProfileRequestCopyWith<$Res>  {
-  factory $UpdateCoordinatorProfileRequestCopyWith(UpdateCoordinatorProfileRequest value, $Res Function(UpdateCoordinatorProfileRequest) _then) = _$UpdateCoordinatorProfileRequestCopyWithImpl;
-@useResult
-$Res call({
- String? fullName, String? phoneNumber, String? department
-});
-
-
-
-
+abstract class $UpdateCoordinatorProfileRequestCopyWith<$Res> {
+  factory $UpdateCoordinatorProfileRequestCopyWith(
+    UpdateCoordinatorProfileRequest value,
+    $Res Function(UpdateCoordinatorProfileRequest) then,
+  ) =
+      _$UpdateCoordinatorProfileRequestCopyWithImpl<
+        $Res,
+        UpdateCoordinatorProfileRequest
+      >;
+  @useResult
+  $Res call({String? fullName, String? phoneNumber, String? department});
 }
+
 /// @nodoc
-class _$UpdateCoordinatorProfileRequestCopyWithImpl<$Res>
+class _$UpdateCoordinatorProfileRequestCopyWithImpl<
+  $Res,
+  $Val extends UpdateCoordinatorProfileRequest
+>
     implements $UpdateCoordinatorProfileRequestCopyWith<$Res> {
-  _$UpdateCoordinatorProfileRequestCopyWithImpl(this._self, this._then);
+  _$UpdateCoordinatorProfileRequestCopyWithImpl(this._value, this._then);
 
-  final UpdateCoordinatorProfileRequest _self;
-  final $Res Function(UpdateCoordinatorProfileRequest) _then;
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
-/// Create a copy of UpdateCoordinatorProfileRequest
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fullName = freezed,Object? phoneNumber = freezed,Object? department = freezed,}) {
-  return _then(_self.copyWith(
-fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
-as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
-as String?,department: freezed == department ? _self.department : department // ignore: cast_nullable_to_non_nullable
-as String?,
-  ));
+  /// Create a copy of UpdateCoordinatorProfileRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? fullName = freezed,
+    Object? phoneNumber = freezed,
+    Object? department = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            fullName: freezed == fullName
+                ? _value.fullName
+                : fullName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            phoneNumber: freezed == phoneNumber
+                ? _value.phoneNumber
+                : phoneNumber // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            department: freezed == department
+                ? _value.department
+                : department // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
+  }
 }
 
+/// @nodoc
+abstract class _$$UpdateCoordinatorProfileRequestImplCopyWith<$Res>
+    implements $UpdateCoordinatorProfileRequestCopyWith<$Res> {
+  factory _$$UpdateCoordinatorProfileRequestImplCopyWith(
+    _$UpdateCoordinatorProfileRequestImpl value,
+    $Res Function(_$UpdateCoordinatorProfileRequestImpl) then,
+  ) = __$$UpdateCoordinatorProfileRequestImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String? fullName, String? phoneNumber, String? department});
 }
 
+/// @nodoc
+class __$$UpdateCoordinatorProfileRequestImplCopyWithImpl<$Res>
+    extends
+        _$UpdateCoordinatorProfileRequestCopyWithImpl<
+          $Res,
+          _$UpdateCoordinatorProfileRequestImpl
+        >
+    implements _$$UpdateCoordinatorProfileRequestImplCopyWith<$Res> {
+  __$$UpdateCoordinatorProfileRequestImplCopyWithImpl(
+    _$UpdateCoordinatorProfileRequestImpl _value,
+    $Res Function(_$UpdateCoordinatorProfileRequestImpl) _then,
+  ) : super(_value, _then);
 
-/// Adds pattern-matching-related methods to [UpdateCoordinatorProfileRequest].
-extension UpdateCoordinatorProfileRequestPatterns on UpdateCoordinatorProfileRequest {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _UpdateCoordinatorProfileRequest value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _UpdateCoordinatorProfileRequest() when $default != null:
-return $default(_that);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _UpdateCoordinatorProfileRequest value)  $default,){
-final _that = this;
-switch (_that) {
-case _UpdateCoordinatorProfileRequest():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _UpdateCoordinatorProfileRequest value)?  $default,){
-final _that = this;
-switch (_that) {
-case _UpdateCoordinatorProfileRequest() when $default != null:
-return $default(_that);case _:
-  return null;
-
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? fullName,  String? phoneNumber,  String? department)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _UpdateCoordinatorProfileRequest() when $default != null:
-return $default(_that.fullName,_that.phoneNumber,_that.department);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? fullName,  String? phoneNumber,  String? department)  $default,) {final _that = this;
-switch (_that) {
-case _UpdateCoordinatorProfileRequest():
-return $default(_that.fullName,_that.phoneNumber,_that.department);case _:
-  throw StateError('Unexpected subclass');
-
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? fullName,  String? phoneNumber,  String? department)?  $default,) {final _that = this;
-switch (_that) {
-case _UpdateCoordinatorProfileRequest() when $default != null:
-return $default(_that.fullName,_that.phoneNumber,_that.department);case _:
-  return null;
-
-}
-}
-
+  /// Create a copy of UpdateCoordinatorProfileRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? fullName = freezed,
+    Object? phoneNumber = freezed,
+    Object? department = freezed,
+  }) {
+    return _then(
+      _$UpdateCoordinatorProfileRequestImpl(
+        fullName: freezed == fullName
+            ? _value.fullName
+            : fullName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        phoneNumber: freezed == phoneNumber
+            ? _value.phoneNumber
+            : phoneNumber // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        department: freezed == department
+            ? _value.department
+            : department // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
 }
 
 /// @nodoc
 @JsonSerializable()
+class _$UpdateCoordinatorProfileRequestImpl
+    implements _UpdateCoordinatorProfileRequest {
+  const _$UpdateCoordinatorProfileRequestImpl({
+    this.fullName,
+    this.phoneNumber,
+    this.department,
+  });
 
-class _UpdateCoordinatorProfileRequest implements UpdateCoordinatorProfileRequest {
-  const _UpdateCoordinatorProfileRequest({this.fullName, this.phoneNumber, this.department});
-  factory _UpdateCoordinatorProfileRequest.fromJson(Map<String, dynamic> json) => _$UpdateCoordinatorProfileRequestFromJson(json);
+  factory _$UpdateCoordinatorProfileRequestImpl.fromJson(
+    Map<String, dynamic> json,
+  ) => _$$UpdateCoordinatorProfileRequestImplFromJson(json);
 
-@override final  String? fullName;
-@override final  String? phoneNumber;
-/// One of: TOUR, HOTEL, COACH
-@override final  String? department;
+  @override
+  final String? fullName;
+  @override
+  final String? phoneNumber;
 
-/// Create a copy of UpdateCoordinatorProfileRequest
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$UpdateCoordinatorProfileRequestCopyWith<_UpdateCoordinatorProfileRequest> get copyWith => __$UpdateCoordinatorProfileRequestCopyWithImpl<_UpdateCoordinatorProfileRequest>(this, _$identity);
+  /// One of: TOUR, HOTEL, COACH
+  @override
+  final String? department;
 
-@override
-Map<String, dynamic> toJson() {
-  return _$UpdateCoordinatorProfileRequestToJson(this, );
+  @override
+  String toString() {
+    return 'UpdateCoordinatorProfileRequest(fullName: $fullName, phoneNumber: $phoneNumber, department: $department)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UpdateCoordinatorProfileRequestImpl &&
+            (identical(other.fullName, fullName) ||
+                other.fullName == fullName) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
+            (identical(other.department, department) ||
+                other.department == department));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, fullName, phoneNumber, department);
+
+  /// Create a copy of UpdateCoordinatorProfileRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UpdateCoordinatorProfileRequestImplCopyWith<
+    _$UpdateCoordinatorProfileRequestImpl
+  >
+  get copyWith =>
+      __$$UpdateCoordinatorProfileRequestImplCopyWithImpl<
+        _$UpdateCoordinatorProfileRequestImpl
+      >(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$UpdateCoordinatorProfileRequestImplToJson(this);
+  }
 }
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateCoordinatorProfileRequest&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.department, department) || other.department == department));
+abstract class _UpdateCoordinatorProfileRequest
+    implements UpdateCoordinatorProfileRequest {
+  const factory _UpdateCoordinatorProfileRequest({
+    final String? fullName,
+    final String? phoneNumber,
+    final String? department,
+  }) = _$UpdateCoordinatorProfileRequestImpl;
+
+  factory _UpdateCoordinatorProfileRequest.fromJson(Map<String, dynamic> json) =
+      _$UpdateCoordinatorProfileRequestImpl.fromJson;
+
+  @override
+  String? get fullName;
+  @override
+  String? get phoneNumber;
+
+  /// One of: TOUR, HOTEL, COACH
+  @override
+  String? get department;
+
+  /// Create a copy of UpdateCoordinatorProfileRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$UpdateCoordinatorProfileRequestImplCopyWith<
+    _$UpdateCoordinatorProfileRequestImpl
+  >
+  get copyWith => throw _privateConstructorUsedError;
 }
-
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,fullName,phoneNumber,department);
-
-@override
-String toString() {
-  return 'UpdateCoordinatorProfileRequest(fullName: $fullName, phoneNumber: $phoneNumber, department: $department)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class _$UpdateCoordinatorProfileRequestCopyWith<$Res> implements $UpdateCoordinatorProfileRequestCopyWith<$Res> {
-  factory _$UpdateCoordinatorProfileRequestCopyWith(_UpdateCoordinatorProfileRequest value, $Res Function(_UpdateCoordinatorProfileRequest) _then) = __$UpdateCoordinatorProfileRequestCopyWithImpl;
-@override @useResult
-$Res call({
- String? fullName, String? phoneNumber, String? department
-});
-
-
-
-
-}
-/// @nodoc
-class __$UpdateCoordinatorProfileRequestCopyWithImpl<$Res>
-    implements _$UpdateCoordinatorProfileRequestCopyWith<$Res> {
-  __$UpdateCoordinatorProfileRequestCopyWithImpl(this._self, this._then);
-
-  final _UpdateCoordinatorProfileRequest _self;
-  final $Res Function(_UpdateCoordinatorProfileRequest) _then;
-
-/// Create a copy of UpdateCoordinatorProfileRequest
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fullName = freezed,Object? phoneNumber = freezed,Object? department = freezed,}) {
-  return _then(_UpdateCoordinatorProfileRequest(
-fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
-as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
-as String?,department: freezed == department ? _self.department : department // ignore: cast_nullable_to_non_nullable
-as String?,
-  ));
-}
-
-
-}
-
-// dart format on

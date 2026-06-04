@@ -88,4 +88,54 @@ class TripBookingRepository {
       client.close();
     }
   }
+<<<<<<< HEAD
+=======
+
+  Future<Result<TripPaymentData>> createPayment(String bookingId) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final requestObj = await client.postUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/coach-bookings/$bookingId/payment',
+        ),
+      );
+      requestObj.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(requestObj);
+
+      final response = await requestObj.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          final stringData = await response.transform(utf8.decoder).join();
+          final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+          final data = jsonMap['data'] as Map<String, dynamic>?;
+          if (data == null) {
+            return Result.error(
+              const HttpException('Không có dữ liệu thanh toán'),
+            );
+          }
+          return Result.ok(TripPaymentData.fromJson(data));
+        } on Exception catch (error) {
+          return Result.error(error);
+        }
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Tạo thanh toán thất bại',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+>>>>>>> develop
 }

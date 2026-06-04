@@ -196,12 +196,9 @@ class AuthRepositoryRemote extends AuthRepository {
         return const Result.ok(null);
       }
 
-      final fcmToken = await _securityStorageService.getFcmToken();
+      // Gọi API logout
       final result = await _authService.logout(
-        LogoutRequest(
-          refreshToken: actualRefreshToken,
-          fcmToken: fcmToken,
-        ),
+        LogoutRequest(refreshToken: actualRefreshToken),
         accessToken: accessToken,
       );
       switch (result) {

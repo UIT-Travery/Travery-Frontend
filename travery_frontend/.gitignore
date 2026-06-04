@@ -55,3 +55,4 @@ firebase_options.dart
 .env.local
 .env.development
 !.env.example
+docs/

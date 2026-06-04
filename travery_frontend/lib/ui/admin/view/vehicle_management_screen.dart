@@ -45,18 +45,23 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
     super.dispose();
   }
 
+  String _getVehicleTypeLabel(String type) {
+    if (type == 'LIMOUSINE') return 'Limousine';
+    if (type == 'BED') return 'Giường nằm';
+    if (type == 'SEAT') return 'Ghế ngồi';
+    return type;
+  }
+
   // ── Derived list ────────────────────────────────────────────────────────────
   List<BusinessCoach> _applyFilters(List<BusinessCoach> all) {
     var list = all.toList();
 
     if (_selectedFilterIndex == 1) {
-      list = list
-          .where((v) => v.coachType == CoachType.limousine.toString())
-          .toList();
+      list = list.where((v) => v.coachType == 'LIMOUSINE').toList();
     } else if (_selectedFilterIndex == 2) {
-      list = list
-          .where((v) => v.coachType == CoachType.sleeper.toString())
-          .toList();
+      list = list.where((v) => v.coachType == 'BED').toList();
+    } else if (_selectedFilterIndex == 3) {
+      list = list.where((v) => v.coachType == 'SEAT').toList();
     }
 
     if (_searchQuery.isNotEmpty) {
@@ -98,8 +103,9 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
                       SmallButton(
                         label: 'Thêm',
                         prefixIcon: Icon(Icons.add, color: Colors.white),
-                        onTap: () {
-                          context.push(Routes.adminCreateVehicle);
+                        onTap: () async {
+                          await context.push(Routes.adminCreateVehicle);
+                          widget.viewModel.loadVehicles.execute();
                         },
                       ),
                     ],
@@ -163,9 +169,7 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
 
                   final vehicles = _applyFilters(all);
                   final runningCount = all
-                      .where(
-                        (v) => v.coachType == CoachType.limousine.toString(),
-                      )
+                      .where((v) => v.coachType == 'LIMOUSINE')
                       .length;
 
                   return Column(
@@ -237,9 +241,16 @@ class _VehicleManagementScreenState extends State<VehicleManagementScreen> {
                                   final v = vehicles[index];
                                   return VehicleCard(
                                     plateNumber: v.plateNumber,
-                                    vehicleType: v.coachType,
+                                    vehicleType: _getVehicleTypeLabel(
+                                      v.coachType,
+                                    ),
                                     seatCount: v.seatCount,
-                                    onTap: () => {},
+                                    onTap: () async {
+                                      await context.push(
+                                        Routes.adminUpdateVehicleWithId(v.id),
+                                      );
+                                      widget.viewModel.loadVehicles.execute();
+                                    },
                                   );
                                 },
                               ),

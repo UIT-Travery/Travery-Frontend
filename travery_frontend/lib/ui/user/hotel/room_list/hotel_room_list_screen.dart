@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelRoomListScreen extends StatefulWidget {
   const HotelRoomListScreen({super.key});
@@ -12,6 +13,7 @@ class HotelRoomListScreen extends StatefulWidget {
 
 class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
   final List<HotelRoomData> _selectedRooms = [];
+  List<HotelRoomData> _rooms = _dummyRooms;
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
@@ -23,71 +25,48 @@ class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      final hotel = extra?['hotel'];
+      if (hotel != null && hotel is HotelDetailData) {
+        setState(() {
+          _rooms = hotel.rooms;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: _dummyRooms.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final room = _dummyRooms[index];
-                final isSelected = _selectedRooms.contains(room);
-                return _RoomCard(
-                  room: room,
-                  isSelected: isSelected,
-                  formatPrice: _formatPrice,
-                  onToggle: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedRooms.remove(room);
-                      } else {
-                        _selectedRooms.add(room);
-                      }
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+      appBar: const HotelAppBar(title: 'Danh sách loại phòng'),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: _rooms.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final room = _rooms[index];
+          final isSelected = _selectedRooms.contains(room);
+          return _RoomCard(
+            room: room,
+            isSelected: isSelected,
+            formatPrice: _formatPrice,
+            onToggle: () {
+              setState(() {
+                if (isSelected) {
+                  _selectedRooms.remove(room);
+                } else {
+                  _selectedRooms.add(room);
+                }
+              });
+            },
+          );
+        },
       ),
       bottomNavigationBar: _buildBottomBar(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        16,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Danh sách loại phòng',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -260,20 +239,48 @@ class _RoomCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (room.isAvailable)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2ECC71),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFF10B981)
+                          : Colors.white.withValues(alpha: 0.9),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFFD1D5DB),
+                        width: 2,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.white,
+                            )
+                          : const SizedBox.shrink(),
                     ),
                   ),
+                ),
               ],
             ),
             Padding(

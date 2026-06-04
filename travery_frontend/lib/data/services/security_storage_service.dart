@@ -8,6 +8,7 @@ class SecurityStorageService {
   static const String _cometchatUid = 'cometchat_uid';
   static const String _userRole = 'user_role';
   static const String _fcmToken = 'fcm_token';
+  static const String _userRole = 'user_role';
 
   Future<void> saveAccessToken(String token) async {
     await _storage.write(key: _accessToken, value: token);
@@ -68,6 +69,7 @@ class SecurityStorageService {
     await _storage.delete(key: _cometchatUid);
     await _storage.delete(key: _userRole);
     await _storage.delete(key: _fcmToken);
+    await _storage.delete(key: _userRole);
   }
 
   // ── Role persistence ────────────────────────────────────────────────────────

@@ -1,0 +1,72 @@
+name: Build & Test
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./travery_frontend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file from secrets
+        run: |
+          cat > .env << EOF
+          BASE_URL=${{ secrets.BASE_URL }}
+          COMETCHAT_AUTH_KEY=${{ secrets.COMETCHAT_AUTH_KEY }}
+          COMETCHAT_APP_ID=${{ secrets.COMETCHAT_APP_ID }}
+          COMETCHAT_REGION=${{ secrets.COMETCHAT_REGION }}
+          EOF
+        shell: bash
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.5'
+          channel: 'stable'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        continue-on-error: true
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: travery_frontend/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload AAB as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.aab
+          path: travery_frontend/build/app/outputs/bundle/release/app-release.aab

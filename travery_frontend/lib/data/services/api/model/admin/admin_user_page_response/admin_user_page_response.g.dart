@@ -6,9 +6,9 @@ part of 'admin_user_page_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AdminUserPageResponse _$AdminUserPageResponseFromJson(
+_$AdminUserPageResponseImpl _$$AdminUserPageResponseImplFromJson(
   Map<String, dynamic> json,
-) => _AdminUserPageResponse(
+) => _$AdminUserPageResponseImpl(
   content:
       (json['content'] as List<dynamic>?)
           ?.map((e) => AdminUserResponse.fromJson(e as Map<String, dynamic>))
@@ -22,8 +22,8 @@ _AdminUserPageResponse _$AdminUserPageResponseFromJson(
   first: json['first'] as bool? ?? false,
 );
 
-Map<String, dynamic> _$AdminUserPageResponseToJson(
-  _AdminUserPageResponse instance,
+Map<String, dynamic> _$$AdminUserPageResponseImplToJson(
+  _$AdminUserPageResponseImpl instance,
 ) => <String, dynamic>{
   'content': instance.content,
   'totalElements': instance.totalElements,

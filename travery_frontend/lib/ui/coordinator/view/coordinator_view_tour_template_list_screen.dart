@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_list_view_model.dart';
+import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
 class CoordinatorViewTourTemplateListScreen extends StatefulWidget {
@@ -27,16 +29,74 @@ class _CoordinatorViewTourTemplateListScreenState
   @override
   void initState() {
     super.initState();
+    widget.viewModel.loadTours.addListener(_onResult);
+    widget.viewModel.deleteTemplate.addListener(_onDeleteResult);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.viewModel.loadTemplates.execute();
+      widget.viewModel.loadTours.execute();
     });
+  }
+
+  @override
+  void didUpdateWidget(
+    covariant CoordinatorViewTourTemplateListScreen oldWidget,
+  ) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.loadTours.removeListener(_onResult);
+      oldWidget.viewModel.deleteTemplate.removeListener(_onDeleteResult);
+      widget.viewModel.loadTours.addListener(_onResult);
+      widget.viewModel.deleteTemplate.addListener(_onDeleteResult);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            !widget.viewModel.loadTours.completed &&
+            !widget.viewModel.loadTours.running) {
+          widget.viewModel.loadTours.execute();
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    widget.viewModel.dispose();
+    widget.viewModel.loadTours.removeListener(_onResult);
+    widget.viewModel.deleteTemplate.removeListener(_onDeleteResult);
     super.dispose();
+  }
+
+  void _onResult() {
+    if (!mounted) return;
+    if (widget.viewModel.loadTours.error) {
+      final result = widget.viewModel.loadTours.result;
+      String msg = 'Không thể tải danh sách lộ trình';
+      if (result != null && result is core_result.Error) {
+        msg = (result as core_result.Error).error.toString().replaceAll(
+          'HttpException: ',
+          '',
+        );
+      }
+      widget.viewModel.loadTours.clearResult();
+      Utils.showErrorNotification(context, msg);
+    }
+    setState(() {});
+  }
+
+  void _onDeleteResult() {
+    if (!mounted) return;
+    if (widget.viewModel.deleteTemplate.error) {
+      final result = widget.viewModel.deleteTemplate.result;
+      String msg = 'Xóa lộ trình thất bại';
+      if (result != null && result is core_result.Error) {
+        msg = (result).error.toString().replaceAll('HttpException: ', '');
+      }
+      widget.viewModel.deleteTemplate.clearResult();
+      Utils.showErrorNotification(context, msg);
+    } else if (widget.viewModel.deleteTemplate.completed) {
+      widget.viewModel.deleteTemplate.clearResult();
+      Utils.showSuccessNotification(context, 'Xóa lộ trình thành công');
+    }
+    setState(() {});
   }
 
   @override
@@ -102,7 +162,7 @@ class _CoordinatorViewTourTemplateListScreenState
                           Routes.coordinatorCreateTourTemplate,
                         );
                         // Refresh list after returning from create screen
-                        widget.viewModel.loadTemplates.execute();
+                        widget.viewModel.loadTours.execute();
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(
@@ -137,27 +197,31 @@ class _CoordinatorViewTourTemplateListScreenState
               Expanded(
                 child: ListenableBuilder(
                   listenable: Listenable.merge([
-                    widget.viewModel.loadTemplates,
-                    widget.viewModel.filteredTemplates,
+                    widget.viewModel.loadTours,
+                    widget.viewModel.filteredTours,
                   ]),
                   builder: (context, child) {
                     final viewModel = widget.viewModel;
-                    if (viewModel.loadTemplates.running) {
+                    if (viewModel.loadTours.running &&
+                        viewModel.filteredTours.value.isEmpty) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (viewModel.loadTemplates.error) {
-                      final error =
-                          (viewModel.loadTemplates.result as core_result.Error)
-                              .error;
+                    if (viewModel.loadTours.error) {
+                      final errorResult = viewModel.loadTours.result;
+                      final errorMsg =
+                          errorResult != null &&
+                              errorResult is core_result.Error
+                          ? (errorResult as core_result.Error).error.toString()
+                          : 'Lỗi không xác định';
                       return Center(
                         child: Text(
-                          error.toString(),
+                          errorMsg,
                           style: const TextStyle(color: AppColors.error),
                         ),
                       );
                     }
 
-                    final templates = viewModel.filteredTemplates.value;
+                    final templates = viewModel.filteredTours.value;
                     if (templates.isEmpty) {
                       return const Center(
                         child: Text(
@@ -177,8 +241,8 @@ class _CoordinatorViewTourTemplateListScreenState
                           ),
                       itemCount: templates.length,
                       itemBuilder: (context, index) {
-                        final template = templates[index];
-                        return _buildTemplateCard(template);
+                        final tour = templates[index];
+                        return _buildTemplateCard(tour);
                       },
                     );
                   },
@@ -222,7 +286,7 @@ class _CoordinatorViewTourTemplateListScreenState
     );
   }
 
-  Widget _buildTemplateCard(CoordinatorTourTemplate template) {
+  Widget _buildTemplateCard(TourSummaryResponse tour) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -239,9 +303,31 @@ class _CoordinatorViewTourTemplateListScreenState
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16.0),
-          onTap: () {
-            // Return selected template
-            Navigator.of(context).pop(template);
+          onTap: () async {
+            final dummyTemplate = CoordinatorTourTemplate(
+              id: tour.id,
+              name: tour.name,
+              imageUrl: tour.thumbnailUrl ?? '',
+              thumbnailUrl: tour.thumbnailUrl ?? '',
+              images: [],
+              description: '',
+              adultPrice: tour.price.toString(),
+              childPrice: tour.price.toString(),
+              startLocation: '',
+              destination: '',
+              startTime: '',
+              endTime: '',
+              minTotalPerson: 0,
+              maxTotalPerson: 0,
+              itineraries: [],
+            );
+            final result = await context.push<bool>(
+              Routes.coordinatorViewTemplate,
+              extra: dummyTemplate,
+            );
+            if (result == true) {
+              widget.viewModel.loadTours.execute();
+            }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,7 +340,7 @@ class _CoordinatorViewTourTemplateListScreenState
                     topRight: Radius.circular(16.0),
                   ),
                   child: Image.network(
-                    template.imageUrl,
+                    tour.thumbnailUrl ?? '',
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
@@ -276,7 +362,7 @@ class _CoordinatorViewTourTemplateListScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      template.name,
+                      tour.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -287,7 +373,7 @@ class _CoordinatorViewTourTemplateListScreenState
                     ),
                     const SizedBox(height: 4.0),
                     Text(
-                      _formatPrice(template.adultPrice),
+                      _formatPrice(tour.price.toString()),
                       style: const TextStyle(
                         fontSize: AppTextTheme.bodyMedium,
                         fontWeight: FontWeight.bold,
@@ -306,7 +392,7 @@ class _CoordinatorViewTourTemplateListScreenState
 
   String _formatPrice(String priceStr) {
     try {
-      final value = int.parse(priceStr);
+      final value = double.parse(priceStr).toInt();
       final buffer = StringBuffer();
       final s = value.toString();
       for (int i = 0; i < s.length; i++) {

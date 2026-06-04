@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
-import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_list_view_model.dart';
 import 'coordinator_view_tour_list_screen.dart';
 import 'coordinator_view_coach_list_screen.dart';
@@ -68,55 +65,7 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
           ),
           const CoordinatorViewCoachListScreen(),
           CoordinatorSelectionScreen(),
-          Scaffold(
-            body: CometChatConversations(
-              title: 'Tin nhắn',
-              emptyStateView: (context) => const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text(
-                      'Không có cuộc trò chuyện nào',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-              loadingStateView: (context) => Container(
-                color: Colors.white,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-              onItemTap: (conversation) {
-                String? targetUid;
-                String? targetGuid;
-                String targetTitle = "";
-
-                if (conversation.conversationType ==
-                    ReceiverTypeConstants.user) {
-                  final user = conversation.conversationWith as User;
-                  targetUid = user.uid;
-                  targetTitle = user.name;
-                } else {
-                  final group = conversation.conversationWith as Group;
-                  targetGuid = group.guid;
-                  targetTitle = group.name;
-                }
-
-                context.push(
-                  Routes.chat,
-                  extra: {
-                    'uid': targetUid,
-                    'guid': targetGuid,
-                    'title': targetTitle,
-                  },
-                );
-              },
-            ),
-          ),
+          const Center(child: Text('Chat')),
           const CoordinatorViewEndedTourScreen(),
         ],
       ),

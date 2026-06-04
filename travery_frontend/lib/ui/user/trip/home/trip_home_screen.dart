@@ -169,14 +169,6 @@ class _TripHomeScreenState extends State<TripHomeScreen> {
             child: ElevatedButton(
               onPressed: vm.canSearch
                   ? () {
-                      debugPrint(
-                        'Trip search — '
-                        'origin: ${vm.selectedOrigin?.name}, '
-                        'originStation: ${vm.selectedOriginStation?.name} (${vm.selectedOriginStation?.id}), '
-                        'destination: ${vm.selectedDestination?.name}, '
-                        'destinationStation: ${vm.selectedDestinationStation?.name} (${vm.selectedDestinationStation?.id}), '
-                        'departureDate: ${vm.departureDate}',
-                      );
                       context.push(
                         Routes.tripList,
                         extra: {

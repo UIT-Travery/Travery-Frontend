@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelAddonListScreen extends StatefulWidget {
   const HotelAddonListScreen({super.key});
@@ -20,20 +21,13 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 
-  double get _totalPrice {
-    return _dummyAddons.fold<double>(0, (sum, addon) {
-      final qty = _quantities[addon['id']] ?? 1;
-      return sum + (addon['price'] as double) * qty;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
+      appBar: const HotelAppBar(title: 'Thêm dịch vụ'),
       body: Column(
         children: [
-          _buildHeader(),
           _buildTabs(),
           Expanded(
             child: ListView.separated(
@@ -59,42 +53,11 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        8,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Thêm dịch vụ',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTabs() {
     return Container(
-      color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
+        color: Colors.white,
         border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
       ),
       child: SingleChildScrollView(
@@ -162,7 +125,10 @@ class _HotelAddonListScreenState extends State<HotelAddonListScreen> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {
-              context.push(Routes.hotelAddonPayment);
+              context.push(
+                Routes.hotelAddonPaymentResult,
+                extra: {'bookingId': 'BK-TEST-001', 'status': 'success'},
+              );
             },
             icon: const Icon(Icons.shopping_cart),
             label: const Text('Thêm vào đơn'),

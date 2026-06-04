@@ -10,6 +10,7 @@ class CustomDropdownButton extends StatelessWidget {
   final List<String> items;
   final String? value;
   final ValueChanged<String?>? onChanged;
+  final double? menuMaxHeight;
 
   const CustomDropdownButton({
     super.key,
@@ -20,6 +21,7 @@ class CustomDropdownButton extends StatelessWidget {
     required this.items,
     this.value,
     this.onChanged,
+    this.menuMaxHeight = 300.0,
   });
 
   @override
@@ -71,6 +73,7 @@ class CustomDropdownButton extends StatelessWidget {
                       color: AppColors.textPrimary,
                     ),
                     isExpanded: true,
+                    menuMaxHeight: menuMaxHeight,
                     items: items.map((String item) {
                       return DropdownMenuItem<String>(
                         value: item,

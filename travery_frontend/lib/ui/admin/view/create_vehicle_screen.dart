@@ -6,6 +6,7 @@ import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
+import 'widgets/large_button.dart';
 
 class CreateVehicleScreen extends StatefulWidget {
   const CreateVehicleScreen({super.key, required this.viewModel});
@@ -16,9 +17,6 @@ class CreateVehicleScreen extends StatefulWidget {
 }
 
 class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _licenseController = TextEditingController();
   final _plateController = TextEditingController();
   final _seatsController = TextEditingController();
   String? _selectedVehicleType;
@@ -31,15 +29,21 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.createVehicle.addListener(_onCreateVehicleChanged);
+    widget.viewModel.createVehicle.addListener(_onResult);
+  }
+
+  @override
+  void didUpdateWidget(covariant CreateVehicleScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.createVehicle.removeListener(_onResult);
+      widget.viewModel.createVehicle.addListener(_onResult);
+    }
   }
 
   @override
   void dispose() {
-    widget.viewModel.createVehicle.removeListener(_onCreateVehicleChanged);
-    _nameController.dispose();
-    _phoneController.dispose();
-    _licenseController.dispose();
+    widget.viewModel.createVehicle.removeListener(_onResult);
     _plateController.dispose();
     _seatsController.dispose();
     super.dispose();
@@ -47,7 +51,7 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
 
   // ── Command listener ───────────────────────────────────────────────────────
 
-  void _onCreateVehicleChanged() {
+  void _onResult() {
     final cmd = widget.viewModel.createVehicle;
     if (cmd.completed) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,33 +74,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   // ── Actions ────────────────────────────────────────────────────────────────
 
   void _onSave() {
-    if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập họ và tên'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    if (_phoneController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập số điện thoại'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    if (_licenseController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập giấy phép lái xe'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
     if (_plateController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -120,10 +97,10 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
 
     widget.viewModel.createVehicle.execute((
       registrationNumber: _plateController.text.trim(),
-      model: _nameController.text.trim(),
       type: _selectedVehicleType!,
+      layoutName: 'Layout - ${_plateController.text.trim()}',
       seatCount: seatCount,
-      isAvailable: true,
+      seatItems: _coachSeats,
     ));
   }
 
@@ -133,71 +110,24 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildAppBar(),
-              const SizedBox(height: 20),
+
               _buildHeader(),
               const SizedBox(height: 24),
-              _buildSectionTitle(Icons.person_outline, 'Thông tin tài xế'),
-              const SizedBox(height: 16),
-              _buildImageUpload('Thêm ảnh đại diện tài xế'),
-              const SizedBox(height: 24),
-              InputTextField(
-                label: 'Họ và tên',
-                textholder: 'Nhập họ và tên',
-                prefixIcon: const Icon(
-                  Icons.text_format,
-                  size: 20,
-                  color: Colors.black87,
-                ),
-                suffixIcon: const Icon(
-                  Icons.edit,
-                  size: 16,
-                  color: Colors.black54,
-                ),
-                controller: _nameController,
-                textInputType: TextInputType.name,
-              ),
-              const SizedBox(height: 16),
-              InputTextField(
-                label: 'Số điện thoại',
-                textholder: 'Nhập số điện thoại',
-                prefixIcon: const Icon(
-                  Icons.phone,
-                  size: 20,
-                  color: Colors.black87,
-                ),
-                suffixIcon: const Icon(
-                  Icons.edit,
-                  size: 16,
-                  color: Colors.black54,
-                ),
-                controller: _phoneController,
-                textInputType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-              InputTextField(
-                label: 'Giấy phép lái xe',
-                textholder: 'Nhập số giấy phép lái xe',
-                prefixIcon: const Icon(
-                  Icons.numbers,
-                  size: 20,
-                  color: Colors.black87,
-                ),
-                suffixIcon: const Icon(
-                  Icons.edit,
-                  size: 16,
-                  color: Colors.black54,
-                ),
-                controller: _licenseController,
-                textInputType: TextInputType.text,
-              ),
-              const SizedBox(height: 32),
               _buildSectionTitle(
                 Icons.directions_car_outlined,
                 'Thông tin phương tiện',
@@ -255,6 +185,11 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
               _buildFloorButtons(),
               const SizedBox(height: 24),
               _buildSeatMaps(),
+              const SizedBox(height: 16),
+              LargeButton(
+                text: 'Lưu',
+                onTap: widget.viewModel.createVehicle.running ? null : _onSave,
+              ),
               const SizedBox(height: 30),
             ],
           ),
@@ -265,40 +200,11 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
 
   // ── Builders ───────────────────────────────────────────────────────────────
 
-  Widget _buildAppBar() {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.grid_view_rounded,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 10),
-        const Text(
-          'Travery Admin',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildHeader() {
     return ListenableBuilder(
       listenable: widget.viewModel.createVehicle,
       builder: (context, _) {
-        final isRunning = widget.viewModel.createVehicle.running;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,7 +223,7 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Nhập thông tin phương tiện và tài xế để tạo chuyến xe',
+                    'Nhập thông tin phương tiện để tạo phương tiện mới',
                     style: TextStyle(
                       fontSize: AppTextTheme.bodySmall,
                       color: Colors.grey[600],
@@ -325,40 +231,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
                   ),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: isRunning ? null : () => context.pop(),
-                  child: const Text(
-                    'Hủy',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: isRunning ? null : _onSave,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryDarkBlackBlue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  child: isRunning
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Lưu',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                ),
-              ],
             ),
           ],
         );
@@ -380,30 +252,6 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildImageUpload(String text) {
-    return Center(
-      child: Column(
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.image_outlined,
-              color: Colors.black54,
-              size: 30,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
     );
   }
 

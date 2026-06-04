@@ -84,9 +84,9 @@ void main() {
       final result = await repo.createAccount(
         name: 'Test User',
         email: 'test@travery.com',
-        employeeId: 'TRV-TEST-001',
         role: 'guide',
         isActive: true,
+        password: '12345678',
       );
 
       expect(result, isA<Ok<void>>());
@@ -100,9 +100,9 @@ void main() {
       await repo.createAccount(
         name: 'New Employee',
         email: 'new@travery.com',
-        employeeId: 'TRV-NEW-001',
         role: 'coordinator',
         isActive: false,
+        password: '12345678',
       );
 
       final allResult = await repo.getAllAccounts();

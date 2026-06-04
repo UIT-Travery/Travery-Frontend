@@ -6,35 +6,36 @@ part of 'guide_tour.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_GuideTour _$GuideTourFromJson(Map<String, dynamic> json) => _GuideTour(
-  id: json['id'] as String?,
-  tourInstanceId: json['tour_instance_id'] as String,
-  tourId: json['tour_id'] as String,
-  tourName: json['tourName'] as String,
-  startDate: DateTime.parse(json['start_date'] as String),
-  endDate: DateTime.parse(json['end_date'] as String),
-  groupSize: (json['group_size'] as num).toInt(),
-  groupDescription: json['group_description'] as String,
-  status: $enumDecode(_$GuideTourStatusEnumMap, json['status']),
-  bookingId: json['booking_id'] as String?,
-  customerName: json['customer_name'] as String?,
-  customerPhone: json['customer_phone'] as String?,
-  vehiclePlate: json['vehicle_plate'] as String?,
-  driverName: json['driver_name'] as String?,
-  createdAt: json['created_at'] == null
-      ? null
-      : DateTime.parse(json['created_at'] as String),
-  updatedAt: json['updated_at'] == null
-      ? null
-      : DateTime.parse(json['updated_at'] as String),
-  driverPhone: json['driverPhone'] as String?,
-  coachType: json['coachType'] as String?,
-  pickupLocation: json['pickupLocation'] as String?,
-  passengerCount: (json['passengerCount'] as num?)?.toInt(),
-  bookingsCount: (json['bookingsCount'] as num?)?.toInt(),
-);
+_$GuideTourImpl _$$GuideTourImplFromJson(Map<String, dynamic> json) =>
+    _$GuideTourImpl(
+      id: json['id'] as String?,
+      tourInstanceId: json['tour_instance_id'] as String,
+      tourId: json['tour_id'] as String,
+      tourName: json['tourName'] as String,
+      startDate: DateTime.parse(json['start_date'] as String),
+      endDate: DateTime.parse(json['end_date'] as String),
+      groupSize: (json['group_size'] as num).toInt(),
+      groupDescription: json['group_description'] as String,
+      status: $enumDecode(_$GuideTourStatusEnumMap, json['status']),
+      bookingId: json['booking_id'] as String?,
+      customerName: json['customer_name'] as String?,
+      customerPhone: json['customer_phone'] as String?,
+      vehiclePlate: json['vehicle_plate'] as String?,
+      driverName: json['driver_name'] as String?,
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
+      driverPhone: json['driverPhone'] as String?,
+      coachType: json['coachType'] as String?,
+      pickupLocation: json['pickupLocation'] as String?,
+      passengerCount: (json['passengerCount'] as num?)?.toInt(),
+      bookingsCount: (json['bookingsCount'] as num?)?.toInt(),
+    );
 
-Map<String, dynamic> _$GuideTourToJson(_GuideTour instance) =>
+Map<String, dynamic> _$$GuideTourImplToJson(_$GuideTourImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'tour_instance_id': instance.tourInstanceId,

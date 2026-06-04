@@ -6,18 +6,19 @@ part of 'destination_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_DestinationResponse _$DestinationResponseFromJson(Map<String, dynamic> json) =>
-    _DestinationResponse(
-      id: json['id'] as String?,
-      code: json['code'] as String?,
-      name: json['name'] as String?,
-      region: json['region'] as String?,
-      imageUrl: json['imageUrl'] as String?,
-      description: json['description'] as String?,
-    );
+_$DestinationResponseImpl _$$DestinationResponseImplFromJson(
+  Map<String, dynamic> json,
+) => _$DestinationResponseImpl(
+  id: json['id'] as String?,
+  code: json['code'] as String?,
+  name: json['name'] as String?,
+  region: json['region'] as String?,
+  imageUrl: json['imageUrl'] as String?,
+  description: json['description'] as String?,
+);
 
-Map<String, dynamic> _$DestinationResponseToJson(
-  _DestinationResponse instance,
+Map<String, dynamic> _$$DestinationResponseImplToJson(
+  _$DestinationResponseImpl instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'code': instance.code,

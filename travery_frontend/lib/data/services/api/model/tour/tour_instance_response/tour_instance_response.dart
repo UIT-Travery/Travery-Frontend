@@ -7,10 +7,14 @@ part 'tour_instance_response.g.dart';
 abstract class TourInstanceResponse with _$TourInstanceResponse {
   const factory TourInstanceResponse({
     required String id,
+    required String tourName,
     required String startDate,
-    required String endDate,
+    String? endDate,
     required String status,
-    @Default(0) int availableSlots,
+    required int currentParticipants,
+    int? maxParticipants,
+    int? availableSlots,
+    String? imageUrl,
   }) = _TourInstanceResponse;
 
   factory TourInstanceResponse.fromJson(Map<String, dynamic> json) =>

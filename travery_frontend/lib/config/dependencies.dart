@@ -18,6 +18,7 @@ import 'package:travery_frontend/data/services/api/admin_api_service.dart';
 import 'package:travery_frontend/data/services/api/notification_api_service.dart';
 import 'package:travery_frontend/data/repositories/notification/notification_repository.dart';
 import 'package:travery_frontend/data/repositories/notification/notification_repository_remote.dart';
+
 import 'package:travery_frontend/data/services/api/auth_service.dart';
 import 'package:travery_frontend/data/services/api/coordinator_api_service.dart';
 import 'package:travery_frontend/data/services/api/profile_service.dart';
@@ -26,6 +27,7 @@ import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/data/services/tour/tour_service_impl.dart';
 import 'package:travery_frontend/data/services/chat/chat_service.dart';
+
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_service_impl.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
@@ -67,6 +69,26 @@ import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_v
 import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
+import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_booking_view_model.dart';
+
+import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
+import 'package:travery_frontend/data/services/hotel/hotel_service_impl.dart';
+import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
+import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
+
+import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/create_hotel_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
+
+import 'package:travery_frontend/ui/user/trip/home/view_models/trip_home_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/list/view_models/trip_list_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/seat_picker/view_models/seat_picker_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/booking_input/view_models/trip_booking_input_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/booking_review/view_models/trip_booking_review_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
+import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 
 import 'package:travery_frontend/ui/chat/view_models/chat_view_model.dart';
 import '../data/services/tour/tour_service_impl.dart';
@@ -94,6 +116,12 @@ List<SingleChildWidget> get providers => [
             )
             as AuthRepository,
   ),
+  // ChangeNotifierProvider(
+  //   create: (context) => UserInfoProvider(
+  //     storage: context.read<SecurityStorageService>(),
+  //     tokenRefreshService: context.read<TokenRefreshService>(),
+  //   ),
+  // ),
   Provider<TourService>(
     create: (context) => TourServiceImpl(
       tokenRefreshService: context.read<TokenRefreshService>(),
@@ -157,6 +185,26 @@ List<SingleChildWidget> get providers => [
   ChangeNotifierProvider(
     create: (context) =>
         TripBookingDetailViewModel(tripService: context.read<TripService>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) => HotelMyBookingViewModel()..loadBookings(),
+  ),
+
+  // ── Hotel Service ─────────────────────────────────────────────────────────
+  Provider<HotelService>(
+    create: (context) => HotelServiceImpl(
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+
+  // ── Hotel ViewModels ───────────────────────────────────────────────────────
+  ChangeNotifierProvider(
+    create: (context) =>
+        HotelHomeViewModel(hotelService: context.read<HotelService>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) =>
+        HotelDetailViewModel(hotelService: context.read<HotelService>()),
   ),
 
   // ── Admin service ─────────────────────────────────────────────────────────

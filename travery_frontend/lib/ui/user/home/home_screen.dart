@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                           IconButton(
-                            onPressed: () => context.push(Routes.notifications),
+                            onPressed: () {},
                             icon: const Icon(
                               Icons.notifications_outlined,
                               color: Color(0xFF717786),
