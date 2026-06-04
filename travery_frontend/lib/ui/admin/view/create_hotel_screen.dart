@@ -6,8 +6,9 @@ import '../../core/themes/app_text_theme.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
 import 'widgets/input_button.dart';
-import 'add_hotel_info_screen.dart';
 import 'widgets/large_button.dart';
+import 'widgets/amenity_bottom_sheet.dart';
+import 'package:travery_frontend/data/services/api/model/hotel/amenity_response.dart';
 
 // No room data here anymore
 
@@ -34,43 +35,70 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.createHotel.addListener(_onCreateHotelChanged);
+    widget.viewModel.createHotel.addListener(_onCreateHotelResult);
+    widget.viewModel.loadAmenities.addListener(_onAmenitiesLoaded);
+    widget.viewModel.loadRefundPolicies.addListener(_onRefundPoliciesLoaded);
+    widget.viewModel.searchDestinations.addListener(_onDestinationsLoaded);
+    widget.viewModel.loadAmenities.execute();
+    widget.viewModel.loadRefundPolicies.execute();
+    widget.viewModel.searchDestinations.execute('');
+  }
+
+  void _onAmenitiesLoaded() {
+    setState(() {}); // Rebuild when amenities load
+  }
+
+  void _onRefundPoliciesLoaded() {
+    setState(() {}); // Rebuild when refund policies load
+  }
+
+  void _onDestinationsLoaded() {
+    setState(() {}); // Rebuild when destinations load
   }
 
   @override
   void dispose() {
-    widget.viewModel.createHotel.removeListener(_onCreateHotelChanged);
+    widget.viewModel.createHotel.removeListener(_onCreateHotelResult);
+    widget.viewModel.loadAmenities.removeListener(_onAmenitiesLoaded);
+    widget.viewModel.loadRefundPolicies.removeListener(_onRefundPoliciesLoaded);
+    widget.viewModel.searchDestinations.removeListener(_onDestinationsLoaded);
     _nameController.dispose();
     _addressController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
-  // ── Command listener ───────────────────────────────────────────────────────
+  List<String> _selectedAmenityIds = [];
 
-  void _onCreateHotelChanged() {
+  void _onCreateHotelResult() {
     final cmd = widget.viewModel.createHotel;
     if (cmd.completed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Đã thêm khách sạn: ${_nameController.text.trim()}'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      context.pop();
-    } else if (cmd.error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Không thể thêm khách sạn. Vui lòng thử lại.'),
-          behavior: SnackBarBehavior.floating,
+          content: Text('Đã tạo khách sạn thành công'),
+          backgroundColor: Colors.green,
         ),
       );
+      context.pop(true);
+    } else if (cmd.error) {
+      if (!mounted) return;
+      String errorMessage = 'Tạo khách sạn thất bại';
+      // In Dart 3, result could be matched. For now, assuming basic Error toString.
+      final result = cmd.result;
+      if (result != null && result.toString().contains('Exception:')) {
+        errorMessage = result.toString().replaceAll('Exception: ', '');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+      cmd.clearResult();
     }
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  void _onNext() {
+  Future<void> _onNext() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -81,11 +109,28 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
       return;
     }
 
-    // In real scenario we could save it to viewModel, but for now navigate
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AddHotelInfoScreen()),
+    if (_selectedPolicy == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn chính sách hoàn tiền'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final payload = (
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+      address: _addressController.text.trim(),
+      cityProvince: _selectedCity ?? 'Hà Nội',
+      checkInTime: _checkInTime,
+      checkOutTime: _checkOutTime,
+      amenityIds: _selectedAmenityIds,
+      refundPolicyId: _selectedPolicy!,
     );
+
+    widget.viewModel.createHotel.execute(payload);
   }
 
   Future<void> _selectTime(BuildContext context, bool isCheckIn) async {
@@ -118,7 +163,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -158,12 +203,12 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                   size: 20,
                   color: Colors.black87,
                 ),
-                items: const [
-                  'Hà Nội',
-                  'TP. Hồ Chí Minh',
-                  'Đà Nẵng',
-                  'Hải Phòng',
-                ],
+                items: widget.viewModel.destinations.isEmpty
+                    ? ['Đang tải...']
+                    : widget.viewModel.destinations
+                        .map((e) => e['name'] as String? ?? '')
+                        .where((e) => e.isNotEmpty)
+                        .toList(),
                 value: _selectedCity,
                 onChanged: (val) => setState(() => _selectedCity = val),
               ),
@@ -233,9 +278,19 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                   size: 20,
                   color: Colors.black87,
                 ),
-                items: const ['Miễn phí hủy phòng', 'Không hoàn tiền'],
-                value: _selectedPolicy,
-                onChanged: (val) => setState(() => _selectedPolicy = val),
+                items: widget.viewModel.refundPolicies
+                    .map((e) => e.name ?? 'Không tên')
+                    .toList(),
+                value: widget.viewModel.refundPolicies
+                    .where((e) => e.id == _selectedPolicy)
+                    .firstOrNull
+                    ?.name,
+                onChanged: (val) {
+                  final policy = widget.viewModel.refundPolicies
+                      .where((e) => e.name == val)
+                      .firstOrNull;
+                  setState(() => _selectedPolicy = policy?.id);
+                },
               ),
               const SizedBox(height: 16),
               InputTextField(
@@ -251,42 +306,98 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Cơ sở vật chất',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors
-                      .textPrimary, // Ensure this exists, or use Colors.black
-                ),
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(5),
-                child: Container(
-                  height: 48,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: AppColors.primaryDarkBlackBlue),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Cơ sở vật chất',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add, color: AppColors.textPrimary),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Chọn cơ sở vật chất',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: AppTextTheme.bodyMedium,
+                  TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => AmenityBottomSheet(
+                          amenities: widget.viewModel.amenities,
+                          initialSelected: _selectedAmenityIds,
+                          onConfirm: (selectedIds) {
+                            setState(() => _selectedAmenityIds = selectedIds);
+                          },
                         ),
+                      );
+                    },
+                    child: const Text(
+                      'Chọn cơ sở vật chất',
+                      style: TextStyle(
+                        color: AppColors.primaryDarkBlackBlue,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
+              if (_selectedAmenityIds.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _selectedAmenityIds.map((id) {
+                    final amenity = widget.viewModel.amenities.firstWhere(
+                      (a) => a.id == id,
+                      orElse: () => const AmenityResponse(
+                        id: '',
+                        name: 'Unknown',
+                        type: 'HOTEL',
+                      ),
+                    );
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.primaryDarkBlackBlue,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (amenity.iconUrl != null &&
+                              amenity.iconUrl!.isNotEmpty) ...[
+                            Image.network(
+                              amenity.iconUrl!,
+                              width: 24,
+                              height: 24,
+                              color: AppColors.primaryDarkBlackBlue,
+                              errorBuilder: (context, error, stackTrace) => const Icon(
+                                Icons.star,
+                                color: AppColors.primaryDarkBlackBlue,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            amenity.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryDarkBlackBlue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
               const SizedBox(height: 16),
               LargeButton(
                 text: 'Tiếp tục',
@@ -306,7 +417,6 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
     return ListenableBuilder(
       listenable: widget.viewModel.createHotel,
       builder: (context, _) {
-        final isRunning = widget.viewModel.createHotel.running;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,

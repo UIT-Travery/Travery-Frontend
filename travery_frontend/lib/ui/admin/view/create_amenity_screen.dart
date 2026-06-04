@@ -1,24 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/data/services/api/model/amenity/create_amenity_request.dart';
+import 'package:travery_frontend/ui/admin/view_model/create_amenity_view_model.dart';
 import 'widgets/dropdown_button.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/large_button.dart';
 
 class CreateAmenityScreen extends StatefulWidget {
-  const CreateAmenityScreen({super.key});
+  final CreateAmenityViewModel viewModel;
+
+  const CreateAmenityScreen({super.key, required this.viewModel});
 
   @override
   State<CreateAmenityScreen> createState() => _CreateAmenityScreenState();
 }
 
 class _CreateAmenityScreenState extends State<CreateAmenityScreen> {
-  final TextEditingController nameController = TextEditingController();
-  String? selectedAmenityType;
-  final List<String> amenityTypes = ['Khách sạn', 'Phòng', 'Khác'];
+  final TextEditingController _nameController = TextEditingController();
+  AmenityType? _selectedType;
+
+  final List<String> _typeLabels = ['Khách sạn', 'Phòng'];
+
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.createAmenity.addListener(_onResult);
+  }
+
+  @override
+  void didUpdateWidget(CreateAmenityScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      oldWidget.viewModel.createAmenity.removeListener(_onResult);
+      widget.viewModel.createAmenity.addListener(_onResult);
+    }
+  }
 
   @override
   void dispose() {
-    nameController.dispose();
+    widget.viewModel.createAmenity.removeListener(_onResult);
+    _nameController.dispose();
     super.dispose();
+  }
+
+  void _onResult() {
+    final cmd = widget.viewModel.createAmenity;
+    if (cmd.completed) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã thêm cơ sở vật chất thành công'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      context.pop();
+    } else if (cmd.error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi: ${cmd.error.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _submit() {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập tên cơ sở vật chất')),
+      );
+      return;
+    }
+    if (_selectedType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn loại cơ sở vật chất')),
+      );
+      return;
+    }
+    widget.viewModel.createAmenity.execute((
+      name: name,
+      type: _selectedType!,
+      iconImagePath: null,
+    ));
+  }
+
+  AmenityType? _typeFromLabel(String? label) {
+    if (label == 'Khách sạn') return AmenityType.hotelAmenity;
+    if (label == 'Phòng') return AmenityType.roomAmenity;
+    return null;
+  }
+
+  String? _labelFromType(AmenityType? type) {
+    if (type == AmenityType.hotelAmenity) return 'Khách sạn';
+    if (type == AmenityType.roomAmenity) return 'Phòng';
+    return null;
   }
 
   @override
@@ -40,7 +117,6 @@ class _CreateAmenityScreenState extends State<CreateAmenityScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               const Text(
                 'Thêm Cơ sở vật chất',
                 style: TextStyle(
@@ -87,37 +163,39 @@ class _CreateAmenityScreenState extends State<CreateAmenityScreen> {
                   Icons.category_outlined,
                   color: Colors.black54,
                 ),
-                items: amenityTypes,
-                value: selectedAmenityType,
+                items: _typeLabels,
+                value: _labelFromType(_selectedType),
                 onChanged: (value) {
-                  setState(() {
-                    selectedAmenityType = value;
-                  });
+                  setState(() => _selectedType = _typeFromLabel(value));
                 },
               ),
               const SizedBox(height: 16),
               InputTextField(
                 label: 'Tên cơ sở vật chất',
-                textholder: 'Nhập tên loại phòng',
+                textholder: 'Nhập tên cơ sở vật chất',
                 prefixIcon: const Icon(
                   Icons.text_format,
                   color: Colors.black54,
                 ),
                 suffixIcon: const Icon(Icons.edit, color: Colors.black54),
-                controller: nameController,
+                controller: _nameController,
                 textInputType: TextInputType.text,
               ),
               const SizedBox(height: 48),
-              LargeButton(
-                text: 'Xác nhận',
-                onTap: () {
-                  // Submit action
+              ListenableBuilder(
+                listenable: widget.viewModel.createAmenity,
+                builder: (context, _) {
+                  final running = widget.viewModel.createAmenity.running;
+                  return LargeButton(
+                    text: running ? 'Đang xử lý...' : 'Xác nhận',
+                    onTap: running ? () {} : _submit,
+                  );
                 },
               ),
               const SizedBox(height: 12),
               LargeButton(
                 text: 'Hủy bỏ',
-                color: const Color(0xFFCC0000), // Red color
+                color: const Color(0xFFCC0000),
                 onTap: () => Navigator.pop(context),
               ),
               const SizedBox(height: 32),

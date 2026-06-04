@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/admin/view/admin_view_profile_screen.dart';
-import 'package:travery_frontend/ui/admin/view/view_roomtype_list_sreen.dart';
 import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
+import 'package:travery_frontend/ui/admin/view_model/amenity_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.dart';
@@ -29,11 +29,19 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminProfileViewModel>().loadProfile.execute();
+    });
+  }
+
   void _onSidebarTap(int index) {
     // Đóng drawer trước
     Navigator.of(context).pop();
 
-    if (index == 7) {
+    if (index == 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Tính năng Hộp thoại đang được phát triển'),
@@ -75,10 +83,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           viewModel: context.read<HotelManagementViewModel>(),
         );
       case 5:
-        return const ViewRoomtypeListScreen();
-      case 6:
-        return const AmenityManagementScreen();
-      case 8:
+        return AmenityManagementScreen(
+          viewModel: context.read<AmenityManagementViewModel>(),
+        );
+      case 7:
         return AdminViewProfileScreen(
           viewModel: context.read<AdminProfileViewModel>(),
         );

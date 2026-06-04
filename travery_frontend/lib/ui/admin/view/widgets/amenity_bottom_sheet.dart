@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'large_button.dart';
 
+import 'package:travery_frontend/data/services/api/model/hotel/amenity_response.dart';
+
 class AmenityBottomSheet extends StatefulWidget {
-  final List<String> amenities;
+  final List<AmenityResponse> amenities;
   final List<String> initialSelected;
   final Function(List<String>) onConfirm;
 
@@ -18,20 +20,20 @@ class AmenityBottomSheet extends StatefulWidget {
 }
 
 class _AmenityBottomSheetState extends State<AmenityBottomSheet> {
-  late List<String> _selectedAmenities;
+  late List<String> _selectedAmenityIds;
 
   @override
   void initState() {
     super.initState();
-    _selectedAmenities = List.from(widget.initialSelected);
+    _selectedAmenityIds = List.from(widget.initialSelected);
   }
 
-  void _toggleAmenity(String amenity) {
+  void _toggleAmenity(String amenityId) {
     setState(() {
-      if (_selectedAmenities.contains(amenity)) {
-        _selectedAmenities.remove(amenity);
+      if (_selectedAmenityIds.contains(amenityId)) {
+        _selectedAmenityIds.remove(amenityId);
       } else {
-        _selectedAmenities.add(amenity);
+        _selectedAmenityIds.add(amenityId);
       }
     });
   }
@@ -39,6 +41,9 @@ class _AmenityBottomSheetState extends State<AmenityBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+      ),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -77,20 +82,35 @@ class _AmenityBottomSheetState extends State<AmenityBottomSheet> {
               itemCount: widget.amenities.length,
               itemBuilder: (context, index) {
                 final amenity = widget.amenities[index];
-                final isSelected = _selectedAmenities.contains(amenity);
+                final isSelected = _selectedAmenityIds.contains(amenity.id);
                 return InkWell(
-                  onTap: () => _toggleAmenity(amenity),
+                  onTap: () => _toggleAmenity(amenity.id),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          amenity,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        Row(
+                          children: [
+                            if (amenity.iconUrl != null && amenity.iconUrl!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: Image.network(
+                                  amenity.iconUrl!,
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.blue,
+                                  errorBuilder: (_, __, ___) => const Icon(Icons.star, color: Colors.blue, size: 24),
+                                ),
+                              ),
+                            Text(
+                              amenity.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                         Icon(
                           isSelected
@@ -109,7 +129,7 @@ class _AmenityBottomSheetState extends State<AmenityBottomSheet> {
           LargeButton(
             text: 'Xác nhận',
             onTap: () {
-              widget.onConfirm(_selectedAmenities);
+              widget.onConfirm(_selectedAmenityIds);
               Navigator.of(context).pop();
             },
           ),

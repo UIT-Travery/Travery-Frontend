@@ -31,6 +31,7 @@ class Routes {
   static const String adminTourManagement = '/admin/tour-management';
   static const String adminVehicleManagement = '/admin/vehicle-management';
   static const String adminCreateHotel = '/admin/create-hotel';
+  static const String adminAddHotelInfo = '/admin/create-hotel/info';
   static const String adminCreateVehicle = '/admin/create-vehicle';
   static String adminUpdateHotelWithId(String hotelId) =>
       '/admin/update-hotel/$hotelId';
@@ -38,8 +39,14 @@ class Routes {
       '/admin/update-vehicle/$vehicleId';
   static String adminViewDetailAccountWithId(String id) =>
       '/admin/view-detail-account/$id';
+  static String adminViewHotelRoomList(String hotelId) =>
+      '/admin/hotels/$hotelId/rooms';
   static const String adminViewProfile = '/admin/view-profile';
   static const String adminUpdateProfile = '/admin/update-profile';
+
+  // Admin Hotel Detail
+  static const String adminHotelDetail = '/admin/hotel-detail';
+  static const String adminImageManagement = '/admin/image-management';
 
   // Admin Room Type
   static const String adminViewRoomtypeList = '/admin/room-types';
@@ -56,6 +63,11 @@ class Routes {
   static const String adminAmenityManagement = '/admin/amenities';
   static const String adminCreateAmenity = '/admin/amenities/create';
   static const String adminUpdateAmenity = '/admin/amenities/update';
+
+  // Admin Refund Policy
+  static const String adminRefundPolicyManagement = '/admin/refund-policies';
+  static const String adminCreateRefundPolicy = '/admin/refund-policies/create';
+  static const String adminUpdateRefundPolicy = '/admin/refund-policies/update';
 
   /* HƯỚNG DẪN: Khi thêm Repository/Feature mới (ví dụ: Hotel, Car):
   Hãy thêm các hằng số đường dẫn vào đây.
