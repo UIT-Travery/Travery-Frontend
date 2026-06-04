@@ -290,13 +290,31 @@ class _RoomCard extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        room.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1F2937),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              room.name,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                            if (room.bedType != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                HotelRoomData.getBedTypeLabel(room.bedType!),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       Column(
@@ -321,31 +339,87 @@ class _RoomCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: room.features.map((f) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                  if (room.description != null &&
+                      room.description!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      room.description!,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF4B5563),
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  if (room.capacityAdults != null ||
+                      room.capacityChildren != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.people_outline,
+                          size: 14,
+                          color: Color(0xFF6B7280),
                         ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
-                        ),
-                        child: Text(
-                          f,
+                        const SizedBox(width: 4),
+                        Text(
+                          '${room.capacityAdults ?? 0} người lớn${room.capacityChildren != null ? ', ${room.capacityChildren} trẻ em' : ''}',
                           style: const TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF4B5563),
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ],
+                    ),
+                  ],
+                  if (room.amenities != null && room.amenities!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 32,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: room.amenities!.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, idx) {
+                          final amenity = room.amenities![idx];
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: const Color(0xFFE5E7EB),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getAmenityIcon(amenity.name),
+                                  size: 14,
+                                  color: const Color(0xFF007AFF),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  amenity.name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF4B5563),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -353,5 +427,55 @@ class _RoomCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static IconData _getAmenityIcon(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('wifi') || lower.contains('wi-fi')) {
+      return Icons.wifi;
+    } else if (lower.contains('ac') ||
+        lower.contains('điều hòa') ||
+        lower.contains('air')) {
+      return Icons.ac_unit;
+    } else if (lower.contains('tv') || lower.contains('television')) {
+      return Icons.tv;
+    } else if (lower.contains('bath') ||
+        lower.contains('bồn') ||
+        lower.contains('hot')) {
+      return Icons.bathtub;
+    } else if (lower.contains('pool') ||
+        lower.contains('bể') ||
+        lower.contains('swim')) {
+      return Icons.pool;
+    } else if (lower.contains('parking') ||
+        lower.contains('đỗ') ||
+        lower.contains('garage')) {
+      return Icons.local_parking;
+    } else if (lower.contains('restaurant') ||
+        lower.contains('eat') ||
+        lower.contains('buffet')) {
+      return Icons.restaurant;
+    } else if (lower.contains('gym') ||
+        lower.contains('fitness') ||
+        lower.contains('sport')) {
+      return Icons.fitness_center;
+    } else if (lower.contains('spa') || lower.contains('massage')) {
+      return Icons.spa;
+    } else if (lower.contains('breakfast') || lower.contains('sáng')) {
+      return Icons.free_breakfast;
+    } else if (lower.contains('laundry') ||
+        lower.contains('giặt') ||
+        lower.contains('iron')) {
+      return Icons.local_laundry_service;
+    } else if (lower.contains('shuttle') ||
+        lower.contains('đưa') ||
+        lower.contains('đón')) {
+      return Icons.airport_shuttle;
+    } else if (lower.contains('pet') || lower.contains('thú')) {
+      return Icons.pets;
+    } else if (lower.contains('balcony') || lower.contains('ban công')) {
+      return Icons.balcony;
+    }
+    return Icons.check_circle_outline;
   }
 }

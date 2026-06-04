@@ -1,7 +1,110 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/data/services/security_storage_service.dart';
+import 'package:travery_frontend/data/services/user_storage_service.dart';
 import 'package:travery_frontend/routing/routes.dart';
-import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
+import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/ui/user/widgets/section_title.dart';
+import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
+import 'package:travery_frontend/utils/core_result.dart';
+
+DateTime? _tryParseDob(String value) {
+  if (value.trim().isEmpty) return null;
+
+  var parts = value.trim().split('/');
+  if (parts.length != 3) {
+    parts = value.trim().split('-');
+    if (parts.length != 3) return null;
+  }
+
+  int? day;
+  int? month;
+  int? year;
+  if (int.tryParse(parts[0]) != null && int.parse(parts[0]) > 31) {
+    year = int.tryParse(parts[0]);
+    month = int.tryParse(parts[1]);
+    day = int.tryParse(parts[2]);
+  } else {
+    day = int.tryParse(parts[0]);
+    month = int.tryParse(parts[1]);
+    year = int.tryParse(parts[2]);
+  }
+
+  if (day == null || month == null || year == null) return null;
+  if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900) {
+    return null;
+  }
+
+  final dob = DateTime(year, month, day);
+  if (dob.day != day || dob.month != month || dob.year != year) return null;
+  return dob;
+}
+
+String? Function(String?) _nameValidator() {
+  return (value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Vui lòng nhập họ và tên';
+    }
+    if (value.trim().length < 2) {
+      return 'Họ tên phải có ít nhất 2 ký tự';
+    }
+    return null;
+  };
+}
+
+String? Function(String?) _identityValidator() {
+  return (value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Vui lòng nhập số CCCD';
+    }
+    if (!RegExp(r'^\d{12}$').hasMatch(value.trim())) {
+      return 'Số CCCD phải đủ 12 chữ số';
+    }
+    return null;
+  };
+}
+
+String? Function(String?) _phoneValidator() {
+  return (value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Vui lòng nhập số điện thoại';
+    }
+    final phone = value.trim().replaceAll(RegExp(r'\s'), '');
+    if (!RegExp(r'^\+?\d{9,15}$').hasMatch(phone)) {
+      return 'Số điện thoại không hợp lệ';
+    }
+    return null;
+  };
+}
+
+String? Function(String?) _dobValidator(bool isAdult) {
+  return (value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Vui lòng nhập ngày sinh';
+    }
+
+    final dob = _tryParseDob(value);
+    if (dob == null) return 'Ngày sinh không hợp lệ';
+
+    final now = DateTime.now();
+    var age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+
+    if (isAdult && age < 12) {
+      return 'Người lớn phải từ 12 tuổi trở lên';
+    }
+    if (!isAdult && age > 11) {
+      return 'Trẻ em phải từ 11 tuổi trở xuống';
+    }
+    return null;
+  };
+}
 
 class HotelBookingInputScreen extends StatefulWidget {
   const HotelBookingInputScreen({super.key});
@@ -13,90 +116,307 @@ class HotelBookingInputScreen extends StatefulWidget {
 
 class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
 
-  int _adults = 1;
-  int _children = 0;
-  int get _totalGuests => _adults + _children;
+  final List<TextEditingController> _nameControllers = [];
+  final List<TextEditingController> _identityControllers = [];
+  final List<TextEditingController> _dobControllers = [];
+  final _contactNameController = TextEditingController();
+  final _contactPhoneController = TextEditingController();
+  final _specialRequestsController = TextEditingController();
 
-  List<Map<String, dynamic>> _guestControllers = [];
+  HotelDetailData? _hotel;
+  List<HotelRoomData> _selectedRooms = [];
+  DateTime _checkInDate = DateTime.now().add(const Duration(days: 1));
+  DateTime _checkOutDate = DateTime.now().add(const Duration(days: 2));
+  int _adultCount = 1;
+  int _childCount = 0;
+  bool _loadedRouteData = false;
 
-  bool _agreedToTerms = false;
+  int get _totalGuests => _adultCount + _childCount;
+
+  int get _maxAdults {
+    final total = _selectedRooms.fold<int>(
+      0,
+      (sum, room) => sum + (room.capacityAdults ?? 0),
+    );
+    return total > 0 ? total : 1;
+  }
+
+  int get _maxChildren {
+    return _selectedRooms.fold<int>(
+      0,
+      (sum, room) => sum + (room.capacityChildren ?? 0),
+    );
+  }
+
+  int get _nights {
+    final days = _checkOutDate.difference(_checkInDate).inDays;
+    return days < 1 ? 1 : days;
+  }
+
+  double get _pricePerNight {
+    return _selectedRooms.fold<double>(
+      0,
+      (sum, room) => sum + room.pricePerNight,
+    );
+  }
+
+  double get _totalPrice => _pricePerNight * _nights;
 
   @override
   void initState() {
     super.initState();
-    _initGuests();
+    _syncMemberControllers();
+    _loadUserInfo();
   }
 
-  void _initGuests() {
-    _guestControllers = List.generate(_totalGuests, (index) {
-      final isAdult = index == 0;
-      return {
-        'name': TextEditingController(),
-        'idNumber': TextEditingController(),
-        'dob': DateTime.now().subtract(
-          Duration(days: isAdult ? 25 * 365 : 5 * 365),
-        ),
-        'isAdult': isAdult,
-      };
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_loadedRouteData) return;
+    _loadedRouteData = true;
+
+    final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+    final rooms = extra?['selectedRooms'] as List<dynamic>?;
+    _hotel = extra?['hotel'] as HotelDetailData?;
+    if (rooms != null) {
+      _selectedRooms = rooms.cast<HotelRoomData>();
+    }
+
+    final routeStartDate = _parseRouteDate(extra?['startDate']);
+    final routeEndDate = _parseRouteDate(extra?['endDate']);
+    if (routeStartDate != null) {
+      _checkInDate = routeStartDate;
+    }
+    if (routeEndDate != null && routeEndDate.isAfter(_checkInDate)) {
+      _checkOutDate = routeEndDate;
+    } else if (!_checkOutDate.isAfter(_checkInDate)) {
+      _checkOutDate = _checkInDate.add(const Duration(days: 1));
+    }
+
+    _clampGuestCounts();
+    _syncMemberControllers();
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    for (final guest in _guestControllers) {
-      guest['name']?.dispose();
-      guest['idNumber']?.dispose();
+    for (final controller in _nameControllers) {
+      controller.dispose();
     }
+    for (final controller in _identityControllers) {
+      controller.dispose();
+    }
+    for (final controller in _dobControllers) {
+      controller.dispose();
+    }
+    _contactNameController.dispose();
+    _contactPhoneController.dispose();
+    _specialRequestsController.dispose();
     super.dispose();
   }
 
-  void _updateGuests() {
-    for (final guest in _guestControllers) {
-      guest['name']?.dispose();
-      guest['idNumber']?.dispose();
-    }
+  Future<void> _loadUserInfo() async {
+    try {
+      final securityStorage = SecurityStorageService();
+      final accessToken = await securityStorage.getAccessToken();
 
-    _guestControllers = List.generate(_totalGuests, (index) {
-      final isAdult = index < _adults;
-      return {
-        'name': TextEditingController(),
-        'idNumber': TextEditingController(),
-        'dob': DateTime.now().subtract(
-          Duration(days: isAdult ? 25 * 365 : 5 * 365),
-        ),
-        'isAdult': isAdult,
-      };
+      if (accessToken == null) {
+        _loadFromLocalStorage();
+        return;
+      }
+
+      final profileService = ProfileService();
+      final result = await profileService.getProfile(accessToken: accessToken);
+
+      switch (result) {
+        case Ok<ProfileData>(:final value):
+          final userStorage = await UserStorageService.getInstance();
+          await userStorage.saveUserInfo(
+            fullName: value.fullName,
+            phone: value.phoneNumber,
+            email: value.email,
+          );
+          _setContactInfo(value.fullName, value.phoneNumber);
+        case Error<ProfileData>():
+          _loadFromLocalStorage();
+      }
+    } catch (_) {
+      _loadFromLocalStorage();
+    }
+  }
+
+  void _loadFromLocalStorage() {
+    UserStorageService.getInstance().then((userStorage) {
+      _setContactInfo(userStorage.fullName, userStorage.phone);
     });
-    setState(() {});
   }
 
-  void _increaseAdults() {
-    setState(() => _adults++);
-    _updateGuests();
+  void _setContactInfo(String? fullName, String? phone) {
+    if (!mounted) return;
+    setState(() {
+      if (_contactNameController.text.trim().isEmpty) {
+        _contactNameController.text = fullName ?? '';
+      }
+      if (_contactPhoneController.text.trim().isEmpty) {
+        _contactPhoneController.text = phone ?? '';
+      }
+    });
   }
 
-  void _decreaseAdults() {
-    if (_adults > 1) {
-      setState(() => _adults--);
-      _updateGuests();
+  DateTime? _parseRouteDate(Object? value) {
+    if (value is DateTime) return value;
+    if (value is String && value.isNotEmpty) return DateTime.tryParse(value);
+    return null;
+  }
+
+  void _clampGuestCounts() {
+    if (_adultCount > _maxAdults) _adultCount = _maxAdults;
+    if (_adultCount < 1) _adultCount = 1;
+    if (_childCount > _maxChildren) _childCount = _maxChildren;
+    if (_childCount < 0) _childCount = 0;
+  }
+
+  void _syncMemberControllers() {
+    final total = _totalGuests;
+    while (_nameControllers.length < total) {
+      _nameControllers.add(TextEditingController());
+      _identityControllers.add(TextEditingController());
+      _dobControllers.add(TextEditingController());
+    }
+    while (_nameControllers.length > total) {
+      _nameControllers.removeLast().dispose();
+      _identityControllers.removeLast().dispose();
+      _dobControllers.removeLast().dispose();
     }
   }
 
-  void _increaseChildren() {
-    setState(() => _children++);
-    _updateGuests();
+  void _setAdultCount(int count) {
+    if (count < 1 || count > _maxAdults) return;
+    setState(() {
+      _adultCount = count;
+      _syncMemberControllers();
+    });
   }
 
-  void _decreaseChildren() {
-    if (_children > 0) {
-      setState(() => _children--);
-      _updateGuests();
+  void _setChildCount(int count) {
+    if (count < 0 || count > _maxChildren) return;
+    setState(() {
+      _childCount = count;
+      _syncMemberControllers();
+    });
+  }
+
+  Future<void> _selectCheckInDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _checkInDate.isBefore(today) ? today : _checkInDate,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+      helpText: 'Chọn ngày nhận phòng',
+      cancelText: 'Hủy',
+      confirmText: 'Xác nhận',
+      builder: _datePickerThemeBuilder,
+    );
+
+    if (picked == null) return;
+    setState(() {
+      _checkInDate = picked;
+      if (!_checkOutDate.isAfter(_checkInDate)) {
+        _checkOutDate = _checkInDate.add(const Duration(days: 1));
+      }
+    });
+  }
+
+  Future<void> _selectCheckOutDate() async {
+    final firstDate = _checkInDate.add(const Duration(days: 1));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _checkOutDate.isBefore(firstDate)
+          ? firstDate
+          : _checkOutDate,
+      firstDate: firstDate,
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      helpText: 'Chọn ngày trả phòng',
+      cancelText: 'Hủy',
+      confirmText: 'Xác nhận',
+      builder: _datePickerThemeBuilder,
+    );
+
+    if (picked == null) return;
+    setState(() => _checkOutDate = picked);
+  }
+
+  Widget _datePickerThemeBuilder(BuildContext context, Widget? child) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.primary,
+          onPrimary: Colors.white,
+          surface: Colors.white,
+          onSurface: Color(0xFF131B2E),
+        ),
+      ),
+      child: child!,
+    );
+  }
+
+  void _submitBooking() {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedRooms.isEmpty) {
+      _showError('Vui lòng chọn phòng trước khi đặt');
+      return;
     }
+
+    final members = <Map<String, dynamic>>[];
+    for (var i = 0; i < _totalGuests; i++) {
+      final dob = _tryParseDob(_dobControllers[i].text.trim());
+      if (dob == null) {
+        _showError('Ngày sinh khách ${i + 1} không hợp lệ');
+        return;
+      }
+
+      members.add({
+        'fullName': _nameControllers[i].text.trim(),
+        'identityNumber': _identityControllers[i].text.trim(),
+        'dateOfBirth': _toIsoDate(dob),
+        'memberType': i < _adultCount ? 'ADULT' : 'CHILD',
+      });
+    }
+
+    context.push(
+      Routes.hotelBookingReview,
+      extra: {
+        'rooms': _selectedRooms
+            .map((room) => {'roomTypeId': room.id, 'quantity': 1})
+            .toList(),
+        'startDate': _toIsoDate(_checkInDate),
+        'endDate': _toIsoDate(_checkOutDate),
+        'members': members,
+        'contactName': _contactNameController.text.trim(),
+        'contactPhone': _contactPhoneController.text.trim(),
+        'specialRequests': _specialRequestsController.text.trim(),
+        'pricePerNight': _pricePerNight,
+        'totalPrice': _totalPrice,
+        'nights': _nights,
+      },
+    );
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+    );
+  }
+
+  String _toIsoDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   String _formatPrice(double price) {
@@ -104,288 +424,266 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 
-  double get _totalPrice => 4500000;
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  }
-
-  void _submitBooking() {
-    if (!_formKey.currentState!.validate()) return;
-
-    if (_nameController.text.trim().isEmpty) {
-      _showError('Vui lòng nhập tên liên hệ');
-      return;
-    }
-    if (_phoneController.text.trim().isEmpty) {
-      _showError('Vui lòng nhập số điện thoại');
-      return;
-    }
-    if (!_agreedToTerms) {
-      _showError('Vui lòng đồng ý với điều khoản');
-      return;
-    }
-
-    for (int i = 0; i < _guestControllers.length; i++) {
-      final guest = _guestControllers[i];
-      final name = (guest['name'] as TextEditingController).text.trim();
-      final idNumber = (guest['idNumber'] as TextEditingController).text.trim();
-
-      if (name.isEmpty) {
-        _showError('Vui lòng nhập họ tên khách ${i + 1}');
-        return;
-      }
-      if (idNumber.isEmpty) {
-        _showError('Vui lòng nhập CCCD/Hộ chiếu khách ${i + 1}');
-        return;
-      }
-    }
-
-    context.push(Routes.hotelBookingReview);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
-      appBar: const HotelAppBar(title: 'Thông tin đặt phòng'),
+      backgroundColor: const Color(0xFFFAFAFF),
+      appBar: const UserAppBar(title: 'Thông tin đặt phòng'),
       body: Form(
         key: _formKey,
-        child: Column(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
           children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  _buildGuestCountSection(),
-                  const SizedBox(height: 16),
-                  _buildContactSection(),
-                  const SizedBox(height: 16),
-                  _buildGuestSection(),
-                  const SizedBox(height: 16),
-                  _buildTermsSection(),
-                ],
-              ),
-            ),
-            _buildBottomBar(),
+            _buildDateSection(),
+            const SizedBox(height: 24),
+            _buildRoomSection(),
+            const SizedBox(height: 24),
+            _buildGuestCountSection(),
+            const SizedBox(height: 24),
+            _buildMemberSection(),
+            const SizedBox(height: 24),
+            _buildContactSection(),
+            const SizedBox(height: 24),
+            _buildSpecialRequestsSection(),
+            const SizedBox(height: 120),
           ],
         ),
       ),
+      bottomNavigationBar: _buildBottomBar(),
+    );
+  }
+
+  Widget _buildDateSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Thời gian lưu trú'),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: _cardDecoration(),
+          child: Row(
+            children: [
+              Expanded(
+                child: _DateSelectField(
+                  label: 'Nhận phòng',
+                  value: _formatDate(_checkInDate),
+                  onTap: _selectCheckInDate,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DateSelectField(
+                  label: 'Trả phòng',
+                  value: _formatDate(_checkOutDate),
+                  onTap: _selectCheckOutDate,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRoomSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Phòng đã chọn'),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: _cardDecoration(),
+          child: _selectedRooms.isEmpty
+              ? const Text(
+                  'Chưa có phòng được chọn',
+                  style: TextStyle(color: Color(0xFF717786)),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_hotel != null) ...[
+                      Text(
+                        _hotel!.name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF131B2E),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    ...List.generate(_selectedRooms.length, (index) {
+                      final room = _selectedRooms[index];
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == _selectedRooms.length - 1 ? 0 : 10,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                room.name,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF131B2E),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              _formatPrice(room.pricePerNight),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    const Divider(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$_nights đêm',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF414755),
+                          ),
+                        ),
+                        Text(
+                          _formatPrice(_totalPrice),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+        ),
+      ],
     );
   }
 
   Widget _buildGuestCountSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Số lượng khách',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Số lượng khách'),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: _cardDecoration(),
+          child: Column(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.person,
-                  color: Color(0xFF007AFF),
-                  size: 24,
-                ),
+              _CounterRow(
+                label: 'Người lớn',
+                subtitle: 'Từ 12 tuổi trở lên',
+                count: _adultCount,
+                onDecrease: _adultCount > 1
+                    ? () => _setAdultCount(_adultCount - 1)
+                    : null,
+                onIncrease: _adultCount < _maxAdults
+                    ? () => _setAdultCount(_adultCount + 1)
+                    : null,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Người lớn',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const Text(
-                      'Từ 12 tuổi trở lên',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                    ),
-                  ],
-                ),
-              ),
-              _buildCounterButtons(_adults, _decreaseAdults, _increaseAdults),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.child_care,
-                  color: Color(0xFFD97706),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Trẻ em',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const Text(
-                      'Từ 11 tuổi trở xuống',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                    ),
-                  ],
-                ),
-              ),
-              _buildCounterButtons(
-                _children,
-                _decreaseChildren,
-                _increaseChildren,
+              const Divider(height: 24),
+              _CounterRow(
+                label: 'Trẻ em',
+                subtitle: 'Từ 11 tuổi trở xuống',
+                count: _childCount,
+                onDecrease: _childCount > 0
+                    ? () => _setChildCount(_childCount - 1)
+                    : null,
+                onIncrease: _childCount < _maxChildren
+                    ? () => _setChildCount(_childCount + 1)
+                    : null,
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildCounterButtons(
-    int count,
-    VoidCallback onDecrease,
-    VoidCallback onIncrease,
-  ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.remove, size: 20),
-            onPressed: count > 0 ? onDecrease : null,
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            color: count > 0 ? const Color(0xFF007AFF) : Colors.grey,
-          ),
-          Container(
-            constraints: const BoxConstraints(minWidth: 32),
-            child: Text(
-              '$count',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  Widget _buildMemberSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Danh sách khách'),
+        const SizedBox(height: 12),
+        ...List.generate(_totalGuests, (index) {
+          final isAdult = index < _adultCount;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _MemberCard(
+              index: index,
+              isAdult: isAdult,
+              nameController: _nameControllers[index],
+              identityController: _identityControllers[index],
+              dobController: _dobControllers[index],
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add, size: 20),
-            onPressed: onIncrease,
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            color: const Color(0xFF007AFF),
-          ),
-        ],
-      ),
+          );
+        }),
+      ],
     );
   }
 
   Widget _buildContactSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Thông tin liên hệ',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          _buildTextField(
-            controller: _nameController,
-            label: 'Họ và tên',
-            hint: 'VD: Nguyễn Văn A',
-            icon: Icons.person_outline,
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: _phoneController,
-            label: 'Số điện thoại',
-            hint: 'VD: 0912345678',
-            icon: Icons.phone_outlined,
-            keyboardType: TextInputType.phone,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
+        const SectionTitle(title: 'Thông tin liên hệ'),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: _cardDecoration(),
+          child: Column(
+            children: [
+              _InputField(
+                label: 'Họ và tên *',
+                controller: _contactNameController,
+                hint: 'VD: Nguyễn Văn A',
+                validator: _nameValidator(),
+              ),
+              const SizedBox(height: 12),
+              _InputField(
+                label: 'Số điện thoại *',
+                controller: _contactPhoneController,
+                hint: 'VD: 0901234567',
+                keyboardType: TextInputType.phone,
+                validator: _phoneValidator(),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(icon, size: 20, color: const Color(0xFF9CA3AF)),
-            filled: true,
-            fillColor: const Color(0xFFF8FAFF),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+      ],
+    );
+  }
+
+  Widget _buildSpecialRequestsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Ghi chú đặc biệt'),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: _cardDecoration(),
+          child: TextField(
+            controller: _specialRequestsController,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              hintText: 'VD: Yêu cầu phòng tầng cao, nhận phòng muộn...',
+              hintStyle: TextStyle(color: Color(0xFF717786)),
+              border: InputBorder.none,
             ),
           ),
         ),
@@ -393,129 +691,12 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
     );
   }
 
-  Widget _buildGuestSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Danh sách khách',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '$_totalGuests khách',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF007AFF),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...List.generate(_guestControllers.length, (index) {
-            return _GuestCard(
-              index: index,
-              controllers: _guestControllers[index],
-              onRemove: _totalGuests > 1 ? () => _removeGuest(index) : null,
-              onDobChanged: (dob, isAdult) {
-                setState(() {
-                  _guestControllers[index]['dob'] = dob;
-                  _guestControllers[index]['isAdult'] = isAdult;
-                });
-              },
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  void _removeGuest(int index) {
-    if (_totalGuests <= 1) return;
-
-    final guest = _guestControllers[index];
-    guest['name']?.dispose();
-    guest['idNumber']?.dispose();
-
-    setState(() {
-      _guestControllers.removeAt(index);
-      if (index < _adults) {
-        _adults--;
-      } else {
-        _children--;
-      }
-    });
-  }
-
-  Widget _buildTermsSection() {
-    return GestureDetector(
-      onTap: () => setState(() => _agreedToTerms = !_agreedToTerms),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Checkbox(
-            value: _agreedToTerms,
-            onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
-            activeColor: const Color(0xFF007AFF),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: RichText(
-                text: const TextSpan(
-                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                  children: [
-                    TextSpan(text: 'Tôi đồng ý với '),
-                    TextSpan(
-                      text: 'Điều khoản & Chính sách',
-                      style: TextStyle(
-                        color: Color(0xFF007AFF),
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                    TextSpan(text: ' của Travery và khách sạn.'),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBottomBar() {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        16,
         12,
-        16,
+        12,
+        12,
         MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
@@ -523,48 +704,62 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            blurRadius: 20,
             offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Tổng cộng',
-                style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-              ),
-              Text(
-                _formatPrice(_totalPrice),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF007AFF),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Tổng cộng ($_totalGuests khách)',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF414755),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  _formatPrice(_totalPrice),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
+          const SizedBox(width: 16),
+          Expanded(
             child: ElevatedButton(
-              onPressed: _submitBooking,
+              onPressed: _selectedRooms.isEmpty ? null : _submitBooking,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF007AFF),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                disabledBackgroundColor: const Color(0xFFC1C6D7),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Tiếp tục thanh toán',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Tiếp tục',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(width: 6),
+                  Icon(Icons.arrow_forward, size: 18),
+                ],
               ),
             ),
           ),
@@ -572,80 +767,208 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
       ),
     );
   }
+
+  BoxDecoration _cardDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.04),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
 }
 
-class _GuestCard extends StatelessWidget {
-  const _GuestCard({
+class _DateSelectField extends StatelessWidget {
+  const _DateSelectField({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF414755),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F3FF),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF131B2E),
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.calendar_month,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CounterRow extends StatelessWidget {
+  const _CounterRow({
+    required this.label,
+    required this.subtitle,
+    required this.count,
+    required this.onDecrease,
+    required this.onIncrease,
+  });
+
+  final String label;
+  final String subtitle;
+  final int count;
+  final VoidCallback? onDecrease;
+  final VoidCallback? onIncrease;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF131B2E),
+                ),
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF414755)),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF2F3FF),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: const Color(0xFFC1C6D7)),
+          ),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: onDecrease,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: onDecrease == null ? Colors.grey[200] : Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.remove,
+                    size: 18,
+                    color: onDecrease == null ? Colors.grey : AppColors.primary,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 40,
+                child: Center(
+                  child: Text(
+                    count.toString().padLeft(2, '0'),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF131B2E),
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: onIncrease,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: onIncrease == null
+                        ? const Color(0xFFC1C6D7)
+                        : AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, size: 18, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MemberCard extends StatelessWidget {
+  const _MemberCard({
     required this.index,
-    required this.controllers,
-    required this.onRemove,
-    required this.onDobChanged,
+    required this.isAdult,
+    required this.nameController,
+    required this.identityController,
+    required this.dobController,
   });
 
   final int index;
-  final Map<String, dynamic> controllers;
-  final VoidCallback? onRemove;
-  final Function(DateTime dob, bool isAdult) onDobChanged;
-
-  DateTime get _dob => controllers['dob'] as DateTime;
-  bool get _isAdult => controllers['isAdult'] as bool;
-  TextEditingController get _nameController =>
-      controllers['name'] as TextEditingController;
-  TextEditingController get _idController =>
-      controllers['idNumber'] as TextEditingController;
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-  }
-
-  int _calculateAge(DateTime dob) {
-    final now = DateTime.now();
-    int age = now.year - dob.year;
-    if (now.month < dob.month ||
-        (now.month == dob.month && now.day < dob.day)) {
-      age--;
-    }
-    return age;
-  }
-
-  Future<void> _selectDob(BuildContext context) async {
-    final now = DateTime.now();
-    DateTime firstDate;
-    DateTime lastDate;
-
-    if (_isAdult) {
-      lastDate = now.subtract(const Duration(days: 12 * 365));
-      firstDate = now.subtract(const Duration(days: 100 * 365));
-    } else {
-      lastDate = now.subtract(const Duration(days: 1));
-      firstDate = now.subtract(const Duration(days: 11 * 365));
-    }
-
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _dob,
-      firstDate: firstDate,
-      lastDate: lastDate,
-    );
-
-    if (picked != null) {
-      final age = _calculateAge(picked);
-      final isAdult = age >= 12;
-      onDobChanged(picked, isAdult);
-    }
-  }
+  final bool isAdult;
+  final TextEditingController nameController;
+  final TextEditingController identityController;
+  final TextEditingController dobController;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: index < 999 ? 12 : 0),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -654,149 +977,249 @@ class _GuestCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
-                  color: _isAdult
-                      ? const Color(0xFFDBEAFE)
-                      : const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _isAdult ? Icons.person : Icons.child_care,
-                      size: 14,
-                      color: _isAdult
-                          ? const Color(0xFF2563EB)
-                          : const Color(0xFFD97706),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _isAdult ? 'Người lớn' : 'Trẻ em',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: _isAdult
-                            ? const Color(0xFF2563EB)
-                            : const Color(0xFFD97706),
-                      ),
-                    ),
-                  ],
+                child: Icon(
+                  isAdult ? Icons.person : Icons.child_care,
+                  size: 18,
+                  color: AppColors.primary,
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                '$index tuổi',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
-              ),
-              const Spacer(),
-              if (onRemove != null)
-                GestureDetector(
-                  onTap: onRemove,
-                  child: const Icon(
-                    Icons.delete_outline,
-                    size: 20,
-                    color: Colors.red,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Khách ${index + 1}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF131B2E),
                   ),
                 ),
+              ),
+              Text(
+                isAdult ? 'Người lớn' : 'Trẻ em',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
             ],
+          ),
+          const SizedBox(height: 16),
+          _InputField(
+            label: 'Họ và tên *',
+            controller: nameController,
+            hint: 'VD: Nguyễn Văn A',
+            validator: _nameValidator(),
           ),
           const SizedBox(height: 12),
-          _buildField(
-            controller: _nameController,
-            label: 'Họ và tên',
-            hint: 'VD: NGUYEN VAN A',
+          _InputField(
+            label: 'Số CCCD *',
+            controller: identityController,
+            hint: 'VD: 012345678901',
+            keyboardType: TextInputType.number,
+            validator: _identityValidator(),
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _buildField(
-                  controller: _idController,
-                  label: 'Số CCCD/Hộ chiếu',
-                  hint: '012345678',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _selectDob(context),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Ngày sinh',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFF),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          _formatDate(_dob),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF1F2937),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          const SizedBox(height: 12),
+          _DatePickerFormField(
+            label: 'Ngày sinh *',
+            controller: dobController,
+            validator: _dobValidator(isAdult),
+            isAdult: isAdult,
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-  }) {
+class _InputField extends StatelessWidget {
+  const _InputField({
+    required this.label,
+    required this.controller,
+    required this.hint,
+    this.validator,
+    this.keyboardType,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String hint;
+  final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          label.toUpperCase(),
           style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF414755),
+            letterSpacing: 0.5,
           ),
         ),
         const SizedBox(height: 6),
-        TextField(
+        TextFormField(
           controller: controller,
+          keyboardType: keyboardType,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+            hintStyle: const TextStyle(color: Color(0xFF717786)),
             filled: true,
-            fillColor: const Color(0xFFF8FAFF),
+            fillColor: const Color(0xFFF2F3FF),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.primary),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
             ),
           ),
         ),
       ],
     );
   }
+}
+
+class _DatePickerFormField extends FormField<String> {
+  _DatePickerFormField({
+    required String label,
+    required TextEditingController controller,
+    super.validator,
+    bool isAdult = true,
+  }) : super(
+         initialValue: controller.text,
+         builder: (FormFieldState<String> state) {
+           return Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Text(
+                 label.toUpperCase(),
+                 style: const TextStyle(
+                   fontSize: 11,
+                   fontWeight: FontWeight.w700,
+                   color: Color(0xFF414755),
+                   letterSpacing: 0.5,
+                 ),
+               ),
+               const SizedBox(height: 6),
+               GestureDetector(
+                 onTap: () async {
+                   final now = DateTime.now();
+                   final initial = _tryParseDob(controller.text);
+                   final firstDate = isAdult
+                       ? DateTime(1900)
+                       : DateTime(
+                           now.year - 11,
+                           now.month,
+                           now.day,
+                         ).add(const Duration(days: 1));
+                   final lastDate = isAdult
+                       ? DateTime(now.year - 12, now.month, now.day)
+                       : now;
+                   final fallbackDate = isAdult
+                       ? DateTime(now.year - 30, now.month, now.day)
+                       : DateTime(now.year - 5, now.month, now.day);
+
+                   final picked = await showDatePicker(
+                     context: state.context,
+                     initialDate: initial ?? fallbackDate,
+                     firstDate: firstDate,
+                     lastDate: lastDate,
+                     helpText: 'Chọn ngày sinh',
+                     cancelText: 'Hủy',
+                     confirmText: 'Xác nhận',
+                     builder: (context, child) {
+                       return Theme(
+                         data: Theme.of(context).copyWith(
+                           colorScheme: const ColorScheme.light(
+                             primary: AppColors.primary,
+                             onPrimary: Colors.white,
+                             surface: Colors.white,
+                             onSurface: Color(0xFF131B2E),
+                           ),
+                         ),
+                         child: child!,
+                       );
+                     },
+                   );
+
+                   if (picked != null) {
+                     final formatted =
+                         '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
+                     controller.text = formatted;
+                     state.didChange(formatted);
+                   }
+                 },
+                 child: Container(
+                   width: double.infinity,
+                   padding: const EdgeInsets.symmetric(
+                     horizontal: 16,
+                     vertical: 14,
+                   ),
+                   decoration: BoxDecoration(
+                     color: const Color(0xFFF2F3FF),
+                     borderRadius: BorderRadius.circular(12),
+                     border: state.hasError
+                         ? Border.all(color: Colors.red, width: 1)
+                         : null,
+                   ),
+                   child: Row(
+                     children: [
+                       Expanded(
+                         child: Text(
+                           controller.text.isNotEmpty
+                               ? controller.text
+                               : 'Chọn ngày sinh',
+                           style: TextStyle(
+                             fontSize: 15,
+                             color: controller.text.isNotEmpty
+                                 ? const Color(0xFF131B2E)
+                                 : const Color(0xFF717786),
+                           ),
+                         ),
+                       ),
+                       const Icon(
+                         Icons.calendar_month,
+                         size: 20,
+                         color: AppColors.primary,
+                       ),
+                     ],
+                   ),
+                 ),
+               ),
+               if (state.hasError) ...[
+                 const SizedBox(height: 4),
+                 Text(
+                   state.errorText ?? '',
+                   style: const TextStyle(fontSize: 11, color: Colors.red),
+                 ),
+               ],
+             ],
+           );
+         },
+       );
 }

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_list_data.dart';
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 
@@ -13,18 +16,36 @@ class HotelHomeViewModel extends ChangeNotifier {
   List<HotelListData> _hotels = [];
   List<HotelListData> get hotels => _hotels;
 
+  List<HotelAmenityData> _amenities = [];
+  List<HotelAmenityData> get amenities => _amenities;
+
+  List<HotelAmenityData> get hotelAmenities => _amenities
+      .where(
+        (amenity) => amenity.type == null || amenity.type == 'HOTEL_AMENITY',
+      )
+      .toList();
+
+  List<HotelAmenityData> get roomAmenities =>
+      _amenities.where((amenity) => amenity.type == 'ROOM_AMENITY').toList();
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+  bool get isInitialLoading => _isLoading && _hotels.isEmpty;
+  bool get isLoadingMore => _isLoading && _hotels.isNotEmpty;
+
+  bool _isLoadingAmenities = false;
+  bool get isLoadingAmenities => _isLoadingAmenities;
 
   String? _error;
   String? get error => _error;
 
-  // Pagination
+  String? _amenitiesError;
+  String? get amenitiesError => _amenitiesError;
+
   int _currentPage = 0;
   bool _hasMore = true;
   bool get hasMore => _hasMore;
 
-  // Search filters
   String? _keyword;
   String? _cityProvince;
   DateTime? _startDate;
@@ -36,12 +57,39 @@ class HotelHomeViewModel extends ChangeNotifier {
   double? _minPrice;
   double? _maxPrice;
   List<String>? _amenityIds;
+  List<String>? get selectedAmenityIds => _amenityIds;
+  String? get keyword => _keyword;
+  String? get cityProvince => _cityProvince;
+  DateTime? get startDate => _startDate;
+  DateTime? get endDate => _endDate;
+  int? get adults => _adults;
+  int? get children => _children;
+  int? get roomCount => _roomCount;
+  int? get minRating => _minRating;
+  double? get minPrice => _minPrice;
+  double? get maxPrice => _maxPrice;
+
+  int get activeFilterCount {
+    var count = 0;
+    if ((_cityProvince ?? '').trim().isNotEmpty) count++;
+    if (_startDate != null || _endDate != null) count++;
+    if ((_adults ?? 0) > 0 || (_children ?? 0) > 0 || (_roomCount ?? 0) > 0) {
+      count++;
+    }
+    if (_minRating != null) count++;
+    if (_minPrice != null || _maxPrice != null) count++;
+    if ((_amenityIds ?? const []).isNotEmpty) count++;
+    return count;
+  }
 
   bool _disposed = false;
+  Timer? _searchDebounce;
+  int _requestSerial = 0;
 
   @override
   void dispose() {
     _disposed = true;
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -51,8 +99,8 @@ class HotelHomeViewModel extends ChangeNotifier {
     }
   }
 
-  void loadHotels({bool refresh = false}) {
-    if (_isLoading) return;
+  Future<void> loadHotels({bool refresh = false}) async {
+    if (_isLoading && !refresh) return;
 
     if (refresh) {
       _currentPage = 0;
@@ -60,14 +108,42 @@ class HotelHomeViewModel extends ChangeNotifier {
       _hasMore = true;
     }
 
+    final requestPage = _currentPage;
+    final requestId = ++_requestSerial;
+
     _isLoading = true;
     _error = null;
     _notifyIfNotDisposed();
 
-    _performSearch();
+    await _performSearch(requestId: requestId, page: requestPage);
   }
 
-  Future<void> _performSearch() async {
+  Future<void> loadAmenities() async {
+    if (_isLoadingAmenities || _amenities.isNotEmpty) return;
+
+    _isLoadingAmenities = true;
+    _amenitiesError = null;
+    _notifyIfNotDisposed();
+
+    final result = await _hotelService.getAmenities();
+
+    if (_disposed) return;
+
+    switch (result) {
+      case Ok(value: final amenities):
+        _amenities = amenities;
+        _isLoadingAmenities = false;
+      case Error(error: final error):
+        _amenitiesError = error.toString();
+        _isLoadingAmenities = false;
+    }
+    _notifyIfNotDisposed();
+  }
+
+  Future<void> _performSearch({
+    required int requestId,
+    required int page,
+  }) async {
     final result = await _hotelService.searchHotels(
       keyword: _keyword,
       cityProvince: _cityProvince,
@@ -80,17 +156,19 @@ class HotelHomeViewModel extends ChangeNotifier {
       minPrice: _minPrice,
       maxPrice: _maxPrice,
       amenityIds: _amenityIds,
-      page: _currentPage,
-      size: 20,
+      page: page,
+      size: 10,
     );
 
-    if (_disposed) return;
+    if (_disposed || requestId != _requestSerial) return;
 
     switch (result) {
       case Ok(value: final searchResult):
-        _hotels = [..._hotels, ...searchResult.hotels];
+        _hotels = page == 0
+            ? searchResult.hotels
+            : [..._hotels, ...searchResult.hotels];
         _hasMore = searchResult.hasMore;
-        _currentPage++;
+        _currentPage = searchResult.currentPage + 1;
         _isLoading = false;
       case Error(error: final error):
         _error = error.toString();
@@ -101,16 +179,24 @@ class HotelHomeViewModel extends ChangeNotifier {
 
   void loadMore() {
     if (!_isLoading && _hasMore) {
-      loadHotels();
+      unawaited(loadHotels());
     }
   }
 
   void setKeyword(String? keyword) {
-    _keyword = keyword;
+    _keyword = _normalizeText(keyword);
+  }
+
+  void searchByKeywordDebounced(String? keyword) {
+    _keyword = _normalizeText(keyword);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+      unawaited(loadHotels(refresh: true));
+    });
   }
 
   void setCityProvince(String? cityProvince) {
-    _cityProvince = cityProvince;
+    _cityProvince = _normalizeText(cityProvince);
   }
 
   void setDates(DateTime? start, DateTime? end) {
@@ -134,7 +220,7 @@ class HotelHomeViewModel extends ChangeNotifier {
   }
 
   void setAmenities(List<String>? amenityIds) {
-    _amenityIds = amenityIds;
+    _amenityIds = _normalizeIds(amenityIds);
   }
 
   void applyFilters({
@@ -150,8 +236,9 @@ class HotelHomeViewModel extends ChangeNotifier {
     double? maxPrice,
     List<String>? amenityIds,
   }) {
-    _keyword = keyword;
-    _cityProvince = cityProvince;
+    _searchDebounce?.cancel();
+    _keyword = _normalizeText(keyword);
+    _cityProvince = _normalizeText(cityProvince);
     _startDate = startDate;
     _endDate = endDate;
     _adults = adults;
@@ -160,12 +247,12 @@ class HotelHomeViewModel extends ChangeNotifier {
     _minRating = minRating;
     _minPrice = minPrice;
     _maxPrice = maxPrice;
-    _amenityIds = amenityIds;
-    loadHotels(refresh: true);
+    _amenityIds = _normalizeIds(amenityIds);
+    unawaited(loadHotels(refresh: true));
   }
 
   void clearFilters() {
-    _keyword = null;
+    _searchDebounce?.cancel();
     _cityProvince = null;
     _startDate = null;
     _endDate = null;
@@ -176,6 +263,26 @@ class HotelHomeViewModel extends ChangeNotifier {
     _minPrice = null;
     _maxPrice = null;
     _amenityIds = null;
-    loadHotels(refresh: true);
+    unawaited(loadHotels(refresh: true));
+  }
+
+  void clearAll() {
+    _searchDebounce?.cancel();
+    _keyword = null;
+    clearFilters();
+  }
+
+  String? _normalizeText(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+
+  List<String>? _normalizeIds(List<String>? values) {
+    final ids = values
+        ?.map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toSet()
+        .toList();
+    return ids == null || ids.isEmpty ? null : ids;
   }
 }

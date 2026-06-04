@@ -38,19 +38,16 @@ class ProfileViewModel extends ChangeNotifier {
   bool _isSuccess = false;
   bool _isUpdateSuccess = false;
 
-  // Form fields for edit profile
   String? _fullName;
   String? _phoneNumber;
   String? _passportNumber;
   String? _dateOfBirth;
   String? _gender;
 
-  // Password fields
   String? _currentPassword;
   String? _newPassword;
   String? _confirmPassword;
 
-  // Getters
   ProfileData? get profile => _profile;
   bool get isLoading =>
       loadProfile.running || updateProfile.running || updateAvatar.running;
@@ -63,7 +60,6 @@ class ProfileViewModel extends ChangeNotifier {
   String? get dateOfBirth => _dateOfBirth;
   String? get gender => _gender;
 
-  // Setters
   void setFullName(String? value) => _fullName = value;
   void setPhoneNumber(String? value) => _phoneNumber = value;
   void setPassportNumber(String? value) => _passportNumber = value;
@@ -312,7 +308,6 @@ class ProfileViewModel extends ChangeNotifier {
           _isSuccess = true;
           return const Result.ok(null);
         case Error<void>():
-          // Even on error, we want to clear tokens locally
           await _securityStorageService.deleteAllTokens();
           _isSuccess = true;
           return const Result.ok(null);

@@ -474,7 +474,7 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
     final navigator = GoRouter.of(context);
     final success = await vm.submitCancellation(widget.bookingId);
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (success) {
       final cancelData = vm.cancelData;
@@ -487,7 +487,7 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
           'refundPercentage': cancelData?.refundPercentage ?? 0,
         },
       );
-    } else if (vm.error != null && mounted) {
+    } else if (vm.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(

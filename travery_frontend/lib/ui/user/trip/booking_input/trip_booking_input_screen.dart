@@ -66,18 +66,7 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
-      appBar: UserAppBar(
-        title: 'Điền thông tin',
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: Color(0xFF131B2E),
-            ),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      appBar: const UserAppBar(title: 'Điền thông tin'),
       body: Consumer<TripBookingInputViewModel>(
         builder: (context, vm, _) {
           return Form(
@@ -155,7 +144,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
     );
   }
 
-  // ─── THÔNG TIN CHUYẾN ĐI ───────────────────────────────────────────────
   Widget _buildTripInfo(TripBookingInputViewModel vm) {
     final trip = vm.trip;
     if (trip == null) return const SizedBox.shrink();
@@ -182,7 +170,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section label
           const Text(
             'THÔNG TIN CHUYẾN ĐI',
             style: TextStyle(
@@ -194,7 +181,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Route summary row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -265,18 +251,15 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
 
           const SizedBox(height: 24),
 
-          // Timeline — Boarding / Alighting
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left column: icons stacked with vertical line between them
                 SizedBox(
                   width: 24,
                   child: Stack(
                     alignment: Alignment.topCenter,
                     children: [
-                      // Dashed vertical line (full height of the two nodes)
                       Positioned.fill(
                         child: CustomPaint(
                           painter: _DashedLinePainter(
@@ -287,7 +270,7 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
                           ),
                         ),
                       ),
-                      // First icon (Lên xe)
+
                       Positioned(
                         top: 0,
                         child: Container(
@@ -308,7 +291,7 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
                           ),
                         ),
                       ),
-                      // Second icon (Xuống xe)
+
                       Positioned(
                         bottom: 0,
                         child: Container(
@@ -333,12 +316,11 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Right column: text content
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Boarding point
                       _buildStationNode(
                         icon: null,
                         iconColor: AppColors.success,
@@ -353,7 +335,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
 
                       const SizedBox(height: 12),
 
-                      // Warning
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -386,7 +367,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
 
                       const SizedBox(height: 12),
 
-                      // Alighting point
                       _buildStationNode(
                         icon: null,
                         iconColor: AppColors.error,
@@ -424,7 +404,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Icon is now rendered in the Stack, so no icon here
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,7 +471,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
     );
   }
 
-  // ─── THÔNG TIN KHÁCH HÀNG ───────────────────────────────────────────
   Widget _buildCustomerInfo(TripBookingInputViewModel vm) {
     return Container(
       width: double.infinity,
@@ -546,7 +524,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
     );
   }
 
-  // ─── CHI TIẾT THANH TOÁN ───────────────────────────────────────────
   Widget _buildPaymentDetails(TripBookingInputViewModel vm) {
     final trip = vm.trip;
     if (trip == null) return const SizedBox.shrink();
@@ -716,7 +693,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
   }
 }
 
-// ─── Dashed line painter ────────────────────────────────────────────────────
 class _DashedLinePainter extends CustomPainter {
   _DashedLinePainter({
     required this.color,

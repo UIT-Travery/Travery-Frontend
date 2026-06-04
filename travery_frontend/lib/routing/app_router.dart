@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
@@ -18,6 +17,9 @@ import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_hotel_room_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view_models/recep_view_addon_list_view_model.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/detail/guide_coach_trip_detail_screen.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/list/guide_coach_trip_list_screen.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/passengers/guide_coach_trip_passengers_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
@@ -68,7 +70,6 @@ import 'package:travery_frontend/ui/user/trip/booking_review/view_models/trip_bo
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/ui/user/trip/payment/trip_payment_screen.dart';
 import 'package:travery_frontend/ui/user/trip/payment_result/trip_payment_result_screen.dart';
-import 'package:travery_frontend/ui/user/trip/my_booking/my_trip_booking_screen.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/trip_booking_detail_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel/trip_cancel_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel_success/trip_cancel_success_screen.dart';
@@ -133,6 +134,7 @@ import 'package:travery_frontend/ui/user/hotel/addon_list/hotel_addon_list_scree
 import 'package:travery_frontend/ui/user/hotel/addon_payment/hotel_addon_payment_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/addon_payment_success/hotel_addon_payment_success_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout/hotel_checkout_screen.dart';
+import 'package:travery_frontend/ui/user/hotel/checkout/view_models/hotel_checkout_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout_success/hotel_checkout_success_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart';
@@ -470,6 +472,8 @@ GoRouter appRouter(
             childCount: extra['childCount'] as int,
             pricePerAdult: extra['pricePerAdult'] as double,
             pricePerChild: extra['pricePerChild'] as double,
+            contactName: extra['contactName'] as String? ?? '',
+            contactPhone: extra['contactPhone'] as String? ?? '',
             specialRequests: extra['specialRequests'] as String,
             startDate: extra['startDate'] as String,
             endDate: extra['endDate'] as String,
@@ -637,18 +641,7 @@ GoRouter appRouter(
         ),
       ),
       GoRoute(
-        path: Routes.hotelDetail,
-        builder: (context, state) {
-          return ChangeNotifierProvider(
-            create: (_) => HotelDetailViewModel(
-              hotelService: context.read<HotelService>(),
-            ),
-            child: const HotelDetailScreen(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.hotelRoomList,
+        path: Routes.hotelList,
         builder: (context, state) => const HotelRoomListScreen(),
       ),
       GoRoute(
@@ -670,26 +663,11 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.hotelMyBookings,
         builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => HotelMyBookingViewModel(),
+          create: (_) => HotelMyBookingViewModel(
+            hotelService: context.read<HotelService>(),
+          ),
           child: const HotelMyBookingScreen(),
         ),
-      ),
-      GoRoute(
-        path: Routes.hotelBookingDetail,
-        builder: (context, state) {
-          return ChangeNotifierProvider(
-            create: (_) => HotelBookingDetailViewModel(),
-            child: HotelBookingDetailScreen(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.hotelCancel,
-        builder: (context, state) => const HotelCancelScreen(),
-      ),
-      GoRoute(
-        path: Routes.hotelCancelSuccess,
-        builder: (context, state) => const HotelCancelSuccessScreen(),
       ),
       GoRoute(
         path: Routes.hotelAddonList,
@@ -704,12 +682,65 @@ GoRouter appRouter(
         builder: (context, state) => const HotelAddonPaymentSuccessScreen(),
       ),
       GoRoute(
-        path: Routes.hotelCheckout,
-        builder: (context, state) => const HotelCheckoutScreen(),
-      ),
-      GoRoute(
         path: Routes.hotelCheckoutSuccess,
         builder: (context, state) => const HotelCheckoutSuccessScreen(),
+      ),
+      // Parameterized routes (must be after static routes)
+      GoRoute(
+        path: Routes.hotelDetail,
+        builder: (context, state) {
+          return ChangeNotifierProvider(
+            create: (_) => HotelDetailViewModel(
+              hotelService: context.read<HotelService>(),
+            ),
+            child: const HotelDetailScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.hotelRoomList,
+        builder: (context, state) => const HotelRoomListScreen(),
+      ),
+      GoRoute(
+        path: Routes.hotelBookingDetail,
+        builder: (context, state) {
+          return ChangeNotifierProvider(
+            create: (_) => HotelBookingDetailViewModel(
+              hotelService: context.read<HotelService>(),
+            ),
+            child: const HotelBookingDetailScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.hotelCancel,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => HotelBookingDetailViewModel(
+            hotelService: context.read<HotelService>(),
+          ),
+          child: const HotelCancelScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.hotelCancelSuccess,
+        builder: (context, state) => const HotelCancelSuccessScreen(),
+      ),
+      GoRoute(
+        path: Routes.hotelCheckout,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final bookingId =
+              extra?['bookingId'] as String? ??
+              state.pathParameters['id'] ??
+              '';
+          return ChangeNotifierProvider(
+            create: (_) => HotelCheckoutViewModel(
+              hotelService: context.read<HotelService>(),
+              bookingId: bookingId,
+            ),
+            child: const HotelCheckoutScreen(),
+          );
+        },
       ),
 
       // --- ADMIN ROUTES ---
@@ -1278,6 +1309,24 @@ GoRouter appRouter(
           ),
           child: const UserChangePasswordScreen(),
         ),
+      ),
+      GoRoute(
+        path: Routes.guideCoachTrips,
+        builder: (context, state) => const GuideCoachTripListScreen(),
+      ),
+      GoRoute(
+        path: Routes.guideCoachTripDetail,
+        builder: (context, state) {
+          final tripId = state.pathParameters['id'] ?? '';
+          return GuideCoachTripDetailScreen(tripId: tripId);
+        },
+      ),
+      GoRoute(
+        path: Routes.guideCoachTripPassengers,
+        builder: (context, state) {
+          final tripId = state.pathParameters['id'] ?? '';
+          return GuideCoachTripPassengersScreen(tripId: tripId);
+        },
       ),
       GoRoute(
         path: Routes.missionDetail,

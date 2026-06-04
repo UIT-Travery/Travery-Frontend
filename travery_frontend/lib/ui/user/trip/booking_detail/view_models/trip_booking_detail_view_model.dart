@@ -22,6 +22,18 @@ class TripBookingDetailViewModel extends ChangeNotifier {
   bool _isCancelling = false;
   bool get isCancelling => _isCancelling;
 
+  bool _isSubmittingReview = false;
+  bool get isSubmittingReview => _isSubmittingReview;
+  final Set<String> _reviewedBookingIds = {};
+
+  bool get canCreateReview {
+    final booking = _bookingData;
+    if (booking == null) return false;
+    return booking.status.toUpperCase() == 'CHECKED_OUT' &&
+        !booking.hasReview &&
+        !_reviewedBookingIds.contains(booking.id);
+  }
+
   CancelTripData? _cancelData;
   CancelTripData? get cancelData => _cancelData;
 
@@ -79,5 +91,46 @@ class TripBookingDetailViewModel extends ChangeNotifier {
         notifyListeners();
         return false;
     }
+  }
+
+  Future<String?> createReview({
+    required int rating,
+    required String comment,
+  }) async {
+    final booking = _bookingData;
+    if (booking == null) return 'Không tìm thấy thông tin đặt xe';
+
+    _isSubmittingReview = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await _tripService.createReview(
+      bookingId: booking.id,
+      rating: rating,
+      content: comment,
+    );
+
+    switch (result) {
+      case Ok():
+        _reviewedBookingIds.add(booking.id);
+        await loadBooking(booking.id);
+        _isSubmittingReview = false;
+        notifyListeners();
+        return null;
+      case Error(error: final e):
+        final msg = _cleanError(e);
+        _error = msg;
+        _isSubmittingReview = false;
+        notifyListeners();
+        return msg;
+    }
+  }
+
+  String _cleanError(Object error) {
+    final message = error.toString();
+    if (message.startsWith('HttpException: ')) {
+      return message.substring('HttpException: '.length);
+    }
+    return message;
   }
 }

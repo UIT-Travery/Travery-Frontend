@@ -75,7 +75,6 @@ class TripCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row 1: Departure time → Arrival time
             Row(
               children: [
                 Text(
@@ -138,7 +137,7 @@ class TripCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            // Duration
+
             Align(
               alignment: Alignment.center,
               child: Text(
@@ -147,7 +146,7 @@ class TripCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            // Info badge row
+
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(

@@ -17,6 +17,11 @@ class HotelAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showConfirmDialog = false,
   });
 
+  String get _displayTitle {
+    if (title.length <= 20) return title;
+    return '${title.substring(0, 20)}...';
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -35,11 +40,17 @@ class HotelAppBar extends StatelessWidget implements PreferredSizeWidget {
           }
         },
       ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: AppTextTheme.labelMedium,
-          fontWeight: FontWeight.bold,
+      title: SizedBox(
+        width: double.infinity,
+        child: Text(
+          _displayTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: AppTextTheme.labelMedium,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       centerTitle: true,
@@ -51,9 +62,7 @@ class HotelAppBar extends StatelessWidget implements PreferredSizeWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận hủy'),
-        content: const Text(
-          'Bạn có chắc chắn muốn hủy thanh toán không?',
-        ),
+        content: const Text('Bạn có chắc chắn muốn hủy thanh toán không?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),

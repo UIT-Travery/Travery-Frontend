@@ -272,18 +272,15 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Timeline — Boarding / Alighting
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left column: icons stacked with vertical line between them
                 SizedBox(
                   width: 24,
                   child: Stack(
                     alignment: Alignment.topCenter,
                     children: [
-                      // Dashed vertical line (full height of the two nodes)
                       Positioned.fill(
                         child: CustomPaint(
                           painter: _DashedLinePainter(
@@ -294,7 +291,7 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
                           ),
                         ),
                       ),
-                      // First icon (Lên xe)
+
                       Positioned(
                         top: 0,
                         child: Container(
@@ -315,7 +312,7 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
                           ),
                         ),
                       ),
-                      // Second icon (Xuống xe)
+
                       Positioned(
                         bottom: 0,
                         child: Container(
@@ -340,7 +337,7 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Right column: text content
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,7 +421,6 @@ class _TripCancelScreenState extends State<TripCancelScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Icon is now rendered in the Stack, so no icon here
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

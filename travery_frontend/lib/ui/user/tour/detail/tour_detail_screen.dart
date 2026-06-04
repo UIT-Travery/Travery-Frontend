@@ -9,6 +9,7 @@ import 'package:travery_frontend/ui/user/tour/widgets/tour_image_carousel.dart';
 import 'package:travery_frontend/ui/user/tour/widgets/price_card.dart';
 import 'package:travery_frontend/ui/user/tour/widgets/itinerary_day.dart';
 import 'package:travery_frontend/ui/user/widgets/section_title.dart';
+import 'package:travery_frontend/ui/user/widgets/review_section.dart';
 import 'package:travery_frontend/data/services/api/model/tour/refund_policy_response/refund_policy_response.dart';
 
 class TourDetailScreen extends StatefulWidget {
@@ -27,13 +28,11 @@ class TourDetailScreen extends StatefulWidget {
 
 class _TourDetailScreenState extends State<TourDetailScreen> {
   TourInstance? _selectedInstance;
-  String? _selectedTourId;
 
   @override
   void initState() {
     super.initState();
     _selectedInstance = null;
-    _selectedTourId = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.viewModel.loadTourDetail(widget.tourId);
       widget.viewModel.loadTourInstances(widget.tourId);
@@ -311,7 +310,9 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                         ),
                         const SizedBox(height: 12),
                         _buildRefundPolicy(tour.refundPolicy!),
+                        const SizedBox(height: 24),
                       ],
+                      _buildReviews(tour, vm),
                       const SizedBox(height: 120),
                     ],
                   ),
@@ -392,7 +393,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                               'tourName': vm.tourDetail?.name ?? '',
                               'destinationName':
                                   vm.tourDetail?.destination?.name ?? '',
-                              // 'startLocation': vm.tourDetail?.startLocation ?? '',
+
                               'pricePerAdult':
                                   vm.tourDetail?.pricePerAdult ?? 0,
                               'pricePerChild':
@@ -493,7 +494,6 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
           return GestureDetector(
             onTap: () => setState(() {
               _selectedInstance = instance;
-              _selectedTourId = widget.tourId;
             }),
             child: Container(
               margin: const EdgeInsets.only(bottom: 8),
@@ -644,6 +644,21 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
           }),
         ],
       ),
+    );
+  }
+
+  Widget _buildReviews(TourDetailPageData tour, TourDetailViewModel vm) {
+    return ReviewSection(
+      averageRating: tour.averageRating ?? 0,
+      totalReviews: vm.reviewTotalElements,
+      reviews: vm.reviews,
+      isLoading: vm.isLoadingReviews,
+      hasMore: vm.hasMoreReviews,
+      error: vm.reviewsError,
+      onLoadMore: () async {
+        await vm.loadMoreReviews(widget.tourId);
+        return ReviewListState(reviews: vm.reviews, hasMore: vm.hasMoreReviews);
+      },
     );
   }
 
