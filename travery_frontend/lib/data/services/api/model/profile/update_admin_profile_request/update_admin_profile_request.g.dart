@@ -6,15 +6,15 @@ part of 'update_admin_profile_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UpdateAdminProfileRequestImpl _$$UpdateAdminProfileRequestImplFromJson(
+_UpdateAdminProfileRequest _$UpdateAdminProfileRequestFromJson(
   Map<String, dynamic> json,
-) => _$UpdateAdminProfileRequestImpl(
+) => _UpdateAdminProfileRequest(
   fullName: json['fullName'] as String?,
   phoneNumber: json['phoneNumber'] as String?,
 );
 
-Map<String, dynamic> _$$UpdateAdminProfileRequestImplToJson(
-  _$UpdateAdminProfileRequestImpl instance,
+Map<String, dynamic> _$UpdateAdminProfileRequestToJson(
+  _UpdateAdminProfileRequest instance,
 ) => <String, dynamic>{
   'fullName': instance.fullName,
   'phoneNumber': instance.phoneNumber,

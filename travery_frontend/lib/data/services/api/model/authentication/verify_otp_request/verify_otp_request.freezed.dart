@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$VerifyOtpRequest {
 
- String get email; String get otp;
+ String get email; String get otp; String? get fcmToken;
 /// Create a copy of VerifyOtpRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $VerifyOtpRequestCopyWith<VerifyOtpRequest> get copyWith => _$VerifyOtpRequestCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is VerifyOtpRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.otp, otp) || other.otp == otp));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VerifyOtpRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.otp, otp) || other.otp == otp)&&(identical(other.fcmToken, fcmToken) || other.fcmToken == fcmToken));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,email,otp);
+int get hashCode => Object.hash(runtimeType,email,otp,fcmToken);
 
 @override
 String toString() {
-  return 'VerifyOtpRequest(email: $email, otp: $otp)';
+  return 'VerifyOtpRequest(email: $email, otp: $otp, fcmToken: $fcmToken)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $VerifyOtpRequestCopyWith<$Res>  {
   factory $VerifyOtpRequestCopyWith(VerifyOtpRequest value, $Res Function(VerifyOtpRequest) _then) = _$VerifyOtpRequestCopyWithImpl;
 @useResult
 $Res call({
- String email, String otp
+ String email, String otp, String? fcmToken
 });
 
 
@@ -65,11 +65,12 @@ class _$VerifyOtpRequestCopyWithImpl<$Res>
 
 /// Create a copy of VerifyOtpRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? email = null,Object? otp = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? email = null,Object? otp = null,Object? fcmToken = freezed,}) {
   return _then(_self.copyWith(
 email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,otp: null == otp ? _self.otp : otp // ignore: cast_nullable_to_non_nullable
-as String,
+as String,fcmToken: freezed == fcmToken ? _self.fcmToken : fcmToken // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -154,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String email,  String otp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String email,  String otp,  String? fcmToken)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _VerifyOtpRequest() when $default != null:
-return $default(_that.email,_that.otp);case _:
+return $default(_that.email,_that.otp,_that.fcmToken);case _:
   return orElse();
 
 }
@@ -175,10 +176,10 @@ return $default(_that.email,_that.otp);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String email,  String otp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String email,  String otp,  String? fcmToken)  $default,) {final _that = this;
 switch (_that) {
 case _VerifyOtpRequest():
-return $default(_that.email,_that.otp);case _:
+return $default(_that.email,_that.otp,_that.fcmToken);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +196,10 @@ return $default(_that.email,_that.otp);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String email,  String otp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String email,  String otp,  String? fcmToken)?  $default,) {final _that = this;
 switch (_that) {
 case _VerifyOtpRequest() when $default != null:
-return $default(_that.email,_that.otp);case _:
+return $default(_that.email,_that.otp,_that.fcmToken);case _:
   return null;
 
 }
@@ -210,11 +211,12 @@ return $default(_that.email,_that.otp);case _:
 @JsonSerializable()
 
 class _VerifyOtpRequest implements VerifyOtpRequest {
-  const _VerifyOtpRequest({required this.email, required this.otp});
+  const _VerifyOtpRequest({required this.email, required this.otp, this.fcmToken});
   factory _VerifyOtpRequest.fromJson(Map<String, dynamic> json) => _$VerifyOtpRequestFromJson(json);
 
 @override final  String email;
 @override final  String otp;
+@override final  String? fcmToken;
 
 /// Create a copy of VerifyOtpRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -229,16 +231,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VerifyOtpRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.otp, otp) || other.otp == otp));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VerifyOtpRequest&&(identical(other.email, email) || other.email == email)&&(identical(other.otp, otp) || other.otp == otp)&&(identical(other.fcmToken, fcmToken) || other.fcmToken == fcmToken));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,email,otp);
+int get hashCode => Object.hash(runtimeType,email,otp,fcmToken);
 
 @override
 String toString() {
-  return 'VerifyOtpRequest(email: $email, otp: $otp)';
+  return 'VerifyOtpRequest(email: $email, otp: $otp, fcmToken: $fcmToken)';
 }
 
 
@@ -249,7 +251,7 @@ abstract mixin class _$VerifyOtpRequestCopyWith<$Res> implements $VerifyOtpReque
   factory _$VerifyOtpRequestCopyWith(_VerifyOtpRequest value, $Res Function(_VerifyOtpRequest) _then) = __$VerifyOtpRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String email, String otp
+ String email, String otp, String? fcmToken
 });
 
 
@@ -266,11 +268,12 @@ class __$VerifyOtpRequestCopyWithImpl<$Res>
 
 /// Create a copy of VerifyOtpRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? email = null,Object? otp = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? email = null,Object? otp = null,Object? fcmToken = freezed,}) {
   return _then(_VerifyOtpRequest(
 email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,otp: null == otp ? _self.otp : otp // ignore: cast_nullable_to_non_nullable
-as String,
+as String,fcmToken: freezed == fcmToken ? _self.fcmToken : fcmToken // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

@@ -10,7 +10,12 @@ _VerifyOtpRequest _$VerifyOtpRequestFromJson(Map<String, dynamic> json) =>
     _VerifyOtpRequest(
       email: json['email'] as String,
       otp: json['otp'] as String,
+      fcmToken: json['fcmToken'] as String?,
     );
 
 Map<String, dynamic> _$VerifyOtpRequestToJson(_VerifyOtpRequest instance) =>
-    <String, dynamic>{'email': instance.email, 'otp': instance.otp};
+    <String, dynamic>{
+      'email': instance.email,
+      'otp': instance.otp,
+      'fcmToken': instance.fcmToken,
+    };
