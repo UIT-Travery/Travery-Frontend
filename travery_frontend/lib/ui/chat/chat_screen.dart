@@ -7,6 +7,10 @@ import 'package:travery_frontend/ui/core/widgets/app_bar_widget.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/data/services/chat/chat_service.dart';
+import 'package:travery_frontend/ui/chat/view_models/chat_view_model.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 
 class ChatScreen extends StatefulWidget {
   final String? uid;
@@ -27,34 +31,62 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  late Future<User?> _loginFuture;
+  late Future<(User?, String?)> _initFuture;
 
   @override
   void initState() {
     super.initState();
-    _loginFuture = _checkAndEnsureLogin();
+    _initFuture = _initialize();
+  }
+
+  Future<(User?, String?)> _initialize() async {
+    final storage = context.read<SecurityStorageService>();
+    final user = await _checkAndEnsureLogin();
+    final role = await storage.getUserRole();
+    return (user, role);
   }
 
   Future<User?> _checkAndEnsureLogin() async {
     final storage = context.read<SecurityStorageService>();
     final chatService = context.read<ChatService>();
+    final profileRepository = context.read<ProfileRepository>();
 
-    User? user = await CometChat.getLoggedInUser();
-    if (user != null) return user;
+    // Lấy UID mong muốn từ storage trước
+    String? cometchatUid = await storage.getCometchatUid();
 
-    // If not logged in, try to login using stored UID
-    final cometchatUid = await storage.getCometchatUid();
-
-    if (cometchatUid != null) {
-      try {
-        await chatService.login(cometchatUid);
-        return await CometChat.getLoggedInUser();
-      } catch (e) {
-        debugPrint("ChatScreen: Auto-login failed: $e");
-        throw Exception("Lỗi đăng nhập CometChat: $e");
+    if (cometchatUid == null) {
+      // Fallback: Lấy từ profile nếu thiếu
+      final profileResult = await profileRepository.getMyProfile();
+      if (profileResult is Ok<ProfileData>) {
+        cometchatUid = profileResult.value.id;
+        // Lưu lại để dùng cho lần sau
+        await storage.saveCometchatUid(cometchatUid);
       }
     }
-    throw Exception("Chưa có thông tin cometchat_uid. Vui lòng đăng nhập lại.");
+
+    if (cometchatUid == null) {
+      throw Exception("Chưa có thông tin cometchat_uid. Vui lòng đăng nhập lại.");
+    }
+
+    // Kiểm tra xem đã đăng nhập đúng user chưa
+    User? loggedInUser = await CometChat.getLoggedInUser();
+    if (loggedInUser != null) {
+      if (loggedInUser.uid == cometchatUid) {
+        return loggedInUser;
+      } else {
+        debugPrint("ChatScreen: Đang đăng nhập sai user (${loggedInUser.uid} != $cometchatUid). Đang logout...");
+        await chatService.logout();
+      }
+    }
+
+    // Tiến hành login
+    try {
+      await chatService.login(cometchatUid);
+      return await CometChat.getLoggedInUser();
+    } catch (e) {
+      debugPrint("ChatScreen: Auto-login failed: $e");
+      throw Exception("Lỗi đăng nhập CometChat: $e");
+    }
   }
 
   @override
@@ -63,8 +95,8 @@ class _ChatScreenState extends State<ChatScreen> {
         ? (widget.uid ?? widget.guid ?? 'Trò chuyện') 
         : widget.title;
 
-    return FutureBuilder<User?>(
-      future: _loginFuture,
+    return FutureBuilder<(User?, String?)>(
+      future: _initFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -75,7 +107,10 @@ class _ChatScreenState extends State<ChatScreen> {
           );
         }
 
-        if (snapshot.hasError || snapshot.data == null) {
+        final user = snapshot.data?.$1;
+        final role = snapshot.data?.$2;
+
+        if (snapshot.hasError || user == null) {
           return Scaffold(
             appBar: AppBarWidget(title: displayTitle),
             body: Center(
@@ -100,13 +135,19 @@ class _ChatScreenState extends State<ChatScreen> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _loginFuture = _checkAndEnsureLogin();
+                        _initFuture = _initialize();
                       });
                     },
                     child: const Text('Thử lại'),
                   ),
                   TextButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/');
+                      }
+                    },
                     child: const Text('Quay lại'),
                   ),
                 ],
@@ -165,14 +206,30 @@ class _ChatScreenState extends State<ChatScreen> {
           );
         }
 
+        final bool isCoordinator = role == 'COORDINATOR';
+
         return Scaffold(
           body: Column(
             children: [
-              CometChatMessageHeader(
-                user: widget.uid != null ? User(uid: widget.uid!, name: displayTitle) : null,
-                group: widget.guid != null ? Group(guid: widget.guid!, name: displayTitle, type: GroupTypeConstants.public) : null,
-                hideVideoCallButton: true,
-                hideVoiceCallButton: true,
+              Stack(
+                children: [
+                  CometChatMessageHeader(
+                    user: widget.uid != null ? User(uid: widget.uid!, name: displayTitle) : null,
+                    group: widget.guid != null ? Group(guid: widget.guid!, name: displayTitle, type: GroupTypeConstants.public) : null,
+                    hideVideoCallButton: true,
+                    hideVoiceCallButton: true,
+                  ),
+                  if (isCoordinator && widget.guid != null)
+                    Positioned(
+                      right: 8,
+                      top: MediaQuery.of(context).padding.top + 4,
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () => _showCloseChatDialog(context, widget.guid!),
+                        tooltip: 'Đóng cuộc trò chuyện',
+                      ),
+                    ),
+                ],
               ),
               Expanded(
                 child: CometChatMessageList(
@@ -253,6 +310,50 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showCloseChatDialog(BuildContext context, String guid) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Đóng cuộc trò chuyện?'),
+        content: const Text('Bạn có chắc chắn muốn đóng cuộc trò chuyện này không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final chatVm = context.read<ChatViewModel>();
+              
+              bool success;
+              if (guid.startsWith('consult_')) {
+                success = await chatVm.requestCloseChat(guid);
+              } else {
+                // For tour_instance_guid, we need the instanceId. 
+                // GUID is tour_instance_{instanceId}
+                final instanceId = guid.replaceFirst('tour_instance_', '');
+                success = await chatVm.closeInstanceChat(instanceId);
+              }
+
+              if (success && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Đã đóng cuộc trò chuyện')),
+                );
+                context.pop();
+              } else if (context.mounted && chatVm.errorMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(chatVm.errorMessage!)),
+                );
+              }
+            },
+            child: const Text('Đóng', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }
