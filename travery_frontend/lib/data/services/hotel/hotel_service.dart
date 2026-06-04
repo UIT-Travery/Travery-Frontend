@@ -54,6 +54,25 @@ abstract class HotelService {
   /// GET /api/v1/hotel-bookings/{bookingId}/add-on-bill
   Future<Result<HotelAddOnBillData>> getAddOnBill(String bookingId);
 
+  /// Get available add-on services for a booking
+  /// GET /api/v1/hotel-bookings/{bookingId}/available-services
+  Future<Result<List<HotelAddOnServiceData>>> getAvailableServices(
+    String bookingId,
+  );
+
+  /// Create add-on order
+  /// POST /api/v1/hotel-bookings/{bookingId}/add-on-orders
+  Future<Result<HotelAddOnOrderData>> createAddOnOrder({
+    required String bookingId,
+    required String serviceId,
+    required int quantity,
+    required DateTime scheduledTime,
+  });
+
+  /// Cancel add-on order
+  /// DELETE /api/v1/hotel-bookings/add-on-orders/{orderId}
+  Future<Result<bool>> cancelAddOnOrder(String orderId);
+
   /// Create a new hotel booking
   /// POST /api/v1/hotel-bookings
   Future<Result<HotelCreateBookingResponse>> createBooking({

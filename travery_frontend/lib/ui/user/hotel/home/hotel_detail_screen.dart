@@ -290,13 +290,11 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
           ),
         ],
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: false,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          title: Row(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
@@ -321,61 +319,59 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
               ),
             ],
           ),
-          children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: hotel.amenities.map((amenity) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (amenity.iconUrl != null &&
-                          amenity.iconUrl!.isNotEmpty)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: Image.network(
-                            amenity.iconUrl!,
-                            width: 18,
-                            height: 18,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.check_circle,
-                              size: 16,
-                              color: Color(0xFF007AFF),
-                            ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: hotel.amenities.map((amenity) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (amenity.iconUrl != null && amenity.iconUrl!.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.network(
+                          amenity.iconUrl!,
+                          width: 18,
+                          height: 18,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.check_circle,
+                            size: 16,
+                            color: Color(0xFF007AFF),
                           ),
-                        )
-                      else
-                        const Icon(
-                          Icons.check_circle,
-                          size: 16,
-                          color: Color(0xFF007AFF),
                         ),
-                      const SizedBox(width: 6),
-                      Text(
-                        amenity.name,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF374151),
-                        ),
+                      )
+                    else
+                      const Icon(
+                        Icons.check_circle,
+                        size: 16,
+                        color: Color(0xFF007AFF),
                       ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
+                    const SizedBox(width: 6),
+                    Text(
+                      amenity.name,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

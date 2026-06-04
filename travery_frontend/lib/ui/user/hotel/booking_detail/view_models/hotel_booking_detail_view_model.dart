@@ -12,8 +12,14 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
   HotelBookingData? _booking;
   HotelBookingData? get booking => _booking;
 
+  HotelAddOnBillData? _addOnBill;
+  HotelAddOnBillData? get addOnBill => _addOnBill;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  bool _isLoadingAddOnBill = false;
+  bool get isLoadingAddOnBill => _isLoadingAddOnBill;
 
   String? _error;
   String? get error => _error;
@@ -50,6 +56,7 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
 
     // Always fetch fresh data from API to get complete items/members
     await _fetchBookingDetail(bookingId);
+    await _fetchAddOnBill(bookingId);
   }
 
   // Alias for public refresh access
@@ -74,6 +81,28 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
       debugPrint('[ViewModel._fetchBookingDetail] Exception: $e');
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _fetchAddOnBill(String bookingId) async {
+    _isLoadingAddOnBill = true;
+    notifyListeners();
+
+    try {
+      final result = await _hotelService.getAddOnBill(bookingId);
+      if (result is Ok) {
+        _addOnBill = (result as Ok<HotelAddOnBillData>).value;
+        debugPrint(
+          '[ViewModel._fetchAddOnBill] Success - orders=${_addOnBill?.addOnOrders.length}',
+        );
+      } else {
+        debugPrint('[ViewModel._fetchAddOnBill] Error');
+      }
+    } catch (e) {
+      debugPrint('[ViewModel._fetchAddOnBill] Exception: $e');
+    } finally {
+      _isLoadingAddOnBill = false;
       notifyListeners();
     }
   }

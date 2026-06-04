@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
@@ -121,6 +120,7 @@ import 'package:travery_frontend/ui/user/hotel/addon_list/hotel_addon_list_scree
 import 'package:travery_frontend/ui/user/hotel/addon_payment/hotel_addon_payment_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/addon_payment_success/hotel_addon_payment_success_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout/hotel_checkout_screen.dart';
+import 'package:travery_frontend/ui/user/hotel/checkout/view_models/hotel_checkout_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout_success/hotel_checkout_success_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart';
@@ -607,7 +607,20 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.hotelCheckout,
-        builder: (context, state) => const HotelCheckoutScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final bookingId =
+              extra?['bookingId'] as String? ??
+              state.pathParameters['id'] ??
+              '';
+          return ChangeNotifierProvider(
+            create: (_) => HotelCheckoutViewModel(
+              hotelService: context.read<HotelService>(),
+              bookingId: bookingId,
+            ),
+            child: const HotelCheckoutScreen(),
+          );
+        },
       ),
 
       // --- ADMIN ROUTES ---

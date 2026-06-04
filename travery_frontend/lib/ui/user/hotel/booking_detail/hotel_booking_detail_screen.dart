@@ -185,6 +185,8 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                       const SizedBox(height: 16),
                       _buildRoomSection(booking),
                       const SizedBox(height: 16),
+                      _buildAddOnSection(vm),
+                      const SizedBox(height: 16),
                       _buildPaymentSection(booking),
                     ],
                   ),
@@ -439,10 +441,258 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                       ),
                     ),
                   ),
+                  if (item.amenities != null && item.amenities!.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: SizedBox(
+                        height: 32,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: item.amenities!.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (context, idx) {
+                            final amenity = item.amenities![idx];
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F4F6),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(0xFFE5E7EB),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _getAmenityIcon(amenity.name),
+                                    size: 14,
+                                    color: const Color(0xFF007AFF),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    amenity.name,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF4B5563),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );
           }),
+        ],
+      ),
+    );
+  }
+
+  IconData _getAmenityIcon(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('wifi') || lower.contains('wi-fi')) {
+      return Icons.wifi;
+    } else if (lower.contains('ac') ||
+        lower.contains('điều hòa') ||
+        lower.contains('air')) {
+      return Icons.ac_unit;
+    } else if (lower.contains('tv') || lower.contains('television')) {
+      return Icons.tv;
+    } else if (lower.contains('bath') ||
+        lower.contains('bồn') ||
+        lower.contains('hot')) {
+      return Icons.bathtub;
+    } else if (lower.contains('pool') ||
+        lower.contains('bể') ||
+        lower.contains('swim')) {
+      return Icons.pool;
+    } else if (lower.contains('parking') ||
+        lower.contains('đỗ') ||
+        lower.contains('garage')) {
+      return Icons.local_parking;
+    } else if (lower.contains('restaurant') ||
+        lower.contains('eat') ||
+        lower.contains('buffet')) {
+      return Icons.restaurant;
+    } else if (lower.contains('gym') ||
+        lower.contains('fitness') ||
+        lower.contains('sport')) {
+      return Icons.fitness_center;
+    } else if (lower.contains('spa') || lower.contains('massage')) {
+      return Icons.spa;
+    } else if (lower.contains('breakfast') ||
+        lower.contains('sáng') ||
+        lower.contains('buffet')) {
+      return Icons.free_breakfast;
+    } else if (lower.contains('laundry') ||
+        lower.contains('giặt') ||
+        lower.contains('iron')) {
+      return Icons.local_laundry_service;
+    } else if (lower.contains('shuttle') ||
+        lower.contains('đưa') ||
+        lower.contains('đón')) {
+      return Icons.airport_shuttle;
+    } else if (lower.contains('pet') || lower.contains('thú')) {
+      return Icons.pets;
+    } else if (lower.contains('balcony') || lower.contains('ban công')) {
+      return Icons.balcony;
+    }
+    return Icons.check_circle_outline;
+  }
+
+  Widget _buildAddOnSection(HotelBookingDetailViewModel vm) {
+    final addOnBill = vm.addOnBill;
+    if (addOnBill == null && !vm.isLoadingAddOnBill) {
+      return const SizedBox.shrink();
+    }
+
+    if (vm.isLoadingAddOnBill) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    final orders = addOnBill?.addOnOrders ?? [];
+    if (orders.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.room_service_outlined,
+                size: 20,
+                color: Color(0xFF6B7280),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Dịch vụ đã đặt',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1F2937),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${orders.length} dịch vụ',
+                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...orders.asMap().entries.map((entry) {
+            final index = entry.key;
+            final order = entry.value;
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              margin: EdgeInsets.only(top: index > 0 ? 8 : 0),
+              decoration: BoxDecoration(
+                border: index < orders.length - 1
+                    ? const Border(bottom: BorderSide(color: Color(0xFFF3F4F6)))
+                    : null,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          order.serviceName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF1F2937),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${order.quantity}x',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _formatPrice(order.totalPrice),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF007AFF),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _formatPrice(order.unitPrice) + '/dịch vụ',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
+          const Divider(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Tổng dịch vụ',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1F2937),
+                ),
+              ),
+              Text(
+                _formatPrice(addOnBill?.totalAddOnCharges ?? 0),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF007AFF),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -571,9 +821,8 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
 
     final hasCancel = canCancel;
     final hasAddon = isCheckedIn;
-    final hasCheckout = isCheckedIn;
 
-    if (!hasCancel && !hasAddon && !hasCheckout) {
+    if (!hasCancel && !hasAddon) {
       return const SizedBox.shrink();
     }
 
@@ -620,14 +869,13 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   ),
                 ),
               ),
-            if (hasCancel && (hasAddon || hasCheckout))
-              const SizedBox(width: 12),
+            if (hasCancel && hasAddon) const SizedBox(width: 12),
             if (hasAddon)
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => context.push(
                     Routes.hotelCheckout.replaceFirst(':id', booking.id),
-                    extra: {'booking': booking},
+                    extra: {'booking': booking, 'bookingId': booking.id},
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF007AFF),
@@ -639,28 +887,6 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   ),
                   child: const Text(
                     'Đặt dịch vụ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            if (hasAddon && hasCheckout) const SizedBox(width: 12),
-            if (hasCheckout)
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: handle checkout
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF007AFF),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Checkout',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

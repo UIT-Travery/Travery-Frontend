@@ -1,3 +1,5 @@
+import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+
 class HotelBookingData {
   HotelBookingData({
     required this.id,
@@ -212,6 +214,7 @@ class HotelBookingItemData {
     required this.priceAtNight,
     this.numberOfNights,
     this.subtotal,
+    this.amenities,
   });
 
   final String roomTypeId;
@@ -220,8 +223,17 @@ class HotelBookingItemData {
   final double priceAtNight;
   final int? numberOfNights;
   final double? subtotal;
+  final List<HotelAmenityData>? amenities;
 
   factory HotelBookingItemData.fromJson(Map<String, dynamic> json) {
+    List<HotelAmenityData>? amenities;
+    final amenitiesList = json['amenities'] as List<dynamic>?;
+    if (amenitiesList != null) {
+      amenities = amenitiesList
+          .map((a) => HotelAmenityData.fromJson(a as Map<String, dynamic>))
+          .toList();
+    }
+
     return HotelBookingItemData(
       roomTypeId: json['roomTypeId'] as String? ?? '',
       roomTypeName: json['roomTypeName'] as String? ?? '',
@@ -232,6 +244,7 @@ class HotelBookingItemData {
           0.0,
       numberOfNights: json['numberOfNights'] as int?,
       subtotal: (json['subtotal'] as num?)?.toDouble(),
+      amenities: amenities,
     );
   }
 }
@@ -293,23 +306,68 @@ class HotelAddOnBillData {
 /// Add-on order item
 class HotelAddOnOrderData {
   HotelAddOnOrderData({
-    required this.addOnName,
+    required this.id,
+    required this.serviceName,
+    required this.category,
     required this.quantity,
     required this.unitPrice,
     required this.totalPrice,
+    this.scheduledTime,
+    this.status,
   });
 
-  final String addOnName;
+  final String id;
+  final String serviceName;
+  final String category;
   final int quantity;
   final double unitPrice;
   final double totalPrice;
+  final String? scheduledTime;
+  final String? status;
 
   factory HotelAddOnOrderData.fromJson(Map<String, dynamic> json) {
     return HotelAddOnOrderData(
-      addOnName: json['addOnName'] as String? ?? '',
+      id: json['id'] as String? ?? '',
+      serviceName: json['serviceName'] as String? ?? '',
+      category: json['category'] as String? ?? '',
       quantity: json['quantity'] as int? ?? 1,
       unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
       totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
+      scheduledTime: json['scheduledTime'] as String?,
+      status: json['status'] as String?,
+    );
+  }
+}
+
+/// Available add-on service from hotel
+class HotelAddOnServiceData {
+  HotelAddOnServiceData({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.price,
+    this.unit,
+    this.description,
+    this.isActive,
+  });
+
+  final String id;
+  final String name;
+  final String category;
+  final double price;
+  final String? unit;
+  final String? description;
+  final bool? isActive;
+
+  factory HotelAddOnServiceData.fromJson(Map<String, dynamic> json) {
+    return HotelAddOnServiceData(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      unit: json['unit'] as String?,
+      description: json['description'] as String?,
+      isActive: json['isActive'] as bool?,
     );
   }
 }

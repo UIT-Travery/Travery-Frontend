@@ -386,6 +386,157 @@ class HotelServiceImpl implements HotelService {
   }
 
   @override
+  Future<Result<List<HotelAddOnServiceData>>> getAvailableServices(
+    String bookingId,
+  ) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.getUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/hotel-bookings/$bookingId/available-services',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+      debugPrint(
+        'GetAvailableServices Response Status: ${response.statusCode}',
+      );
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('GetAvailableServices Response Body: $stringData');
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as List<dynamic>? ?? [];
+
+        final services = data
+            .map(
+              (e) => HotelAddOnServiceData.fromJson(e as Map<String, dynamic>),
+            )
+            .toList();
+
+        return Result.ok(services);
+      } else {
+        final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('GetAvailableServices Error Body: $stringData');
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách dịch vụ',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<HotelAddOnOrderData>> createAddOnOrder({
+    required String bookingId,
+    required String serviceId,
+    required int quantity,
+    required DateTime scheduledTime,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.postUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/hotel-bookings/$bookingId/add-on-orders',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        'application/json; charset=utf-8',
+      );
+      await _setBearerAuth(request);
+
+      final body = jsonEncode({
+        'serviceId': serviceId,
+        'quantity': quantity,
+        'scheduledTime': scheduledTime.toUtc().toIso8601String(),
+      });
+      debugPrint('CreateAddOnOrder Request Body: $body');
+      request.write(body);
+
+      final response = await request.close();
+      debugPrint('CreateAddOnOrder Response Status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('CreateAddOnOrder Response Body: $stringData');
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(HotelAddOnOrderData.fromJson(data));
+      } else {
+        final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('CreateAddOnOrder Error Body: $stringData');
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể đặt dịch vụ (HTTP ${response.statusCode})',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<bool>> cancelAddOnOrder(String orderId) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.deleteUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/hotel-bookings/add-on-orders/$orderId',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+      debugPrint('CancelAddOnOrder Response Status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        debugPrint('CancelAddOnOrder Success');
+        return Result.ok(true);
+      } else {
+        final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('CancelAddOnOrder Error Body: $stringData');
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể hủy dịch vụ (HTTP ${response.statusCode})',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
   Future<Result<HotelCreateBookingResponse>> createBooking({
     required List<Map<String, dynamic>> rooms,
     required String startDate,
