@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
+import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 
 class HotelPaymentResultScreen extends StatefulWidget {
   const HotelPaymentResultScreen({super.key});
@@ -19,6 +23,8 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
   late Animation<double> _fadeAnimation;
 
   bool _isSuccess = true;
+  String? _bookingId;
+  HotelBookingData? _bookingData;
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
@@ -48,14 +54,42 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
       final status = extra?['status'] as String? ?? 'success';
-      setState(() => _isSuccess = status == 'success');
+      _bookingId = extra?['bookingId'] as String?;
+      setState(() {
+        _isSuccess = status == 'success';
+      });
+      _fetchBookingDetails();
     });
+  }
+
+  Future<void> _fetchBookingDetails() async {
+    if (_bookingId == null) return;
+
+    try {
+      final hotelService = context.read<HotelService>();
+      final result = await hotelService.getBookingDetail(_bookingId!);
+
+      if (result is Ok && mounted) {
+        final booking = (result as Ok).value;
+        setState(() {
+          _bookingData = booking;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching booking details: $e');
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  String _shortCode(String? id) {
+    if (id == null || id.isEmpty) return 'N/A';
+    if (id.length <= 8) return id;
+    return id.substring(0, 8);
   }
 
   @override
@@ -183,6 +217,16 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
   }
 
   Widget _buildBookingCard() {
+    final booking = _bookingData;
+    final transactionId =
+        booking?.gatewayTransactionId ?? booking?.transactionId;
+    final totalPrice = booking?.totalPrice ?? 0.0;
+    final hotelName = booking?.hotelName ?? 'N/A';
+    final hotelAddress = booking?.hotelAddress ?? '';
+    final firstItem = booking?.items?.isNotEmpty == true
+        ? booking!.items!.first
+        : null;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -197,18 +241,123 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildRow('Mã giao dịch', 'TRV-8829-4410', isPrimary: true),
+          // Hotel info
+          if (_bookingData != null) ...[
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.hotel,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hotelName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      if (hotelAddress.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          hotelAddress,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(color: AppColors.inputBackground),
+            const SizedBox(height: 16),
+          ],
+
+          // Room type
+          if (firstItem != null) ...[
+            _buildRow('Loại phòng', firstItem.roomTypeName),
+            const SizedBox(height: 12),
+            _buildRow('Số phòng', '${firstItem.quantity} phòng'),
+            const SizedBox(height: 12),
+            _buildRow('Giá phòng', _formatPrice(firstItem.priceAtNight)),
+            const SizedBox(height: 12),
+          ],
+
+          // Check-in / Check-out
+          if (booking?.startDate != null && booking?.endDate != null) ...[
+            _buildRow('Nhận phòng', _formatDate(booking!.startDate!)),
+            const SizedBox(height: 12),
+            _buildRow('Trả phòng', _formatDate(booking.endDate!)),
+            const SizedBox(height: 12),
+          ],
+
+          const Divider(color: AppColors.inputBackground),
           const SizedBox(height: 12),
-          _buildRow('Loại phòng', 'VIP'),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Divider(color: AppColors.inputBackground),
-          ),
-          _buildRow('Tổng thanh toán', _formatPrice(2450000), isBold: true),
+
+          // Transaction ID
+          _buildRow('Mã giao dịch', _shortCode(transactionId), isPrimary: true),
+          const SizedBox(height: 12),
+
+          // Total price
+          _buildRow('Tổng thanh toán', _formatPrice(totalPrice), isBold: true),
+
+          if (_bookingData == null) ...[
+            const SizedBox(height: 16),
+            const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      return '${date.day} ${months[date.month - 1]}, ${date.year}';
+    } catch (e) {
+      return dateStr;
+    }
   }
 
   Widget _buildRow(
@@ -252,29 +401,24 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () => context.go(Routes.home),
+          onPressed: () {
+            if (_isSuccess) {
+              context.go(Routes.hotelMyBookings);
+            } else {
+              context.pop();
+            }
+          },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.buttonPrimaryText,
+            backgroundColor: _isSuccess ? AppColors.primary : AppColors.error,
+            foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            elevation: 2,
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.home_outlined, size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Về trang chủ',
-                style: TextStyle(
-                  fontSize: AppTextTheme.buttonMedium,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+          child: Text(
+            _isSuccess ? 'Xem đơn đặt phòng' : 'Quay lại',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ),
       ),

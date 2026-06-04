@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/data/services/user_storage_service.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelBookingInputScreen extends StatefulWidget {
@@ -13,21 +15,72 @@ class HotelBookingInputScreen extends StatefulWidget {
 
 class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
 
   int _adults = 1;
   int _children = 0;
   int get _totalGuests => _adults + _children;
 
+  // Get selected rooms from route
+  List<HotelRoomData> _selectedRooms = [];
+  int get _maxAdults {
+    return _selectedRooms.fold(
+      0,
+      (sum, room) => sum + (room.capacityAdults ?? 0),
+    );
+  }
+
+  int get _maxChildren {
+    return _selectedRooms.fold(
+      0,
+      (sum, room) => sum + (room.capacityChildren ?? 0),
+    );
+  }
+
   List<Map<String, dynamic>> _guestControllers = [];
 
   bool _agreedToTerms = false;
 
+  // User info from storage
+  String? _contactName;
+  String? _contactPhone;
+
   @override
   void initState() {
     super.initState();
-    _initGuests();
+    _loadUserInfo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadSelectedRooms();
+        _initGuests();
+      }
+    });
+  }
+
+  Future<void> _loadUserInfo() async {
+    final userStorage = await UserStorageService.getInstance();
+    if (mounted) {
+      setState(() {
+        _contactName = userStorage.fullName;
+        _contactPhone = userStorage.phone;
+      });
+    }
+  }
+
+  void _loadSelectedRooms() {
+    if (!mounted) return;
+    final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+    final rooms = extra?['selectedRooms'] as List<dynamic>?;
+    if (rooms != null) {
+      setState(() {
+        _selectedRooms = rooms.cast<HotelRoomData>();
+        // Set initial adults to match room capacity
+        if (_selectedRooms.isNotEmpty) {
+          _adults = _maxAdults;
+          _children = _maxChildren;
+        }
+      });
+      _initGuests();
+    }
   }
 
   void _initGuests() {
@@ -46,8 +99,6 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
     for (final guest in _guestControllers) {
       guest['name']?.dispose();
       guest['idNumber']?.dispose();
@@ -76,8 +127,10 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   }
 
   void _increaseAdults() {
-    setState(() => _adults++);
-    _updateGuests();
+    if (_adults < _maxAdults) {
+      setState(() => _adults++);
+      _updateGuests();
+    }
   }
 
   void _decreaseAdults() {
@@ -88,8 +141,10 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   }
 
   void _increaseChildren() {
-    setState(() => _children++);
-    _updateGuests();
+    if (_children < _maxChildren) {
+      setState(() => _children++);
+      _updateGuests();
+    }
   }
 
   void _decreaseChildren() {
@@ -115,19 +170,12 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   void _submitBooking() {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_nameController.text.trim().isEmpty) {
-      _showError('Vui lòng nhập tên liên hệ');
-      return;
-    }
-    if (_phoneController.text.trim().isEmpty) {
-      _showError('Vui lòng nhập số điện thoại');
-      return;
-    }
     if (!_agreedToTerms) {
       _showError('Vui lòng đồng ý với điều khoản');
       return;
     }
 
+    // Validate all guest cards
     for (int i = 0; i < _guestControllers.length; i++) {
       final guest = _guestControllers[i];
       final name = (guest['name'] as TextEditingController).text.trim();
@@ -141,9 +189,54 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
         _showError('Vui lòng nhập CCCD/Hộ chiếu khách ${i + 1}');
         return;
       }
+      // Validate CCCD format (9 or 12 digits)
+      final cleanId = idNumber.replaceAll(RegExp(r'\s'), '');
+      if (cleanId.length < 9 || cleanId.length > 12) {
+        _showError('CCCD/Hộ chiếu khách ${i + 1} không hợp lệ (9-12 số)');
+        return;
+      }
     }
 
-    context.push(Routes.hotelBookingReview);
+    // Build members list
+    final members = _guestControllers.map((guest) {
+      final dob = guest['dob'] as DateTime;
+      final isAdult = guest['isAdult'] as bool;
+      return {
+        'fullName': (guest['name'] as TextEditingController).text
+            .trim()
+            .toUpperCase(),
+        'identityNumber': (guest['idNumber'] as TextEditingController).text
+            .trim(),
+        'dateOfBirth':
+            '${dob.year}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}',
+        'memberType': isAdult ? 'ADULT' : 'CHILD',
+      };
+    }).toList();
+
+    // TODO: Get these from hotel detail page
+    final rooms = [
+      {'roomTypeId': 'f1000000-0000-0000-0000-000000000117', 'quantity': 1},
+    ];
+    const startDate = '2026-06-10';
+    const endDate = '2026-06-12';
+    const pricePerNight = 600000.0;
+    const totalPrice = 1200000.0;
+    const nights = 2;
+
+    context.push(
+      Routes.hotelBookingReview,
+      extra: {
+        'rooms': rooms,
+        'startDate': startDate,
+        'endDate': endDate,
+        'members': members,
+        'contactName': _contactName ?? '',
+        'contactPhone': _contactPhone ?? '',
+        'pricePerNight': pricePerNight,
+        'totalPrice': totalPrice,
+        'nights': nights,
+      },
+    );
   }
 
   @override
@@ -160,8 +253,6 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   _buildGuestCountSection(),
-                  const SizedBox(height: 16),
-                  _buildContactSection(),
                   const SizedBox(height: 16),
                   _buildGuestSection(),
                   const SizedBox(height: 16),
@@ -230,7 +321,12 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
                   ],
                 ),
               ),
-              _buildCounterButtons(_adults, _decreaseAdults, _increaseAdults),
+              _buildCounterButtons(
+                _adults,
+                _decreaseAdults,
+                _increaseAdults,
+                atMax: _adults >= _maxAdults,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -271,6 +367,7 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
                 _children,
                 _decreaseChildren,
                 _increaseChildren,
+                atMax: _children >= _maxChildren,
               ),
             ],
           ),
@@ -282,8 +379,9 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   Widget _buildCounterButtons(
     int count,
     VoidCallback onDecrease,
-    VoidCallback onIncrease,
-  ) {
+    VoidCallback onIncrease, {
+    bool atMax = false,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF3F4F6),
@@ -307,89 +405,12 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.add, size: 20),
-            onPressed: onIncrease,
+            onPressed: atMax ? null : onIncrease,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            color: const Color(0xFF007AFF),
+            color: atMax ? Colors.grey : const Color(0xFF007AFF),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildContactSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Thông tin liên hệ',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          _buildTextField(
-            controller: _nameController,
-            label: 'Họ và tên',
-            hint: 'VD: Nguyễn Văn A',
-            icon: Icons.person_outline,
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: _phoneController,
-            label: 'Số điện thoại',
-            hint: 'VD: 0912345678',
-            icon: Icons.phone_outlined,
-            keyboardType: TextInputType.phone,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(icon, size: 20, color: const Color(0xFF9CA3AF)),
-            filled: true,
-            fillColor: const Color(0xFFF8FAFF),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -706,19 +727,39 @@ class _GuestCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildField(
+          _GuestTextField(
             controller: _nameController,
             label: 'Họ và tên',
             hint: 'VD: NGUYEN VAN A',
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Vui lòng nhập họ tên';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: _buildField(
+                child: _GuestTextField(
                   controller: _idController,
                   label: 'Số CCCD/Hộ chiếu',
                   hint: '012345678',
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Vui lòng nhập CCCD';
+                    }
+                    final cleanId = value.replaceAll(RegExp(r'\s'), '');
+                    if (cleanId.length < 9 || cleanId.length > 12) {
+                      return '9-12 số';
+                    }
+                    if (!RegExp(r'^\d+$').hasMatch(cleanId)) {
+                      return 'Chỉ nhập số';
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 10),
@@ -765,12 +806,25 @@ class _GuestCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-  }) {
+class _GuestTextField extends StatelessWidget {
+  const _GuestTextField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    this.keyboardType,
+    this.validator,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -783,16 +837,42 @@ class _GuestCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        TextField(
+        TextFormField(
           controller: controller,
+          keyboardType: keyboardType,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
             filled: true,
             fillColor: const Color(0xFFF8FAFF),
+            errorStyle: const TextStyle(fontSize: 11, color: Colors.red),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Color(0xFF007AFF),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
             ),
           ),
         ),

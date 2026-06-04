@@ -230,18 +230,10 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
   }
 
   Widget _buildServices(dynamic booking) {
-    final services = booking.services as List;
+    final services = booking.services as List<dynamic>;
     if (services.isEmpty) {
-      return _buildHardcodedServices();
+      return const SizedBox.shrink();
     }
-    return _buildHardcodedServices();
-  }
-
-  Widget _buildHardcodedServices() {
-    final services = [
-      {'name': 'In-Room Dining\n(Dinner)', 'price': 1250000.0},
-      {'name': 'Spa & Wellness\nTreatment', 'price': 3800000.0},
-    ];
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -288,7 +280,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        svc['name'] as String,
+                        svc.name ?? '',
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -297,7 +289,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                       ),
                     ),
                     Text(
-                      _formatPrice(svc['price'] as double),
+                      _formatPrice(svc.price?.toDouble() ?? 0),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

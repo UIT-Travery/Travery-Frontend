@@ -521,18 +521,7 @@ GoRouter appRouter(
         ),
       ),
       GoRoute(
-        path: Routes.hotelDetail,
-        builder: (context, state) {
-          return ChangeNotifierProvider(
-            create: (_) => HotelDetailViewModel(
-              hotelService: context.read<HotelService>(),
-            ),
-            child: const HotelDetailScreen(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.hotelRoomList,
+        path: Routes.hotelList,
         builder: (context, state) => const HotelRoomListScreen(),
       ),
       GoRoute(
@@ -554,26 +543,11 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.hotelMyBookings,
         builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => HotelMyBookingViewModel(),
+          create: (_) => HotelMyBookingViewModel(
+            hotelService: context.read<HotelService>(),
+          ),
           child: const HotelMyBookingScreen(),
         ),
-      ),
-      GoRoute(
-        path: Routes.hotelBookingDetail,
-        builder: (context, state) {
-          return ChangeNotifierProvider(
-            create: (_) => HotelBookingDetailViewModel(),
-            child: HotelBookingDetailScreen(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.hotelCancel,
-        builder: (context, state) => const HotelCancelScreen(),
-      ),
-      GoRoute(
-        path: Routes.hotelCancelSuccess,
-        builder: (context, state) => const HotelCancelSuccessScreen(),
       ),
       GoRoute(
         path: Routes.hotelAddonList,
@@ -588,12 +562,52 @@ GoRouter appRouter(
         builder: (context, state) => const HotelAddonPaymentSuccessScreen(),
       ),
       GoRoute(
-        path: Routes.hotelCheckout,
-        builder: (context, state) => const HotelCheckoutScreen(),
-      ),
-      GoRoute(
         path: Routes.hotelCheckoutSuccess,
         builder: (context, state) => const HotelCheckoutSuccessScreen(),
+      ),
+      // Parameterized routes (must be after static routes)
+      GoRoute(
+        path: Routes.hotelDetail,
+        builder: (context, state) {
+          return ChangeNotifierProvider(
+            create: (_) => HotelDetailViewModel(
+              hotelService: context.read<HotelService>(),
+            ),
+            child: const HotelDetailScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.hotelRoomList,
+        builder: (context, state) => const HotelRoomListScreen(),
+      ),
+      GoRoute(
+        path: Routes.hotelBookingDetail,
+        builder: (context, state) {
+          return ChangeNotifierProvider(
+            create: (_) => HotelBookingDetailViewModel(
+              hotelService: context.read<HotelService>(),
+            ),
+            child: const HotelBookingDetailScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.hotelCancel,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => HotelBookingDetailViewModel(
+            hotelService: context.read<HotelService>(),
+          ),
+          child: const HotelCancelScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.hotelCancelSuccess,
+        builder: (context, state) => const HotelCancelSuccessScreen(),
+      ),
+      GoRoute(
+        path: Routes.hotelCheckout,
+        builder: (context, state) => const HotelCheckoutScreen(),
       ),
 
       // --- ADMIN ROUTES ---

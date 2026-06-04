@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/config/app_config.dart';
+import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_list_data.dart';
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
@@ -174,6 +176,264 @@ class HotelServiceImpl implements HotelService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Không thể tải thông tin khách sạn',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<HotelBookingListResult>> getMyBookings({
+    String? status,
+    int page = 0,
+    int size = 20,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'size': size.toString(),
+      };
+
+      if (status != null && status.isNotEmpty && status != 'Tất cả') {
+        queryParams['status'] = status;
+      }
+
+      final request = await client.getUrl(
+        Uri.https(AppConfig.baseUrl, '/api/v1/hotel-bookings/me', queryParams),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        final content = data['content'] as List<dynamic>? ?? [];
+        final bookings = content
+            .map((e) => HotelBookingData.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        return Result.ok(
+          HotelBookingListResult(
+            bookings: bookings,
+            totalElements: data['totalElements'] as int? ?? 0,
+            totalPages: data['totalPages'] as int? ?? 0,
+            currentPage: data['number'] as int? ?? 0,
+            pageSize: data['size'] as int? ?? size,
+          ),
+        );
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách đặt phòng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<HotelBookingData>> getBookingDetail(String bookingId) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.getUrl(
+        Uri.https(AppConfig.baseUrl, '/api/v1/hotel-bookings/$bookingId'),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(HotelBookingData.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải chi tiết đặt phòng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<HotelCancelResponseData>> cancelBooking({
+    required String bookingId,
+    required String reason,
+    required String bankName,
+    required String accountNumber,
+    required String accountHolderName,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.postUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/hotel-bookings/$bookingId/cancel',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final body = jsonEncode({
+        'reason': reason,
+        'bankName': bankName,
+        'accountNumber': accountNumber,
+        'accountHolderName': accountHolderName,
+      });
+      request.write(body);
+
+      final response = await request.close();
+      debugPrint('CancelBooking Response Status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('CancelBooking Response Body: $stringData');
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final httpStatus = jsonMap['httpStatus'];
+        final message = jsonMap['message'];
+        debugPrint('CancelBooking httpStatus: $httpStatus, message: $message');
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(HotelCancelResponseData.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể hủy đặt phòng',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<HotelAddOnBillData>> getAddOnBill(String bookingId) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.getUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/hotel-bookings/$bookingId/add-on-bill',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(HotelAddOnBillData.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải hóa đơn dịch vụ',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<HotelCreateBookingResponse>> createBooking({
+    required List<Map<String, dynamic>> rooms,
+    required String startDate,
+    required String endDate,
+    required List<Map<String, dynamic>> members,
+    required String contactName,
+    required String contactPhone,
+    String? specialRequests,
+    required String ipAddress,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.postUrl(
+        Uri.https(AppConfig.baseUrl, '/api/v1/hotel-bookings'),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final body = jsonEncode({
+        'rooms': rooms,
+        'startDate': startDate,
+        'endDate': endDate,
+        'members': members,
+        'contactName': contactName,
+        'contactPhone': contactPhone,
+        if (specialRequests != null && specialRequests.isNotEmpty)
+          'specialRequests': specialRequests,
+        'ipAddress': ipAddress,
+      });
+      request.write(body);
+
+      final response = await request.close();
+
+      if (response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(HotelCreateBookingResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tạo đặt phòng',
         );
         return Result.error(HttpException(errorMsg));
       }

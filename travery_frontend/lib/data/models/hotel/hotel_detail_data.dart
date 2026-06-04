@@ -22,7 +22,7 @@ class HotelDetailData {
   final String description;
   final String checkInTime;
   final String checkOutTime;
-  final List<String> amenities;
+  final List<HotelAmenityData> amenities;
   final List<HotelRoomData> rooms;
   final String? cityProvince;
   final List<HotelReviewData> reviews;
@@ -37,9 +37,8 @@ class HotelDetailData {
 
     // Parse amenities - full HotelAmenityData objects
     final amenitiesList = json['amenities'] as List<dynamic>? ?? [];
-    final amenityNames = amenitiesList
-        .map((a) => a['name'] as String? ?? '')
-        .where((name) => name.isNotEmpty)
+    final amenityObjects = amenitiesList
+        .map((a) => HotelAmenityData.fromJson(a as Map<String, dynamic>))
         .toList();
 
     // Parse room types
@@ -48,22 +47,34 @@ class HotelDetailData {
         .map((r) => HotelRoomData.fromJson(r as Map<String, dynamic>))
         .toList();
 
-    // Parse check-in/out times from nested object {hour, minute, second, nano}
+    // Parse check-in/out times - handle both String ("HH:mm:ss") and Map ({hour, minute})
     String checkInTime = '14:00';
     String checkOutTime = '12:00';
 
-    final checkInJson = json['checkInTime'] as Map<String, dynamic>?;
-    if (checkInJson != null) {
-      final hour = checkInJson['hour'] as int? ?? 14;
-      final minute = checkInJson['minute'] as int? ?? 0;
+    final checkInValue = json['checkInTime'];
+    if (checkInValue is String) {
+      // Parse "14:00:00" -> "14:00"
+      final parts = checkInValue.split(':');
+      if (parts.length >= 2) {
+        checkInTime = '${parts[0]}:${parts[1]}';
+      }
+    } else if (checkInValue is Map<String, dynamic>) {
+      final hour = checkInValue['hour'] as int? ?? 14;
+      final minute = checkInValue['minute'] as int? ?? 0;
       checkInTime =
           '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
     }
 
-    final checkOutJson = json['checkOutTime'] as Map<String, dynamic>?;
-    if (checkOutJson != null) {
-      final hour = checkOutJson['hour'] as int? ?? 12;
-      final minute = checkOutJson['minute'] as int? ?? 0;
+    final checkOutValue = json['checkOutTime'];
+    if (checkOutValue is String) {
+      // Parse "12:00:00" -> "12:00"
+      final parts = checkOutValue.split(':');
+      if (parts.length >= 2) {
+        checkOutTime = '${parts[0]}:${parts[1]}';
+      }
+    } else if (checkOutValue is Map<String, dynamic>) {
+      final hour = checkOutValue['hour'] as int? ?? 12;
+      final minute = checkOutValue['minute'] as int? ?? 0;
       checkOutTime =
           '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
     }
@@ -77,7 +88,7 @@ class HotelDetailData {
       description: json['description'] as String? ?? '',
       checkInTime: checkInTime,
       checkOutTime: checkOutTime,
-      amenities: amenityNames,
+      amenities: amenityObjects,
       rooms: rooms,
       cityProvince: json['cityProvince'] as String?,
     );
@@ -181,7 +192,7 @@ class HotelRoomData {
     // Build features list
     final features = <String>[];
     if (bedType != null) {
-      features.add(_formatBedType(bedType));
+      features.add(HotelRoomData.getBedTypeLabel(bedType));
     }
     features.addAll(amenityNames);
 
@@ -201,7 +212,7 @@ class HotelRoomData {
     );
   }
 
-  static String _formatBedType(String? bedType) {
+  static String getBedTypeLabel(String? bedType) {
     switch (bedType?.toUpperCase()) {
       case 'SINGLE':
         return 'Giường đơn';
