@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_guide/coordinator_guide.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
-import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_coach_selection_bottomsheet.dart';
+import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_coach_only_selection_bottomsheet.dart';
+import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_driver_only_selection_bottomsheet.dart';
+import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_guide_only_selection_bottomsheet.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 
 class CoordinatorCreateCoachScreen extends StatefulWidget {
   const CoordinatorCreateCoachScreen({super.key});
@@ -15,9 +23,9 @@ class CoordinatorCreateCoachScreen extends StatefulWidget {
 
 class _CoordinatorCreateCoachScreenState
     extends State<CoordinatorCreateCoachScreen> {
-
   CoordinatorDriver? _selectedDriver;
   CoordinatorVehicle? _selectedVehicle;
+  CoordinatorGuide? _selectedGuide;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
 
@@ -26,16 +34,45 @@ class _CoordinatorCreateCoachScreenState
     super.dispose();
   }
 
-  void _openCoachSelection() {
+  void _openVehicleSelection() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
+      isScrollControlled: false,
       backgroundColor: Colors.transparent,
-      builder: (_) => CoordinatorCoachSelectionBottomsheet(
-        onSelectionConfirmed: (driver, vehicle) {
+      builder: (_) => CoordinatorCoachOnlySelectionBottomSheet(
+        onSelectionConfirmed: (vehicle) {
           setState(() {
-            if (driver != null) _selectedDriver = driver;
-            if (vehicle != null) _selectedVehicle = vehicle;
+            _selectedVehicle = vehicle;
+          });
+        },
+      ),
+    );
+  }
+
+  void _openDriverSelection() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CoordinatorDriverOnlySelectionBottomSheet(
+        onSelectionConfirmed: (driver) {
+          setState(() {
+            _selectedDriver = driver;
+          });
+        },
+      ),
+    );
+  }
+
+  void _openGuideSelection() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CoordinatorGuideOnlySelectionBottomSheet(
+        onSelectionConfirmed: (guide) {
+          setState(() {
+            _selectedGuide = guide;
           });
         },
       ),
@@ -93,10 +130,58 @@ class _CoordinatorCreateCoachScreenState
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  void _onConfirm() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chuyến xe đã được tạo thành công!')),
+  void _onConfirm() async {
+    if (_selectedVehicle == null ||
+        _selectedDriver == null ||
+        _selectedGuide == null ||
+        _selectedDate == null ||
+        _selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin')),
+      );
+      return;
+    }
+
+    final route = GoRouterState.of(context).extra as CoachRouteResponse?;
+    if (route == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không tìm thấy thông tin lộ trình')),
+      );
+      return;
+    }
+
+    final departureDateTime = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      _selectedTime!.hour,
+      _selectedTime!.minute,
     );
+
+    try {
+      final repository = context.read<CoordinatorRepository>();
+      final result = await repository.createCoachTrip(
+        routeId: route.id,
+        coachId: _selectedVehicle!.id,
+        driverId: _selectedDriver!.id,
+        guideId: _selectedGuide!.id,
+        departureTime: departureDateTime.toUtc().toIso8601String(),
+      );
+
+      if (!mounted) return;
+
+      if (result is Ok) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chuyến xe đã được tạo thành công!')),
+        );
+        context.pop(true);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Đã có lỗi xảy ra: $e')));
+    }
   }
 
   @override
@@ -186,7 +271,7 @@ class _CoordinatorCreateCoachScreenState
                       subtitle: _selectedVehicle != null
                           ? '${_selectedVehicle!.vehicleType} · ${_selectedVehicle!.licensePlate}'
                           : 'Chưa chọn xe',
-                      onTap: _openCoachSelection,
+                      onTap: _openVehicleSelection,
                     ),
                     const SizedBox(height: 12),
 
@@ -197,7 +282,18 @@ class _CoordinatorCreateCoachScreenState
                       subtitle: _selectedDriver != null
                           ? _selectedDriver!.name
                           : 'Chưa chọn tài xế',
-                      onTap: _openCoachSelection,
+                      onTap: _openDriverSelection,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Chọn hướng dẫn viên
+                    _buildSelectionTile(
+                      icon: Icons.badge_outlined,
+                      title: 'Chọn hướng dẫn viên',
+                      subtitle: _selectedGuide != null
+                          ? _selectedGuide!.name
+                          : 'Chưa chọn hướng dẫn viên',
+                      onTap: _openGuideSelection,
                     ),
                     const SizedBox(height: 20),
 

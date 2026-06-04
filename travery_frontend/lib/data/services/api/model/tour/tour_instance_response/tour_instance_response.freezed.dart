@@ -29,7 +29,7 @@ mixin _$TourInstanceResponse {
   int get currentParticipants => throw _privateConstructorUsedError;
   int? get maxParticipants => throw _privateConstructorUsedError;
   int? get availableSlots => throw _privateConstructorUsedError;
-  String? get imageUrl => throw _privateConstructorUsedError;
+  String? get thumbnailUrl => throw _privateConstructorUsedError;
 
   /// Serializes this TourInstanceResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -57,7 +57,7 @@ abstract class $TourInstanceResponseCopyWith<$Res> {
     int currentParticipants,
     int? maxParticipants,
     int? availableSlots,
-    String? imageUrl,
+    String? thumbnailUrl,
   });
 }
 
@@ -87,7 +87,7 @@ class _$TourInstanceResponseCopyWithImpl<
     Object? currentParticipants = null,
     Object? maxParticipants = freezed,
     Object? availableSlots = freezed,
-    Object? imageUrl = freezed,
+    Object? thumbnailUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -123,9 +123,9 @@ class _$TourInstanceResponseCopyWithImpl<
                 ? _value.availableSlots
                 : availableSlots // ignore: cast_nullable_to_non_nullable
                       as int?,
-            imageUrl: freezed == imageUrl
-                ? _value.imageUrl
-                : imageUrl // ignore: cast_nullable_to_non_nullable
+            thumbnailUrl: freezed == thumbnailUrl
+                ? _value.thumbnailUrl
+                : thumbnailUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
           )
           as $Val,
@@ -151,7 +151,7 @@ abstract class _$$TourInstanceResponseImplCopyWith<$Res>
     int currentParticipants,
     int? maxParticipants,
     int? availableSlots,
-    String? imageUrl,
+    String? thumbnailUrl,
   });
 }
 
@@ -177,7 +177,7 @@ class __$$TourInstanceResponseImplCopyWithImpl<$Res>
     Object? currentParticipants = null,
     Object? maxParticipants = freezed,
     Object? availableSlots = freezed,
-    Object? imageUrl = freezed,
+    Object? thumbnailUrl = freezed,
   }) {
     return _then(
       _$TourInstanceResponseImpl(
@@ -213,9 +213,9 @@ class __$$TourInstanceResponseImplCopyWithImpl<$Res>
             ? _value.availableSlots
             : availableSlots // ignore: cast_nullable_to_non_nullable
                   as int?,
-        imageUrl: freezed == imageUrl
-            ? _value.imageUrl
-            : imageUrl // ignore: cast_nullable_to_non_nullable
+        thumbnailUrl: freezed == thumbnailUrl
+            ? _value.thumbnailUrl
+            : thumbnailUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
       ),
     );
@@ -234,7 +234,7 @@ class _$TourInstanceResponseImpl implements _TourInstanceResponse {
     required this.currentParticipants,
     this.maxParticipants,
     this.availableSlots,
-    this.imageUrl,
+    this.thumbnailUrl,
   });
 
   factory _$TourInstanceResponseImpl.fromJson(Map<String, dynamic> json) =>
@@ -257,11 +257,11 @@ class _$TourInstanceResponseImpl implements _TourInstanceResponse {
   @override
   final int? availableSlots;
   @override
-  final String? imageUrl;
+  final String? thumbnailUrl;
 
   @override
   String toString() {
-    return 'TourInstanceResponse(id: $id, tourName: $tourName, startDate: $startDate, endDate: $endDate, status: $status, currentParticipants: $currentParticipants, maxParticipants: $maxParticipants, availableSlots: $availableSlots, imageUrl: $imageUrl)';
+    return 'TourInstanceResponse(id: $id, tourName: $tourName, startDate: $startDate, endDate: $endDate, status: $status, currentParticipants: $currentParticipants, maxParticipants: $maxParticipants, availableSlots: $availableSlots, thumbnailUrl: $thumbnailUrl)';
   }
 
   @override
@@ -282,8 +282,8 @@ class _$TourInstanceResponseImpl implements _TourInstanceResponse {
                 other.maxParticipants == maxParticipants) &&
             (identical(other.availableSlots, availableSlots) ||
                 other.availableSlots == availableSlots) &&
-            (identical(other.imageUrl, imageUrl) ||
-                other.imageUrl == imageUrl));
+            (identical(other.thumbnailUrl, thumbnailUrl) ||
+                other.thumbnailUrl == thumbnailUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -298,7 +298,7 @@ class _$TourInstanceResponseImpl implements _TourInstanceResponse {
     currentParticipants,
     maxParticipants,
     availableSlots,
-    imageUrl,
+    thumbnailUrl,
   );
 
   /// Create a copy of TourInstanceResponse
@@ -329,7 +329,7 @@ abstract class _TourInstanceResponse implements TourInstanceResponse {
     required final int currentParticipants,
     final int? maxParticipants,
     final int? availableSlots,
-    final String? imageUrl,
+    final String? thumbnailUrl,
   }) = _$TourInstanceResponseImpl;
 
   factory _TourInstanceResponse.fromJson(Map<String, dynamic> json) =
@@ -352,7 +352,7 @@ abstract class _TourInstanceResponse implements TourInstanceResponse {
   @override
   int? get availableSlots;
   @override
-  String? get imageUrl;
+  String? get thumbnailUrl;
 
   /// Create a copy of TourInstanceResponse
   /// with the given fields replaced by the non-null parameter values.

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_input_field.dart';
+import 'package:travery_frontend/data/models/trip/destination_data.dart';
+import 'package:travery_frontend/data/services/trip/trip_service.dart';
+import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/utils/core_result.dart';
+import 'package:go_router/go_router.dart';
 
 class CoordinatorCreateCoachTemplateScreen extends StatefulWidget {
   const CoordinatorCreateCoachTemplateScreen({super.key});
@@ -12,14 +18,9 @@ class CoordinatorCreateCoachTemplateScreen extends StatefulWidget {
 }
 
 class _StopPoint {
-  String? selectedStation;
-  final TextEditingController cityController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
+  DestinationData? selectedDestination;
 
-  void dispose() {
-    cityController.dispose();
-    addressController.dispose();
-  }
+  void dispose() {}
 }
 
 class _CoordinatorCreateCoachTemplateScreenState
@@ -28,13 +29,7 @@ class _CoordinatorCreateCoachTemplateScreenState
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _distanceController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
-
-  final List<String> _dummyStations = [
-    'Chi nhánh Sài Gòn',
-    'Chi nhánh Đà Lạt',
-    'Chi nhánh Hà Nội',
-    'Chi nhánh Sapa',
-  ];
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -47,36 +42,54 @@ class _CoordinatorCreateCoachTemplateScreenState
     super.dispose();
   }
 
-  void _onStationSelected(int index, String station) {
-    setState(() {
-      _stopPoints[index].selectedStation = station;
-      // Mock data population based on selection
-      if (station.contains('Sài Gòn')) {
-        _stopPoints[index].cityController.text = 'Hồ Chí Minh';
-        _stopPoints[index].addressController.text = 'Quận 1, TP. HCM';
-      } else if (station.contains('Đà Lạt')) {
-        _stopPoints[index].cityController.text = 'Lâm Đồng';
-        _stopPoints[index].addressController.text = 'Phường 3, Đà Lạt';
-      } else if (station.contains('Hà Nội')) {
-        _stopPoints[index].cityController.text = 'Hà Nội';
-        _stopPoints[index].addressController.text = 'Quận Hoàn Kiếm, Hà Nội';
-      } else if (station.contains('Sapa')) {
-        _stopPoints[index].cityController.text = 'Lào Cai';
-        _stopPoints[index].addressController.text = 'Thị xã Sapa, Lào Cai';
-      }
-    });
-  }
+  Future<void> _onConfirm() async {
+    final origin = _stopPoints[0].selectedDestination;
+    final destination = _stopPoints[1].selectedDestination;
+    final distance = double.tryParse(_distanceController.text);
+    final hours = int.tryParse(_durationController.text);
+    final price = double.tryParse(_priceController.text);
 
-  void _onConfirm() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Lộ trình đã được tạo thành công!')),
+    if (origin == null ||
+        destination == null ||
+        distance == null ||
+        hours == null ||
+        price == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập đầy đủ và hợp lệ các trường')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    
+    final repo = context.read<CoordinatorRepository>();
+    final result = await repo.createRoute(
+      originDestinationId: origin.id,
+      destinationDestinationId: destination.id,
+      distanceKm: distance,
+      estimatedHours: hours,
+      basePrice: price,
     );
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result is Ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lộ trình đã được tạo thành công!')),
+      );
+      context.pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${(result as Error).error.toString()}')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -116,28 +129,38 @@ class _CoordinatorCreateCoachTemplateScreenState
                       ],
                     ),
                   ),
-                  Material(
-                    color: AppColors.primaryDarkBlackBlue,
-                    borderRadius: BorderRadius.circular(8),
-                    child: InkWell(
+                  if (_isLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 16),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  else
+                    Material(
+                      color: AppColors.primaryDarkBlackBlue,
                       borderRadius: BorderRadius.circular(8),
-                      onTap: _onConfirm,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          'Xác nhận',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: AppTextTheme.bodyMedium,
-                            fontWeight: FontWeight.bold,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: _onConfirm,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Text(
+                            'Xác nhận',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: AppTextTheme.bodyMedium,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -158,7 +181,7 @@ class _CoordinatorCreateCoachTemplateScreenState
                       _buildStopPointCard(i),
                       if (i < _stopPoints.length - 1) ...[
                         const SizedBox(height: 12),
-                        Center(
+                        const Center(
                           child: Icon(
                             Icons.arrow_downward_rounded,
                             color: AppColors.primary,
@@ -176,6 +199,7 @@ class _CoordinatorCreateCoachTemplateScreenState
                       label: 'Giá vé',
                       hintText: 'Nhập giá...',
                       controller: _priceController,
+                      keyboardType: TextInputType.number,
                       suffixIcon: const Icon(
                         Icons.attach_money_rounded,
                         size: 18,
@@ -192,6 +216,7 @@ class _CoordinatorCreateCoachTemplateScreenState
                             label: 'Khoảng cách',
                             hintText: 'Nhập số km...',
                             controller: _distanceController,
+                            keyboardType: TextInputType.number,
                             suffixIcon: const Icon(
                               Icons.format_line_spacing_rounded,
                               size: 18,
@@ -205,6 +230,7 @@ class _CoordinatorCreateCoachTemplateScreenState
                             label: 'Thời gian ước tính',
                             hintText: 'Nhập số giờ',
                             controller: _durationController,
+                            keyboardType: TextInputType.number,
                             suffixIcon: const Icon(
                               Icons.access_time_rounded,
                               size: 18,
@@ -246,7 +272,7 @@ class _CoordinatorCreateCoachTemplateScreenState
               Container(
                 width: 28,
                 height: 28,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primaryDarkBlackBlue,
                   shape: BoxShape.circle,
                 ),
@@ -274,75 +300,78 @@ class _CoordinatorCreateCoachTemplateScreenState
           ),
           const SizedBox(height: 12),
 
-          // Station dropdown
-          Container(
-            height: 44,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                color: AppColors.primaryLightWhiteBlue,
-                width: 1.5,
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 18,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      hint: const Text(
-                        'Chọn chi nhánh',
-                        style: TextStyle(
-                          fontSize: AppTextTheme.bodyMedium,
-                          color: AppColors.textHint,
+          // Destination Search using Autocomplete
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Autocomplete<DestinationData>(
+                optionsBuilder: (TextEditingValue textEditingValue) async {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<DestinationData>.empty();
+                  }
+                  final result = await context.read<TripService>().searchDestinations(textEditingValue.text);
+                  if (result is Ok) {
+                    return (result as Ok<List<DestinationData>>).value;
+                  }
+                  return const Iterable<DestinationData>.empty();
+                },
+                displayStringForOption: (DestinationData option) => option.name,
+                onSelected: (DestinationData selection) {
+                  setState(() {
+                    stop.selectedDestination = selection;
+                  });
+                },
+                fieldViewBuilder: (
+                  BuildContext context,
+                  TextEditingController fieldTextEditingController,
+                  FocusNode fieldFocusNode,
+                  VoidCallback onFieldSubmitted,
+                ) {
+                  return CoordinatorInputField(
+                    hintText: 'Tìm kiếm Tỉnh, thành phố',
+                    controller: fieldTextEditingController,
+                    focusNode: fieldFocusNode,
+                    suffixIcon: const Icon(
+                      Icons.search,
+                      size: 18,
+                      color: AppColors.textSecondary,
+                    ),
+                  );
+                },
+                optionsViewBuilder: (
+                  BuildContext context,
+                  AutocompleteOnSelected<DestinationData> onSelected,
+                  Iterable<DestinationData> options,
+                ) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      elevation: 4.0,
+                      child: SizedBox(
+                        width: constraints.biggest.width,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(8.0),
+                          itemCount: options.length,
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            final DestinationData option = options.elementAt(index);
+                            return GestureDetector(
+                              onTap: () {
+                                onSelected(option);
+                              },
+                              child: ListTile(
+                                leading: const Icon(Icons.location_city, color: AppColors.primary),
+                                title: Text(option.name),
+                                subtitle: Text(option.code),
+                              ),
+                            );
+                          },
                         ),
                       ),
-                      value: stop.selectedStation,
-                      items: _dummyStations.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) _onStationSelected(index, val);
-                      },
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // City Input
-          CoordinatorInputField(
-            hintText: 'Tỉnh, thành phố',
-            controller: stop.cityController,
-            suffixIcon: const Icon(
-              Icons.location_on_outlined,
-              size: 18,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Address input
-          CoordinatorInputField(
-            hintText: 'Địa chỉ chi tiết',
-            controller: stop.addressController,
-            suffixIcon: const Icon(
-              Icons.location_on_outlined,
-              size: 18,
-              color: AppColors.textSecondary,
-            ),
+                  );
+                },
+              );
+            }
           ),
         ],
       ),

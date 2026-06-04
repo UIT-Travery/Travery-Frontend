@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/data/services/api/model/receptionist/check_in_queue_item_response.dart';
 
 class RecepDashboardCheckinList extends StatefulWidget {
-  const RecepDashboardCheckinList({super.key});
+  final List<CheckInQueueItemResponse>? queue;
+  const RecepDashboardCheckinList({super.key, this.queue});
 
   @override
   State<RecepDashboardCheckinList> createState() => _RecepDashboardCheckinListState();
@@ -11,36 +13,10 @@ class RecepDashboardCheckinList extends StatefulWidget {
 class _RecepDashboardCheckinListState extends State<RecepDashboardCheckinList> {
   bool _showAll = false;
 
-  final List<Map<String, String>> _mockData = [
-    {
-      'name': 'Lê Minh Tuấn',
-      'phone': '0909400800',
-      'rooms': '3',
-      'people': '12',
-    },
-    {
-      'name': 'Trần Thị Bích',
-      'phone': '0908456788',
-      'rooms': '6',
-      'people': '12',
-    },
-    {
-      'name': 'Nguyễn Văn A',
-      'phone': '0901234567',
-      'rooms': '2',
-      'people': '4',
-    },
-    {
-      'name': 'Trần Văn B',
-      'phone': '0987654321',
-      'rooms': '1',
-      'people': '2',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final itemsToShow = _showAll ? _mockData : _mockData.take(2).toList();
+    final queueData = widget.queue ?? [];
+    final itemsToShow = _showAll ? queueData : queueData.take(2).toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -71,9 +47,9 @@ class _RecepDashboardCheckinListState extends State<RecepDashboardCheckinList> {
                     color: AppColors.primaryLightWhiteBlue,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Text(
-                    '12 Lượt',
-                    style: TextStyle(
+                  child: Text(
+                    '${queueData.length} Lượt',
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -154,7 +130,7 @@ class _RecepDashboardCheckinListState extends State<RecepDashboardCheckinList> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        item['name']!,
+                        item.touristName,
                         style: const TextStyle(
                           color: Color(0xFF111827),
                           fontWeight: FontWeight.bold,
@@ -165,7 +141,7 @@ class _RecepDashboardCheckinListState extends State<RecepDashboardCheckinList> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        item['phone']!,
+                        item.phoneNumber,
                         style: const TextStyle(
                           color: AppColors.primaryDarkBlackBlue,
                           fontWeight: FontWeight.bold,
@@ -177,7 +153,7 @@ class _RecepDashboardCheckinListState extends State<RecepDashboardCheckinList> {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        item['rooms']!,
+                        '${item.totalRooms}',
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 14,
@@ -188,7 +164,7 @@ class _RecepDashboardCheckinListState extends State<RecepDashboardCheckinList> {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        item['people']!,
+                        '${item.memberCount}',
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 14,
