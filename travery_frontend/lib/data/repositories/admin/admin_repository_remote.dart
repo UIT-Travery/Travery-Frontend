@@ -692,7 +692,37 @@ class AdminRepositoryRemote extends AdminRepository {
 
   @override
   Future<Result<BusinessHotel>> getHotel({required String id}) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.adminGetHotelById(
+      accessToken: token,
+      hotelId: id,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        try {
+          final data = result.value;
+          final hotel = BusinessHotel(
+            id: data['id'] as String? ?? id,
+            name: data['name'] as String? ?? '',
+            address: data['address'] as String? ?? '',
+            cityProvince: data['cityProvince'] as String? ?? '',
+            starRating: (data['starRating'] as num?)?.toDouble(),
+            occupancyRate: (data['occupancyRate'] as num?)?.toDouble(),
+            roomCount: data['roomCount'] as int?,
+            imageUrl: data['thumbnailUrl'] ?? data['imageUrl'] as String?,
+            images: data['images'] as List<dynamic>? ?? [],
+          );
+          return Result.ok(hotel);
+        } catch (e) {
+          return Result.error(Exception('Lỗi parse dữ liệu hotel: $e'));
+        }
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override
@@ -1209,16 +1239,33 @@ class AdminRepositoryRemote extends AdminRepository {
 
   @override
   Future<Result<void>> updateRoom({
-    required String id,
-    required String roomNumber,
-    required String roomType,
-    required double pricePerNight,
-    required int capacity,
-    required int maxAdults,
-    required int maxChildren,
-    required String status,
+    required String roomId,
+    String? roomNumber,
+    int? floor,
+    String? roomTypeId,
   }) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final body = <String, dynamic>{};
+    if (roomNumber != null) body['roomNumber'] = roomNumber;
+    if (floor != null) body['floor'] = floor;
+    if (roomTypeId != null) body['roomTypeId'] = roomTypeId;
+
+    final result = await _adminApiService.adminUpdateRoom(
+      accessToken: token,
+      roomId: roomId,
+      body: body,
+    );
+    switch (result) {
+      case Ok<Map<String, dynamic>>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<Map<String, dynamic>>():
+        return Result.error(result.error);
+    }
   }
 
   @override

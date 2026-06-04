@@ -39,11 +39,14 @@ class Routes {
       '/admin/update-vehicle/$vehicleId';
   static String adminViewDetailAccountWithId(String id) =>
       '/admin/view-detail-account/$id';
+  static String adminViewHotelRoomList(String hotelId) =>
+      '/admin/hotels/$hotelId/rooms';
   static const String adminViewProfile = '/admin/view-profile';
   static const String adminUpdateProfile = '/admin/update-profile';
 
   // Admin Hotel Detail
   static const String adminHotelDetail = '/admin/hotel-detail';
+  static const String adminImageManagement = '/admin/image-management';
 
   // Admin Room Type
   static const String adminViewRoomtypeList = '/admin/room-types';

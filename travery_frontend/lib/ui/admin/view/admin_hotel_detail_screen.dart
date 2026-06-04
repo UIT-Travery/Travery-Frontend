@@ -102,6 +102,17 @@ class AdminHotelDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _ManagementTile(
+              icon: Icons.meeting_room_outlined,
+              iconColor: const Color(0xFF10B981),
+              bgColor: const Color(0xFFD1FAE5),
+              title: 'Danh sách phòng',
+              subtitle: 'Quản lý các phòng của khách sạn',
+              onTap: () {
+                context.push(Routes.adminViewHotelRoomList(hotel.id));
+              },
+            ),
+            const SizedBox(height: 12),
+            _ManagementTile(
               icon: Icons.bed_outlined,
               iconColor: const Color(0xFF0055C3),
               bgColor: const Color(0xFFDBEAFE),
@@ -147,11 +158,9 @@ class AdminHotelDetailScreen extends StatelessWidget {
               title: 'Hình ảnh',
               subtitle: 'Quản lý hình ảnh của khách sạn',
               onTap: () {
-                // TODO: hotel images management
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Tính năng đang được phát triển'),
-                  ),
+                context.push(
+                  Routes.adminImageManagement,
+                  extra: {'hotelId': hotel.id},
                 );
               },
             ),

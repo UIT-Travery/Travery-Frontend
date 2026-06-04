@@ -207,6 +207,16 @@ abstract class AdminRepository extends ChangeNotifier {
 
   Future<Result<void>> deleteHotelRoomType({required String roomTypeId});
 
+  Future<Result<List<dynamic>>> uploadRoomTypeImages({
+    required String roomTypeId,
+    required List<String> filePaths,
+  });
+
+  Future<Result<void>> deleteRoomTypeImage({
+    required String roomTypeId,
+    required String imageId,
+  });
+
   Future<Result<List<dynamic>>> getHotelRooms({required String hotelId});
 
   Future<Result<void>> createHotelRoom({
@@ -253,14 +263,10 @@ abstract class AdminRepository extends ChangeNotifier {
   });
 
   Future<Result<void>> updateRoom({
-    required String id,
-    required String roomNumber,
-    required String roomType,
-    required double pricePerNight,
-    required int capacity,
-    required int maxAdults,
-    required int maxChildren,
-    required String status,
+    required String roomId,
+    String? roomNumber,
+    int? floor,
+    String? roomTypeId,
   });
 
   Future<Result<void>> deleteRoom({required String id});

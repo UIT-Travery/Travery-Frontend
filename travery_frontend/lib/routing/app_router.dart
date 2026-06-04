@@ -11,6 +11,9 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_coach/coo
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
 import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/ui/admin/view/image_management.dart';
+import 'package:travery_frontend/ui/admin/view_model/image_management_view_model.dart';
+import 'package:travery_frontend/ui/admin/view/view_hotel_room_list.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
@@ -802,6 +805,26 @@ GoRouter appRouter(
         builder: (context, state) {
           final hotel = state.extra as BusinessHotel;
           return AdminHotelDetailScreen(hotel: hotel);
+        },
+      ),
+      GoRoute(
+        path: Routes.adminImageManagement,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final hotelId = extra['hotelId'] as String? ?? '';
+          return ImageManagementScreen(
+            hotelId: hotelId,
+            viewModel: ImageManagementViewModel(adminRepository: context.read()),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.adminViewHotelRoomList(':id'),
+        builder: (context, state) {
+          final hotelId = state.pathParameters['id']!;
+          return ViewHotelRoomListScreen(
+            hotelId: hotelId,
+          ); // Assuming we'll create this or use a view model wrapper later if needed
         },
       ),
       GoRoute(

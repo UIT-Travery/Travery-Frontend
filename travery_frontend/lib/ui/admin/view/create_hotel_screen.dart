@@ -35,6 +35,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   @override
   void initState() {
     super.initState();
+    widget.viewModel.createHotel.addListener(_onCreateHotelResult);
     widget.viewModel.loadAmenities.addListener(_onAmenitiesLoaded);
     widget.viewModel.loadRefundPolicies.addListener(_onRefundPoliciesLoaded);
     widget.viewModel.loadAmenities.execute();
@@ -51,6 +52,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
 
   @override
   void dispose() {
+    widget.viewModel.createHotel.removeListener(_onCreateHotelResult);
     widget.viewModel.loadAmenities.removeListener(_onAmenitiesLoaded);
     widget.viewModel.loadRefundPolicies.removeListener(_onRefundPoliciesLoaded);
     _nameController.dispose();
@@ -60,6 +62,32 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   }
 
   List<String> _selectedAmenityIds = [];
+
+  void _onCreateHotelResult() {
+    final cmd = widget.viewModel.createHotel;
+    if (cmd.completed) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã tạo khách sạn thành công'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      context.pop(true);
+    } else if (cmd.error) {
+      if (!mounted) return;
+      String errorMessage = 'Tạo khách sạn thất bại';
+      // In Dart 3, result could be matched. For now, assuming basic Error toString.
+      final result = cmd.result;
+      if (result != null && result.toString().contains('Exception:')) {
+        errorMessage = result.toString().replaceAll('Exception: ', '');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+      cmd.clearResult();
+    }
+  }
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
@@ -86,7 +114,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
 
     final payload = (
       name: _nameController.text.trim(),
-      description: _descriptionController.text.trim(),
+      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
       address: _addressController.text.trim(),
       cityProvince: _selectedCity ?? 'Hà Nội',
       checkInTime: _checkInTime,
@@ -95,14 +123,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
       refundPolicyId: _selectedPolicy!,
     );
 
-    final result = await context.push<bool>(
-      '/admin/create-hotel/info', // Should use Routes.adminAddHotelInfo, but avoiding import if missing
-      extra: {'viewModel': widget.viewModel, 'payload': payload},
-    );
-
-    if (result == true && mounted) {
-      context.pop();
-    }
+    widget.viewModel.createHotel.execute(payload);
   }
 
   Future<void> _selectTime(BuildContext context, bool isCheckIn) async {
@@ -349,7 +370,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                               width: 24,
                               height: 24,
                               color: AppColors.primaryDarkBlackBlue,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (context, error, stackTrace) => const Icon(
                                 Icons.star,
                                 color: AppColors.primaryDarkBlackBlue,
                                 size: 24,
@@ -389,7 +410,6 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
     return ListenableBuilder(
       listenable: widget.viewModel.createHotel,
       builder: (context, _) {
-        final isRunning = widget.viewModel.createHotel.running;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,

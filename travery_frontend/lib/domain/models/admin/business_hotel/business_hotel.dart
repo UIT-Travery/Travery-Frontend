@@ -11,6 +11,7 @@ class BusinessHotel {
     this.roomCount,
     this.imageUrl,
     this.rooms = const [],
+    this.images = const [],
   });
 
   final String id;
@@ -22,4 +23,5 @@ class BusinessHotel {
   final int? roomCount;
   final String? imageUrl;
   final List<Room> rooms;
+  final List<dynamic> images;
 }

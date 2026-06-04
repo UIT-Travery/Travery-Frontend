@@ -1026,6 +1026,33 @@ class AdminApiService {
     }
   }
 
+  /// GET /api/v1/hotels/{hotelId}
+  Future<Result<Map<String, dynamic>>> adminGetHotelById({
+    required String accessToken,
+    required String hotelId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/hotels/$hotelId');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể tải thông tin khách sạn');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
   /// PATCH /api/v1/admin/hotels/{hotelId}
   Future<Result<Map<String, dynamic>>> adminUpdateHotel({
     required String accessToken,
@@ -1330,6 +1357,77 @@ class AdminApiService {
     }
   }
 
+  /// POST /api/v1/admin/room-types/{roomTypeId}/images (multipart)
+  Future<Result<List<dynamic>>> adminUploadRoomTypeImages({
+    required String accessToken,
+    required String roomTypeId,
+    required List<String> filePaths,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final boundary = 'TraveryBoundary${DateTime.now().millisecondsSinceEpoch}';
+      final uri = Uri.https(_host, '/api/v1/admin/room-types/$roomTypeId/images');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.set(HttpHeaders.contentTypeHeader, 'multipart/form-data; boundary=$boundary');
+
+      final bodyBytes = <int>[];
+      for (final filePath in filePaths) {
+        final file = File(filePath);
+        if (file.existsSync()) {
+          final fileBytes = await file.readAsBytes();
+          final fileName = file.uri.pathSegments.last;
+          bodyBytes.addAll(utf8.encode('--$boundary\r\nContent-Disposition: form-data; name="files"; filename="$fileName"\r\nContent-Type: application/octet-stream\r\n\r\n'));
+          bodyBytes.addAll(fileBytes);
+          bodyBytes.addAll(utf8.encode('\r\n'));
+        }
+      }
+      bodyBytes.addAll(utf8.encode('--$boundary--\r\n'));
+      request.contentLength = bodyBytes.length;
+      request.add(bodyBytes);
+      final response = await request.close();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as List<dynamic>? ?? []);
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể tải ảnh lên');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// DELETE /api/v1/admin/room-types/{roomTypeId}/images/{imageId}
+  Future<Result<void>> adminDeleteRoomTypeImage({
+    required String accessToken,
+    required String roomTypeId,
+    required String imageId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/room-types/$roomTypeId/images/$imageId');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể xóa ảnh');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
   /// GET /api/v1/admin/hotels/{hotelId}/rooms
   Future<Result<List<dynamic>>> adminGetRooms({
     required String accessToken,
@@ -1380,6 +1478,38 @@ class AdminApiService {
         return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
       } else {
         final msg = await _extractErrorMessage(response, 'Không thể tạo phòng');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PATCH /api/v1/admin/rooms/{roomId}
+  Future<Result<Map<String, dynamic>>> adminUpdateRoom({
+    required String accessToken,
+    required String roomId,
+    required Map<String, dynamic> body,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/rooms/$roomId');
+      final request = await client.patchUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+      final encoded = jsonEncode(body);
+      request.contentLength = utf8.encode(encoded).length;
+      request.write(encoded);
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as Map<String, dynamic>? ?? {});
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể cập nhật phòng');
         return Result.error(HttpException(msg));
       }
     } on Exception catch (e) {

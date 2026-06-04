@@ -1034,20 +1034,12 @@ class AdminRepositoryDev extends AdminRepository {
   //   required String cityProvince,
   //   required String status,
   // }) {
-  //   // TODO: implement updateHotel
-  //   throw UnimplementedError();
-  // }
-  @override
   Future<Result<void>> updateRoom({
-    required String id,
-    required String roomNumber,
-    required String roomType,
-    required double pricePerNight,
-    required int capacity,
-    required int maxAdults,
-    required int maxChildren,
-    required String status,
-  }) {
+    required String roomId,
+    String? roomNumber,
+    int? floor,
+    String? roomTypeId,
+  }) async {
     // TODO: implement updateRoom
     throw UnimplementedError();
   }
@@ -1191,8 +1183,26 @@ class AdminRepositoryDev extends AdminRepository {
   }
 
   @override
-  Future<Result<void>> deleteHotelRoomType({required String roomTypeId}) {
+  Future<Result<void>> deleteHotelRoomType({required String roomTypeId}) async {
     // TODO: implement deleteHotelRoomType
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<List<dynamic>>> uploadRoomTypeImages({
+    required String roomTypeId,
+    required List<String> filePaths,
+  }) async {
+    // TODO: implement uploadRoomTypeImages
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> deleteRoomTypeImage({
+    required String roomTypeId,
+    required String imageId,
+  }) async {
+    // TODO: implement deleteRoomTypeImage
     throw UnimplementedError();
   }
 
