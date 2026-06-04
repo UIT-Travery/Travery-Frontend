@@ -36,10 +36,15 @@ class ChatService {
       return;
     }
 
+    // If a different user is logged in, logout first
+    if (loggedInUser != null) {
+      debugPrint("CometChat: Different user ${loggedInUser.uid} logged in. Logging out...");
+      await logout();
+    }
+
     final completer = Completer<void>();
 
-    // Using CometChat.login directly to ensure authKey is passed if UIKit wrapper fails to do so
-    await CometChat.login(
+    CometChat.login(
       uid,
       AppConfig.cometChatAuthKey,
       onSuccess: (User user) {

@@ -7,6 +7,8 @@ import 'coordinator_selection_screen.dart';
 import 'coordinator_view_ended_tour_screen.dart';
 import 'widgets/coordinator_bottom_navigation_bar.dart';
 
+import 'package:travery_frontend/ui/chat/chat_screen.dart';
+
 class CoordinatorMainScreen extends StatefulWidget {
   const CoordinatorMainScreen({super.key});
 
@@ -37,15 +39,6 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
   }
 
   void _onBottomNavTapped(int index) {
-    if (index == 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tính năng Chat đang được phát triển'),
-          duration: Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -65,7 +58,7 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
           ),
           const CoordinatorViewCoachListScreen(),
           CoordinatorSelectionScreen(),
-          const Center(child: Text('Chat')),
+          const ChatScreen(title: 'Tin nhắn', showBackButton: false),
           const CoordinatorViewEndedTourScreen(),
         ],
       ),

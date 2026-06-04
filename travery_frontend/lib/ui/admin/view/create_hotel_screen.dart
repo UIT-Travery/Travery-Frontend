@@ -56,13 +56,7 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
     setState(() {}); // Rebuild when destinations load
   }
 
-  // ── Lifecycle ──────────────────────────────────────────────────────────────
-
-  @override
-  void initState() {
-    super.initState();
-    widget.viewModel.createHotel.addListener(_onCreateHotelChanged);
-  }
+  // ── Actions ────────────────────────────────────────────────────────────────
 
   @override
   void dispose() {
@@ -77,6 +71,10 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   }
 
   List<String> _selectedAmenityIds = [];
+
+  void _onCreateHotelChanged() {
+    _onCreateHotelResult();
+  }
 
   void _onCreateHotelResult() {
     final cmd = widget.viewModel.createHotel;

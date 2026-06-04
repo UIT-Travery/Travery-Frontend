@@ -88,7 +88,7 @@ abstract class CoordinatorRepository extends ChangeNotifier {
   Future<Result<void>> deleteTemplate(String id);
 
   // ── Stubbed methods for unused bottom sheets ─────────────────────────────
-  Future<Result<List<CosordinatorHotel>>> getAllHotels();
+  Future<Result<List<CoordinatorHotel>>> getAllHotels();
   Future<Result<List<CoordinatorDriver>>> getAllDrivers();
   Future<Result<List<CoordinatorVehicle>>> getAllVehicles();
 }
