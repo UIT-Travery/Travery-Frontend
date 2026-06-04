@@ -73,6 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
         context.go(Routes.coordinatorMain);
       case 'ROLE_GUIDE':
         context.go(Routes.guideHome);
+      case 'ROLE_RECEPTIONIST':
+        context.go(Routes.recepMain);
       case 'ROLE_TOURIST':
       default:
         context.go(Routes.tourHome);

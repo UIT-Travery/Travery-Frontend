@@ -183,6 +183,11 @@ import 'package:travery_frontend/ui/coordinator/view/coordinator_view_reviews_sc
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_task_list_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_template_list_view_model.dart';
 
+import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_view_model.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
+import 'package:travery_frontend/ui/receptionist/view/recep_room_selection_screen.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selection_view_model.dart';
+
 GoRouter appRouter(
   AuthRepository authRepository, {
   void Function(GoRouter router)? onInitialized,
@@ -1108,11 +1113,21 @@ GoRouter appRouter(
       //======Receptionist========
       GoRoute(
         path: Routes.recepMain,
-        builder: (context, state) => const RecepMainScreen(),
+        builder: (context, state) => Provider(
+          create: (context) => RecepDashboardViewModel(
+            repository: context.read<ReceptionistRepository>(),
+          ),
+          child: const RecepMainScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.recepDashboard,
-        builder: (context, state) => const RecepDashboardScreen(),
+        builder: (context, state) => Provider(
+          create: (context) => RecepDashboardViewModel(
+            repository: context.read<ReceptionistRepository>(),
+          ),
+          child: const RecepDashboardScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.recepCheckInOut,
@@ -1129,6 +1144,18 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.recepProfile,
         builder: (context, state) => const RecepViewProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.recepRoomSelection,
+        builder: (context, state) {
+          final roomTypeId = state.pathParameters['id'] ?? '';
+          return RecepRoomSelectionScreen(
+            roomTypeId: roomTypeId,
+            viewModel: RecepRoomSelectionViewModel(
+              repository: context.read<ReceptionistRepository>(),
+            ),
+          );
+        },
       ),
 
       // ==== User Profile Routes ====

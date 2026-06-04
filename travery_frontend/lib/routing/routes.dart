@@ -157,6 +157,7 @@ class Routes {
   static const String recepHotel = '/recep/hotel';
   static const String recepAddon = '/recep/addon';
   static const String recepProfile = '/recep/profile';
+  static const String recepRoomSelection = '/recep/room-selection/:id';
 
   // User Profile
   static const String userProfile = '/user/profile';

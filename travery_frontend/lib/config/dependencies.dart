@@ -32,6 +32,12 @@ import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart
 import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/profile/profile_repository_remote.dart';
 
+import 'package:travery_frontend/data/services/api/receptionist_api_service.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository_remote.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selection_view_model.dart';
+
 import 'package:travery_frontend/data/services/booking/booking_service.dart';
 import 'package:travery_frontend/data/repositories/mission_repository_impl.dart';
 import 'package:travery_frontend/data/repositories/check_in_repository_impl.dart';
@@ -213,6 +219,19 @@ List<SingleChildWidget> get providers => [
   ChangeNotifierProvider<CoordinatorRepository>(
     create: (context) => CoordinatorRepositoryRemote(
       apiService: context.read<CoordinatorApiService>(),
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+
+  // ── Receptionist service ───────────────────────────────────────────────
+  Provider<ReceptionistApiService>(
+    create: (context) => ReceptionistApiService(),
+  ),
+
+  // ── Receptionist repository (remote) ──────────────────────────────────────
+  ChangeNotifierProvider<ReceptionistRepository>(
+    create: (context) => ReceptionistRepositoryRemote(
+      apiService: context.read<ReceptionistApiService>(),
       tokenRefreshService: context.read<TokenRefreshService>(),
     ),
   ),

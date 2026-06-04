@@ -2,139 +2,197 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/ui/core/widgets/loading_overlay.dart';
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_large_button.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selection_view_model.dart';
+import 'package:travery_frontend/utils/alert.dart';
+import 'package:travery_frontend/utils/core_result.dart' as core;
 
 class RecepRoomSelectionScreen extends StatefulWidget {
-  const RecepRoomSelectionScreen({super.key});
+  final RecepRoomSelectionViewModel viewModel;
+  final String roomTypeId;
+
+  const RecepRoomSelectionScreen({
+    super.key,
+    required this.viewModel,
+    required this.roomTypeId,
+  });
 
   @override
   State<RecepRoomSelectionScreen> createState() => _RecepRoomSelectionScreenState();
 }
 
 class _RecepRoomSelectionScreenState extends State<RecepRoomSelectionScreen> {
-  final List<int> selectedIndices = [0, 2];
+  final List<String> selectedRoomIds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.loadAvailableRooms.addListener(_onResult);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.viewModel.loadAvailableRooms.execute(widget.roomTypeId);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant RecepRoomSelectionScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.loadAvailableRooms.removeListener(_onResult);
+    widget.viewModel.loadAvailableRooms.addListener(_onResult);
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.loadAvailableRooms.removeListener(_onResult);
+    super.dispose();
+  }
+
+  void _onResult() {
+    if (widget.viewModel.loadAvailableRooms.error) {
+      final result = widget.viewModel.loadAvailableRooms.result;
+      String errorMessage = 'Không thể tải danh sách phòng';
+      if (result is core.Error) {
+        errorMessage = result.error.toString().replaceAll('HttpException: ', '');
+      }
+      widget.viewModel.loadAvailableRooms.clearResult();
+      Utils.showErrorNotification(context, errorMessage);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Row(
-          children: [
-            Icon(Icons.home_outlined, color: AppColors.primaryDarkBlackBlue),
-            SizedBox(width: 8),
-            Text('Lễ tân', style: TextStyle(color: AppColors.primaryDarkBlackBlue, fontWeight: FontWeight.bold, fontSize: 16)),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () => context.push(Routes.recepProfile),
-              child: const CircleAvatar(
-                backgroundColor: AppColors.primaryDarkBlackBlue,
-                child: Icon(Icons.person, color: Colors.white, size: 20),
+    return ListenableBuilder(
+      listenable: widget.viewModel.loadAvailableRooms,
+      builder: (context, child) {
+        final rooms = widget.viewModel.availableRooms;
+        return LoadingOverlay(
+          isLoading: widget.viewModel.loadAvailableRooms.running,
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            appBar: AppBar(
+              backgroundColor: AppColors.surface,
+              title: const Row(
+                children: [
+                  Icon(Icons.home_outlined, color: AppColors.primaryDarkBlackBlue),
+                  SizedBox(width: 8),
+                  Text('Lễ tân', style: TextStyle(color: AppColors.primaryDarkBlackBlue, fontWeight: FontWeight.bold, fontSize: 16)),
+                ],
               ),
-            ),
-          )
-        ],
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Chọn phòng',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Vui lòng chọn 3 phòng theo yêu cầu của hành khách',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryDarkBlackBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.filter_alt_outlined, color: Colors.white, size: 16),
-                      SizedBox(width: 4),
-                      Text('Lọc', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    ],
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: GestureDetector(
+                    onTap: () => context.push(Routes.recepProfile),
+                    child: const CircleAvatar(
+                      backgroundColor: AppColors.primaryDarkBlackBlue,
+                      child: Icon(Icons.person, color: Colors.white, size: 20),
+                    ),
                   ),
                 )
               ],
+              elevation: 0,
             ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: ListView(
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildRoomSelectCard(0, '101', 'Standard', '1 Giường đôi', true),
-                  const SizedBox(height: 12),
-                  _buildRoomSelectCard(1, '101', 'VIP', '1 Giường đơn', true),
-                  const SizedBox(height: 12),
-                  _buildRoomSelectCard(2, '101', 'Suite', '2 Giường đôi', true),
-                  const SizedBox(height: 12),
-                  _buildRoomSelectCard(3, '101', 'Standard', '1 Giường đôi', true),
-                  const SizedBox(height: 12),
-                  _buildRoomSelectCard(4, '101', 'Standard', '1 Giường đôi', true),
-                  const SizedBox(height: 12),
-                  _buildRoomSelectCard(5, '101', 'Standard', '1 Giường đôi', true),
-                  const SizedBox(height: 12),
-                  _buildRoomSelectCard(6, '101', 'Standard', '1 Giường đôi', true),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Chọn phòng',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Vui lòng chọn 3 phòng theo yêu cầu của hành khách',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryDarkBlackBlue,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.filter_alt_outlined, color: Colors.white, size: 16),
+                            SizedBox(width: 4),
+                            Text('Lọc', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: rooms.isEmpty && !widget.viewModel.loadAvailableRooms.running
+                        ? const Center(child: Text('Không có phòng trống cho loại phòng này'))
+                        : ListView.builder(
+                            itemCount: rooms.length,
+                            itemBuilder: (context, index) {
+                              final room = rooms[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: _buildRoomSelectCard(
+                                  room.id ?? '',
+                                  room.roomNumber ?? '',
+                                  room.roomTypeName ?? '',
+                                  '1 Giường', // You might need to adjust this depending on API
+                                  room.status == 'AVAILABLE',
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  const SizedBox(height: 16),
+                  RecepLargeButton(
+                    label: 'Xác nhận chọn phòng',
+                    onTap: () {
+                      // Implement confirm logic
+                    },
+                  )
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            RecepLargeButton(
-              label: 'Xác nhận chọn phòng',
-              onTap: () {},
-            )
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildRoomSelectCard(int index, String roomNumber, String type, String bed, bool isAvailable) {
-    bool isSelected = selectedIndices.contains(index);
+  Widget _buildRoomSelectCard(String roomId, String roomNumber, String type, String bed, bool isAvailable) {
+    bool isSelected = selectedRoomIds.contains(roomId);
 
     return GestureDetector(
       onTap: () {
+        if (!isAvailable) return;
         setState(() {
           if (isSelected) {
-            selectedIndices.remove(index);
+            selectedRoomIds.remove(roomId);
           } else {
-            selectedIndices.add(index);
+            selectedRoomIds.add(roomId);
           }
         });
       },
@@ -197,12 +255,12 @@ class _RecepRoomSelectionScreenState extends State<RecepRoomSelectionScreen> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Text(
-                          'Trống',
+                        Text(
+                          isAvailable ? 'Trống' : 'Đã đặt',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: isAvailable ? AppColors.textPrimary : AppColors.error,
                           ),
                         ),
                       ],

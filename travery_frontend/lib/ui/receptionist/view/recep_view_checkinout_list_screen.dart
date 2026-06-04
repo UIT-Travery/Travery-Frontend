@@ -16,7 +16,35 @@ class RecepViewCheckinoutListScreen extends StatefulWidget {
 
 class _RecepViewCheckinoutListScreenState
     extends State<RecepViewCheckinoutListScreen> {
-  bool isCheckInList = true;
+  String _selectedFilter = 'TẤT CẢ';
+
+  Widget _buildFilterChip(String label) {
+    final isSelected = _selectedFilter == label;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilter = label;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primaryDarkBlackBlue
+              : AppColors.primaryLightWhiteBlue,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppColors.primaryDarkBlackBlue,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,63 +85,36 @@ class _RecepViewCheckinoutListScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              isCheckInList
-                  ? 'Danh sách khách check-in'
-                  : 'Danh sách khách check-out',
-              style: const TextStyle(
+            const Text(
+              'Danh sách khách booking',
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              isCheckInList
-                  ? 'Chọn một hành khách để tiến hành check-in'
-                  : 'Chọn một hành khách để tiến hành check-out',
-              style: const TextStyle(
+            const Text(
+              'Chọn một hành khách để tiến hành điều phối',
+              style: TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: RecepLargeButton(
-                    label: 'CHECK-IN',
-                    backgroundColor: isCheckInList
-                        ? AppColors.primaryDarkBlackBlue
-                        : AppColors.primaryLightWhiteBlue,
-                    textColor: isCheckInList
-                        ? Colors.white
-                        : AppColors.textSecondary,
-                    onTap: () {
-                      setState(() {
-                        isCheckInList = true;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: RecepLargeButton(
-                    label: 'CHECK-OUT',
-                    backgroundColor: !isCheckInList
-                        ? AppColors.primaryDarkBlackBlue
-                        : AppColors.primaryLightWhiteBlue,
-                    textColor: !isCheckInList
-                        ? Colors.white
-                        : AppColors.textSecondary,
-                    onTap: () {
-                      setState(() {
-                        isCheckInList = false;
-                      });
-                    },
-                  ),
-                ),
-              ],
+            const SizedBox(height: 20),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip('TẤT CẢ'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('CHỜ NHẬN PHÒNG'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('ĐANG Ở'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('ĐÃ TRẢ PHÒNG'),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
             Expanded(
@@ -126,20 +127,20 @@ class _RecepViewCheckinoutListScreenState
                     roomType: 'Standard',
                     bedType: RecepBedType.single,
                     bedCount: 2,
-                    isCheckIn: isCheckInList,
-                    date: isCheckInList ? 'Today' : '26/05/2026',
+                    isCheckIn: true,
+                    date: 'Today',
                     onTapAction: () {},
                   ),
                   const SizedBox(height: 16),
                   RecepCheckInOutCard(
-                    guestName: 'Trần Văn B',
-                    roomCount: 1,
-                    guestCount: 2,
+                    guestName: 'Trần Văn A',
+                    roomCount: 3,
+                    guestCount: 6,
                     roomType: 'Standard',
-                    bedType: RecepBedType.double,
-                    bedCount: 1,
-                    isCheckIn: isCheckInList,
-                    date: isCheckInList ? 'Today' : '26/05/2026',
+                    bedType: RecepBedType.single,
+                    bedCount: 2,
+                    isCheckIn: true,
+                    date: '26/05/2026',
                     onTapAction: () {},
                   ),
                 ],

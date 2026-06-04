@@ -137,7 +137,7 @@ class RecepCheckInOutCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           RecepLargeButton(
-            label: isCheckIn ? 'Check-in Toàn bộ' : 'Check-out Toàn bộ',
+            label: 'Xem chi tiết',
             onTap: onTapAction,
           ),
         ],
