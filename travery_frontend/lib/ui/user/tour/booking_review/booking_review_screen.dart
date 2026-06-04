@@ -56,24 +56,12 @@ class BookingReviewScreen extends StatefulWidget {
 class _BookingReviewScreenState extends State<BookingReviewScreen> {
   bool _termsAccepted = false;
 
-  @override
-  void initState() {
-    super.initState();
-    widget.viewModel.initProfile();
-  }
-
-  Future<void> _onRefresh() async {
-    await widget.viewModel.refreshProfile();
-  }
-
   double get _totalPrice =>
       (widget.adultCount * widget.pricePerAdult) +
       (widget.childCount * widget.pricePerChild);
 
   @override
   Widget build(BuildContext context) {
-    final vm = widget.viewModel;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: UserAppBar(
@@ -83,14 +71,11 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        color: AppColors.primary,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          children: [
-            _buildContactSection(vm),
+      body: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildContactSection(),
 
             Container(
               padding: const EdgeInsets.all(20),
@@ -356,8 +341,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
             ),
 
             const SizedBox(height: 100),
-          ],
-        ),
+        ],
       ),
       bottomNavigationBar: Consumer<BookingReviewViewModel>(
         builder: (context, vm, _) {
@@ -478,65 +462,15 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
     );
   }
 
-  Widget _buildContactSection(BookingReviewViewModel vm) {
-    if (vm.isLoadingProfile) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'THÔNG TIN LIÊN LẠC',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Be Vietnam Pro',
-              color: Color(0xFF64748B),
-              letterSpacing: 0.8,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-      );
-    }
-
+  Widget _buildContactSection() {
     final name = widget.contactName.isNotEmpty
         ? widget.contactName
-        : vm.userName?.isNotEmpty == true
-        ? vm.userName!
         : 'Chưa cập nhật';
     final phone = widget.contactPhone.isNotEmpty
         ? widget.contactPhone
-        : vm.userPhone?.isNotEmpty == true
-        ? vm.userPhone!
         : 'Chưa cập nhật';
     final email = widget.contactEmail.isNotEmpty
         ? widget.contactEmail
-        : vm.userEmail?.isNotEmpty == true
-        ? vm.userEmail!
         : 'Chưa cập nhật';
 
     return Column(

@@ -85,6 +85,7 @@ class UserBookingRepository extends BookingService {
             paymentMethod: data['paymentMethod'] as String?,
             paymentStatus: data['paymentStatus'] as String?,
             transactionId: data['transactionId'] as String?,
+            gatewayTransactionId: data['gatewayTransactionId'] as String?,
             paymentUrl:
                 (data['payment'] as Map<String, dynamic>?)?['paymentUrl']
                     as String?,

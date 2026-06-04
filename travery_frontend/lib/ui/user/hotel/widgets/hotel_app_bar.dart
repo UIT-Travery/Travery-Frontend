@@ -54,6 +54,7 @@ class HotelAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
+      actions: const [SizedBox(width: kToolbarHeight)],
     );
   }
 

@@ -148,12 +148,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     color: AppColors.primary,
                   ),
                 ),
-                if (booking.transactionId != null &&
-                    booking.transactionId!.isNotEmpty) ...[
+                if (booking.gatewayTransactionId != null &&
+                    booking.gatewayTransactionId!.isNotEmpty) ...[
                   _buildDivider(),
                   _buildFormRow(
                     'Mã giao dịch',
-                    _shortCode(booking.transactionId!),
+                    booking.gatewayTransactionId!,
                   ),
                 ],
                 if (booking.createdAt != null) ...[
@@ -456,8 +456,4 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     }
   }
 
-  String _shortCode(String id) {
-    final clean = id.replaceAll('-', '');
-    return clean.length >= 8 ? clean.substring(clean.length - 8) : clean;
-  }
 }

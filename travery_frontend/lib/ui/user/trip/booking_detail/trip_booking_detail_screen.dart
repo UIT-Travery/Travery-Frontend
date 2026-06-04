@@ -669,7 +669,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                       style: TextStyle(fontSize: 13, color: Color(0xFF4B5563)),
                     ),
                     Text(
-                      '#${_shortCode(booking.gatewayTransactionId ?? booking.transactionId ?? booking.id)}',
+                      _shortCode(
+                        booking.gatewayTransactionId ??
+                            booking.transactionId ??
+                            booking.id,
+                      ),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,

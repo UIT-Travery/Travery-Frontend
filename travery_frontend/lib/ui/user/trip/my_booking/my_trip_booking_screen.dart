@@ -14,15 +14,36 @@ import 'package:travery_frontend/ui/user/tour/booking_list/booking_list_screen.d
 import 'package:travery_frontend/ui/user/hotel/my_booking/hotel_my_booking_screen.dart';
 
 class MyTripBookingScreen extends StatefulWidget {
-  const MyTripBookingScreen({super.key});
+  const MyTripBookingScreen({
+    super.key,
+    this.initialTab = 0,
+    this.refreshTick = 0,
+  });
+
+  final int initialTab;
+  final int refreshTick;
 
   @override
   State<MyTripBookingScreen> createState() => _MyTripBookingScreenState();
 }
 
 class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
   bool _showRail = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialTab.clamp(0, 2);
+  }
+
+  @override
+  void didUpdateWidget(MyTripBookingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTab != widget.initialTab) {
+      setState(() => _selectedIndex = widget.initialTab.clamp(0, 2));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +51,7 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
       backgroundColor: const Color(0xFFFAFAFF),
       appBar: UserAppBar(
         title: _titles[_selectedIndex],
+        titleFontSize: 15,
         showBackButton: false,
         actions: [
           IconButton(
@@ -98,13 +120,24 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
   Widget _buildCurrentTab() {
     switch (_selectedIndex) {
       case 0:
-        return const BookingListScreen(showHeader: false);
+        return BookingListScreen(
+          key: ValueKey('tour-${widget.refreshTick}'),
+          showHeader: false,
+        );
       case 1:
-        return const _TripBookingListContent();
+        return _TripBookingListContent(
+          key: ValueKey('trip-${widget.refreshTick}'),
+        );
       case 2:
-        return const HotelMyBookingScreen(showHeader: false);
+        return HotelMyBookingScreen(
+          key: ValueKey('hotel-${widget.refreshTick}'),
+          showHeader: false,
+        );
       default:
-        return const BookingListScreen(showHeader: false);
+        return BookingListScreen(
+          key: ValueKey('tour-default-${widget.refreshTick}'),
+          showHeader: false,
+        );
     }
   }
 
@@ -115,8 +148,23 @@ class _MyTripBookingScreenState extends State<MyTripBookingScreen> {
   ];
 }
 
-class _TripBookingListContent extends StatelessWidget {
-  const _TripBookingListContent();
+class _TripBookingListContent extends StatefulWidget {
+  const _TripBookingListContent({super.key});
+
+  @override
+  State<_TripBookingListContent> createState() =>
+      _TripBookingListContentState();
+}
+
+class _TripBookingListContentState extends State<_TripBookingListContent> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<MyTripBookingViewModel>().loadBookings(refresh: true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

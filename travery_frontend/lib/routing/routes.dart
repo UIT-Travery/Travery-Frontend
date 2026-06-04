@@ -133,8 +133,6 @@ class Routes {
   static const String checkIn = '/guide/mission/:id/check-in';
   static const String tourProgress = '/guide/mission/:id/progress';
   static const String tourCompleted = '/guide/mission/:id/completed';
-  static const String guideEditProfile = '/guide/profile/edit';
-  static const String guideChangePassword = '/guide/profile/change-password';
 
   // Hotel nhóm
   static const String hotelHome = '/hotel/home';
@@ -164,7 +162,4 @@ class Routes {
 
   // User Profile
   static const String userProfile = '/user/profile';
-  static const String userEditProfile = '/user/profile/edit';
-  static const String userChangePassword = '/user/profile/change-password';
-  static const String userSettings = '/user/profile/settings';
 }
