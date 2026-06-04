@@ -1,4 +1,5 @@
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
@@ -56,6 +57,42 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
     return Result.error(Exception('Not implemented in dev mode'));
   }
 
+  @override
+  Future<Result<List<TourSummaryResponse>>> getTours({
+    String? keyword,
+    double? minPrice,
+    double? maxPrice,
+    String? startDate,
+    String? destinationId,
+    int? minRating,
+    int page = 0,
+    int size = 20,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<List<CoordinatorTour>>> getTourInstances(String tourId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<CoordinatorTourTemplate>> updateTemplate({
+    required String id,
+    required Map<String, dynamic> data,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return Result.error(Exception('Not implemented in dev mode'));
+  }
+
+  @override
+  Future<Result<void>> deleteTemplate(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
   // ── Stubbed methods for unused bottom sheets ─────────────────────────────
   @override
   Future<Result<List<CoordinatorHotel>>> getAllHotels() async {
@@ -78,6 +115,30 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
     return const Result.ok([]);
   }
 
+  // @override
+  // Future<Result<void>> createTourTemplate({
+  //   required String name,
+  //   required String description,
+  //   required String destinationId,
+  //   String? hotelId,
+  //   required String pickupLocation,
+  //   required double pricePerAdult,
+  //   required double pricePerChild,
+  //   String? refundPolicyId,
+  //   String? requestedByUserId,
+  //   required bool isCustom,
+  //   required List<Map<String, dynamic>> itineraries,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   return const Result.ok(null);
+  // }
+
+  @override
+  Future<Result<CoordinatorTourTemplate>> getTourTemplateById(String id) {
+    // TODO: implement getTourTemplateById
+    throw UnimplementedError();
+  }
+
   @override
   Future<Result<void>> createTourTemplate({
     required String name,
@@ -91,8 +152,12 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
     String? requestedByUserId,
     required bool isCustom,
     required List<Map<String, dynamic>> itineraries,
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return const Result.ok(null);
+    List<dynamic>? tourImageBytes,
+    List<String>? tourImageNames,
+    List<dynamic>? itineraryImageBytes,
+    List<String>? itineraryImageNames,
+  }) {
+    // TODO: implement createTourTemplate
+    throw UnimplementedError();
   }
 }

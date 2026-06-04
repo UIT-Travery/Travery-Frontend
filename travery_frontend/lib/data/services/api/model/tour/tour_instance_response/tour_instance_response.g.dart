@@ -10,18 +10,26 @@ _$TourInstanceResponseImpl _$$TourInstanceResponseImplFromJson(
   Map<String, dynamic> json,
 ) => _$TourInstanceResponseImpl(
   id: json['id'] as String,
+  tourName: json['tourName'] as String,
   startDate: json['startDate'] as String,
-  endDate: json['endDate'] as String,
+  endDate: json['endDate'] as String?,
   status: json['status'] as String,
-  availableSlots: (json['availableSlots'] as num?)?.toInt() ?? 0,
+  currentParticipants: (json['currentParticipants'] as num).toInt(),
+  maxParticipants: (json['maxParticipants'] as num?)?.toInt(),
+  availableSlots: (json['availableSlots'] as num?)?.toInt(),
+  imageUrl: json['imageUrl'] as String?,
 );
 
 Map<String, dynamic> _$$TourInstanceResponseImplToJson(
   _$TourInstanceResponseImpl instance,
 ) => <String, dynamic>{
   'id': instance.id,
+  'tourName': instance.tourName,
   'startDate': instance.startDate,
   'endDate': instance.endDate,
   'status': instance.status,
+  'currentParticipants': instance.currentParticipants,
+  'maxParticipants': instance.maxParticipants,
   'availableSlots': instance.availableSlots,
+  'imageUrl': instance.imageUrl,
 };

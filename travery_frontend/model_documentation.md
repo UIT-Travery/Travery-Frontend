@@ -1,5 +1,17 @@
 "components": {
     "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
       "BaseUserProfileResponse": {
         "type": "object",
         "properties": {
@@ -168,7 +180,74 @@
           }
         }
       },
-      "SuccessResponse": {
+      "RejectRefundRequest": {
+        "required": [
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "RefundRequestResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "userEmail": {
+            "type": "string"
+          },
+          "requestedAmount": {
+            "type": "number"
+          },
+          "actualRefunded": {
+            "type": "number"
+          },
+          "customerReason": {
+            "type": "string"
+          },
+          "rejectReason": {
+            "type": "string"
+          },
+          "bookingType": {
+            "type": "string",
+            "enum": [
+              "TOUR_BOOKING",
+              "HOTEL_BOOKING",
+              "COACH_BOOKING"
+            ]
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          },
+          "accountHolderName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SingleResponseRefundRequestResponse": {
         "type": "object",
         "properties": {
           "httpStatus": {
@@ -177,6 +256,20 @@
           },
           "message": {
             "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RefundRequestResponse"
+          }
+        }
+      },
+      "ProcessRefundRequest": {
+        "required": [
+          "actualRefunded"
+        ],
+        "type": "object",
+        "properties": {
+          "actualRefunded": {
+            "type": "number"
           }
         }
       },
@@ -201,6 +294,159 @@
           "coachId": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "RefundPolicyRequest": {
+        "required": [
+          "name",
+          "rules",
+          "serviceType"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "serviceType": {
+            "type": "string",
+            "enum": [
+              "TOUR",
+              "HOTEL",
+              "COACH"
+            ]
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RefundPolicyRuleRequest"
+            }
+          }
+        }
+      },
+      "RefundPolicyRuleRequest": {
+        "required": [
+          "refundPercentage",
+          "timeBefore",
+          "timeUnit"
+        ],
+        "type": "object",
+        "properties": {
+          "timeBefore": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "timeUnit": {
+            "type": "string",
+            "enum": [
+              "HOURS",
+              "DAYS"
+            ]
+          },
+          "refundPercentage": {
+            "maximum": 100,
+            "exclusiveMaximum": false,
+            "minimum": 0,
+            "exclusiveMinimum": false,
+            "type": "number"
+          }
+        }
+      },
+      "RefundPolicyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "serviceType": {
+            "type": "string",
+            "enum": [
+              "TOUR",
+              "HOTEL",
+              "COACH"
+            ]
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RefundPolicyRuleResponse"
+            }
+          }
+        }
+      },
+      "RefundPolicyRuleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "timeBefore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timeUnit": {
+            "type": "string",
+            "enum": [
+              "HOURS",
+              "DAYS"
+            ]
+          },
+          "refundPercentage": {
+            "type": "number"
+          }
+        }
+      },
+      "SingleResponseRefundPolicyResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RefundPolicyResponse"
+          }
+        }
+      },
+      "ImageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string"
+          },
+          "isThumbnail": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SingleResponseListImageResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageResponse"
+            }
           }
         }
       },
@@ -249,6 +495,21 @@
           },
           "custom": {
             "type": "boolean"
+          }
+        }
+      },
+      "SingleResponseImageResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ImageResponse"
           }
         }
       },
@@ -424,6 +685,162 @@
           },
           "payment": {
             "$ref": "#/components/schemas/PaymentInitiationResponse"
+          }
+        }
+      },
+      "CreateReviewRequest": {
+        "required": [
+          "content",
+          "rating"
+        ],
+        "type": "object",
+        "properties": {
+          "rating": {
+            "maximum": 5,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "ReviewResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          },
+          "reviewerName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SingleResponseReviewResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReviewResponse"
+          }
+        }
+      },
+      "AddOnOrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "FOOD",
+              "SPA",
+              "LAUNDRY",
+              "OTHER"
+            ]
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "number"
+          },
+          "totalPrice": {
+            "type": "number"
+          },
+          "scheduledTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "DELIVERED",
+              "CANCELLED"
+            ]
+          }
+        }
+      },
+      "CheckOutResponse": {
+        "type": "object",
+        "properties": {
+          "bookingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roomCharges": {
+            "type": "number"
+          },
+          "addOnCharges": {
+            "type": "number"
+          },
+          "lateFees": {
+            "type": "number"
+          },
+          "totalBill": {
+            "type": "number"
+          },
+          "unpaidAddOns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddOnOrderResponse"
+            }
+          }
+        }
+      },
+      "SingleResponseCheckOutResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CheckOutResponse"
+          }
+        }
+      },
+      "CheckInRequest": {
+        "required": [
+          "roomIds"
+        ],
+        "type": "object",
+        "properties": {
+          "roomIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -632,6 +1049,248 @@
           },
           "driverPhone": {
             "type": "string"
+          }
+        }
+      },
+      "CreateHotelBookingRequest": {
+        "required": [
+          "contactName",
+          "contactPhone",
+          "endDate",
+          "members",
+          "rooms",
+          "startDate"
+        ],
+        "type": "object",
+        "properties": {
+          "tourInstanceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HotelBookingRequestDetail"
+            }
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingMemberRequest"
+            }
+          },
+          "contactName": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "specialRequests": {
+            "type": "string"
+          },
+          "ipAddress": {
+            "type": "string"
+          }
+        }
+      },
+      "HotelBookingRequestDetail": {
+        "required": [
+          "roomTypeId"
+        ],
+        "type": "object",
+        "properties": {
+          "roomTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "HotelBookingResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "totalPrice": {
+            "type": "number"
+          },
+          "paymentDeadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "CHECKED_IN",
+              "CHECKED_OUT",
+              "CANCELLED",
+              "NO_SHOW"
+            ]
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingMemberResponse"
+            }
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentInitiationResponse"
+          }
+        }
+      },
+      "SingleResponseHotelBookingResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotelBookingResponse"
+          }
+        }
+      },
+      "SingleResponsePaymentInitiationResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PaymentInitiationResponse"
+          }
+        }
+      },
+      "CancelBookingRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          },
+          "accountHolderName": {
+            "type": "string"
+          }
+        }
+      },
+      "CancelBookingResponse": {
+        "type": "object",
+        "properties": {
+          "bookingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bookingStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "CHECKED_IN",
+              "CHECKED_OUT",
+              "CANCELLED",
+              "NO_SHOW"
+            ]
+          },
+          "refundAmount": {
+            "type": "number"
+          },
+          "refundPercentage": {
+            "type": "number"
+          },
+          "refundStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "REJECTED"
+            ]
+          },
+          "refundMessage": {
+            "type": "string"
+          }
+        }
+      },
+      "SingleResponseCancelBookingResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CancelBookingResponse"
+          }
+        }
+      },
+      "CreateAddOnOrderRequest": {
+        "required": [
+          "scheduledTime",
+          "serviceId"
+        ],
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "scheduledTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SingleResponseAddOnOrderResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AddOnOrderResponse"
           }
         }
       },
@@ -919,82 +1578,6 @@
           }
         }
       },
-      "SingleResponsePaymentInitiationResponse": {
-        "type": "object",
-        "properties": {
-          "httpStatus": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/PaymentInitiationResponse"
-          }
-        }
-      },
-      "CancelBookingRequest": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string"
-          }
-        }
-      },
-      "CancelBookingResponse": {
-        "type": "object",
-        "properties": {
-          "bookingId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "bookingStatus": {
-            "type": "string",
-            "enum": [
-              "PENDING",
-              "PAID",
-              "CHECKED_IN",
-              "CHECKED_OUT",
-              "CANCELLED",
-              "NO_SHOW"
-            ]
-          },
-          "refundAmount": {
-            "type": "number"
-          },
-          "refundPercentage": {
-            "type": "number"
-          },
-          "refundStatus": {
-            "type": "string",
-            "enum": [
-              "PENDING",
-              "PROCESSING",
-              "COMPLETED",
-              "REJECTED"
-            ]
-          },
-          "refundMessage": {
-            "type": "string"
-          }
-        }
-      },
-      "SingleResponseCancelBookingResponse": {
-        "type": "object",
-        "properties": {
-          "httpStatus": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/CancelBookingResponse"
-          }
-        }
-      },
       "ChatSessionResponse": {
         "type": "object",
         "properties": {
@@ -1038,62 +1621,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/ChatSessionResponse"
-          }
-        }
-      },
-      "CreateReviewRequest": {
-        "required": [
-          "content",
-          "rating"
-        ],
-        "type": "object",
-        "properties": {
-          "rating": {
-            "maximum": 5,
-            "minimum": 1,
-            "type": "integer",
-            "format": "int32"
-          },
-          "content": {
-            "type": "string"
-          }
-        }
-      },
-      "ReviewResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "rating": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "content": {
-            "type": "string"
-          },
-          "reviewerName": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "SingleResponseReviewResponse": {
-        "type": "object",
-        "properties": {
-          "httpStatus": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ReviewResponse"
           }
         }
       },
@@ -1533,6 +2060,423 @@
           }
         }
       },
+      "HotelImageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SingleResponseListHotelImageResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HotelImageResponse"
+            }
+          }
+        }
+      },
+      "CreateHotelRequest": {
+        "required": [
+          "address",
+          "checkInTime",
+          "checkOutTime",
+          "cityProvince",
+          "name",
+          "refundPolicyId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "cityProvince": {
+            "type": "string"
+          },
+          "checkInTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "checkOutTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "amenityIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "refundPolicyId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "LocalTime": {
+        "type": "object",
+        "properties": {
+          "hour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minute": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "second": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nano": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AmenityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconUrl": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "HOTEL_AMENITY",
+              "ROOM_AMENITY"
+            ]
+          }
+        }
+      },
+      "HotelBasicResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "cityProvince": {
+            "type": "string"
+          },
+          "checkInTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "checkOutTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AmenityResponse"
+            }
+          },
+          "averageRating": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SingleResponseHotelBasicResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotelBasicResponse"
+          }
+        }
+      },
+      "CreateHotelServiceRequest": {
+        "required": [
+          "category",
+          "name",
+          "price",
+          "unit"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "FOOD",
+              "SPA",
+              "LAUNDRY",
+              "OTHER"
+            ]
+          },
+          "price": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "HotelServiceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "FOOD",
+              "SPA",
+              "LAUNDRY",
+              "OTHER"
+            ]
+          },
+          "price": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SingleResponseHotelServiceResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotelServiceResponse"
+          }
+        }
+      },
+      "CreateRoomRequest": {
+        "required": [
+          "floor",
+          "roomNumber",
+          "roomTypeId"
+        ],
+        "type": "object",
+        "properties": {
+          "roomNumber": {
+            "type": "string"
+          },
+          "floor": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roomTypeId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ReceptionistRoomResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roomNumber": {
+            "type": "string"
+          },
+          "roomTypeName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "OCCUPIED",
+              "CLEANING",
+              "MAINTENANCE"
+            ]
+          },
+          "floor": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SingleResponseReceptionistRoomResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReceptionistRoomResponse"
+          }
+        }
+      },
+      "CreateRoomTypeRequest": {
+        "required": [
+          "basePrice",
+          "bedType",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "capacityAdults": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "capacityChildren": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "basePrice": {
+            "type": "number"
+          },
+          "bedType": {
+            "type": "string",
+            "enum": [
+              "SINGLE",
+              "DOUBLE",
+              "TWIN"
+            ]
+          },
+          "area": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RoomTypeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "basePrice": {
+            "type": "number"
+          },
+          "capacityAdults": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capacityChildren": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bedType": {
+            "type": "string",
+            "enum": [
+              "SINGLE",
+              "DOUBLE",
+              "TWIN"
+            ]
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AmenityResponse"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HotelImageResponse"
+            }
+          }
+        }
+      },
+      "SingleResponseRoomTypeResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RoomTypeResponse"
+          }
+        }
+      },
       "CreateCoachRequest": {
         "required": [
           "coachType",
@@ -1611,6 +2555,44 @@
           },
           "data": {
             "$ref": "#/components/schemas/CoachResponse"
+          }
+        }
+      },
+      "CreateAmenityRequest": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "HOTEL_AMENITY",
+              "ROOM_AMENITY"
+            ]
+          },
+          "iconImage": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "SingleResponseAmenityResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AmenityResponse"
           }
         }
       },
@@ -1898,6 +2880,138 @@
           }
         }
       },
+      "UpdateHotelServiceRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "FOOD",
+              "SPA",
+              "LAUNDRY",
+              "OTHER"
+            ]
+          },
+          "price": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateRoomRequest": {
+        "type": "object",
+        "properties": {
+          "roomNumber": {
+            "type": "string"
+          },
+          "floor": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roomTypeId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpdateRoomTypeRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "capacityAdults": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capacityChildren": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "basePrice": {
+            "type": "number"
+          },
+          "bedType": {
+            "type": "string",
+            "enum": [
+              "SINGLE",
+              "DOUBLE",
+              "TWIN"
+            ]
+          },
+          "area": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateHotelRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "cityProvince": {
+            "type": "string"
+          },
+          "checkInTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "checkOutTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "amenityIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "refundPolicyId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpdateAmenityRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "HOTEL_AMENITY",
+              "ROOM_AMENITY"
+            ]
+          },
+          "iconImage": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
       "TourSearchRequest": {
         "type": "object",
         "properties": {
@@ -1972,21 +3086,21 @@
             "type": "integer",
             "format": "int32"
           },
-          "pageable": {
-            "$ref": "#/components/schemas/PageableObject"
-          },
-          "sort": {
-            "$ref": "#/components/schemas/SortObject"
-          },
-          "numberOfElements": {
-            "type": "integer",
-            "format": "int32"
-          },
           "first": {
             "type": "boolean"
           },
           "last": {
             "type": "boolean"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
           },
           "empty": {
             "type": "boolean"
@@ -2077,6 +3191,21 @@
           }
         }
       },
+      "SingleResponsePageReviewResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
       "DestinationResponse": {
         "type": "object",
         "properties": {
@@ -2089,66 +3218,6 @@
           },
           "name": {
             "type": "string"
-          }
-        }
-      },
-      "ImageResponse": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          },
-          "isThumnail": {
-            "type": "boolean"
-          }
-        }
-      },
-      "RefundPolicyResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "serviceType": {
-            "type": "string",
-            "enum": [
-              "TOUR",
-              "HOTEL",
-              "COACH"
-            ]
-          },
-          "rules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RefundPolicyRuleResponse"
-            }
-          }
-        }
-      },
-      "RefundPolicyRuleResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "timeBefore": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "timeUnit": {
-            "type": "string",
-            "enum": [
-              "HOURS",
-              "DAYS"
-            ]
-          },
-          "refundPercentage": {
-            "type": "number"
           }
         }
       },
@@ -2234,11 +3303,8 @@
           "description": {
             "type": "string"
           },
-          "images": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ImageResponse"
-            }
+          "image": {
+            "$ref": "#/components/schemas/ImageResponse"
           }
         }
       },
@@ -2328,6 +3394,252 @@
           }
         }
       },
+      "SingleResponseListReceptionistRoomResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceptionistRoomResponse"
+            }
+          }
+        }
+      },
+      "DashboardGuestResponse": {
+        "type": "object",
+        "properties": {
+          "bookingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "touristName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRooms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roomTypeBreakdown": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "ReceptionistDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "availableRooms": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "occupiedRooms": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cleaningRooms": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "maintenanceRooms": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayCheckInCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayCheckOutCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "checkInQueue": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardGuestResponse"
+            }
+          },
+          "checkOutQueue": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardGuestResponse"
+            }
+          }
+        }
+      },
+      "SingleResponseReceptionistDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReceptionistDashboardResponse"
+          }
+        }
+      },
+      "SingleResponsePageReceptionistBookingSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
+      "HotelGuestResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "identityNumber": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date"
+          },
+          "memberType": {
+            "type": "string",
+            "enum": [
+              "ADULT",
+              "CHILD"
+            ]
+          }
+        }
+      },
+      "ReceptionistBookingDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "guestName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "checkInDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "checkOutDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string"
+          },
+          "totalPrice": {
+            "type": "number"
+          },
+          "totalAddOnCharges": {
+            "type": "number"
+          },
+          "manifest": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HotelGuestResponse"
+            }
+          },
+          "roomAllocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomAllocationResponse"
+            }
+          },
+          "addOnOrders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddOnOrderResponse"
+            }
+          }
+        }
+      },
+      "RoomAllocationResponse": {
+        "type": "object",
+        "properties": {
+          "roomTypeName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assignedRoomNumbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SingleResponseReceptionistBookingDetailResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReceptionistBookingDetailResponse"
+          }
+        }
+      },
+      "SingleResponseListAddOnOrderResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddOnOrderResponse"
+            }
+          }
+        }
+      },
       "SingleResponseListBookingMemberResponse": {
         "type": "object",
         "properties": {
@@ -2364,6 +3676,307 @@
           }
         }
       },
+      "HotelSearchRequest": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string"
+          },
+          "cityProvince": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "adults": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "children": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roomCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minRating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minPrice": {
+            "type": "number"
+          },
+          "maxPrice": {
+            "type": "number"
+          },
+          "amenityIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "availableHotelIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "SingleResponsePageHotelResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
+      "HotelDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "cityProvince": {
+            "type": "string"
+          },
+          "checkInTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "checkOutTime": {
+            "$ref": "#/components/schemas/LocalTime"
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AmenityResponse"
+            }
+          },
+          "roomTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomTypeResponse"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HotelImageResponse"
+            }
+          },
+          "averageRating": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SingleResponseHotelDetailResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotelDetailResponse"
+          }
+        }
+      },
+      "HotelBookingDetailItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roomTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roomTypeName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "priceAtBooking": {
+            "type": "number"
+          }
+        }
+      },
+      "HotelBookingDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "totalPrice": {
+            "type": "number"
+          },
+          "paymentDeadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "CHECKED_IN",
+              "CHECKED_OUT",
+              "CANCELLED",
+              "NO_SHOW"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hotelName": {
+            "type": "string"
+          },
+          "hotelAddress": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookingMemberResponse"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HotelBookingDetailItemResponse"
+            }
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "VNPAY",
+              "MOMO",
+              "CASH"
+            ]
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "SUCCESS",
+              "FAILED",
+              "REFUNDED"
+            ]
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gatewayTransactionId": {
+            "type": "string"
+          }
+        }
+      },
+      "SingleResponseHotelBookingDetailResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotelBookingDetailResponse"
+          }
+        }
+      },
+      "AddOnBillResponse": {
+        "type": "object",
+        "properties": {
+          "hotelBookingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "addOnOrders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddOnOrderResponse"
+            }
+          },
+          "totalAddOnCharges": {
+            "type": "number"
+          }
+        }
+      },
+      "SingleResponseAddOnBillResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AddOnBillResponse"
+          }
+        }
+      },
+      "SingleResponsePageHotelBookingSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
       "SingleResponseListDestinationWithStationsResponse": {
         "type": "object",
         "properties": {
@@ -2379,6 +3992,21 @@
             "items": {
               "$ref": "#/components/schemas/DestinationWithStationsResponse"
             }
+          }
+        }
+      },
+      "SingleResponsePageRefundRequestResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
           }
         }
       },
@@ -2713,6 +4341,24 @@
           }
         }
       },
+      "SingleResponseListAmenityResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AmenityResponse"
+            }
+          }
+        }
+      },
       "SingleResponsePageBaseUserProfileResponse": {
         "type": "object",
         "properties": {
@@ -2746,6 +4392,57 @@
           }
         }
       },
+      "SingleResponsePageRefundPolicyResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageObject"
+          }
+        }
+      },
+      "SingleResponseListHotelServiceResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HotelServiceResponse"
+            }
+          }
+        }
+      },
+      "SingleResponseListRoomTypeResponse": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomTypeResponse"
+            }
+          }
+        }
+      },
       "SingleResponseListCoachResponse": {
         "type": "object",
         "properties": {
@@ -2761,6 +4458,21 @@
             "items": {
               "$ref": "#/components/schemas/CoachResponse"
             }
+          }
+        }
+      },
+      "SingleResponseVoid": {
+        "type": "object",
+        "properties": {
+          "httpStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
           }
         }
       }

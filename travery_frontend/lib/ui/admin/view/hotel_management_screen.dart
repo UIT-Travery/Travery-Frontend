@@ -19,12 +19,28 @@ class HotelManagementScreen extends StatefulWidget {
 }
 
 class _HotelManagementScreenState extends State<HotelManagementScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.viewModel.loadHotels.execute();
+      widget.viewModel.loadHotels();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      widget.viewModel.loadMoreHotels();
+    }
   }
 
   @override
@@ -41,15 +57,13 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
             // ── Content ──────────────────────────────────────────────────────
             Expanded(
               child: ListenableBuilder(
-                listenable: vm.loadHotels,
+                listenable: vm,
                 builder: (context, _) {
-                  final cmd = vm.loadHotels;
-
-                  if (cmd.running) {
+                  if (vm.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  if (cmd.error) {
+                  if (vm.hasError) {
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -69,7 +83,7 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
                           ),
                           const SizedBox(height: 12),
                           ElevatedButton(
-                            onPressed: () => cmd.execute(),
+                            onPressed: () => vm.loadHotels(),
                             child: const Text('Thử lại'),
                           ),
                         ],
@@ -77,9 +91,7 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
                     );
                   }
 
-                  final hotels = cmd.result is Ok<List<BusinessHotel>>
-                      ? (cmd.result as Ok<List<BusinessHotel>>).value
-                      : <BusinessHotel>[];
+                  final hotels = vm.hotels;
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,8 +123,10 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
                                     color: Colors.white,
                                   ),
                                   label: 'Thêm',
-                                  onTap: () => {
-                                    context.push(Routes.adminCreateHotel),
+                                  onTap: () async {
+                                    await context.push(Routes.adminCreateHotel);
+                                    print('Returned to HotelManagementScreen, executing loadHotels...');
+                                    vm.loadHotels();
                                   },
                                 ),
                               ],
@@ -132,23 +146,30 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
                       // ── Hotel list ─────────────────────────────────────────
                       Expanded(
                         child: ListView.separated(
+                          controller: _scrollController,
                           padding: const EdgeInsets.only(
                             bottom: 10,
                             left: 16,
                             right: 16,
                           ),
-                          itemCount: hotels.length,
+                          itemCount: hotels.length + (vm.isLoadingMore ? 1 : 0),
                           separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
+                            if (index == hotels.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(child: CircularProgressIndicator()),
+                              );
+                            }
                             final h = hotels[index];
                             return HotelCard(
                               name: h.name,
                               address: h.address,
                               cityProvince: h.cityProvince,
-                              starRating: h.starRating!,
-                              roomCount: h.roomCount!,
-                              occupancyRate: h.occupancyRate!,
+                              starRating: h.starRating ?? 0.0,
+                              roomCount: h.roomCount ?? 0,
+                              occupancyRate: h.occupancyRate ?? 0.0,
                               imageUrl: h.imageUrl,
                               onTap: () => _onHotelTap(h),
                             );
@@ -167,13 +188,14 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
   }
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
-  void _onHotelTap(BusinessHotel h) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Xem chi tiết: ${h.name}'),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
+  void _onHotelTap(BusinessHotel h) async {
+    await context.push(
+      Routes.adminHotelDetail,
+      extra: h,
     );
+    // Reload list when returning from detail screen (which might have changed thumbnail)
+    if (mounted) {
+      widget.viewModel.loadHotels();
+    }
   }
 }

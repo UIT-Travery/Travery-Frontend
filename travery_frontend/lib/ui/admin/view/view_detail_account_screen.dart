@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 import '../../core/themes/app_colors.dart';
@@ -27,6 +29,8 @@ class ViewDetailAccountScreen extends StatefulWidget {
 }
 
 class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
+  final ImagePicker _picker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -144,22 +148,35 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
       widget.viewModel.updateCoordinatorProfile,
       widget.viewModel.updateAvatar,
     ];
+
+    // If any command is still running, wait for it to finish.
     for (final cmd in cmds) {
       if (cmd.running) return;
+    }
+
+    bool hasError = false;
+    bool hasCompleted = false;
+    String errorMessage = 'Không thể cập nhật thông tin';
+
+    for (final cmd in cmds) {
       if (cmd.error) {
-        final msg = cmd.result is Error
+        hasError = true;
+        errorMessage = cmd.result is Error
             ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
-            : 'Không thể cập nhật thông tin';
+            : errorMessage;
         cmd.clearResult();
-        if (mounted) Utils.showErrorNotification(context, msg);
-        return;
       } else if (cmd.completed) {
+        hasCompleted = true;
         cmd.clearResult();
-        if (mounted) {
-          Utils.showSuccessNotification(context, 'Cập nhật thông tin thành công');
-          widget.viewModel.loadAccount.execute(widget.accountId);
-        }
-        return;
+      }
+    }
+
+    if (hasError) {
+      if (mounted) Utils.showErrorNotification(context, errorMessage);
+    } else if (hasCompleted) {
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Cập nhật thông tin thành công');
+        widget.viewModel.loadAccount.execute(widget.accountId);
       }
     }
   }
@@ -236,9 +253,57 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
     }
   }
 
+  Widget _buildAvatarPicker(
+    BusinessAccount account,
+    String? localAvatarPath,
+    VoidCallback onTap,
+  ) {
+    return Center(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: localAvatarPath != null
+                  ? Image.file(
+                      File(localAvatarPath),
+                      width: 88,
+                      height: 88,
+                      fit: BoxFit.cover,
+                    )
+                  : (account.avatarUrl != null && account.avatarUrl!.isNotEmpty
+                      ? Image.network(
+                          account.avatarUrl!,
+                          width: 88,
+                          height: 88,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => _defaultAvatar(),
+                        )
+                      : _defaultAvatar()),
+            ),
+            Positioned(
+              bottom: -4,
+              right: -4,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.edit, size: 16, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showEditReceptionistSheet(BusinessAccount account) {
     final nameCtrl = TextEditingController(text: account.name);
     final phoneCtrl = TextEditingController(text: account.phoneNumber ?? '');
+    String? localAvatarPath;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -246,52 +311,71 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 24,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Cập nhật thông tin Lễ tân',
-              style: TextStyle(
-                fontSize: AppTextTheme.headlineSmall,
-                fontWeight: FontWeight.bold,
-              ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
             ),
-            const SizedBox(height: 16),
-            _EditField(label: 'Họ tên', controller: nameCtrl),
-            const SizedBox(height: 12),
-            _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Cập nhật thông tin Lễ tân',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.headlineSmall,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx);
-                widget.viewModel.updateReceptionistProfile.execute((
-                  id: widget.accountId,
-                  fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
-                  phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
-                  shiftType: null,
-                  hotelId: null,
-                ));
-              },
-              child: const Text('Lưu thay đổi'),
+                const SizedBox(height: 16),
+                _buildAvatarPicker(account, localAvatarPath, () async {
+                  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    setModalState(() {
+                      localAvatarPath = image.path;
+                    });
+                  }
+                }),
+                const SizedBox(height: 16),
+                _EditField(label: 'Họ tên', controller: nameCtrl),
+                const SizedBox(height: 12),
+                _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    if (localAvatarPath != null) {
+                      widget.viewModel.updateAvatar.execute((
+                        id: widget.accountId,
+                        filePath: localAvatarPath!,
+                      ));
+                    }
+                    widget.viewModel.updateReceptionistProfile.execute((
+                      id: widget.accountId,
+                      fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                      phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+                      shiftType: null,
+                      hotelId: null,
+                    ));
+                  },
+                  child: const Text('Lưu thay đổi'),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        }
       ),
     );
   }
@@ -299,6 +383,7 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
   void _showEditGuideSheet(BusinessAccount account) {
     final nameCtrl = TextEditingController(text: account.name);
     final phoneCtrl = TextEditingController(text: account.phoneNumber ?? '');
+    String? localAvatarPath;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -306,53 +391,72 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 24,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Cập nhật thông tin Hướng dẫn viên',
-              style: TextStyle(
-                fontSize: AppTextTheme.headlineSmall,
-                fontWeight: FontWeight.bold,
-              ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
             ),
-            const SizedBox(height: 16),
-            _EditField(label: 'Họ tên', controller: nameCtrl),
-            const SizedBox(height: 12),
-            _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Cập nhật thông tin Hướng dẫn viên',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.headlineSmall,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx);
-                widget.viewModel.updateGuideProfile.execute((
-                  id: widget.accountId,
-                  fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
-                  phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
-                  guideLicense: null,
-                  yearsExperience: null,
-                  languages: null,
-                ));
-              },
-              child: const Text('Lưu thay đổi'),
+                const SizedBox(height: 16),
+                _buildAvatarPicker(account, localAvatarPath, () async {
+                  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    setModalState(() {
+                      localAvatarPath = image.path;
+                    });
+                  }
+                }),
+                const SizedBox(height: 16),
+                _EditField(label: 'Họ tên', controller: nameCtrl),
+                const SizedBox(height: 12),
+                _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    if (localAvatarPath != null) {
+                      widget.viewModel.updateAvatar.execute((
+                        id: widget.accountId,
+                        filePath: localAvatarPath!,
+                      ));
+                    }
+                    widget.viewModel.updateGuideProfile.execute((
+                      id: widget.accountId,
+                      fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                      phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+                      guideLicense: null,
+                      yearsExperience: null,
+                      languages: null,
+                    ));
+                  },
+                  child: const Text('Lưu thay đổi'),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        }
       ),
     );
   }
@@ -360,6 +464,7 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
   void _showEditCoordinatorSheet(BusinessAccount account) {
     final nameCtrl = TextEditingController(text: account.name);
     final phoneCtrl = TextEditingController(text: account.phoneNumber ?? '');
+    String? localAvatarPath;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -367,51 +472,70 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 24,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Cập nhật thông tin Điều phối viên',
-              style: TextStyle(
-                fontSize: AppTextTheme.headlineSmall,
-                fontWeight: FontWeight.bold,
-              ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
             ),
-            const SizedBox(height: 16),
-            _EditField(label: 'Họ tên', controller: nameCtrl),
-            const SizedBox(height: 12),
-            _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Cập nhật thông tin Điều phối viên',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.headlineSmall,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx);
-                widget.viewModel.updateCoordinatorProfile.execute((
-                  id: widget.accountId,
-                  fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
-                  phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
-                  department: null,
-                ));
-              },
-              child: const Text('Lưu thay đổi'),
+                const SizedBox(height: 16),
+                _buildAvatarPicker(account, localAvatarPath, () async {
+                  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    setModalState(() {
+                      localAvatarPath = image.path;
+                    });
+                  }
+                }),
+                const SizedBox(height: 16),
+                _EditField(label: 'Họ tên', controller: nameCtrl),
+                const SizedBox(height: 12),
+                _EditField(label: 'Số điện thoại', controller: phoneCtrl, keyboardType: TextInputType.phone),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    if (localAvatarPath != null) {
+                      widget.viewModel.updateAvatar.execute((
+                        id: widget.accountId,
+                        filePath: localAvatarPath!,
+                      ));
+                    }
+                    widget.viewModel.updateCoordinatorProfile.execute((
+                      id: widget.accountId,
+                      fullName: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                      phoneNumber: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+                      department: null,
+                    ));
+                  },
+                  child: const Text('Lưu thay đổi'),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        }
       ),
     );
   }
@@ -483,13 +607,30 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
           children: [
             Scaffold(
               backgroundColor: AppColors.surface,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                title: Text(
+                  'Chi tiết tài khoản',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.headlineMedium,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.only(bottom: 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildAppBar(context),
+
                       _buildProfileCard(account),
                       const SizedBox(height: 16),
                       Padding(
@@ -723,33 +864,34 @@ class _ViewDetailAccountScreenState extends State<ViewDetailAccountScreen> {
           ),
         ),
 
-        const SizedBox(height: 10),
-
         // Delete
-        OutlinedButton.icon(
-          onPressed: () => _onDelete(account.name),
-          icon: Icon(
-            Icons.delete_outline_rounded,
-            size: 18,
-            color: AppColors.error,
-          ),
-          label: Text(
-            'Xóa tài khoản',
-            style: TextStyle(color: AppColors.error),
-          ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.error,
-            side: BorderSide(color: AppColors.error),
-            padding: const EdgeInsets.symmetric(vertical: 13),
-            textStyle: TextStyle(
-              fontSize: AppTextTheme.bodyLarge,
-              fontWeight: FontWeight.w600,
+        if (account.role != AccountRole.tourist) ...[
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: () => _onDelete(account.name),
+            icon: Icon(
+              Icons.delete_outline_rounded,
+              size: 18,
+              color: AppColors.error,
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+            label: Text(
+              'Xóa tài khoản',
+              style: TextStyle(color: AppColors.error),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.error,
+              side: BorderSide(color: AppColors.error),
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              textStyle: TextStyle(
+                fontSize: AppTextTheme.bodyLarge,
+                fontWeight: FontWeight.w600,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
