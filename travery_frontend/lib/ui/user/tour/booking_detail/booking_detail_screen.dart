@@ -6,6 +6,9 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 import 'package:travery_frontend/ui/user/widgets/member_row.dart';
+import 'package:travery_frontend/ui/chat/view_models/chat_view_model.dart';
+import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/utils/alert.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   const BookingDetailScreen({
@@ -255,7 +258,38 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 Expanded(
                   flex: 2,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      debugPrint("BookingDetailScreen: 'Vào group chat' pressed");
+                      if (vm.bookingDetail?.tourInstanceId != null) {
+                        debugPrint("BookingDetailScreen: tourInstanceId = ${vm.bookingDetail!.tourInstanceId}");
+                        final chatVm = context.read<ChatViewModel>();
+                        final guid = await chatVm.initiateGroupChat(
+                          vm.bookingDetail!.tourInstanceId!,
+                        );
+                        debugPrint("BookingDetailScreen: Chat initiation result: $guid");
+                        if (guid != null && context.mounted) {
+                          context.push(
+                            Routes.chat,
+                            extra: {
+                              'guid': guid,
+                              'title': vm.bookingDetail!.tourName,
+                            },
+                          );
+                        } else if (context.mounted &&
+                            chatVm.errorMessage != null) {
+                          debugPrint("BookingDetailScreen: Chat initiation failed: ${chatVm.errorMessage}");
+                          Utils.showErrorNotification(context, chatVm.errorMessage!);
+                        }
+                      } else {
+                        debugPrint("BookingDetailScreen: tourInstanceId is null");
+                        if (context.mounted) {
+                          Utils.showErrorNotification(
+                            context,
+                            'Thông tin nhóm chat chưa sẵn sàng',
+                          );
+                        }
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,

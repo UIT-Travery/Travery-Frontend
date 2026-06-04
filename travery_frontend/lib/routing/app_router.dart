@@ -151,6 +151,7 @@ import '../ui/admin/view_model/tour_management_view_model.dart';
 import '../ui/admin/view_model/vehicle_management_view_model.dart';
 
 import 'package:travery_frontend/ui/common/notification/view/notification_screen.dart';
+import '../ui/chat/chat_screen.dart';
 import 'routes.dart';
 
 // Admin new imports
@@ -216,6 +217,24 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.notifications,
         builder: (context, state) => const NotificationScreen(),
+      ),
+
+      GoRoute(
+        path: Routes.chat,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final uid = extra?['uid'] as String?;
+          final guid = extra?['guid'] as String?;
+          final title = extra?['title'] as String? ?? '';
+          final showBackButton = extra?['showBackButton'] as bool? ?? true;
+
+          return ChatScreen(
+            uid: uid,
+            guid: guid,
+            title: title,
+            showBackButton: showBackButton,
+          );
+        },
       ),
 
       // --- AUTHENTICATION ROUTES ---

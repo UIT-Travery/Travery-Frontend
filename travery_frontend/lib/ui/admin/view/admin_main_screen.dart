@@ -10,6 +10,7 @@ import 'package:travery_frontend/ui/admin/view_model/hotel_management_view_model
 import 'package:travery_frontend/ui/admin/view_model/tour_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/vehicle_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
+import 'package:travery_frontend/ui/common/notification/view/widgets/notification_badge.dart';
 import 'dashboard_screen.dart';
 import 'account_management_screen.dart';
 import 'hotel_management_screen.dart';
@@ -135,14 +136,17 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             ],
           ),
         ),
+        actions: [
+          NotificationBadge(
+            onTap: () => context.push(Routes.notifications),
+            iconColor: const Color(0xFF0055C3),
+          ),
+          const SizedBox(width: 8),
+        ],
         backgroundColor: Colors.white,
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.grey.shade200, height: 1),
-        ),
       ),
       drawer: AdminSidebar(
         currentIndex: _currentIndex,
