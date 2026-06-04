@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout/view_models/hotel_checkout_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
@@ -18,16 +17,6 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 
-  String _formatDateTime(String? dateStr) {
-    if (dateStr == null) return '';
-    try {
-      final dt = DateTime.parse(dateStr);
-      return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} ${dt.day}/${dt.month}';
-    } catch (_) {
-      return dateStr;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<HotelCheckoutViewModel>(
@@ -40,13 +29,10 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
               : RefreshIndicator(
                   onRefresh: () async {
                     await vm.loadServices();
-                    await vm.loadBill();
                   },
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      _buildBillCard(vm),
-                      const SizedBox(height: 16),
                       _buildServicesHeader(vm),
                       const SizedBox(height: 12),
                       ...vm.availableServices.map(
@@ -65,236 +51,6 @@ class _HotelCheckoutScreenState extends State<HotelCheckoutScreen> {
           bottomNavigationBar: _buildBottomBar(context, vm),
         );
       },
-    );
-  }
-
-  Widget _buildBillCard(HotelCheckoutViewModel vm) {
-    final bill = vm.bill;
-    final orders = bill?.addOnOrders ?? [];
-    final totalCharges = bill?.totalAddOnCharges ?? 0;
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.receipt_long,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'Hóa đơn dịch vụ',
-                style: TextStyle(
-                  fontSize: AppTextTheme.headlineSmall,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              if (orders.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${orders.length} món',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (vm.isLoadingBill)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(12),
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            )
-          else if (orders.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Color(0xFF9CA3AF)),
-                  SizedBox(width: 8),
-                  Text(
-                    'Chưa có dịch vụ nào',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
-                  ),
-                ],
-              ),
-            )
-          else
-            ...orders.map((order) => _buildOrderItem(order, vm)),
-          if (orders.isNotEmpty) ...[
-            const Divider(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Tổng dịch vụ',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  _formatPrice(totalCharges),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOrderItem(dynamic order, HotelCheckoutViewModel vm) {
-    final isPending = order.status?.toUpperCase() == 'PENDING';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: isPending
-                  ? AppColors.primary.withValues(alpha: 0.1)
-                  : const Color(0xFF22C55E).withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isPending ? Icons.access_time : Icons.check,
-              size: 14,
-              color: isPending ? AppColors.primary : const Color(0xFF22C55E),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  order.serviceName,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  '${order.quantity}x · ${_formatPrice(order.unitPrice)} · ${_formatDateTime(order.scheduledTime)}',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            _formatPrice(order.totalPrice),
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          if (isPending) ...[
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => _confirmCancelOrder(context, vm, order.id),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEE2E2),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.close,
-                  size: 14,
-                  color: Color(0xFFEF4444),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _confirmCancelOrder(
-    BuildContext context,
-    HotelCheckoutViewModel vm,
-    String orderId,
-  ) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Hủy dịch vụ'),
-        content: const Text('Bạn có chắc muốn hủy dịch vụ này?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Không'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              vm.cancelOrder(orderId);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Hủy'),
-          ),
-        ],
-      ),
     );
   }
 
