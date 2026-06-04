@@ -324,12 +324,17 @@ class _GuideCoachTripDetailScreenState
         child: Row(
           children: [
             Expanded(
+              flex: 5,
               child: OutlinedButton.icon(
                 onPressed: canOpenAttendance
                     ? () => _navigateToPassengers(trip.id)
                     : null,
                 icon: const Icon(Icons.check_circle_outline),
-                label: Text(_attendanceButtonLabel(trip.status)),
+                label: Text(
+                  _attendanceButtonLabel(trip.status),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   disabledForegroundColor: AppColors.textSecondary,
@@ -347,13 +352,17 @@ class _GuideCoachTripDetailScreenState
             ),
             const SizedBox(width: 12),
             Expanded(
-              flex: 2,
+              flex: 7,
               child: ElevatedButton.icon(
                 onPressed: isProgressEditable
                     ? () => _showProgressBottomSheet(trip)
                     : null,
                 icon: const Icon(Icons.update),
-                label: Text(_progressButtonLabel(trip.status)),
+                label: Text(
+                  _progressButtonLabel(trip.status),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isProgressEditable
                       ? AppColors.primary
