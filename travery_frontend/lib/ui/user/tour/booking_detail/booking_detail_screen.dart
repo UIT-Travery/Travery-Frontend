@@ -6,7 +6,7 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 import 'package:travery_frontend/ui/user/widgets/member_row.dart';
-import 'package:travery_frontend/ui/user/widgets/write_review_sheet.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   const BookingDetailScreen({
@@ -214,7 +214,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
           final booking = vm.bookingDetail!;
           final canCancel = booking.canCancel;
-          final canReview = booking.status.toUpperCase() == 'CHECKED_OUT';
+          final canReview = vm.canCreateReview;
           return Container(
             padding: EdgeInsets.fromLTRB(
               20,
@@ -318,12 +318,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     final booking = vm.bookingDetail;
     if (booking == null) return;
 
-    final submitted = await showWriteReviewSheet(
+    final submitted = await pushWriteReviewScreen(
       context,
       title: 'Đánh giá tour',
-      subtitle: booking.tourName.isNotEmpty
-          ? booking.tourName
-          : 'Chia sẻ trải nghiệm tour của bạn',
+      imageUrl: '',
       onSubmit: vm.createReview,
     );
 

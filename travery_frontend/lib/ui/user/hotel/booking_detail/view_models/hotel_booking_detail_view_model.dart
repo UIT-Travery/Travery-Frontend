@@ -29,6 +29,15 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
 
   bool _isSubmittingReview = false;
   bool get isSubmittingReview => _isSubmittingReview;
+  final Set<String> _reviewedBookingIds = {};
+
+  bool get canCreateReview {
+    final booking = _booking;
+    if (booking == null) return false;
+    return booking.status.toUpperCase() == 'CHECKED_OUT' &&
+        !booking.hasReview &&
+        !_reviewedBookingIds.contains(booking.id);
+  }
 
   double get serviceTotal {
     return _booking?.services.fold<double>(0, (sum, s) => sum + s.total) ?? 0;
@@ -166,6 +175,7 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
             guestCount: _booking!.guestCount,
             items: _booking!.items,
             members: _booking!.members,
+            hasReview: _booking!.hasReview,
           );
         }
         notifyListeners();
@@ -199,11 +209,12 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
     final result = await _hotelService.createReview(
       bookingId: booking.id,
       rating: rating,
-      comment: comment,
+      content: comment,
     );
 
     switch (result) {
       case Ok():
+        _reviewedBookingIds.add(booking.id);
         await loadBooking(booking.id);
         _isSubmittingReview = false;
         notifyListeners();

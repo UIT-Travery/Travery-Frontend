@@ -253,12 +253,14 @@ class TripServiceImpl implements TripService {
         ContentType.json.value,
       );
       await _setBearerAuth(requestObj);
-      final body = jsonEncode({
-        ?'reason': reason,
-        ?'bankName': bankName,
-        ?'accountNumber': accountNumber,
-        ?'accountHolderName': accountHolderName,
-      });
+      final requestBody = <String, String>{};
+      if (reason != null) requestBody['reason'] = reason;
+      if (bankName != null) requestBody['bankName'] = bankName;
+      if (accountNumber != null) requestBody['accountNumber'] = accountNumber;
+      if (accountHolderName != null) {
+        requestBody['accountHolderName'] = accountHolderName;
+      }
+      final body = jsonEncode(requestBody);
       requestObj.write(body);
 
       final response = await requestObj.close();
@@ -341,7 +343,7 @@ class TripServiceImpl implements TripService {
   Future<Result<bool>> createReview({
     required String bookingId,
     required int rating,
-    required String comment,
+    required String content,
   }) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
@@ -358,7 +360,7 @@ class TripServiceImpl implements TripService {
         'application/json; charset=utf-8',
       );
       await _setBearerAuth(request);
-      request.write(jsonEncode({'rating': rating, 'comment': comment}));
+      request.write(jsonEncode({'rating': rating, 'content': content}));
 
       final response = await request.close();
 

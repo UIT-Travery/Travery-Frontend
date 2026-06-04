@@ -27,6 +27,15 @@ class BookingDetailViewModel extends ChangeNotifier {
 
   bool _isSubmittingReview = false;
   bool get isSubmittingReview => _isSubmittingReview;
+  final Set<String> _reviewedBookingIds = {};
+
+  bool get canCreateReview {
+    final booking = _bookingDetail;
+    if (booking == null) return false;
+    return booking.status.toUpperCase() == 'CHECKED_OUT' &&
+        !booking.hasReview &&
+        !_reviewedBookingIds.contains(booking.id);
+  }
 
   Future<void> loadBookingDetail(String bookingId) async {
     _isLoading = true;
@@ -87,11 +96,12 @@ class BookingDetailViewModel extends ChangeNotifier {
     final result = await _bookingService.createReview(
       bookingId: booking.id,
       rating: rating,
-      comment: comment,
+      content: comment,
     );
 
     switch (result) {
       case Ok():
+        _reviewedBookingIds.add(booking.id);
         await loadBookingDetail(booking.id);
         _isSubmittingReview = false;
         notifyListeners();

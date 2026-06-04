@@ -20,6 +20,6 @@ abstract class BookingService {
   Future<Result<bool>> createReview({
     required String bookingId,
     required int rating,
-    required String comment,
+    required String content,
   });
 }

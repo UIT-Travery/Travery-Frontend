@@ -17,6 +17,7 @@ class BookingDetailModel {
   final String? paymentUrl;
   final double? paymentAmount;
   final String? paymentExpiresAt;
+  final bool hasReview;
 
   const BookingDetailModel({
     required this.id,
@@ -37,6 +38,7 @@ class BookingDetailModel {
     this.paymentUrl,
     this.paymentAmount,
     this.paymentExpiresAt,
+    this.hasReview = false,
   });
 
   int get guestCount => members.length;

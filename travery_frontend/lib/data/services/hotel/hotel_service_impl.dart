@@ -277,7 +277,7 @@ class HotelServiceImpl implements HotelService {
   Future<Result<bool>> createReview({
     required String bookingId,
     required int rating,
-    required String comment,
+    required String content,
   }) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
@@ -294,7 +294,7 @@ class HotelServiceImpl implements HotelService {
         'application/json; charset=utf-8',
       );
       await _setBearerAuth(request);
-      request.write(jsonEncode({'rating': rating, 'comment': comment}));
+      request.write(jsonEncode({'rating': rating, 'content': content}));
 
       final response = await request.close();
 

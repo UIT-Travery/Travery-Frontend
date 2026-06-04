@@ -5,7 +5,7 @@ import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_detail/view_models/hotel_booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
-import 'package:travery_frontend/ui/user/widgets/write_review_sheet.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_screen.dart';
 
 class HotelBookingDetailScreen extends StatefulWidget {
   const HotelBookingDetailScreen({super.key});
@@ -820,7 +820,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     final status = booking.status;
     final canCancel = status == 'PAID' && _isBeforeCheckIn(booking);
     final isCheckedIn = status == 'CHECKED_IN';
-    final canReview = status.toUpperCase() == 'CHECKED_OUT';
+    final canReview = vm.canCreateReview;
 
     final hasCancel = canCancel;
     final hasAddon = isCheckedIn;
@@ -926,12 +926,10 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     HotelBookingData booking,
     HotelBookingDetailViewModel vm,
   ) async {
-    final submitted = await showWriteReviewSheet(
+    final submitted = await pushWriteReviewScreen(
       context,
       title: 'Đánh giá khách sạn',
-      subtitle: booking.hotelName.isNotEmpty
-          ? booking.hotelName
-          : 'Chia sẻ trải nghiệm lưu trú của bạn',
+      imageUrl: booking.hotelImageUrl,
       onSubmit: vm.createReview,
     );
 

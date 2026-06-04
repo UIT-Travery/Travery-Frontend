@@ -31,7 +31,7 @@ abstract class TripService {
   Future<Result<bool>> createReview({
     required String bookingId,
     required int rating,
-    required String comment,
+    required String content,
   });
 
   Future<Result<List<StationData>>> getStations();

@@ -29,6 +29,7 @@ class HotelBookingData {
     this.guestCount,
     this.items,
     this.members,
+    this.hasReview = false,
   });
 
   final String id;
@@ -59,6 +60,7 @@ class HotelBookingData {
   final int? guestCount;
   final List<HotelBookingItemData>? items;
   final List<HotelMemberData>? members;
+  final bool hasReview;
 
   factory HotelBookingData.fromJson(Map<String, dynamic> json) {
     // Handle both my-bookings list response and detail response
@@ -129,6 +131,10 @@ class HotelBookingData {
       guestCount: json['guestCount'] as int?,
       items: items,
       members: members,
+      hasReview:
+          json['hasReview'] as bool? ??
+          json['reviewed'] as bool? ??
+          json['review'] != null,
     );
   }
 }

@@ -7,7 +7,7 @@ import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_v
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
-import 'package:travery_frontend/ui/user/widgets/write_review_sheet.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_screen.dart';
 
 class TripBookingDetailScreen extends StatefulWidget {
   const TripBookingDetailScreen({super.key, this.bookingId = ''});
@@ -735,7 +735,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   ) {
     final isPending = booking.status == 'PENDING';
     final isPaid = booking.status == 'PAID';
-    final canReview = booking.status == 'CHECKED_OUT';
+    final canReview = vm.canCreateReview;
     if (!isPending && !isPaid && !canReview) return const SizedBox.shrink();
 
     return Container(
@@ -841,11 +841,10 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     TripBookingData booking,
     TripBookingDetailViewModel vm,
   ) async {
-    final submitted = await showWriteReviewSheet(
+    final submitted = await pushWriteReviewScreen(
       context,
       title: 'Đánh giá chuyến xe',
-      subtitle:
-          '${booking.originDestination} - ${booking.destinationDestination}',
+      imageUrl: '',
       onSubmit: vm.createReview,
     );
 
