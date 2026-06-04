@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
@@ -35,6 +36,7 @@ class HotelMyBookingViewModel extends ChangeNotifier {
     'PENDING',
     'PAID',
     'CHECKED_IN',
+    'CHECKED_OUT',
     'CANCELLED',
   ];
   List<String> get statusFilters => _allStatuses;
@@ -86,10 +88,29 @@ class HotelMyBookingViewModel extends ChangeNotifier {
         return 'Đang chờ';
       case 'CHECKED_IN':
         return 'Đang ở';
+      case 'CHECKED_OUT':
+        return 'Đã trả phòng';
       case 'CANCELLED':
         return 'Đã hủy';
       default:
         return status;
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'PAID':
+        return const Color(0xFF22C55E);
+      case 'PENDING':
+        return const Color(0xFFF59E0B);
+      case 'CHECKED_IN':
+        return const Color(0xFF007AFF);
+      case 'CHECKED_OUT':
+        return const Color(0xFF6B7280);
+      case 'CANCELLED':
+        return const Color(0xFFEF4444);
+      default:
+        return const Color(0xFF6B7280);
     }
   }
 }

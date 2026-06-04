@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -80,25 +79,18 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     }
   }
 
-  String _formatDateTime(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    } catch (e) {
-      return dateStr;
-    }
-  }
-
   String _getStatusLabel(String status) {
     switch (status) {
       case 'PAID':
         return 'Đã thanh toán';
       case 'PENDING':
         return 'Chờ thanh toán';
+      case 'CHECKED_IN':
+        return 'Đã check-in';
+      case 'CHECKED_OUT':
+        return 'Đã trả phòng';
       case 'CANCELLED':
         return 'Đã hủy';
-      case 'COMPLETED':
-        return 'Hoàn thành';
       default:
         return status;
     }
@@ -110,25 +102,14 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
         return const Color(0xFF22C55E);
       case 'PENDING':
         return const Color(0xFFF59E0B);
+      case 'CHECKED_IN':
+        return const Color(0xFF007AFF);
+      case 'CHECKED_OUT':
+        return const Color(0xFF6B7280);
       case 'CANCELLED':
         return const Color(0xFFEF4444);
-      case 'COMPLETED':
-        return const Color(0xFF3B82F6);
       default:
         return const Color(0xFF6B7280);
-    }
-  }
-
-  String _getPaymentStatusLabel(String status) {
-    switch (status) {
-      case 'SUCCESS':
-        return 'Thành công';
-      case 'PENDING':
-        return 'Đang chờ';
-      case 'FAILED':
-        return 'Thất bại';
-      default:
-        return status;
     }
   }
 
@@ -218,7 +199,8 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
   }
 
   Widget _buildStatusSection(HotelBookingData booking) {
-    final statusColor = _getStatusColor(booking.status ?? '');
+    final status = booking.status;
+    final statusColor = _getStatusColor(status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -228,9 +210,11 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
       child: Row(
         children: [
           Icon(
-            booking.status == 'PAID' || booking.status == 'COMPLETED'
+            status == 'PAID' ||
+                    status == 'CHECKED_IN' ||
+                    status == 'CHECKED_OUT'
                 ? Icons.check_circle
-                : booking.status == 'CANCELLED'
+                : status == 'CANCELLED'
                 ? Icons.cancel
                 : Icons.access_time,
             color: statusColor,
@@ -238,7 +222,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
           ),
           const SizedBox(width: 12),
           Text(
-            _getStatusLabel(booking.status ?? ''),
+            _getStatusLabel(booking.status),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -260,18 +244,31 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInfoRow('Khách sạn', booking.hotelName ?? 'N/A'),
-          if (booking.hotelAddress != null && booking.hotelAddress.isNotEmpty)
-            _buildInfoRow('Địa chỉ', booking.hotelAddress ?? ''),
+          _buildInfoRow('Khách sạn', booking.hotelName),
+          if (booking.hotelAddress.isNotEmpty)
+            _buildInfoRow('Địa chỉ', booking.hotelAddress),
           _buildInfoRow('Nhận phòng', _formatDate(booking.startDate ?? '')),
           _buildInfoRow('Trả phòng', _formatDate(booking.endDate ?? '')),
+          const SizedBox(height: 12),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          if (booking.transactionId != null &&
+              booking.transactionId!.isNotEmpty)
+            _buildInfoRow('Mã đặt phòng', booking.transactionId!, wrap: true),
+          if (booking.gatewayTransactionId != null &&
+              booking.gatewayTransactionId!.isNotEmpty)
+            _buildInfoRow(
+              'Mã giao dịch',
+              booking.gatewayTransactionId!,
+              wrap: true,
+            ),
         ],
       ),
     );
   }
 
   Widget _buildMemberSection(HotelBookingData booking) {
-    final members = booking.members as List<HotelMemberData>? ?? [];
+    final members = booking.members ?? [];
     if (members.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -308,7 +305,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   Row(
                     children: [
                       Text(
-                        member.fullName ?? 'N/A',
+                        member.fullName,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -326,7 +323,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          _getMemberTypeLabel(member.memberType ?? ''),
+                          _getMemberTypeLabel(member.memberType),
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -338,7 +335,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'CCCD: ${member.identityNumber ?? 'N/A'}',
+                    'CCCD: ${member.identityNumber}',
                     style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xFF6B7280),
@@ -346,7 +343,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Ngày sinh: ${_formatDate(member.dateOfBirth ?? '')}',
+                    'Ngày sinh: ${_formatDate(member.dateOfBirth)}',
                     style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xFF6B7280),
@@ -373,7 +370,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
   }
 
   Widget _buildRoomSection(HotelBookingData booking) {
-    final items = booking.items as List<HotelBookingItemData>? ?? [];
+    final items = booking.items ?? [];
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -413,7 +410,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          item.roomTypeName ?? 'N/A',
+                          item.roomTypeName,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -422,7 +419,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                         ),
                       ),
                       Text(
-                        _formatPrice(item.priceAtNight?.toDouble() ?? 0),
+                        _formatPrice(item.priceAtNight),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -435,7 +432,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 32),
                     child: Text(
-                      'x${item.quantity ?? 1} phòng',
+                      'x${item.quantity} phòng',
                       style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF6B7280),
@@ -476,7 +473,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
           ),
           const Spacer(),
           Text(
-            _formatPrice(booking.totalPrice?.toDouble() ?? 0),
+            _formatPrice(booking.totalPrice),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -493,7 +490,31 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     String value, {
     bool valueBold = false,
     Color? valueColor,
+    bool wrap = false,
   }) {
+    if (wrap) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: valueBold ? FontWeight.bold : FontWeight.w500,
+                color: valueColor ?? const Color(0xFF1F2937),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -521,15 +542,41 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     );
   }
 
-  String _shortCode(String id) {
-    if (id.isEmpty) return 'N/A';
-    if (id.length <= 12) return id;
-    return '${id.substring(0, 6)}...${id.substring(id.length - 4)}';
+  bool _isBeforeCheckIn(HotelBookingData booking) {
+    try {
+      String? startDateStr = booking.startDate;
+      if (startDateStr == null) {
+        final checkIn = booking.checkInDate;
+        startDateStr =
+            '${checkIn.year}-${checkIn.month.toString().padLeft(2, '0')}-${checkIn.day.toString().padLeft(2, '0')}';
+      }
+      final startDate = DateTime.parse(startDateStr);
+      final now = DateTime.now();
+      final todayStart = DateTime(now.year, now.month, now.day);
+      final checkInDay = DateTime(
+        startDate.year,
+        startDate.month,
+        startDate.day,
+      );
+      return !todayStart.isAfter(checkInDay);
+    } catch (_) {
+      return true;
+    }
   }
 
   Widget _buildBottomActions(BuildContext context, HotelBookingData booking) {
-    final isCancellable =
-        booking.status == 'PAID' || booking.status == 'PENDING';
+    final status = booking.status;
+    final canCancel = status == 'PAID' && _isBeforeCheckIn(booking);
+    final isCheckedIn = status == 'CHECKED_IN';
+
+    final hasCancel = canCancel;
+    final hasAddon = isCheckedIn;
+    final hasCheckout = isCheckedIn;
+
+    if (!hasCancel && !hasAddon && !hasCheckout) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -552,7 +599,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
         top: false,
         child: Row(
           children: [
-            if (isCancellable)
+            if (hasCancel)
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => context.push(
@@ -573,28 +620,51 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   ),
                 ),
               ),
-            if (isCancellable) const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () => context.push(
-                  Routes.hotelCheckout.replaceFirst(':id', booking.id),
-                  extra: {'booking': booking},
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF007AFF),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            if (hasCancel && (hasAddon || hasCheckout))
+              const SizedBox(width: 12),
+            if (hasAddon)
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push(
+                    Routes.hotelCheckout.replaceFirst(':id', booking.id),
+                    extra: {'booking': booking},
                   ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Checkout',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF007AFF),
+                    side: const BorderSide(color: Color(0xFF007AFF)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Đặt dịch vụ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-            ),
+            if (hasAddon && hasCheckout) const SizedBox(width: 12),
+            if (hasCheckout)
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: handle checkout
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF007AFF),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Checkout',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

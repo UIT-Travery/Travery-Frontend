@@ -420,6 +420,7 @@ class HotelServiceImpl implements HotelService {
           'specialRequests': specialRequests,
         'ipAddress': ipAddress,
       });
+      debugPrint('CreateBooking Request Body: $body');
       request.write(body);
 
       final response = await request.close();
@@ -434,10 +435,13 @@ class HotelServiceImpl implements HotelService {
 
         return Result.ok(HotelCreateBookingResponse.fromJson(data));
       } else {
+        final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('CreateBooking Error Body: $stringData');
         final errorMsg = await _extractErrorMessage(
           response,
-          'Không thể tạo đặt phòng',
+          'Không thể tạo đặt phòng (HTTP ${response.statusCode})',
         );
+        debugPrint('CreateBooking Error Message: $errorMsg');
         return Result.error(HttpException(errorMsg));
       }
     } on Exception catch (error) {
