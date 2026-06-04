@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/services/api/model/authentication/forgot_password_request/forgot_password_request.dart';
 import 'package:travery_frontend/data/services/api/model/authentication/login_request/login_request.dart';
 import 'package:travery_frontend/data/services/api/model/authentication/login_response/login_response.dart';
@@ -13,19 +14,23 @@ import 'auth_repository.dart';
 import 'package:travery_frontend/data/services/api/auth_service.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
+import 'package:travery_frontend/data/services/chat/chat_service.dart';
 
 class AuthRepositoryRemote extends AuthRepository {
   final AuthService _authService;
   final SecurityStorageService _securityStorageService;
   final TokenRefreshService _tokenRefreshService;
+  final ChatService _chatService;
 
   AuthRepositoryRemote({
     required AuthService authService,
     required SecurityStorageService securityStorageService,
     required TokenRefreshService tokenRefreshService,
+    required ChatService chatService,
   }) : _authService = authService,
        _securityStorageService = securityStorageService,
-       _tokenRefreshService = tokenRefreshService;
+       _tokenRefreshService = tokenRefreshService,
+       _chatService = chatService;
 
   @override
   Future<Result<String>> loginViaEmail({
@@ -33,27 +38,46 @@ class AuthRepositoryRemote extends AuthRepository {
     required String password,
   }) async {
     try {
+      debugPrint("AuthRepository: Starting login flow for $email");
+      // Trước khi đăng nhập mới, đảm bảo logout CometChat của phiên cũ (nếu có)
+      await _chatService.logout();
+
       // Gọi API đăng nhập
       final fcmToken = await _securityStorageService.getFcmToken();
       final result = await _authService.loginViaEmail(
         LoginRequest(email: email, password: password, fcmToken: fcmToken),
       );
+
       // Lưu token vào storage và decode role
       switch (result) {
         case Ok<LoginResponse>():
+          debugPrint("AuthRepository: Login API Success. Saving tokens...");
+          debugPrint("AuthRepository: AccessToken: ${result.value.accessToken.substring(0, 10)}...");
+          debugPrint("AuthRepository: RefreshToken: ${result.value.refreshToken.substring(0, 10)}...");
+          
           await _securityStorageService.saveAccessToken(
             result.value.accessToken,
           );
           await _securityStorageService.saveRefreshToken(
             result.value.refreshToken,
           );
+          if (result.value.cometchatUid != null) {
+            debugPrint("AuthRepository: CometChatUID: ${result.value.cometchatUid}");
+            await _securityStorageService.saveCometchatUid(
+              result.value.cometchatUid!,
+            );
+          }
           // Decode role từ JWT access token và persist
           final role =
               JwtUtils.extractRole(result.value.accessToken) ?? 'ROLE_TOURIST';
+          debugPrint("AuthRepository: Extracted Role: $role");
           await _securityStorageService.saveUserRole(role);
+          
+          debugPrint("AuthRepository: Notifying listeners for navigation...");
           return Result.ok(role);
 
         case Error<LoginResponse>():
+          debugPrint("AuthRepository: Login API Error: ${result.error}");
           return Result.error(result.error);
       }
     } finally {
@@ -117,8 +141,9 @@ class AuthRepositoryRemote extends AuthRepository {
     required String otp,
   }) async {
     try {
+      final fcmToken = await _securityStorageService.getFcmToken();
       final result = await _authService.verifyOtp(
-        VerifyOtpRequest(email: email, otp: otp),
+        VerifyOtpRequest(email: email, otp: otp, fcmToken: fcmToken),
       );
       switch (result) {
         case Ok<void>():
@@ -181,15 +206,19 @@ class AuthRepositoryRemote extends AuthRepository {
   @override
   Future<Result<void>> logout({required String refreshToken}) async {
     try {
+      debugPrint("AuthRepository: Starting logout flow...");
       // Lấy accessToken và refreshToken từ storage
       final accessToken = await _securityStorageService.getAccessToken();
       String? actualRefreshToken = await _securityStorageService
           .getRefreshToken();
+      
       if (actualRefreshToken == null || actualRefreshToken.isEmpty) {
+        debugPrint("AuthRepository: No refresh token in storage, using provided one.");
         actualRefreshToken = refreshToken;
       }
 
       if (accessToken == null || accessToken.isEmpty) {
+        debugPrint("AuthRepository: No access token, clearing local session only.");
         // Nếu không có accessToken thì xóa token local và coi như đã logout
         await _securityStorageService.deleteAccessToken();
         await _securityStorageService.deleteRefreshToken();
@@ -197,22 +226,32 @@ class AuthRepositoryRemote extends AuthRepository {
       }
 
       // Gọi API logout
+      debugPrint("AuthRepository: Calling backend logout API...");
+      final fcmToken = await _securityStorageService.getFcmToken();
       final result = await _authService.logout(
-        LogoutRequest(refreshToken: actualRefreshToken),
+        LogoutRequest(refreshToken: actualRefreshToken, fcmToken: fcmToken),
         accessToken: accessToken,
       );
+
+      // Đảm bảo logout CometChat
+      debugPrint("AuthRepository: Logging out from CometChat...");
+      await _chatService.logout();
+
       switch (result) {
         case Ok<void>():
+          debugPrint("AuthRepository: Logout successful. Clearing all tokens.");
           await _securityStorageService.deleteAllTokens();
           return const Result.ok(null);
 
         case Error<void>():
+          debugPrint("AuthRepository: Logout API Error: ${result.error}. Clearing local tokens anyway.");
           // Dù API logout thất bại (network error, server error, v.v.),
           // vẫn xóa token local để người dùng không bị auto-login lại.
           await _securityStorageService.deleteAllTokens();
           return Result.error(result.error);
       }
     } finally {
+      debugPrint("AuthRepository: Logout flow complete. Notifying listeners.");
       notifyListeners();
     }
   }

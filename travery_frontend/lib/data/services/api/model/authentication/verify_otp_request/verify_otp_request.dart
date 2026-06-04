@@ -8,6 +8,7 @@ abstract class VerifyOtpRequest with _$VerifyOtpRequest {
   const factory VerifyOtpRequest({
     required String email,
     required String otp,
+    String? fcmToken,
   }) = _VerifyOtpRequest;
 
   factory VerifyOtpRequest.fromJson(Map<String, dynamic> json) =>
