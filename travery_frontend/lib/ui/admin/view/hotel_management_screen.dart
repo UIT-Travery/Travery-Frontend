@@ -188,10 +188,14 @@ class _HotelManagementScreenState extends State<HotelManagementScreen> {
   }
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
-  void _onHotelTap(BusinessHotel h) {
-    context.push(
+  void _onHotelTap(BusinessHotel h) async {
+    await context.push(
       Routes.adminHotelDetail,
       extra: h,
     );
+    // Reload list when returning from detail screen (which might have changed thumbnail)
+    if (mounted) {
+      widget.viewModel.loadHotels();
+    }
   }
 }

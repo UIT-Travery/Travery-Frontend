@@ -29,11 +29,19 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminProfileViewModel>().loadProfile.execute();
+    });
+  }
+
   void _onSidebarTap(int index) {
     // Đóng drawer trước
     Navigator.of(context).pop();
 
-    if (index == 7) {
+    if (index == 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Tính năng Hộp thoại đang được phát triển'),
@@ -75,15 +83,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           viewModel: context.read<HotelManagementViewModel>(),
         );
       case 5:
-        // Room types are hotel-specific — navigate via Hotel Management > Hotel Detail
-        return HotelManagementScreen(
-          viewModel: context.read<HotelManagementViewModel>(),
-        );
-      case 6:
         return AmenityManagementScreen(
           viewModel: context.read<AmenityManagementViewModel>(),
         );
-      case 8:
+      case 7:
         return AdminViewProfileScreen(
           viewModel: context.read<AdminProfileViewModel>(),
         );

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
+import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 import '../../../core/themes/app_colors.dart';
 
 class AdminSidebar extends StatelessWidget {
@@ -24,6 +28,8 @@ class AdminSidebar extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
+    final profileViewModel = context.read<AdminProfileViewModel>();
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -40,45 +46,65 @@ class AdminSidebar extends StatelessWidget {
               horizontal: 16.0,
               vertical: 24.0,
             ),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 20,
-                  backgroundImage: NetworkImage(
-                    'https://i.pravatar.cc/150?img=11',
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Trí tiên sinh',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+            child: ListenableBuilder(
+              listenable: profileViewModel.loadProfile,
+              builder: (context, _) {
+                String fullName = 'Đang tải...';
+                String email = '';
+                String? avatarUrl;
+
+                final result = profileViewModel.loadProfile.result;
+                if (result is Ok<ProfileData>) {
+                  fullName = result.value.fullName;
+                  email = result.value.email;
+                  avatarUrl = result.value.avatarUrl;
+                }
+
+                return Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
+                          ? NetworkImage(avatarUrl)
+                          : const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            fullName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            email,
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                      Text(
-                        'minhtri2416@gmail.com',
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 11,
-                        ),
+                    ),
+                    Text(
+                      'Travery',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
-                    ],
-                  ),
-                ),
-                Text(
-                  'Travery',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const Divider(height: 1, color: Colors.black12),
@@ -114,24 +140,19 @@ class AdminSidebar extends StatelessWidget {
                   index: 4,
                 ),
                 _buildMenuItem(
-                  icon: Icons.door_front_door_outlined,
-                  title: 'Quản lý loại phòng',
-                  index: 5,
-                ),
-                _buildMenuItem(
                   icon: Icons.hot_tub_outlined,
                   title: 'Quản lý cơ sở vật chất',
-                  index: 6,
+                  index: 5,
                 ),
                 _buildMenuItem(
                   icon: Icons.chat_bubble_outline,
                   title: 'Hộp thoại',
-                  index: 7,
+                  index: 6,
                 ),
                 _buildMenuItem(
                   icon: Icons.person_2_outlined,
                   title: 'Tài khoản người dùng',
-                  index: 8,
+                  index: 7,
                 ),
                 const SizedBox(height: 32),
                 _buildLogoutItem(),

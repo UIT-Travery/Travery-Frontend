@@ -25,14 +25,17 @@ class CreateHotelViewModel extends ChangeNotifier {
     createHotel = Command1<String, CreateHotelPayload>(_createHotel);
     loadAmenities = Command0<void>(_loadAmenities);
     loadRefundPolicies = Command0<void>(_loadRefundPolicies);
+    searchDestinations = Command1<void, String>(_searchDestinations);
   }
 
   late final Command1<String, CreateHotelPayload> createHotel;
   late final Command0<void> loadAmenities;
   late final Command0<void> loadRefundPolicies;
+  late final Command1<void, String> searchDestinations;
 
   List<AmenityResponse> amenities = [];
   List<RefundPolicyResponse> refundPolicies = [];
+  List<Map<String, dynamic>> destinations = [];
 
   Future<Result<void>> _loadAmenities() async {
     final result = await _adminRepository.getAllAmenities();
@@ -82,6 +85,18 @@ class CreateHotelViewModel extends ChangeNotifier {
       case Ok<String>():
         return Result.ok(result.value);
       case Error<String>():
+        return Result.error(result.error);
+    }
+  }
+
+  Future<Result<void>> _searchDestinations(String keyword) async {
+    final result = await _adminRepository.searchDestinations(keyword: keyword);
+    switch (result) {
+      case Ok<List<dynamic>>():
+        destinations = result.value.map((e) => e as Map<String, dynamic>).toList();
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<List<dynamic>>():
         return Result.error(result.error);
     }
   }

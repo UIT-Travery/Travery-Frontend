@@ -320,4 +320,8 @@ abstract class AdminRepository extends ChangeNotifier {
   });
 
   Future<Result<void>> deleteRefundPolicy({required String id});
+
+  // ── Destinations ────────────────────────────────────────────────────────────
+
+  Future<Result<List<dynamic>>> searchDestinations({required String keyword});
 }

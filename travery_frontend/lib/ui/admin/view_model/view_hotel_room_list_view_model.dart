@@ -10,6 +10,13 @@ typedef UpdateRoomPayload = ({
   String roomTypeId,
 });
 
+typedef CreateRoomPayload = ({
+  String hotelId,
+  String roomNumber,
+  int floor,
+  String roomTypeId,
+});
+
 class ViewHotelRoomListViewModel extends ChangeNotifier {
   final AdminRepository _adminRepository;
 
@@ -17,11 +24,15 @@ class ViewHotelRoomListViewModel extends ChangeNotifier {
       : _adminRepository = adminRepository {
     loadRooms = Command1<List<dynamic>, String>(_loadRooms);
     updateRoom = Command1<void, UpdateRoomPayload>(_updateRoom);
+    createRoom = Command1<void, CreateRoomPayload>(_createRoom);
+    deleteRoom = Command1<void, String>(_deleteRoom);
     loadRoomTypes = Command1<List<dynamic>, String>(_loadRoomTypes);
   }
 
   late final Command1<List<dynamic>, String> loadRooms;
   late final Command1<void, UpdateRoomPayload> updateRoom;
+  late final Command1<void, CreateRoomPayload> createRoom;
+  late final Command1<void, String> deleteRoom;
   late final Command1<List<dynamic>, String> loadRoomTypes;
 
   List<dynamic> _roomTypes = [];
@@ -48,6 +59,21 @@ class ViewHotelRoomListViewModel extends ChangeNotifier {
       floor: payload.floor,
       roomTypeId: payload.roomTypeId,
     );
+    return result;
+  }
+
+  Future<Result<void>> _createRoom(CreateRoomPayload payload) async {
+    final result = await _adminRepository.createHotelRoom(
+      hotelId: payload.hotelId,
+      roomNumber: payload.roomNumber,
+      floor: payload.floor,
+      roomTypeId: payload.roomTypeId,
+    );
+    return result;
+  }
+
+  Future<Result<void>> _deleteRoom(String roomId) async {
+    final result = await _adminRepository.deleteRoom(id: roomId);
     return result;
   }
 }

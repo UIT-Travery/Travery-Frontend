@@ -38,8 +38,10 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
     widget.viewModel.createHotel.addListener(_onCreateHotelResult);
     widget.viewModel.loadAmenities.addListener(_onAmenitiesLoaded);
     widget.viewModel.loadRefundPolicies.addListener(_onRefundPoliciesLoaded);
+    widget.viewModel.searchDestinations.addListener(_onDestinationsLoaded);
     widget.viewModel.loadAmenities.execute();
     widget.viewModel.loadRefundPolicies.execute();
+    widget.viewModel.searchDestinations.execute('');
   }
 
   void _onAmenitiesLoaded() {
@@ -50,11 +52,16 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
     setState(() {}); // Rebuild when refund policies load
   }
 
+  void _onDestinationsLoaded() {
+    setState(() {}); // Rebuild when destinations load
+  }
+
   @override
   void dispose() {
     widget.viewModel.createHotel.removeListener(_onCreateHotelResult);
     widget.viewModel.loadAmenities.removeListener(_onAmenitiesLoaded);
     widget.viewModel.loadRefundPolicies.removeListener(_onRefundPoliciesLoaded);
+    widget.viewModel.searchDestinations.removeListener(_onDestinationsLoaded);
     _nameController.dispose();
     _addressController.dispose();
     _descriptionController.dispose();
@@ -196,12 +203,12 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                   size: 20,
                   color: Colors.black87,
                 ),
-                items: const [
-                  'Hà Nội',
-                  'TP. Hồ Chí Minh',
-                  'Đà Nẵng',
-                  'Hải Phòng',
-                ],
+                items: widget.viewModel.destinations.isEmpty
+                    ? ['Đang tải...']
+                    : widget.viewModel.destinations
+                        .map((e) => e['name'] as String? ?? '')
+                        .where((e) => e.isNotEmpty)
+                        .toList(),
                 value: _selectedCity,
                 onChanged: (val) => setState(() => _selectedCity = val),
               ),

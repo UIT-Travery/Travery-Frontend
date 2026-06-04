@@ -12,35 +12,6 @@ import 'package:travery_frontend/ui/admin/view/widgets/input_button.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/amenity_bottom_sheet.dart';
 import 'package:travery_frontend/data/services/api/model/hotel/amenity_response.dart';
 
-class _RoomData {
-  final TextEditingController numberController;
-  final TextEditingController priceController;
-  final TextEditingController capacityController;
-  final TextEditingController maxAdultsController;
-  final TextEditingController maxChildrenController;
-  String? type;
-
-  _RoomData({
-    String? initialNumber,
-    String? initialPrice,
-    String? initialCapacity,
-    String? initialMaxAdults,
-    String? initialMaxChildren,
-  }) : numberController = TextEditingController(text: initialNumber),
-       priceController = TextEditingController(text: initialPrice),
-       capacityController = TextEditingController(text: initialCapacity),
-       maxAdultsController = TextEditingController(text: initialMaxAdults),
-       maxChildrenController = TextEditingController(text: initialMaxChildren);
-
-  void dispose() {
-    numberController.dispose();
-    priceController.dispose();
-    capacityController.dispose();
-    maxAdultsController.dispose();
-    maxChildrenController.dispose();
-  }
-}
-
 class UpdateHotelScreen extends StatefulWidget {
   /// The hotel ID to load and update. Required for API integration.
   final String? hotelId;
@@ -62,14 +33,11 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
   String _checkOutTime = "12:00";
   List<String> _selectedAmenityIds = [];
 
-  final List<_RoomData> _rooms = [];
-
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
-    _rooms.add(_RoomData());
 
     widget.viewModel.updateHotel.addListener(_onUpdateHotelChanged);
     widget.viewModel.loadHotel.addListener(_onLoadHotelChanged);
@@ -104,9 +72,6 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
     _nameController.dispose();
     _addressController.dispose();
     _descriptionController.dispose();
-    for (var room in _rooms) {
-      room.dispose();
-    }
     super.dispose();
   }
 
@@ -137,6 +102,33 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
         _nameController.text = hotel.name;
         _addressController.text = hotel.address;
         _selectedCity = hotel.cityProvince;
+        _descriptionController.text = hotel.description ?? '';
+
+        if (hotel.checkInTime != null) {
+          _checkInTime = hotel.checkInTime!.substring(0, 5); // Format HH:mm
+        }
+        if (hotel.checkOutTime != null) {
+          _checkOutTime = hotel.checkOutTime!.substring(0, 5);
+        }
+
+        if (hotel.refundPolicy != null) {
+          _selectedPolicy = hotel.refundPolicy!['id'] as String?;
+        }
+
+        if (hotel.amenities != null) {
+          print('hotel.amenities from API: ${hotel.amenities}');
+          try {
+            final List<dynamic> rawAmenities = hotel.amenities;
+            _selectedAmenityIds = rawAmenities
+                .map<String>((e) => (e as Map<String, dynamic>)['id'] as String)
+                .toList();
+            print('Successfully parsed _selectedAmenityIds: $_selectedAmenityIds');
+          } catch (e, stack) {
+            print('Error parsing amenities: $e\n$stack');
+          }
+        }
+
+        if (mounted) setState(() {});
       }
     }
   }
@@ -205,7 +197,9 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
     widget.viewModel.updateHotel.execute((
       hotelId: widget.hotelId ?? '',
       name: _nameController.text.trim(),
-      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+      description: _descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim(),
       address: _addressController.text.trim(),
       cityProvince: _selectedCity,
       checkInTime: _checkInTime,
@@ -214,8 +208,6 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
       refundPolicyId: _selectedPolicy,
     ));
   }
-
-  void _addRoom() => setState(() => _rooms.add(_RoomData()));
 
   Future<void> _selectTime(BuildContext context, bool isCheckIn) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -235,35 +227,42 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
     }
   }
 
-  void _removeRoom(int index) {
-    setState(() {
-      _rooms[index].dispose();
-      _rooms.removeAt(index);
-    });
-  }
-
   // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final List<String> cityList = [
+      'Hà Nội',
+      'TP. Hồ Chí Minh',
+      'Đà Nẵng',
+      'Hải Phòng',
+      'Sa Pa',
+      'Đà Lạt',
+      'Nha Trang',
+      'Phú Quốc',
+      'Vũng Tàu',
+      'Hạ Long',
+    ];
+    if (_selectedCity != null && !cityList.contains(_selectedCity)) {
+      cityList.add(_selectedCity!);
+    }
+
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
               _buildHeader(),
               const SizedBox(height: 24),
               _buildSectionTitle(Icons.bed_outlined, 'Thông tin khách sạn'),
@@ -293,12 +292,7 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
                   size: 20,
                   color: Colors.black87,
                 ),
-                items: const [
-                  'Hà Nội',
-                  'TP. Hồ Chí Minh',
-                  'Đà Nẵng',
-                  'Hải Phòng',
-                ],
+                items: cityList,
                 value: _selectedCity,
                 onChanged: (val) => setState(() => _selectedCity = val),
               ),
@@ -440,11 +434,28 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
                   children: _selectedAmenityIds.map((id) {
                     final amenity = widget.viewModel.amenities.firstWhere(
                       (a) => a.id == id,
-                      orElse: () => const AmenityResponse(
-                        id: '',
-                        name: 'Unknown',
-                        type: 'HOTEL',
-                      ),
+                      orElse: () {
+                        final hotel =
+                            (widget.viewModel.loadHotel.result as dynamic)
+                                ?.value;
+                        final hotelAmenity = hotel?.amenities.firstWhere(
+                          (a) => a['id'] == id,
+                          orElse: () => null,
+                        );
+                        if (hotelAmenity != null) {
+                          return AmenityResponse(
+                            id: hotelAmenity['id'] as String? ?? id,
+                            name: hotelAmenity['name'] as String? ?? 'Unknown',
+                            iconUrl: hotelAmenity['iconUrl'] as String?,
+                            type: hotelAmenity['type'] as String? ?? 'HOTEL',
+                          );
+                        }
+                        return AmenityResponse(
+                          id: id,
+                          name: 'Unknown',
+                          type: 'HOTEL',
+                        );
+                      },
                     );
                     return Container(
                       padding: const EdgeInsets.symmetric(
@@ -467,11 +478,12 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
                               width: 24,
                               height: 24,
                               color: AppColors.primaryDarkBlackBlue,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.star,
-                                color: AppColors.primaryDarkBlackBlue,
-                                size: 24,
-                              ),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(
+                                    Icons.star,
+                                    color: AppColors.primaryDarkBlackBlue,
+                                    size: 24,
+                                  ),
                             ),
                             const SizedBox(width: 8),
                           ],
@@ -488,50 +500,7 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
                   }).toList(),
                 ),
               ],
-              const SizedBox(height: 32),
-              _buildSectionTitle(Icons.list_alt, 'Danh sách các phòng'),
-              const SizedBox(height: 16),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _rooms.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final roomNum = (index + 1).toString().padLeft(2, '0');
-                  return RoomCard(
-                    roomName: 'Phòng $roomNum',
-                    roomNumberController: _rooms[index].numberController,
-                    roomType: _rooms[index].type,
-                    roomTypes: const ['Đơn', 'Đôi', 'Gia đình', 'VIP'],
-                    onRoomTypeChanged: (val) =>
-                        setState(() => _rooms[index].type = val),
-                    onClose: _rooms.length > 1
-                        ? () => _removeRoom(index)
-                        : null,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _addRoom,
-                icon: const Icon(Icons.add, color: Colors.white, size: 18),
-                label: const Text(
-                  'Thêm phòng khác',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryDarkBlackBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+
               LargeButton(
                 text: 'Lưu',
                 onTap: widget.viewModel.updateHotel.running ? null : _onSave,
@@ -547,39 +516,29 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
   // ── Builders ───────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
-    return ListenableBuilder(
-      listenable: widget.viewModel.updateHotel,
-      builder: (context, _) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Chỉnh sửa khách sạn',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryDarkBlackBlue,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Nhập thông tin khách sạn và phòng',
-                    style: TextStyle(
-                      fontSize: AppTextTheme.bodySmall,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 16),
+            const Text(
+              'Chỉnh sửa khách sạn',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E293B),
               ),
             ),
+            const SizedBox(height: 4),
+            Text(
+              'Nhập thông tin khách sạn và phòng',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 

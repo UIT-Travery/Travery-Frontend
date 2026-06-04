@@ -715,6 +715,11 @@ class AdminRepositoryRemote extends AdminRepository {
             roomCount: data['roomCount'] as int?,
             imageUrl: data['thumbnailUrl'] ?? data['imageUrl'] as String?,
             images: data['images'] as List<dynamic>? ?? [],
+            description: data['description'] as String?,
+            checkInTime: data['checkInTime'] as String?,
+            checkOutTime: data['checkOutTime'] as String?,
+            refundPolicy: data['refundPolicy'] as Map<String, dynamic>?,
+            amenities: data['amenities'] as List<dynamic>? ?? [],
           );
           return Result.ok(hotel);
         } catch (e) {
@@ -1318,7 +1323,22 @@ class AdminRepositoryRemote extends AdminRepository {
 
   @override
   Future<Result<void>> deleteRoom({required String id}) async {
-    return Result.error(_notImplemented);
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.adminDeleteRoom(
+      accessToken: token,
+      roomId: id,
+    );
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
   }
 
   // ── Tours ──────────────────────────────────────────────────────────────────
@@ -1588,5 +1608,21 @@ class AdminRepositoryRemote extends AdminRepository {
       case Error<void>():
         return Result.error(result.error);
     }
+  }
+
+  // ── Destinations ────────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<dynamic>>> searchDestinations({required String keyword}) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.searchDestinations(
+      accessToken: token,
+      keyword: keyword,
+    );
+    return result;
   }
 }

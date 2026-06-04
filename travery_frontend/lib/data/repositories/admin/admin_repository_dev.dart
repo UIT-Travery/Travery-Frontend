@@ -1220,4 +1220,12 @@ class AdminRepositoryDev extends AdminRepository {
     // TODO: implement updateHotelRoomType
     throw UnimplementedError();
   }
+
+  // ── Destinations ────────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<dynamic>>> searchDestinations({required String keyword}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
 }

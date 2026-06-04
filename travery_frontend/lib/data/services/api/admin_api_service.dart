@@ -1519,6 +1519,31 @@ class AdminApiService {
     }
   }
 
+  /// DELETE /api/v1/admin/rooms/{roomId}
+  Future<Result<void>> adminDeleteRoom({
+    required String accessToken,
+    required String roomId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/rooms/$roomId');
+      final request = await client.deleteUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return const Result.ok(null);
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể xóa phòng');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
   // ── Admin Amenity Controller ──────────────────────────────────────────────
 
   /// GET /api/v1/admin/amenities
@@ -1817,6 +1842,36 @@ class AdminApiService {
         return const Result.ok(null);
       } else {
         final msg = await _extractErrorMessage(response, 'Không thể xóa chính sách hoàn tiền');
+        return Result.error(HttpException(msg));
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    } finally {
+      client.close();
+    }
+  }
+
+  // ── Destinations ────────────────────────────────────────────────────────────
+
+  /// GET /api/v1/destinations/search
+  Future<Result<List<dynamic>>> searchDestinations({
+    required String accessToken,
+    required String keyword,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+    try {
+      final uri = Uri.https(_host, '/api/v1/destinations/search', {'keyword': keyword});
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        return Result.ok(jsonMap['data'] as List<dynamic>? ?? []);
+      } else {
+        final msg = await _extractErrorMessage(response, 'Không thể tìm kiếm thành phố');
         return Result.error(HttpException(msg));
       }
     } on Exception catch (e) {
