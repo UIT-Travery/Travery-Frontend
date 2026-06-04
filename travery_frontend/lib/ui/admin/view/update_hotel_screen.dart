@@ -538,8 +538,8 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 
