@@ -1067,6 +1067,54 @@ class AdminRepositoryRemote extends AdminRepository {
   }
 
   @override
+  Future<Result<List<dynamic>>> uploadRoomTypeImages({
+    required String roomTypeId,
+    required List<String> filePaths,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.adminUploadRoomTypeImages(
+      accessToken: token,
+      roomTypeId: roomTypeId,
+      filePaths: filePaths,
+    );
+    switch (result) {
+      case Ok<List<dynamic>>():
+        notifyListeners();
+        return Result.ok(result.value);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteRoomTypeImage({
+    required String roomTypeId,
+    required String imageId,
+  }) async {
+    final token = await _getAccessToken();
+    if (token == null) {
+      return Result.error(Exception('Phiên đăng nhập hết hạn'));
+    }
+
+    final result = await _adminApiService.adminDeleteRoomTypeImage(
+      accessToken: token,
+      roomTypeId: roomTypeId,
+      imageId: imageId,
+    );
+    switch (result) {
+      case Ok<void>():
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
+  }
+
+  @override
   Future<Result<List<dynamic>>> getHotelRooms({required String hotelId}) async {
     final token = await _getAccessToken();
     if (token == null) {

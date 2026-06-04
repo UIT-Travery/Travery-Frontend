@@ -16,7 +16,7 @@ class ImageManagementViewModel extends ChangeNotifier {
     uploadHotelImages = Command1<void, List<String>>(_uploadHotelImages);
     setHotelThumbnail = Command1<void, String>(_setHotelThumbnail);
     deleteHotelImage = Command1<void, String>(_deleteHotelImage);
-    uploadRoomTypeImage = Command1<void, ({String roomTypeId, String filePath})>(_uploadRoomTypeImage);
+    uploadRoomTypeImage = Command1<void, ({String roomTypeId, List<String> filePaths})>(_uploadRoomTypeImage);
     deleteRoomTypeImage = Command1<void, ({String roomTypeId, String imageId})>(_deleteRoomTypeImage);
   }
 
@@ -24,7 +24,7 @@ class ImageManagementViewModel extends ChangeNotifier {
   late final Command1<void, List<String>> uploadHotelImages;
   late final Command1<void, String> setHotelThumbnail;
   late final Command1<void, String> deleteHotelImage;
-  late final Command1<void, ({String roomTypeId, String filePath})> uploadRoomTypeImage;
+  late final Command1<void, ({String roomTypeId, List<String> filePaths})> uploadRoomTypeImage;
   late final Command1<void, ({String roomTypeId, String imageId})> deleteRoomTypeImage;
 
   List<HotelImageResponse> hotelImages = [];
@@ -84,9 +84,9 @@ class ImageManagementViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _uploadRoomTypeImage(
-      ({String roomTypeId, String filePath}) payload) async {
+      ({String roomTypeId, List<String> filePaths}) payload) async {
     final result = await _adminRepository.uploadRoomTypeImages(
-        roomTypeId: payload.roomTypeId, filePaths: [payload.filePath]);
+        roomTypeId: payload.roomTypeId, filePaths: payload.filePaths);
     if (result is Ok) {
       await loadData.execute(_currentHotelId);
       return const Result.ok(null);

@@ -172,11 +172,11 @@ class _ImageManagementScreenState extends State<ImageManagementScreen> {
     }
   }
 
-  Future<void> _pickRoomTypeImage(String roomTypeId) async {
+  Future<void> _pickRoomTypeImages(String roomTypeId) async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        widget.viewModel.uploadRoomTypeImage.execute((roomTypeId: roomTypeId, filePath: image.path));
+      final List<XFile> images = await _picker.pickMultiImage();
+      if (images.isNotEmpty) {
+        widget.viewModel.uploadRoomTypeImage.execute((roomTypeId: roomTypeId, filePaths: images.map((e) => e.path).toList()));
       }
     } catch (e) {
       _showError('Lỗi khi chọn ảnh', e);
@@ -441,12 +441,9 @@ class _ImageManagementScreenState extends State<ImageManagementScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: roomTypes.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      separatorBuilder: (context, index) => const SizedBox(height: 24),
       itemBuilder: (context, index) {
         final rt = roomTypes[index];
-        final hasImage = rt.images.isNotEmpty;
-        final imageUrl = hasImage ? rt.images.first.url : null;
-        final imageId = hasImage ? rt.images.first.id : null;
 
         return Container(
           padding: const EdgeInsets.all(16),
@@ -455,77 +452,112 @@ class _ImageManagementScreenState extends State<ImageManagementScreen> {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: hasImage
-                    ? Image.network(
-                        imageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Icon(Icons.broken_image, color: Colors.grey[400]),
-                      )
-                    : Icon(Icons.bed_outlined, size: 32, color: Colors.grey[400]),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      rt.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          rt.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Giá: ${(rt.basePrice / 1000).toStringAsFixed(0)}K đ',
+                          style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Giá: ${(rt.basePrice / 1000).toStringAsFixed(0)}K đ',
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-                    ),
-                  ],
-                ),
+                  ),
+                  SmallButton(
+                    label: 'Thêm ảnh',
+                    prefixIcon: const Icon(Icons.add_photo_alternate_outlined, size: 16, color: Colors.white),
+                    color: const Color(0xFF0055C3),
+                    onTap: widget.viewModel.uploadRoomTypeImage.running ? () {} : () => _pickRoomTypeImages(rt.id),
+                  ),
+                ],
               ),
-              if (!hasImage)
-                IconButton(
-                  onPressed: () => _pickRoomTypeImage(rt.id),
-                  icon: const Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF0055C3)),
-                  tooltip: 'Thêm ảnh',
-                )
-              else
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Xác nhận xóa'),
-                        content: const Text('Bạn có chắc chắn muốn xóa ảnh của loại phòng này?'),
-                        actions: [
-                          TextButton(onPressed: () => context.pop(), child: const Text('Hủy')),
-                          TextButton(
-                            onPressed: () {
-                              context.pop();
-                              widget.viewModel.deleteRoomTypeImage.execute((roomTypeId: rt.id, imageId: imageId!));
-                            },
-                            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
-                          ),
-                        ],
-                      ),
-                    );
+              if (rt.images.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: rt.images.length,
+                  itemBuilder: (context, imgIndex) {
+                    final image = rt.images[imgIndex];
+                    return _buildRoomTypeImageCard(rt.id, image);
                   },
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  tooltip: 'Xóa ảnh',
                 ),
+              ],
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildRoomTypeImageCard(String roomTypeId, HotelImageResponse image) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            image.url,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                Icon(Icons.broken_image, color: Colors.grey[400]),
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Xác nhận xóa'),
+                    content: const Text('Bạn có chắc chắn muốn xóa ảnh của loại phòng này?'),
+                    actions: [
+                      TextButton(onPressed: () => context.pop(), child: const Text('Hủy')),
+                      TextButton(
+                        onPressed: () {
+                          context.pop();
+                          widget.viewModel.deleteRoomTypeImage.execute((roomTypeId: roomTypeId, imageId: image.id));
+                        },
+                        child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.delete_outline, color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
