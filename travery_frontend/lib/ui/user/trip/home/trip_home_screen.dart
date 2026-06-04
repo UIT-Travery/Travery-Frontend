@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -170,14 +169,6 @@ class _TripHomeScreenState extends State<TripHomeScreen> {
             child: ElevatedButton(
               onPressed: vm.canSearch
                   ? () {
-                      debugPrint(
-                        'Trip search — '
-                        'origin: ${vm.selectedOrigin?.name}, '
-                        'originStation: ${vm.selectedOriginStation?.name} (${vm.selectedOriginStation?.id}), '
-                        'destination: ${vm.selectedDestination?.name}, '
-                        'destinationStation: ${vm.selectedDestinationStation?.name} (${vm.selectedDestinationStation?.id}), '
-                        'departureDate: ${vm.departureDate}',
-                      );
                       context.push(
                         Routes.tripList,
                         extra: {
@@ -775,7 +766,7 @@ class _StationPickerBottomSheetState extends State<_StationPickerBottomSheet> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       itemCount: allStations.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final dest = allStations[index]['dest'];
         final station = allStations[index]['station'] as StationData;

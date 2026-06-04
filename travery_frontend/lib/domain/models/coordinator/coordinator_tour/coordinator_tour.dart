@@ -9,6 +9,7 @@ class CoordinatorTour {
   final int maxParticipants;
   final int currentParticipants;
   final String status;
+  final String? imageUrl;
   final String? guideId;
   final String? guideName;
   final String? guidePhone;
@@ -30,6 +31,7 @@ class CoordinatorTour {
     required this.maxParticipants,
     required this.currentParticipants,
     required this.status,
+    this.imageUrl,
     this.guideId,
     this.guideName,
     this.guidePhone,

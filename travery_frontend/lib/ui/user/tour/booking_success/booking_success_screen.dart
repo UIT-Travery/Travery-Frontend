@@ -120,7 +120,7 @@ class BookingSuccessScreen extends StatelessWidget {
                         ),
                         Flexible(
                           child: Text(
-                            '#${_shortCode}',
+                            '#$_shortCode',
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,

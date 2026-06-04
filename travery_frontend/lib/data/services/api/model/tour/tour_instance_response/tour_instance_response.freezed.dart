@@ -22,10 +22,14 @@ TourInstanceResponse _$TourInstanceResponseFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$TourInstanceResponse {
   String get id => throw _privateConstructorUsedError;
+  String get tourName => throw _privateConstructorUsedError;
   String get startDate => throw _privateConstructorUsedError;
-  String get endDate => throw _privateConstructorUsedError;
+  String? get endDate => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
-  int get availableSlots => throw _privateConstructorUsedError;
+  int get currentParticipants => throw _privateConstructorUsedError;
+  int? get maxParticipants => throw _privateConstructorUsedError;
+  int? get availableSlots => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Serializes this TourInstanceResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -46,10 +50,14 @@ abstract class $TourInstanceResponseCopyWith<$Res> {
   @useResult
   $Res call({
     String id,
+    String tourName,
     String startDate,
-    String endDate,
+    String? endDate,
     String status,
-    int availableSlots,
+    int currentParticipants,
+    int? maxParticipants,
+    int? availableSlots,
+    String? imageUrl,
   });
 }
 
@@ -72,10 +80,14 @@ class _$TourInstanceResponseCopyWithImpl<
   @override
   $Res call({
     Object? id = null,
+    Object? tourName = null,
     Object? startDate = null,
-    Object? endDate = null,
+    Object? endDate = freezed,
     Object? status = null,
-    Object? availableSlots = null,
+    Object? currentParticipants = null,
+    Object? maxParticipants = freezed,
+    Object? availableSlots = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -83,22 +95,38 @@ class _$TourInstanceResponseCopyWithImpl<
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
                       as String,
+            tourName: null == tourName
+                ? _value.tourName
+                : tourName // ignore: cast_nullable_to_non_nullable
+                      as String,
             startDate: null == startDate
                 ? _value.startDate
                 : startDate // ignore: cast_nullable_to_non_nullable
                       as String,
-            endDate: null == endDate
+            endDate: freezed == endDate
                 ? _value.endDate
                 : endDate // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as String?,
             status: null == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
                       as String,
-            availableSlots: null == availableSlots
+            currentParticipants: null == currentParticipants
+                ? _value.currentParticipants
+                : currentParticipants // ignore: cast_nullable_to_non_nullable
+                      as int,
+            maxParticipants: freezed == maxParticipants
+                ? _value.maxParticipants
+                : maxParticipants // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            availableSlots: freezed == availableSlots
                 ? _value.availableSlots
                 : availableSlots // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as int?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -116,10 +144,14 @@ abstract class _$$TourInstanceResponseImplCopyWith<$Res>
   @useResult
   $Res call({
     String id,
+    String tourName,
     String startDate,
-    String endDate,
+    String? endDate,
     String status,
-    int availableSlots,
+    int currentParticipants,
+    int? maxParticipants,
+    int? availableSlots,
+    String? imageUrl,
   });
 }
 
@@ -138,10 +170,14 @@ class __$$TourInstanceResponseImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? tourName = null,
     Object? startDate = null,
-    Object? endDate = null,
+    Object? endDate = freezed,
     Object? status = null,
-    Object? availableSlots = null,
+    Object? currentParticipants = null,
+    Object? maxParticipants = freezed,
+    Object? availableSlots = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _$TourInstanceResponseImpl(
@@ -149,22 +185,38 @@ class __$$TourInstanceResponseImplCopyWithImpl<$Res>
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
                   as String,
+        tourName: null == tourName
+            ? _value.tourName
+            : tourName // ignore: cast_nullable_to_non_nullable
+                  as String,
         startDate: null == startDate
             ? _value.startDate
             : startDate // ignore: cast_nullable_to_non_nullable
                   as String,
-        endDate: null == endDate
+        endDate: freezed == endDate
             ? _value.endDate
             : endDate // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as String?,
         status: null == status
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
                   as String,
-        availableSlots: null == availableSlots
+        currentParticipants: null == currentParticipants
+            ? _value.currentParticipants
+            : currentParticipants // ignore: cast_nullable_to_non_nullable
+                  as int,
+        maxParticipants: freezed == maxParticipants
+            ? _value.maxParticipants
+            : maxParticipants // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        availableSlots: freezed == availableSlots
             ? _value.availableSlots
             : availableSlots // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as int?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -175,10 +227,14 @@ class __$$TourInstanceResponseImplCopyWithImpl<$Res>
 class _$TourInstanceResponseImpl implements _TourInstanceResponse {
   const _$TourInstanceResponseImpl({
     required this.id,
+    required this.tourName,
     required this.startDate,
-    required this.endDate,
+    this.endDate,
     required this.status,
-    this.availableSlots = 0,
+    required this.currentParticipants,
+    this.maxParticipants,
+    this.availableSlots,
+    this.imageUrl,
   });
 
   factory _$TourInstanceResponseImpl.fromJson(Map<String, dynamic> json) =>
@@ -187,18 +243,25 @@ class _$TourInstanceResponseImpl implements _TourInstanceResponse {
   @override
   final String id;
   @override
+  final String tourName;
+  @override
   final String startDate;
   @override
-  final String endDate;
+  final String? endDate;
   @override
   final String status;
   @override
-  @JsonKey()
-  final int availableSlots;
+  final int currentParticipants;
+  @override
+  final int? maxParticipants;
+  @override
+  final int? availableSlots;
+  @override
+  final String? imageUrl;
 
   @override
   String toString() {
-    return 'TourInstanceResponse(id: $id, startDate: $startDate, endDate: $endDate, status: $status, availableSlots: $availableSlots)';
+    return 'TourInstanceResponse(id: $id, tourName: $tourName, startDate: $startDate, endDate: $endDate, status: $status, currentParticipants: $currentParticipants, maxParticipants: $maxParticipants, availableSlots: $availableSlots, imageUrl: $imageUrl)';
   }
 
   @override
@@ -207,18 +270,36 @@ class _$TourInstanceResponseImpl implements _TourInstanceResponse {
         (other.runtimeType == runtimeType &&
             other is _$TourInstanceResponseImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.tourName, tourName) ||
+                other.tourName == tourName) &&
             (identical(other.startDate, startDate) ||
                 other.startDate == startDate) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.currentParticipants, currentParticipants) ||
+                other.currentParticipants == currentParticipants) &&
+            (identical(other.maxParticipants, maxParticipants) ||
+                other.maxParticipants == maxParticipants) &&
             (identical(other.availableSlots, availableSlots) ||
-                other.availableSlots == availableSlots));
+                other.availableSlots == availableSlots) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, startDate, endDate, status, availableSlots);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    tourName,
+    startDate,
+    endDate,
+    status,
+    currentParticipants,
+    maxParticipants,
+    availableSlots,
+    imageUrl,
+  );
 
   /// Create a copy of TourInstanceResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -241,10 +322,14 @@ class _$TourInstanceResponseImpl implements _TourInstanceResponse {
 abstract class _TourInstanceResponse implements TourInstanceResponse {
   const factory _TourInstanceResponse({
     required final String id,
+    required final String tourName,
     required final String startDate,
-    required final String endDate,
+    final String? endDate,
     required final String status,
-    final int availableSlots,
+    required final int currentParticipants,
+    final int? maxParticipants,
+    final int? availableSlots,
+    final String? imageUrl,
   }) = _$TourInstanceResponseImpl;
 
   factory _TourInstanceResponse.fromJson(Map<String, dynamic> json) =
@@ -253,13 +338,21 @@ abstract class _TourInstanceResponse implements TourInstanceResponse {
   @override
   String get id;
   @override
+  String get tourName;
+  @override
   String get startDate;
   @override
-  String get endDate;
+  String? get endDate;
   @override
   String get status;
   @override
-  int get availableSlots;
+  int get currentParticipants;
+  @override
+  int? get maxParticipants;
+  @override
+  int? get availableSlots;
+  @override
+  String? get imageUrl;
 
   /// Create a copy of TourInstanceResponse
   /// with the given fields replaced by the non-null parameter values.

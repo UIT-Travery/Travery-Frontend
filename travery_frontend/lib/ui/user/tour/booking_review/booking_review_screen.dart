@@ -50,6 +50,16 @@ class BookingReviewScreen extends StatefulWidget {
 class _BookingReviewScreenState extends State<BookingReviewScreen> {
   bool _termsAccepted = false;
 
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.initProfile();
+  }
+
+  Future<void> _onRefresh() async {
+    await widget.viewModel.refreshProfile();
+  }
+
   double get _totalPrice =>
       (widget.adultCount * widget.pricePerAdult) +
       (widget.childCount * widget.pricePerChild);
@@ -67,159 +77,17 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // ── Contact Info ──
-          _buildContactSection(vm),
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        color: AppColors.primary,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          children: [
+            // ── Contact Info ──
+            _buildContactSection(vm),
 
-          // ── Section 1: Tour Info & Members ──
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.tourName,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Be Vietnam Pro',
-                    color: Color(0xFF1E293B),
-                    height: 1.3,
-                  ),
-                ),
-                if (widget.destinationName != null &&
-                    widget.destinationName!.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  _buildInfoRow(
-                    icon: Icons.location_on_outlined,
-                    label: 'Điểm đến',
-                    text: widget.destinationName!,
-                  ),
-                ],
-                // if (widget.startLocation != null &&
-                //     widget.startLocation!.isNotEmpty) ...[
-                //   const SizedBox(height: 6),
-                //   _buildInfoRow(
-                //     icon: Icons.flight_takeoff_outlined,
-                //     label: 'Điểm xuất phát',
-                //     text: widget.startLocation!,
-                //   ),
-                // ],
-                const SizedBox(height: 16),
-                if (widget.startDate.isNotEmpty) ...[
-                  _buildInfoRow(
-                    icon: Icons.calendar_today_outlined,
-                    text: '${widget.startDate} - ${widget.endDate}',
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (widget.tourImageUrl != null) ...[
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      widget.tourImageUrl!,
-                      height: 160,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 20),
-                Container(height: 1, color: const Color(0xFFE2E8F0)),
-                const SizedBox(height: 16),
-                const Text(
-                  'DANH SÁCH KHÁCH',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Be Vietnam Pro',
-                    color: Color(0xFF64748B),
-                    letterSpacing: 0.8,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ...widget.members.map((m) {
-                  final isAdult = m['memberType'] == 'ADULT';
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            isAdult ? Icons.person : Icons.child_care,
-                            size: 20,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                m['fullName'] ?? '',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1E293B),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'CCCD: ${m['identityNumber'] ?? ''}',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                              if (m['dateOfBirth'] != null &&
-                                  (m['dateOfBirth'] as String).isNotEmpty) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Ngày sinh: ${m['dateOfBirth']}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF64748B),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // ── Section 2: Special Requests ──
-          if (widget.specialRequests.isNotEmpty) ...[
+            // ── Section 1: Tour Info & Members ──
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -237,110 +105,265 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.edit_note, color: AppColors.primary, size: 20),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Ghi chú đặc biệt',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Be Vietnam Pro',
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Text(
-                      '"${widget.specialRequests}"',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF64748B),
-                        fontStyle: FontStyle.italic,
-                        height: 1.5,
-                      ),
+                  Text(
+                    widget.tourName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Be Vietnam Pro',
+                      color: Color(0xFF1E293B),
+                      height: 1.3,
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          // ── Section 3: Terms Checkbox ──
-          GestureDetector(
-            onTap: () => setState(() => _termsAccepted = !_termsAccepted),
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Checkbox(
-                      value: _termsAccepted,
-                      onChanged: (v) =>
-                          setState(() => _termsAccepted = v ?? false),
-                      activeColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      side: BorderSide(
-                        color: _termsAccepted
-                            ? AppColors.primary
-                            : const Color(0xFFCBD5E1),
-                        width: 1.5,
+                  if (widget.destinationName != null &&
+                      widget.destinationName!.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    _buildInfoRow(
+                      icon: Icons.location_on_outlined,
+                      label: 'Điểm đến',
+                      text: widget.destinationName!,
+                    ),
+                  ],
+                  // if (widget.startLocation != null &&
+                  //     widget.startLocation!.isNotEmpty) ...[
+                  //   const SizedBox(height: 6),
+                  //   _buildInfoRow(
+                  //     icon: Icons.flight_takeoff_outlined,
+                  //     label: 'Điểm xuất phát',
+                  //     text: widget.startLocation!,
+                  //   ),
+                  // ],
+                  const SizedBox(height: 16),
+                  if (widget.startDate.isNotEmpty) ...[
+                    _buildInfoRow(
+                      icon: Icons.calendar_today_outlined,
+                      text: '${widget.startDate} - ${widget.endDate}',
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (widget.tourImageUrl != null) ...[
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        widget.tourImageUrl!,
+                        height: 160,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => const SizedBox.shrink(),
                       ),
                     ),
+                  ],
+                  const SizedBox(height: 20),
+                  Container(height: 1, color: const Color(0xFFE2E8F0)),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'DANH SÁCH KHÁCH',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Be Vietnam Pro',
+                      color: Color(0xFF64748B),
+                      letterSpacing: 0.8,
+                    ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF64748B),
-                            height: 1.5,
+                  const SizedBox(height: 16),
+                  ...widget.members.map((m) {
+                    final isAdult = m['memberType'] == 'ADULT';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              isAdult ? Icons.person : Icons.child_care,
+                              size: 20,
+                              color: AppColors.primary,
+                            ),
                           ),
-                          children: const [
-                            TextSpan(text: 'Tôi đã đọc và đồng ý với các '),
-                            TextSpan(
-                              text: 'Điều khoản sử dụng',
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  m['fullName'] ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'CCCD: ${m['identityNumber'] ?? ''}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF64748B),
+                                  ),
+                                ),
+                                if (m['dateOfBirth'] != null &&
+                                    (m['dateOfBirth'] as String)
+                                        .isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Ngày sinh: ${m['dateOfBirth']}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
-                            TextSpan(text: ' và '),
-                            TextSpan(
-                              text: 'Chính sách hoàn hủy',
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                            TextSpan(text: ' của Travery.'),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ],
               ),
             ),
-          ),
 
-          const SizedBox(height: 100),
-        ],
+            const SizedBox(height: 16),
+
+            // ── Section 2: Special Requests ──
+            if (widget.specialRequests.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.edit_note,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Ghi chú đặc biệt',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Be Vietnam Pro',
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Text(
+                        '"${widget.specialRequests}"',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF64748B),
+                          fontStyle: FontStyle.italic,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // ── Section 3: Terms Checkbox ──
+            GestureDetector(
+              onTap: () => setState(() => _termsAccepted = !_termsAccepted),
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: _termsAccepted,
+                        onChanged: (v) =>
+                            setState(() => _termsAccepted = v ?? false),
+                        activeColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        side: BorderSide(
+                          color: _termsAccepted
+                              ? AppColors.primary
+                              : const Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF64748B),
+                              height: 1.5,
+                            ),
+                            children: const [
+                              TextSpan(text: 'Tôi đã đọc và đồng ý với các '),
+                              TextSpan(
+                                text: 'Điều khoản sử dụng',
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(text: ' và '),
+                              TextSpan(
+                                text: 'Chính sách hoàn hủy',
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(text: ' của Travery.'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 100),
+          ],
+        ),
       ),
       bottomNavigationBar: Consumer<BookingReviewViewModel>(
         builder: (context, vm, _) {
@@ -462,6 +485,50 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
   }
 
   Widget _buildContactSection(BookingReviewViewModel vm) {
+    if (vm.isLoadingProfile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'THÔNG TIN LIÊN LẠC',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Be Vietnam Pro',
+              color: Color(0xFF64748B),
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      );
+    }
+
     final name = vm.userName?.isNotEmpty == true
         ? vm.userName!
         : 'Chưa cập nhật';

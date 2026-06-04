@@ -87,36 +87,42 @@ class AdminRepositoryDev extends AdminRepository {
       plateNumber: '51B - 882.41',
       coachType: CoachType.limousine.toString(),
       seatCount: 22,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_2',
       plateNumber: '29B - 110.02',
       coachType: 'Standard',
       seatCount: 45,
+      status: 'Maintenance',
     ),
     BusinessCoach(
       id: 'veh_3',
       plateNumber: '59B - 564.29',
       coachType: 'Limousine',
       seatCount: 9,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_4',
       plateNumber: '49B - 023.15',
       coachType: 'Standard',
       seatCount: 34,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_5',
       plateNumber: '30A - 765.33',
       coachType: 'VIP Sleeper',
       seatCount: 18,
+      status: 'Active',
     ),
     BusinessCoach(
       id: 'veh_6',
       plateNumber: '79C - 441.88',
       coachType: 'Standard',
       seatCount: 40,
+      status: 'Retired',
     ),
   ];
 
@@ -329,9 +335,11 @@ class AdminRepositoryDev extends AdminRepository {
   Future<Result<void>> createAccount({
     required String name,
     required String email,
-    required String employeeId,
+    required String password,
     required String role,
     required bool isActive,
+    String? guideLicense,
+    String? hotelId,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     final newId = 'acc_${_mutableAccounts.length + 1}';
@@ -345,7 +353,7 @@ class AdminRepositoryDev extends AdminRepository {
       ),
     );
     notifyListeners();
-    return const Result.ok(null);
+    return Result.ok(newId);
   }
 
   @override
@@ -387,6 +395,162 @@ class AdminRepositoryDev extends AdminRepository {
     return const Result.ok(null);
   }
 
+  // ── Admin User Controller (dev stubs) ─────────────────────────────────
+
+  @override
+  Future<Result<Map<String, dynamic>>> getUsers({
+    String? role,
+    String? status,
+    int page = 0,
+    int size = 20,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    var list = _mutableAccounts.toList();
+    if (role != null && role.isNotEmpty) {
+      final r = BusinessAccount.roleFromApi(role);
+      list = list.where((a) => a.role == r).toList();
+    }
+    if (status != null && status.isNotEmpty) {
+      final s = BusinessAccount.statusFromApi(status);
+      list = list.where((a) => a.status == s).toList();
+    }
+    final start = page * size;
+    final end = (start + size).clamp(0, list.length);
+    final content = start < list.length
+        ? list.sublist(start, end)
+        : <BusinessAccount>[];
+    final contentJson = content
+        .map(
+          (a) => {
+            'id': a.id,
+            'fullName': a.name,
+            'email': a.email,
+            'role': BusinessAccount.roleToApi(a.role),
+            'status': BusinessAccount.statusToApi(a.status),
+            'avatarUrl': a.avatarUrl,
+            'phoneNumber': a.phoneNumber,
+            'createdAt': a.createdAt,
+          },
+        )
+        .toList();
+    return Result.ok({
+      'content': contentJson,
+      'totalElements': list.length,
+      'totalPages': (list.length / size).ceil(),
+      'size': size,
+      'number': page,
+      'first': page == 0,
+      'last': end >= list.length,
+    });
+  }
+
+  @override
+  Future<Result<BusinessAccount>> getUserById({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      return Result.ok(_mutableAccounts.firstWhere((a) => a.id == id));
+    } catch (_) {
+      return Result.error(Exception('User not found: $id'));
+    }
+  }
+
+  @override
+  Future<Result<BusinessAccount>> banUser({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) {
+      return Result.error(Exception('User not found: $id'));
+    }
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      status: AccountStatus.banned,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> unbanUser({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) {
+      return Result.error(Exception('User not found: $id'));
+    }
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      status: AccountStatus.active,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateReceptionistProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? shiftType,
+    String? hotelId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateGuideProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? guideLicense,
+    int? yearsExperience,
+    List<String>? languages,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateCoordinatorProfile({
+    required String id,
+    String? fullName,
+    String? phoneNumber,
+    String? department,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    _mutableAccounts[idx] = _mutableAccounts[idx].copyWith(
+      name: fullName ?? _mutableAccounts[idx].name,
+      phoneNumber: phoneNumber ?? _mutableAccounts[idx].phoneNumber,
+    );
+    notifyListeners();
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
+  @override
+  Future<Result<BusinessAccount>> updateUserAvatar({
+    required String id,
+    required String filePath,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableAccounts.indexWhere((a) => a.id == id);
+    if (idx == -1) return Result.error(Exception('User not found: $id'));
+    // In dev mode, just return the existing account unchanged.
+    return Result.ok(_mutableAccounts[idx]);
+  }
+
   // ── Vehicles ───────────────────────────────────────────────────────────────
 
   @override
@@ -406,8 +570,10 @@ class AdminRepositoryDev extends AdminRepository {
   // ── Hotels ────────────────────────────────────────────────────────────────
 
   @override
-  Future<Result<List<BusinessHotel>>> getAllHotels() =>
-      _delay(List.unmodifiable(_mutableHotels));
+  Future<Result<List<BusinessHotel>>> getAllHotels({
+    int page = 0,
+    int size = 20,
+  }) => _delay(List.unmodifiable(_mutableHotels));
 
   @override
   Future<Result<BusinessHotel>> getHotel({required String id}) async {
@@ -524,6 +690,183 @@ class AdminRepositoryDev extends AdminRepository {
     return const Result.ok(null);
   }
 
+  @override
+  Future<Result<String>> createHotel({
+    required String name,
+    String? description,
+    required String address,
+    required String cityProvince,
+    required String checkInTime,
+    required String checkOutTime,
+    List<String> amenityIds = const [],
+    required String refundPolicyId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final newId = 'hot_${_mutableHotels.length + 1}';
+    _mutableHotels.add(
+      BusinessHotel(
+        id: newId,
+        name: name,
+        address: address,
+        cityProvince: cityProvince,
+      ),
+    );
+    notifyListeners();
+    return Result.ok(newId);
+  }
+
+  @override
+  Future<Result<void>> updateHotel({
+    required String hotelId,
+    String? name,
+    String? description,
+    String? address,
+    String? cityProvince,
+    String? checkInTime,
+    String? checkOutTime,
+    List<String>? amenityIds,
+    String? refundPolicyId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> uploadHotelImages({
+    required String hotelId,
+    required List<String> filePaths,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> deleteHotelImage({
+    required String hotelId,
+    required String imageId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> setHotelThumbnail({
+    required String hotelId,
+    required String imageId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelServices({
+    required String hotelId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createHotelService({
+    required String hotelId,
+    required String name,
+    required String category,
+    required double price,
+    required String unit,
+    String? description,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> deleteHotelService({
+    required String serviceId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelRoomTypes({
+    required String hotelId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<String>> createHotelRoomType({
+    required String hotelId,
+    required String name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    required double basePrice,
+    required String bedType,
+    int? area,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok('mock-room-type-id');
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getHotelRooms({required String hotelId}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createHotelRoom({
+    required String hotelId,
+    required String roomNumber,
+    required int floor,
+    required String roomTypeId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok(null);
+  }
+
+  // ── Amenities ──────────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<dynamic>>> getAllAmenities() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<void>> createAmenity({
+    required String name,
+    required String type,
+    String? iconImagePath,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> updateAmenity({
+    required String amenityId,
+    String? name,
+    String? type,
+    String? iconImagePath,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> deleteAmenity({required String amenityId}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
   // @override
   // Future<Result<void>> deleteRoom({required String roomId}) async {
   //   await Future.delayed(const Duration(milliseconds: 300));
@@ -625,18 +968,19 @@ class AdminRepositoryDev extends AdminRepository {
   //   return const Result.ok(null);
   // }
 
-  @override
-  Future<Result<void>> createVehicle({
-    required String registrationNumber,
-    required String model,
-    required String type,
-    required int seatCount,
-    required bool isAvailable,
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    notifyListeners();
-    return const Result.ok(null);
-  }
+  // @override
+  // Future<Result<void>> createVehicle({
+  //   required String registrationNumber,
+  //   required String model,
+  //   required String type,
+  //   required int seatCount,
+  //   required bool isAvailable,
+  //   required double rentalPrice,
+  // }) async {
+  //   await Future.delayed(const Duration(milliseconds: 300));
+  //   notifyListeners();
+  //   return const Result.ok(null);
+  // }
 
   @override
   Future<Result<void>> deleteVehicle({required String id}) async {
@@ -656,18 +1000,18 @@ class AdminRepositoryDev extends AdminRepository {
     throw UnimplementedError();
   }
 
-  @override
-  Future<Result<void>> createHotel({
-    required String id,
-    required String name,
-    required String address,
-    required String cityProvince,
-    required double starRating,
-    required String status,
-  }) {
-    // TODO: implement createHotel
-    throw UnimplementedError();
-  }
+  // @override
+  // Future<Result<void>> createHotel({
+  //   required String id,
+  //   required String name,
+  //   required String address,
+  //   required String cityProvince,
+  //   required double starRating,
+  //   required String status,
+  // }) {
+  //   // TODO: implement createHotel
+  //   throw UnimplementedError();
+  // }
 
   @override
   Future<Result<void>> createRoom({
@@ -691,45 +1035,36 @@ class AdminRepositoryDev extends AdminRepository {
   }
 
   @override
-  Future<Result<void>> updateHotel({
-    required String id,
-    required String name,
-    required String address,
-    required int starRating,
-    required String cityProvince,
-    required String status,
-  }) {
-    // TODO: implement updateHotel
-    throw UnimplementedError();
-  }
-
-  @override
+  // Future<Result<void>> updateHotel({
+  //   required String id,
+  //   required String name,
+  //   required String address,
+  //   required int starRating,
+  //   required String cityProvince,
+  //   required String status,
+  // }) {
   Future<Result<void>> updateRoom({
-    required String id,
-    required String roomNumber,
-    required String roomType,
-    required double pricePerNight,
-    required int capacity,
-    required int maxAdults,
-    required int maxChildren,
-    required String status,
-  }) {
+    required String roomId,
+    String? roomNumber,
+    int? floor,
+    String? roomTypeId,
+  }) async {
     // TODO: implement updateRoom
     throw UnimplementedError();
   }
 
-  @override
-  Future<Result<void>> updateVehicle({
-    required String id,
-    required String registrationNumber,
-    required String model,
-    required String type,
-    required int seatCount,
-    required bool isAvailable,
-  }) {
-    // TODO: implement updateVehicle
-    throw UnimplementedError();
-  }
+  // @override
+  // Future<Result<void>> updateVehicle({
+  //   required String id,
+  //   required String registrationNumber,
+  //   required String model,
+  //   required String type,
+  //   required int seatCount,
+  //   required bool isAvailable,
+  // }) {
+  //   // TODO: implement updateVehicle
+  //   throw UnimplementedError();
+  // }
 
   // ── Tour Templates ─────────────────────────────────────────────
 
@@ -755,5 +1090,151 @@ class AdminRepositoryDev extends AdminRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     notifyListeners();
     return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<String>> createSeatLayout({
+    required String name,
+    required String coachType,
+    required List<dynamic> items,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok('mock_layout_id');
+  }
+
+  @override
+  Future<Result<void>> createVehicle({
+    required String registrationNumber,
+    required String type,
+    required String seatLayoutId,
+    required int seatCount,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final newId = 'veh_${_mutableVehicles.length + 1}';
+    _mutableVehicles.add(
+      BusinessCoach(
+        id: newId,
+        plateNumber: registrationNumber,
+        coachType: type,
+        seatCount: seatCount,
+        status: 'Active',
+      ),
+    );
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> updateVehicle({
+    required String id,
+    required String registrationNumber,
+    required String type,
+    required String seatLayoutId,
+    required int seatCount,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _mutableVehicles.indexWhere((v) => v.id == id);
+    if (idx != -1) {
+      final existing = _mutableVehicles[idx];
+      _mutableVehicles[idx] = BusinessCoach(
+        id: existing.id,
+        plateNumber: registrationNumber,
+        coachType: type,
+        seatCount: seatCount,
+        status: existing.status,
+      );
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> createRefundPolicy({
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  }) {
+    // TODO: implement createRefundPolicy
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> deleteRefundPolicy({required String id}) {
+    // TODO: implement deleteRefundPolicy
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<List<dynamic>>> getAllRefundPolicies({
+    int page = 0,
+    int size = 20,
+    String? sort,
+  }) {
+    // TODO: implement getAllRefundPolicies
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<dynamic>> getRefundPolicyById({required String id}) {
+    // TODO: implement getRefundPolicyById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> updateRefundPolicy({
+    required String id,
+    required String name,
+    required String serviceType,
+    required List<Map<String, dynamic>> rules,
+  }) {
+    // TODO: implement updateRefundPolicy
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> deleteHotelRoomType({required String roomTypeId}) async {
+    // TODO: implement deleteHotelRoomType
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<List<dynamic>>> uploadRoomTypeImages({
+    required String roomTypeId,
+    required List<String> filePaths,
+  }) async {
+    // TODO: implement uploadRoomTypeImages
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> deleteRoomTypeImage({
+    required String roomTypeId,
+    required String imageId,
+  }) async {
+    // TODO: implement deleteRoomTypeImage
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> updateHotelRoomType({
+    required String roomTypeId,
+    String? name,
+    String? description,
+    int? capacityAdults,
+    int? capacityChildren,
+    double? basePrice,
+    String? bedType,
+    int? area,
+  }) {
+    // TODO: implement updateHotelRoomType
+    throw UnimplementedError();
+  }
+
+  // ── Destinations ────────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<dynamic>>> searchDestinations({required String keyword}) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
   }
 }

@@ -26,7 +26,6 @@ class ProfileService {
       );
 
       final response = await request.close();
-
       if (response.statusCode == 200) {
         final stringData = await response.transform(utf8.decoder).join();
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
@@ -167,18 +166,13 @@ class ProfileService {
         'multipart/form-data; boundary=$boundary',
       );
 
-      final multipartBody = StringBuffer();
-      multipartBody.writeln('--$boundary');
-      multipartBody.writeln(
-        'Content-Disposition: form-data; name="file"; filename="${file.path.split('/').last}"',
-      );
-      multipartBody.writeln('Content-Type: image/jpeg');
-      multipartBody.writeln();
-      multipartBody.write(String.fromCharCodes(bytes));
-      multipartBody.writeln();
-      multipartBody.writeln('--$boundary--');
-
-      request.add(utf8.encode(multipartBody.toString()));
+      request.add(utf8.encode('--$boundary\r\n'));
+      request.add(utf8.encode(
+        'Content-Disposition: form-data; name="file"; filename="${file.path.split('/').last}"\r\n',
+      ));
+      request.add(utf8.encode('Content-Type: image/jpeg\r\n\r\n'));
+      request.add(bytes);
+      request.add(utf8.encode('\r\n--$boundary--\r\n'));
 
       final response = await request.close();
 

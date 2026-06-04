@@ -4,7 +4,7 @@ import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_lis
 import 'coordinator_view_tour_list_screen.dart';
 import 'coordinator_view_coach_list_screen.dart';
 import 'coordinator_selection_screen.dart';
-import 'coordinator_view_task_list_screen.dart';
+import 'coordinator_view_ended_tour_screen.dart';
 import 'widgets/coordinator_bottom_navigation_bar.dart';
 
 class CoordinatorMainScreen extends StatefulWidget {
@@ -66,7 +66,7 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
           const CoordinatorViewCoachListScreen(),
           CoordinatorSelectionScreen(),
           const Center(child: Text('Chat')),
-          CoordinatorViewTaskListScreen(),
+          const CoordinatorViewEndedTourScreen(),
         ],
       ),
       bottomNavigationBar: CoordinatorBottomNavigationBar(

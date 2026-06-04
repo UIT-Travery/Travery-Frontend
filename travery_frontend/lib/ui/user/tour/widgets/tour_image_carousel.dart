@@ -39,7 +39,7 @@ class _TourImageCarouselState extends State<TourImageCarousel> {
             return Image.network(
               widget.images[index].url,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 color: const Color(0xFFEAEDFF),
                 child: const Center(
                   child: Icon(Icons.image, size: 60, color: Color(0xFF717786)),

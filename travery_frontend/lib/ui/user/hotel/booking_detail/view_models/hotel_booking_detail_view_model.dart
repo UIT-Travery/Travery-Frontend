@@ -24,12 +24,12 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
     return (_booking?.totalPrice ?? 0) + serviceTotal;
   }
 
-  void loadBooking(String bookingId) {
+  void loadBooking(String bookingId, {HotelBookingData? bookingData}) {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
-    _booking = _dummyBooking;
+    _booking = bookingData ?? _dummyBooking;
     _isLoading = false;
     notifyListeners();
   }

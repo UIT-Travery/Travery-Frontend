@@ -235,10 +235,9 @@ class CancelSuccessScreen extends StatelessWidget {
 }
 
 class _RefundInfoRow extends StatelessWidget {
-  const _RefundInfoRow({required this.label, this.value, this.valueWidget});
+  const _RefundInfoRow({required this.label, this.valueWidget});
 
   final String label;
-  final String? value;
   final Widget? valueWidget;
 
   @override
@@ -250,7 +249,7 @@ class _RefundInfoRow extends StatelessWidget {
           label,
           style: const TextStyle(fontSize: 13, color: Color(0xFF414755)),
         ),
-        Flexible(child: valueWidget ?? Text(value ?? '')),
+        if (valueWidget != null) Flexible(child: valueWidget!),
       ],
     );
   }

@@ -623,8 +623,9 @@ class _TourListScreenState extends State<TourListScreen> {
   String _priceLabel(double? min, double? max) {
     if (min == null && max != null) return 'Dưới ${_formatPriceShort(max)}';
     if (min != null && max == null) return 'Trên ${_formatPriceShort(min)}';
-    if (min != null && max != null)
+    if (min != null && max != null) {
       return '${_formatPriceShort(min)} - ${_formatPriceShort(max)}';
+    }
     return 'Giá';
   }
 

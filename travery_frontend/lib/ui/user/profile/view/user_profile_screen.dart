@@ -19,6 +19,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<ProfileViewModel>();
       viewModel.loadProfile.addListener(_onLoadProfileStateChanged);
+      viewModel.logout.addListener(_onLogoutResult);
       viewModel.loadProfile.execute();
     });
   }
@@ -27,11 +28,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   void dispose() {
     final viewModel = context.read<ProfileViewModel>();
     viewModel.loadProfile.removeListener(_onLoadProfileStateChanged);
+    viewModel.logout.removeListener(_onLogoutResult);
     super.dispose();
   }
 
   void _onLoadProfileStateChanged() {
     setState(() {});
+  }
+
+  void _onLogoutResult() {
+    final viewModel = context.read<ProfileViewModel>();
+    if (viewModel.logout.completed) {
+      viewModel.logout.clearResult();
+      if (mounted) {
+        context.go(Routes.login);
+      }
+    }
   }
 
   void _handleLogout() async {

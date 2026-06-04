@@ -54,7 +54,7 @@ class TourCard extends StatelessWidget {
                       ? Image.network(
                           thumbnailUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _placeholderImage(),
+                          errorBuilder: (_, _, _) => _placeholderImage(),
                         )
                       : _placeholderImage(),
                   if (averageRating != null && averageRating! > 0)
@@ -204,8 +204,8 @@ class TourCard extends StatelessWidget {
     if (days == 1) return '1N';
     final nightCount = days - 1;
     if (nightCount == 0) return '${days}N';
-    if (days == 1 && nightCount > 0) return '${nightCount}Đ';
-    return '${days}N${nightCount}Đ';
+    if (days == 1 && nightCount > 0) return '$nightCountĐ';
+    return '${days}N$nightCountĐ';
   }
 
   String _formatPrice(double price) {

@@ -1,7 +1,10 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_input_field.dart';
+import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_dropdown_button.dart';
 import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_button.dart';
 import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_hotel_selection_bottomsheet.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_tour_template_view_model.dart';
@@ -24,6 +27,7 @@ class _ItineraryEntry {
   final TextEditingController labelController;
   final TextEditingController descriptionController;
   String? imageUrl;
+  File? imageFile;
 
   _ItineraryEntry()
     : labelController = TextEditingController(),
@@ -41,10 +45,13 @@ class _CoordinatorCreateTourTemplateScreenState
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _adultPriceController = TextEditingController();
   final TextEditingController _childPriceController = TextEditingController();
-  final TextEditingController _pickupLocationController =
-      TextEditingController();
-  final TextEditingController _destinationIdController =
-      TextEditingController();
+
+  final TextEditingController _pickupLocationController = TextEditingController();
+  final TextEditingController _destinationController = TextEditingController();
+
+  File? _thumbnailImage;
+  final List<File> _otherImages = [];
+  final ImagePicker _picker = ImagePicker();
 
   final List<_ItineraryEntry> _itineraries = [_ItineraryEntry()];
 
@@ -74,7 +81,7 @@ class _CoordinatorCreateTourTemplateScreenState
     _adultPriceController.dispose();
     _childPriceController.dispose();
     _pickupLocationController.dispose();
-    _destinationIdController.dispose();
+    _destinationController.dispose();
     for (final e in _itineraries) {
       e.dispose();
     }
@@ -102,6 +109,39 @@ class _CoordinatorCreateTourTemplateScreenState
     }
   }
 
+  Future<void> _pickThumbnail() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _thumbnailImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _pickOtherImages() async {
+    final pickedFiles = await _picker.pickMultiImage();
+    if (pickedFiles.isNotEmpty) {
+      setState(() {
+        _otherImages.addAll(pickedFiles.map((e) => File(e.path)));
+      });
+    }
+  }
+
+  void _removeOtherImage(int index) {
+    setState(() {
+      _otherImages.removeAt(index);
+    });
+  }
+
+  Future<void> _pickItineraryImage(int index) async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _itineraries[index].imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   void _addItinerary() {
     setState(() {
       _itineraries.add(_ItineraryEntry());
@@ -119,7 +159,7 @@ class _CoordinatorCreateTourTemplateScreenState
     // Validate required fields
     final name = _nameController.text.trim();
     final description = _descriptionController.text.trim();
-    final destinationId = _destinationIdController.text.trim();
+    final destinationId = _destinationController.text.trim();
     final pickupLocation = _pickupLocationController.text.trim();
     final adultPriceStr = _adultPriceController.text.trim();
     final childPriceStr = _childPriceController.text.trim();
@@ -167,6 +207,7 @@ class _CoordinatorCreateTourTemplateScreenState
         'dayNumber': i + 1,
         'title': e.labelController.text.trim(),
         'description': e.descriptionController.text.trim(),
+        'imageFile': e.imageFile,
       });
     }
 
@@ -180,6 +221,8 @@ class _CoordinatorCreateTourTemplateScreenState
       'pricePerChild': childPrice,
       'isCustom': false,
       'itineraries': itineraries,
+      'thumbnailImage': _thumbnailImage,
+      'otherImages': _otherImages,
     });
   }
 
@@ -203,7 +246,7 @@ class _CoordinatorCreateTourTemplateScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -300,19 +343,106 @@ class _CoordinatorCreateTourTemplateScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Cover image placeholder
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLightWhiteBlue,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.image_outlined,
-                        color: AppColors.primary,
-                        size: 40,
-                      ),
+                    _buildSectionHeader('Ảnh Thumbnail & Các ảnh khác'),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: _pickThumbnail,
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLightWhiteBlue,
+                              borderRadius: BorderRadius.circular(12),
+                              image: _thumbnailImage != null
+                                  ? DecorationImage(
+                                      image: FileImage(_thumbnailImage!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: _thumbnailImage == null
+                                ? const Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.add_photo_alternate, color: AppColors.primary, size: 30),
+                                        SizedBox(height: 4),
+                                        Text('Thumbnail', style: TextStyle(fontSize: 10, color: AppColors.primary)),
+                                      ],
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                ..._otherImages.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final file = entry.value;
+                                  return Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        margin: const EdgeInsets.only(right: 12),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryLightWhiteBlue,
+                                          borderRadius: BorderRadius.circular(12),
+                                          image: DecorationImage(
+                                            image: FileImage(file),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: -5,
+                                        right: 5,
+                                        child: GestureDetector(
+                                          onTap: () => _removeOtherImage(index),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                                            child: const Icon(Icons.close, size: 16, color: Colors.red),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                                GestureDetector(
+                                  onTap: _pickOtherImages,
+                                  child: Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryLightWhiteBlue,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.add_photo_alternate, color: AppColors.primary, size: 30),
+                                          SizedBox(height: 4),
+                                          Text('Thêm ảnh', style: TextStyle(fontSize: 10, color: AppColors.primary)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 20),
@@ -323,26 +453,12 @@ class _CoordinatorCreateTourTemplateScreenState
 
                     // Tên tour
                     CoordinatorInputField(
-                      label: 'Tên tour *',
+                      label: 'Tên tour',
                       hintText: 'Nhập tên tour...',
                       controller: _nameController,
                       isMultipleLine: true,
                       suffixIcon: const Icon(
                         Icons.edit,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Destination ID
-                    CoordinatorInputField(
-                      label: 'Địa điểm đến *',
-                      hintText: 'Chọn điểm đến...',
-                      controller: _destinationIdController,
-                      isMultipleLine: false,
-                      suffixIcon: const Icon(
-                        Icons.location_city_outlined,
                         size: 16,
                         color: AppColors.textSecondary,
                       ),
@@ -368,7 +484,7 @@ class _CoordinatorCreateTourTemplateScreenState
                       children: [
                         Expanded(
                           child: CoordinatorInputField(
-                            label: 'Giá người lớn *',
+                            label: 'Giá người lớn',
                             hintText: 'Nhập giá...',
                             controller: _adultPriceController,
                             isMultipleLine: false,
@@ -382,7 +498,7 @@ class _CoordinatorCreateTourTemplateScreenState
                         const SizedBox(width: 12),
                         Expanded(
                           child: CoordinatorInputField(
-                            label: 'Giá trẻ em *',
+                            label: 'Giá trẻ em',
                             hintText: 'Nhập giá...',
                             controller: _childPriceController,
                             isMultipleLine: false,
@@ -397,15 +513,37 @@ class _CoordinatorCreateTourTemplateScreenState
                     ),
                     const SizedBox(height: 12),
 
-                    // Pickup Location
+                    // Điểm khởi hành
                     CoordinatorInputField(
-                      label: 'Địa điểm đón khách *',
-                      hintText: 'Nhập địa điểm đón khách...',
+                      label: 'Điểm khởi hành',
+                      hintText: 'Nhập điểm khởi hành...',
                       controller: _pickupLocationController,
-                      isMultipleLine: true,
-                      suffixIcon: const Icon(
+                      prefixIcon: const Icon(
                         Icons.location_on_outlined,
                         size: 18,
+                        color: AppColors.textPrimary,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.edit,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Điểm đến
+                    CoordinatorInputField(
+                      label: 'Điểm đến',
+                      hintText: 'Nhập điểm đến...',
+                      controller: _destinationController,
+                      prefixIcon: const Icon(
+                        Icons.location_on_outlined,
+                        size: 18,
+                        color: AppColors.textPrimary,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.edit,
+                        size: 16,
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -540,8 +678,9 @@ class _CoordinatorCreateTourTemplateScreenState
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.primaryLightWhiteBlue,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.inputBorder, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -553,18 +692,28 @@ class _CoordinatorCreateTourTemplateScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Small image placeholder
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.inputBorder, width: 1),
-                  ),
-                  child: const Icon(
-                    Icons.image_outlined,
-                    color: AppColors.primary,
-                    size: 24,
+                GestureDetector(
+                  onTap: () => _pickItineraryImage(index),
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLightWhiteBlue,
+                      borderRadius: BorderRadius.circular(8),
+                      image: entry.imageFile != null
+                          ? DecorationImage(
+                              image: FileImage(entry.imageFile!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: entry.imageFile == null
+                        ? const Icon(
+                            Icons.image_outlined,
+                            color: AppColors.textPrimary,
+                            size: 24,
+                          )
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -572,13 +721,27 @@ class _CoordinatorCreateTourTemplateScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Ngày ${index + 1}:',
-                        style: const TextStyle(
-                          fontSize: AppTextTheme.bodyMedium,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryDarkBlackBlue,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Ngày ${index + 1}:',
+                            style: const TextStyle(
+                              fontSize: AppTextTheme.bodyMedium,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          if (_itineraries.length > 1)
+                            GestureDetector(
+                              onTap: () => _removeItinerary(index),
+                              child: const Icon(
+                                Icons.close,
+                                size: 20,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       // Title field
@@ -588,24 +751,39 @@ class _CoordinatorCreateTourTemplateScreenState
                             'Tiêu đề: ',
                             style: TextStyle(
                               fontSize: AppTextTheme.bodySmall,
-                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           Expanded(
-                            child: TextField(
-                              controller: entry.labelController,
-                              style: const TextStyle(
-                                fontSize: AppTextTheme.bodySmall,
-                                color: AppColors.textPrimary,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: AppColors.textSecondary,
+                                    width: 1,
+                                  ),
+                                ),
                               ),
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
-                                suffixIcon: Icon(
-                                  Icons.edit,
-                                  size: 14,
-                                  color: AppColors.textSecondary,
+                              child: TextField(
+                                controller: entry.labelController,
+                                style: const TextStyle(
+                                  fontSize: AppTextTheme.bodySmall,
+                                  color: AppColors.textPrimary,
+                                ),
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.only(bottom: 4),
+                                  suffixIconConstraints: BoxConstraints(
+                                    minHeight: 14,
+                                    minWidth: 14,
+                                  ),
+                                  suffixIcon: Icon(
+                                    Icons.edit,
+                                    size: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
                               ),
                             ),
@@ -615,16 +793,6 @@ class _CoordinatorCreateTourTemplateScreenState
                     ],
                   ),
                 ),
-                // Remove button
-                if (_itineraries.length > 1)
-                  GestureDetector(
-                    onTap: () => _removeItinerary(index),
-                    child: const Icon(
-                      Icons.close,
-                      size: 20,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
               ],
             ),
             const SizedBox(height: 10),
@@ -633,47 +801,45 @@ class _CoordinatorCreateTourTemplateScreenState
               'Mô tả:',
               style: TextStyle(
                 fontSize: AppTextTheme.bodySmall,
-                color: AppColors.textSecondary,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
             // Description field
             Container(
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(8),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.textSecondary, width: 1),
+                ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: entry.descriptionController,
-                      maxLines: null,
-                      style: const TextStyle(
-                        fontSize: AppTextTheme.bodySmall,
-                        color: AppColors.textPrimary,
-                        height: 1.5,
-                      ),
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                        hintText: 'Nhập mô tả cho ngày này...',
-                        hintStyle: TextStyle(
-                          color: AppColors.textHint,
-                          fontSize: AppTextTheme.bodySmall,
-                        ),
-                      ),
-                    ),
+              child: TextField(
+                controller: entry.descriptionController,
+                maxLines: null,
+                style: const TextStyle(
+                  fontSize: AppTextTheme.bodySmall,
+                  color: AppColors.textPrimary,
+                  height: 1.5,
+                ),
+                decoration: const InputDecoration(
+                  isDense: true,
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.only(bottom: 4),
+                  hintText: 'Nhập mô tả cho ngày này...',
+                  hintStyle: TextStyle(
+                    color: AppColors.textHint,
+                    fontSize: AppTextTheme.bodySmall,
                   ),
-                  const Icon(
+                  suffixIconConstraints: BoxConstraints(
+                    minHeight: 14,
+                    minWidth: 14,
+                  ),
+                  suffixIcon: Icon(
                     Icons.edit,
                     size: 14,
                     color: AppColors.textSecondary,
                   ),
-                ],
+                ),
               ),
             ),
           ],

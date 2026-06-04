@@ -28,68 +28,38 @@ class _UserBottomNavState extends State<UserBottomNav> {
   }
 
   @override
+  void didUpdateWidget(UserBottomNav oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialIndex != widget.initialIndex) {
+      setState(() => _currentIndex = widget.initialIndex);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: const [
-          _UserHomeContent(),
-          _UserBookingsContent(),
-          _UserChatContent(),
-          _UserProfileContent(),
+        children: [
+          const HomeScreen(),
+          const MyTripBookingScreen(),
+          const Scaffold(body: Center(child: Text('Chat - Coming Soon'))),
+          ChangeNotifierProvider(
+            create: (context) => ProfileViewModel(
+              profileService: context.read<ProfileService>(),
+              securityStorageService: context.read<SecurityStorageService>(),
+              authRepository: context.read<AuthRepository>(),
+            ),
+            child: const UserProfileScreen(),
+          ),
         ],
       ),
       bottomNavigationBar: _BottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          setState(() => _currentIndex = index);
         },
       ),
-    );
-  }
-}
-
-class _UserHomeContent extends StatelessWidget {
-  const _UserHomeContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return const HomeScreen();
-  }
-}
-
-class _UserBookingsContent extends StatelessWidget {
-  const _UserBookingsContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return const MyTripBookingScreen();
-  }
-}
-
-class _UserChatContent extends StatelessWidget {
-  const _UserChatContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Chat - Coming Soon')));
-  }
-}
-
-class _UserProfileContent extends StatelessWidget {
-  const _UserProfileContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ProfileViewModel(
-        profileService: context.read<ProfileService>(),
-        securityStorageService: context.read<SecurityStorageService>(),
-        authRepository: context.read<AuthRepository>(),
-      ),
-      child: const UserProfileScreen(),
     );
   }
 }

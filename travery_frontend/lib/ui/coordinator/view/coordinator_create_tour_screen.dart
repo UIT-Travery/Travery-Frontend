@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_tour_view_model.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
@@ -6,17 +7,12 @@ import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 class CoordinatorCreateTourScreen extends StatefulWidget {
   final CoordinatorCreateTourViewModel viewModel;
 
-  /// The tour template ID selected from the template list screen.
-  final String tourId;
-
-  /// Optional display name for the selected template.
-  final String? tourName;
+  final CoordinatorTourTemplate? template;
 
   const CoordinatorCreateTourScreen({
     super.key,
     required this.viewModel,
-    required this.tourId,
-    this.tourName,
+    this.template,
   });
 
   @override
@@ -28,6 +24,8 @@ class _CoordinatorCreateTourScreenState
     extends State<CoordinatorCreateTourScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
+  final TextEditingController _minPeopleController = TextEditingController();
+  final TextEditingController _maxPeopleController = TextEditingController();
 
   @override
   void initState() {
@@ -44,15 +42,17 @@ class _CoordinatorCreateTourScreenState
       Navigator.of(context).pop(true);
     } else if (widget.viewModel.createTour.error) {
       final error = widget.viewModel.createTour.result;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã xảy ra lỗi: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Đã xảy ra lỗi: $error')));
     }
     setState(() {});
   }
 
   @override
   void dispose() {
+    _minPeopleController.dispose();
+    _maxPeopleController.dispose();
     widget.viewModel.createTour.removeListener(_onCreateTourChanged);
     super.dispose();
   }
@@ -119,7 +119,7 @@ class _CoordinatorCreateTourScreenState
       return;
     }
     widget.viewModel.execute(
-      tourId: widget.tourId,
+      tourId: widget.template?.id ?? '',
       startDate: _formatDateApi(_startDate!),
       endDate: _formatDateApi(_endDate!),
     );
@@ -129,7 +129,8 @@ class _CoordinatorCreateTourScreenState
   Widget build(BuildContext context) {
     final isLoading = widget.viewModel.createTour.running;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surface,
+      bottomNavigationBar: _buildBottomBar(),
       body: SafeArea(
         child: Column(
           children: [
@@ -171,36 +172,36 @@ class _CoordinatorCreateTourScreenState
                   ),
                   Material(
                     color: isLoading
-                        ? AppColors.primaryDarkBlackBlue.withOpacity(0.6)
+                        ? AppColors.primaryDarkBlackBlue.withValues(alpha: 0.6)
                         : AppColors.primaryDarkBlackBlue,
                     borderRadius: BorderRadius.circular(8),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: isLoading ? null : _onConfirm,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text(
-                                'Xác nhận',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: AppTextTheme.bodyMedium,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-                    ),
+                    // child: InkWell(
+                    //   borderRadius: BorderRadius.circular(8),
+                    //   onTap: isLoading ? null : _onConfirm,
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 16,
+                    //       vertical: 8,
+                    //     ),
+                    //     child: isLoading
+                    //         ? const SizedBox(
+                    //             width: 20,
+                    //             height: 20,
+                    //             child: CircularProgressIndicator(
+                    //               color: Colors.white,
+                    //               strokeWidth: 2,
+                    //             ),
+                    //           )
+                    //         : const Text(
+                    //             'Xác nhận',
+                    //             style: TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: AppTextTheme.bodyMedium,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //   ),
+                    // ),
                   ),
                 ],
               ),
@@ -245,6 +246,34 @@ class _CoordinatorCreateTourScreenState
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16),
+
+                    // ── Min/Max people ─────────────────────────────────────
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            label: 'Số lượng người tối thiểu',
+                            hint: 'Nhập số lượng...',
+                            controller: _minPeopleController,
+                            trailingIcon: Icons.person_remove_alt_1_outlined,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildTextField(
+                            label: 'Số lượng người tối đa',
+                            hint: 'Nhập số lượng...',
+                            controller: _maxPeopleController,
+                            trailingIcon: Icons.person_add_alt_1_outlined,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Select guide, driver, vehicle button ───────────────
+                    _buildSelectGuideDriverVehicleButton(),
 
                     const SizedBox(height: 32),
                   ],
@@ -284,62 +313,205 @@ class _CoordinatorCreateTourScreenState
   Widget _buildSelectedTemplateCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primaryDarkBlackBlue,
-          width: 1.5,
-        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.primaryDarkBlackBlue),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.travel_explore,
-              color: AppColors.primary,
-              size: 28,
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            child: Image.network(
+              widget.template?.imageUrl ??
+                  'https://images.unsplash.com/photo-1599708153386-62bf3f034eb1?q=80&w=2070&auto=format&fit=crop',
+              height: 160,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 160,
+                  width: double.infinity,
+                  color: AppColors.primary,
+                  child: const Icon(
+                    Icons.image,
+                    size: 50,
+                    color: AppColors.primary,
+                  ),
+                );
+              },
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
+          Padding(
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.tourName ?? 'Tour đã chọn',
+                  widget.template?.name ?? 'Chưa xác định',
                   style: const TextStyle(
-                    fontSize: AppTextTheme.bodyLarge,
+                    fontSize: AppTextTheme.bodyMedium,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'ID: ${widget.tourId}',
+                  '${widget.template?.adultPrice ?? 0} VNĐ',
                   style: const TextStyle(
-                    fontSize: AppTextTheme.bodySmall,
-                    color: AppColors.textSecondary,
+                    fontSize: AppTextTheme.bodyMedium,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    required IconData trailingIcon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: AppTextTheme.bodyMedium,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: AppColors.primaryDarkBlackBlue,
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: const TextStyle(
+                      fontSize: AppTextTheme.bodyMedium,
+                      color: AppColors.textHint,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    isDense: true,
+                  ),
+                  style: const TextStyle(
+                    fontSize: AppTextTheme.bodyMedium,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Icon(
+                  trailingIcon,
+                  size: 20,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectGuideDriverVehicleButton() {
+    return InkWell(
+      onTap: () {
+        // TODO: Implement select guide, driver, vehicle
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.primaryDarkBlackBlue, width: 1.5),
+        ),
+        child: Column(
+          children: const [
+            Icon(Icons.add, color: AppColors.textPrimary, size: 24),
+            SizedBox(height: 4),
+            Text(
+              'Chọn hướng dẫn viên, tài xế và xe',
+              style: TextStyle(
+                fontSize: AppTextTheme.bodyMedium,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    final isLoading = widget.viewModel.createTour.running;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(color: AppColors.surface),
+      child: SafeArea(
+        child: ElevatedButton(
+          onPressed: isLoading ? null : _onConfirm,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primaryDarkBlackBlue,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 0,
+          ),
+          child: isLoading
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text(
+                  'Xác nhận',
+                  style: TextStyle(
+                    fontSize: AppTextTheme.bodyMedium,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+        ),
       ),
     );
   }

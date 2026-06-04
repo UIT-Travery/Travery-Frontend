@@ -5,19 +5,12 @@ import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
 import 'widgets/input_text_field.dart';
 import 'widgets/dropdown_button.dart';
-import 'widgets/room_card.dart';
+import 'widgets/input_button.dart';
+import 'widgets/large_button.dart';
+import 'widgets/amenity_bottom_sheet.dart';
+import 'package:travery_frontend/data/services/api/model/hotel/amenity_response.dart';
 
-class RoomData {
-  final TextEditingController numberController;
-  String? type;
-
-  RoomData({String? initialNumber, this.type})
-    : numberController = TextEditingController(text: initialNumber);
-
-  void dispose() {
-    numberController.dispose();
-  }
-}
+// No room data here anymore
 
 class CreateHotelScreen extends StatefulWidget {
   const CreateHotelScreen({super.key, required this.viewModel});
@@ -31,53 +24,81 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
   String? _selectedCity;
+  String? _selectedPolicy;
+  final _descriptionController = TextEditingController();
 
-  final List<RoomData> _rooms = [RoomData()];
+  String _checkInTime = "12:00";
+  String _checkOutTime = "12:00";
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
-    widget.viewModel.createHotel.addListener(_onCreateHotelChanged);
+    widget.viewModel.createHotel.addListener(_onCreateHotelResult);
+    widget.viewModel.loadAmenities.addListener(_onAmenitiesLoaded);
+    widget.viewModel.loadRefundPolicies.addListener(_onRefundPoliciesLoaded);
+    widget.viewModel.searchDestinations.addListener(_onDestinationsLoaded);
+    widget.viewModel.loadAmenities.execute();
+    widget.viewModel.loadRefundPolicies.execute();
+    widget.viewModel.searchDestinations.execute('');
+  }
+
+  void _onAmenitiesLoaded() {
+    setState(() {}); // Rebuild when amenities load
+  }
+
+  void _onRefundPoliciesLoaded() {
+    setState(() {}); // Rebuild when refund policies load
+  }
+
+  void _onDestinationsLoaded() {
+    setState(() {}); // Rebuild when destinations load
   }
 
   @override
   void dispose() {
-    widget.viewModel.createHotel.removeListener(_onCreateHotelChanged);
+    widget.viewModel.createHotel.removeListener(_onCreateHotelResult);
+    widget.viewModel.loadAmenities.removeListener(_onAmenitiesLoaded);
+    widget.viewModel.loadRefundPolicies.removeListener(_onRefundPoliciesLoaded);
+    widget.viewModel.searchDestinations.removeListener(_onDestinationsLoaded);
     _nameController.dispose();
     _addressController.dispose();
-    for (var room in _rooms) {
-      room.dispose();
-    }
+    _descriptionController.dispose();
     super.dispose();
   }
 
-  // ── Command listener ───────────────────────────────────────────────────────
+  List<String> _selectedAmenityIds = [];
 
-  void _onCreateHotelChanged() {
+  void _onCreateHotelResult() {
     final cmd = widget.viewModel.createHotel;
     if (cmd.completed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Đã thêm khách sạn: ${_nameController.text.trim()}'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      context.pop();
-    } else if (cmd.error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Không thể thêm khách sạn. Vui lòng thử lại.'),
-          behavior: SnackBarBehavior.floating,
+          content: Text('Đã tạo khách sạn thành công'),
+          backgroundColor: Colors.green,
         ),
       );
+      context.pop(true);
+    } else if (cmd.error) {
+      if (!mounted) return;
+      String errorMessage = 'Tạo khách sạn thất bại';
+      // In Dart 3, result could be matched. For now, assuming basic Error toString.
+      final result = cmd.result;
+      if (result != null && result.toString().contains('Exception:')) {
+        errorMessage = result.toString().replaceAll('Exception: ', '');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+      cmd.clearResult();
     }
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  void _onSave() {
+  Future<void> _onNext() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -87,42 +108,47 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
       );
       return;
     }
-    if (_addressController.text.trim().isEmpty) {
+
+    if (_selectedPolicy == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vui lòng nhập địa chỉ'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    if (_selectedCity == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn tỉnh/thành phố'),
+          content: Text('Vui lòng chọn chính sách hoàn tiền'),
           behavior: SnackBarBehavior.floating,
         ),
       );
       return;
     }
 
-    widget.viewModel.createHotel.execute((
-      id: '',
+    final payload = (
       name: _nameController.text.trim(),
+      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
       address: _addressController.text.trim(),
-      cityProvince: _selectedCity!,
-      starRating: 5.0,
-      status: 'ACTIVE',
-    ));
+      cityProvince: _selectedCity ?? 'Hà Nội',
+      checkInTime: _checkInTime,
+      checkOutTime: _checkOutTime,
+      amenityIds: _selectedAmenityIds,
+      refundPolicyId: _selectedPolicy!,
+    );
+
+    widget.viewModel.createHotel.execute(payload);
   }
 
-  void _addRoom() => setState(() => _rooms.add(RoomData()));
-
-  void _removeRoom(int index) {
-    setState(() {
-      _rooms[index].dispose();
-      _rooms.removeAt(index);
-    });
+  Future<void> _selectTime(BuildContext context, bool isCheckIn) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: 12, minute: 0),
+    );
+    if (picked != null) {
+      setState(() {
+        final timeStr =
+            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+        if (isCheckIn) {
+          _checkInTime = timeStr;
+        } else {
+          _checkOutTime = timeStr;
+        }
+      });
+    }
   }
 
   // ── Build ──────────────────────────────────────────────────────────────────
@@ -131,20 +157,27 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildAppBar(),
+              const SizedBox(height: 20),
               const SizedBox(height: 20),
               _buildHeader(),
               const SizedBox(height: 24),
               _buildSectionTitle(Icons.bed_outlined, 'Thông tin khách sạn'),
               const SizedBox(height: 16),
-              _buildImageUpload('Thêm ảnh khách sạn'),
-              const SizedBox(height: 24),
               InputTextField(
                 label: 'Tên khách sạn',
                 textholder: 'Nhập tên khách sạn',
@@ -170,12 +203,12 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                   size: 20,
                   color: Colors.black87,
                 ),
-                items: const [
-                  'Hà Nội',
-                  'TP. Hồ Chí Minh',
-                  'Đà Nẵng',
-                  'Hải Phòng',
-                ],
+                items: widget.viewModel.destinations.isEmpty
+                    ? ['Đang tải...']
+                    : widget.viewModel.destinations
+                        .map((e) => e['name'] as String? ?? '')
+                        .where((e) => e.isNotEmpty)
+                        .toList(),
                 value: _selectedCity,
                 onChanged: (val) => setState(() => _selectedCity = val),
               ),
@@ -196,48 +229,179 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                 controller: _addressController,
                 textInputType: TextInputType.streetAddress,
               ),
-              const SizedBox(height: 32),
-              _buildSectionTitle(Icons.list_alt, 'Danh sách các phòng'),
               const SizedBox(height: 16),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _rooms.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final roomNum = (index + 1).toString().padLeft(2, '0');
-                  return RoomCard(
-                    roomName: 'Phòng $roomNum',
-                    roomNumberController: _rooms[index].numberController,
-                    roomType: _rooms[index].type,
-                    roomTypes: const ['Đơn', 'Đôi', 'Gia đình', 'VIP'],
-                    onRoomTypeChanged: (val) =>
-                        setState(() => _rooms[index].type = val),
-                    onClose: _rooms.length > 1
-                        ? () => _removeRoom(index)
-                        : null,
-                  );
+              Row(
+                children: [
+                  Expanded(
+                    child: InputButton(
+                      label: 'Thời gian check-in',
+                      textholder: _checkInTime,
+                      prefixIcon: const Icon(
+                        Icons.access_time,
+                        size: 20,
+                        color: Colors.black87,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.edit,
+                        size: 16,
+                        color: Colors.black54,
+                      ),
+                      onTap: () => _selectTime(context, true),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: InputButton(
+                      label: 'Thời gian check-out',
+                      textholder: _checkOutTime,
+                      prefixIcon: const Icon(
+                        Icons.access_time,
+                        size: 20,
+                        color: Colors.black87,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.edit,
+                        size: 16,
+                        color: Colors.black54,
+                      ),
+                      onTap: () => _selectTime(context, false),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              CustomDropdownButton(
+                label: 'Chính sách',
+                textholder: 'Chọn chính sách',
+                prefixIcon: const Icon(
+                  Icons.receipt_long,
+                  size: 20,
+                  color: Colors.black87,
+                ),
+                items: widget.viewModel.refundPolicies
+                    .map((e) => e.name ?? 'Không tên')
+                    .toList(),
+                value: widget.viewModel.refundPolicies
+                    .where((e) => e.id == _selectedPolicy)
+                    .firstOrNull
+                    ?.name,
+                onChanged: (val) {
+                  final policy = widget.viewModel.refundPolicies
+                      .where((e) => e.name == val)
+                      .firstOrNull;
+                  setState(() => _selectedPolicy = policy?.id);
                 },
               ),
               const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _addRoom,
-                icon: const Icon(Icons.add, color: Colors.white, size: 18),
-                label: const Text(
-                  'Thêm phòng khác',
-                  style: TextStyle(color: Colors.white),
+              InputTextField(
+                label: 'Mô tả',
+                textholder: 'Nhập mô tả...',
+                controller: _descriptionController,
+                textInputType: TextInputType.multiline,
+                maxLines: 4,
+                suffixIcon: const Icon(
+                  Icons.edit,
+                  size: 16,
+                  color: Colors.black54,
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryDarkBlackBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Cơ sở vật chất',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
+                  TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => AmenityBottomSheet(
+                          amenities: widget.viewModel.amenities,
+                          initialSelected: _selectedAmenityIds,
+                          onConfirm: (selectedIds) {
+                            setState(() => _selectedAmenityIds = selectedIds);
+                          },
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Chọn cơ sở vật chất',
+                      style: TextStyle(
+                        color: AppColors.primaryDarkBlackBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
+                ],
+              ),
+              if (_selectedAmenityIds.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _selectedAmenityIds.map((id) {
+                    final amenity = widget.viewModel.amenities.firstWhere(
+                      (a) => a.id == id,
+                      orElse: () => const AmenityResponse(
+                        id: '',
+                        name: 'Unknown',
+                        type: 'HOTEL',
+                      ),
+                    );
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.primaryDarkBlackBlue,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (amenity.iconUrl != null &&
+                              amenity.iconUrl!.isNotEmpty) ...[
+                            Image.network(
+                              amenity.iconUrl!,
+                              width: 24,
+                              height: 24,
+                              color: AppColors.primaryDarkBlackBlue,
+                              errorBuilder: (context, error, stackTrace) => const Icon(
+                                Icons.star,
+                                color: AppColors.primaryDarkBlackBlue,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            amenity.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryDarkBlackBlue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
+              ],
+              const SizedBox(height: 16),
+              LargeButton(
+                text: 'Tiếp tục',
+                onTap: widget.viewModel.createHotel.running ? null : _onNext,
               ),
               const SizedBox(height: 30),
             ],
@@ -249,40 +413,10 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
 
   // ── Builders ───────────────────────────────────────────────────────────────
 
-  Widget _buildAppBar() {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.grid_view_rounded,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 10),
-        const Text(
-          'Travery Admin',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildHeader() {
     return ListenableBuilder(
       listenable: widget.viewModel.createHotel,
       builder: (context, _) {
-        final isRunning = widget.viewModel.createHotel.running;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,40 +444,6 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
                 ],
               ),
             ),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: isRunning ? null : () => context.pop(),
-                  child: const Text(
-                    'Hủy',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: isRunning ? null : _onSave,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryDarkBlackBlue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  child: isRunning
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Lưu',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                ),
-              ],
-            ),
           ],
         );
       },
@@ -367,22 +467,5 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
     );
   }
 
-  Widget _buildImageUpload(String text) {
-    return Container(
-      width: double.infinity,
-      height: 120,
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.image_outlined, color: Colors.black54, size: 30),
-          const SizedBox(height: 8),
-          Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
+  // removed image upload
 }

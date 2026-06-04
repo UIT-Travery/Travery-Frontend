@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
 import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'widgets/account_input_field.dart';
 import 'widgets/role_selector.dart';
 
@@ -43,20 +45,23 @@ class CreateAccountScreen extends StatefulWidget {
 class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _employeeIdController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _guideLicenseController = TextEditingController();
 
   // State
   bool _isActive = true;
   String? _selectedRole;
+  String? _selectedHotelId;
+  String? _avatarPath;
 
   @override
   void initState() {
     super.initState();
     // Listen to command result to navigate on success
     widget.viewModel.createAccount.addListener(_onCommandChanged);
+    widget.viewModel.loadHotels.execute();
   }
 
   @override
@@ -64,8 +69,19 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     widget.viewModel.createAccount.removeListener(_onCommandChanged);
     _nameController.dispose();
     _emailController.dispose();
-    _employeeIdController.dispose();
+    _passwordController.dispose();
+    _guideLicenseController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickAvatar() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _avatarPath = pickedFile.path;
+      });
+    }
   }
 
   void _onCommandChanged() {
@@ -77,7 +93,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      context.pop();
+      context.pop(true);
     } else if (cmd.error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -100,12 +116,27 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return;
     }
 
+    if (_selectedRole == 'receptionist' && _selectedHotelId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn khách sạn'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     widget.viewModel.createAccount.execute((
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
-      employeeId: _employeeIdController.text.trim(),
+      password: _passwordController.text.trim(),
       role: _selectedRole!,
       isActive: _isActive,
+      guideLicense: _selectedRole == 'guide'
+          ? _guideLicenseController.text.trim()
+          : null,
+      hotelId: _selectedRole == 'receptionist' ? _selectedHotelId : null,
+      avatarPath: _avatarPath,
     ));
   }
 
@@ -115,6 +146,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -123,10 +163,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── App bar ────────────────────────────────────────────────
-                _buildAppBar(),
-
-                const SizedBox(height: 20),
+                // ── Page header ────────────────────────────────────────────
 
                 // ── Page header ────────────────────────────────────────────
                 Text(
@@ -150,13 +187,64 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                 const SizedBox(height: 12),
 
-                // ── Account status toggle ──────────────────────────────────
-                _buildStatusToggle(),
+                // ── Avatar picker ──────────────────────────────────────────
+                Center(
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.primary.withOpacity(0.2),
+                            width: 2,
+                          ),
+                          image: _avatarPath != null
+                              ? DecorationImage(
+                                  image: FileImage(File(_avatarPath!)),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: _avatarPath == null
+                            ? const Icon(
+                                Icons.person,
+                                size: 50,
+                                color: AppColors.textSecondary,
+                              )
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: InkWell(
+                          onTap: _pickAvatar,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
                 const SizedBox(height: 20),
 
-                // ── Basic info card ────────────────────────────────────────
-                _buildBasicInfoCard(),
+                // ── Account status toggle ──────────────────────────────────
+                _buildStatusToggle(),
 
                 const SizedBox(height: 20),
 
@@ -164,7 +252,21 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 RoleSelector(
                   options: _roleOptions,
                   selectedValue: _selectedRole,
-                  onChanged: (value) => setState(() => _selectedRole = value),
+                  onChanged: (value) => setState(() {
+                    _selectedRole = value;
+                    if (value != 'guide') _guideLicenseController.clear();
+                    if (value != 'receptionist') _selectedHotelId = null;
+                  }),
+                ),
+
+                const SizedBox(height: 20),
+
+                // ── Basic info card ────────────────────────────────────────
+                ListenableBuilder(
+                  listenable: widget.viewModel.loadHotels,
+                  builder: (context, _) {
+                    return _buildBasicInfoCard();
+                  },
                 ),
 
                 const SizedBox(height: 24),
@@ -316,16 +418,83 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
           const SizedBox(height: 16),
 
-          // Employee ID
+          // Password
           AccountInputField(
-            label: 'Mã nhân viên',
-            hint: 'VD: TRV-2024-001',
-            controller: _employeeIdController,
+            label: 'Mật khẩu',
+            hint: 'Nhập mật khẩu...',
+            controller: _passwordController,
             textInputAction: TextInputAction.done,
+            obscureText: true,
             validator: (v) => (v == null || v.trim().isEmpty)
-                ? 'Vui lòng nhập mã nhân viên'
+                ? 'Vui lòng nhập mật khẩu'
                 : null,
           ),
+
+          if (_selectedRole == 'guide') ...[
+            const SizedBox(height: 16),
+            AccountInputField(
+              label: 'Giấy phép hướng dẫn viên',
+              hint: 'Nhập số giấy phép...',
+              controller: _guideLicenseController,
+              textInputAction: TextInputAction.done,
+              validator: (v) => (v == null || v.trim().isEmpty)
+                  ? 'Vui lòng nhập giấy phép'
+                  : null,
+            ),
+          ],
+
+          if (_selectedRole == 'receptionist') ...[
+            const SizedBox(height: 16),
+            Text(
+              'Khách sạn',
+              style: TextStyle(
+                fontSize: AppTextTheme.bodyMedium,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            DropdownButtonFormField<String>(
+              value: _selectedHotelId,
+              hint: widget.viewModel.loadHotels.running
+                  ? const Text('Đang tải danh sách...')
+                  : const Text('Chọn khách sạn'),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.inputBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.inputBorder),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              items: widget.viewModel.hotels.map((h) {
+                return DropdownMenuItem<String>(
+                  value: h.id,
+                  child: Text(
+                    h.name,
+                    style: TextStyle(color: AppColors.textPrimary),
+                  ),
+                );
+              }).toList(),
+              onChanged: (val) => setState(() => _selectedHotelId = val),
+              validator: (v) => v == null ? 'Vui lòng chọn khách sạn' : null,
+            ),
+          ],
         ],
       ),
     );
