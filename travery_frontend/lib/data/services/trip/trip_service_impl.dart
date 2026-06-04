@@ -75,6 +75,7 @@ class TripServiceImpl implements TripService {
           if (data == null) return Result.ok([]);
           final items = data
               .map((e) => TripSearchItem.fromJson(e as Map<String, dynamic>))
+              .where((trip) => trip.status.toUpperCase() == 'OPEN')
               .toList();
           return Result.ok(items);
         } on Exception catch (error) {

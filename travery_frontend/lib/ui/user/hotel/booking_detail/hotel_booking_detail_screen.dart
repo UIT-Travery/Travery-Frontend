@@ -926,6 +926,11 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     HotelBookingData booking,
     HotelBookingDetailViewModel vm,
   ) async {
+    if (booking.hasReview || !vm.canCreateReview) {
+      _showAlreadyReviewedMessage(context);
+      return;
+    }
+
     final submitted = await pushWriteReviewScreen(
       context,
       title: 'Đánh giá khách sạn',
@@ -938,6 +943,15 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showAlreadyReviewedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bạn đã gửi đánh giá cho đơn này rồi.'),
         behavior: SnackBarBehavior.floating,
       ),
     );

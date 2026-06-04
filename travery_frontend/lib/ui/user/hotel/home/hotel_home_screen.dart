@@ -2,15 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_list_data.dart';
+import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelHomeScreen extends StatefulWidget {
-  const HotelHomeScreen({super.key});
+  const HotelHomeScreen({super.key, required this.hotelService});
+
+  final HotelService hotelService;
 
   @override
   State<HotelHomeScreen> createState() => _HotelHomeScreenState();
@@ -23,16 +25,18 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
 
   final _scrollController = ScrollController();
   final _searchController = TextEditingController();
+  late final HotelHomeViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
+    _viewModel = HotelHomeViewModel(hotelService: widget.hotelService);
     _scrollController.addListener(_onScroll);
     _searchController.addListener(_onSearchTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final vm = context.read<HotelHomeViewModel>();
-      unawaited(vm.loadHotels());
-      unawaited(vm.loadAmenities());
+      if (!mounted) return;
+      unawaited(_viewModel.loadHotels());
+      unawaited(_viewModel.loadAmenities());
     });
   }
 
@@ -44,6 +48,7 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
     _searchController
       ..removeListener(_onSearchTextChanged)
       ..dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
@@ -51,7 +56,7 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
     if (position.maxScrollExtent - position.pixels < 360) {
-      context.read<HotelHomeViewModel>().loadMore();
+      _viewModel.loadMore();
     }
   }
 
@@ -107,8 +112,10 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: const HotelAppBar(title: 'Danh sách khách sạn'),
-      body: Consumer<HotelHomeViewModel>(
-        builder: (context, vm, _) {
+      body: ListenableBuilder(
+        listenable: _viewModel,
+        builder: (context, _) {
+          final vm = _viewModel;
           return Column(
             children: [
               _buildSearchHeader(vm),
@@ -362,7 +369,13 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
     RangeValues priceRange = _normalizePriceRange(vm.minPrice, vm.maxPrice);
     final selectedAmenityIds = <String>{...?vm.selectedAmenityIds};
 
-    await showModalBottomSheet<void>(
+    final amenitiesSnapshot = vm.amenities;
+    final hotelAmenitiesSnapshot = vm.hotelAmenities;
+    final roomAmenitiesSnapshot = vm.roomAmenities;
+    final isLoadingAmenitiesSnapshot = vm.isLoadingAmenities;
+    final amenitiesErrorSnapshot = vm.amenitiesError;
+
+    final result = await showModalBottomSheet<_HotelFilterSheetResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -394,285 +407,299 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
               }
             }
 
-            return Consumer<HotelHomeViewModel>(
-              builder: (context, sheetVm, _) {
-                return Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.9,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 10, 8, 8),
-                          child: Row(
-                            children: [
-                              const Expanded(
-                                child: Text(
-                                  'Bộ lọc khách sạn',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF111827),
-                                  ),
-                                ),
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.9,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 8, 8),
+                      child: Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              'Bộ lọc khách sạn',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF111827),
                               ),
-                              IconButton(
-                                tooltip: 'Đóng',
-                                onPressed: () => Navigator.of(context).pop(),
-                                icon: const Icon(Icons.close),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Divider(height: 1),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _FilterTextField(
-                                  controller: cityController,
-                                  label: 'Thành phố / tỉnh',
-                                  hint: 'VD: Đà Nẵng, Hà Nội...',
-                                  icon: Icons.location_on_outlined,
-                                ),
-                                const SizedBox(height: 16),
-                                _FilterSectionTitle(
-                                  icon: Icons.calendar_today_outlined,
-                                  title: 'Ngày lưu trú',
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: pickDateRange,
-                                        icon: const Icon(Icons.date_range),
-                                        label: Text(
-                                          startDate == null && endDate == null
-                                              ? 'Chọn ngày'
-                                              : _formatDateRange(
-                                                  startDate,
-                                                  endDate,
-                                                ),
-                                        ),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: const Color(
-                                            0xFF1F2937,
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 14,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          side: const BorderSide(
-                                            color: Color(0xFFE5E7EB),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    if (startDate != null || endDate != null)
-                                      IconButton(
-                                        tooltip: 'Xóa ngày',
-                                        onPressed: () => setModalState(() {
-                                          startDate = null;
-                                          endDate = null;
-                                        }),
-                                        icon: const Icon(Icons.close),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 18),
-                                _FilterSectionTitle(
-                                  icon: Icons.people_alt_outlined,
-                                  title: 'Khách và phòng',
-                                ),
-                                const SizedBox(height: 8),
-                                _CounterRow(
-                                  label: 'Người lớn',
-                                  value: adults,
-                                  onDecrease: adults > 0
-                                      ? () => setModalState(() => adults--)
-                                      : null,
-                                  onIncrease: () =>
-                                      setModalState(() => adults++),
-                                ),
-                                _CounterRow(
-                                  label: 'Trẻ em',
-                                  value: children,
-                                  onDecrease: children > 0
-                                      ? () => setModalState(() => children--)
-                                      : null,
-                                  onIncrease: () =>
-                                      setModalState(() => children++),
-                                ),
-                                _CounterRow(
-                                  label: 'Số phòng',
-                                  value: roomCount,
-                                  onDecrease: roomCount > 0
-                                      ? () => setModalState(() => roomCount--)
-                                      : null,
-                                  onIncrease: () =>
-                                      setModalState(() => roomCount++),
-                                ),
-                                const SizedBox(height: 18),
-                                _FilterSectionTitle(
-                                  icon: Icons.star_outline,
-                                  title: 'Đánh giá tối thiểu',
-                                ),
-                                const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: List.generate(5, (index) {
-                                    final rating = index + 1;
-                                    return ChoiceChip(
-                                      label: Text('$rating sao'),
-                                      selected: minRating == rating,
-                                      onSelected: (selected) {
-                                        setModalState(() {
-                                          minRating = selected ? rating : null;
-                                        });
-                                      },
-                                    );
-                                  }),
-                                ),
-                                const SizedBox(height: 18),
-                                _FilterSectionTitle(
-                                  icon: Icons.payments_outlined,
-                                  title: 'Khoảng giá mỗi đêm',
-                                ),
-                                const SizedBox(height: 10),
-                                _PriceRangeSlider(
-                                  values: priceRange,
-                                  min: _minSelectablePrice,
-                                  max: _maxSelectablePrice,
-                                  divisions: _priceDivisions,
-                                  formatPrice: _formatPrice,
-                                  onChanged: (values) {
-                                    setModalState(() => priceRange = values);
-                                  },
-                                ),
-                                const SizedBox(height: 18),
-                                _buildAmenityFilters(
-                                  vm: sheetVm,
-                                  selectedAmenityIds: selectedAmenityIds,
-                                  setModalState: setModalState,
-                                ),
-                              ],
                             ),
                           ),
-                        ),
-                        const Divider(height: 1),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            16,
-                            12,
-                            16,
-                            MediaQuery.of(context).padding.bottom + 12,
+                          IconButton(
+                            tooltip: 'Đóng',
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.close),
                           ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    vm.clearFilters();
-                                  },
-                                  icon: const Icon(Icons.restart_alt),
-                                  label: const Text('Xóa lọc'),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    vm.applyFilters(
-                                      keyword: _searchController.text,
-                                      cityProvince: cityController.text,
-                                      startDate: startDate,
-                                      endDate: endDate,
-                                      adults: _nullIfZero(adults),
-                                      children: _nullIfZero(children),
-                                      roomCount: _nullIfZero(roomCount),
-                                      minRating: minRating,
-                                      minPrice: _minPriceFilterValue(
-                                        priceRange,
-                                      ),
-                                      maxPrice: _maxPriceFilterValue(
-                                        priceRange,
-                                      ),
-                                      amenityIds: selectedAmenityIds.toList(),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.check),
-                                  label: const Text('Áp dụng'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2563EB),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
+                    const Divider(height: 1),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _FilterTextField(
+                              controller: cityController,
+                              label: 'Thành phố / tỉnh',
+                              hint: 'VD: Đà Nẵng, Hà Nội...',
+                              icon: Icons.location_on_outlined,
+                            ),
+                            const SizedBox(height: 16),
+                            _FilterSectionTitle(
+                              icon: Icons.calendar_today_outlined,
+                              title: 'Ngày lưu trú',
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: pickDateRange,
+                                    icon: const Icon(Icons.date_range),
+                                    label: Text(
+                                      startDate == null && endDate == null
+                                          ? 'Chọn ngày'
+                                          : _formatDateRange(
+                                              startDate,
+                                              endDate,
+                                            ),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: const Color(0xFF1F2937),
+                                      alignment: Alignment.centerLeft,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      side: const BorderSide(
+                                        color: Color(0xFFE5E7EB),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (startDate != null || endDate != null)
+                                  IconButton(
+                                    tooltip: 'Xóa ngày',
+                                    onPressed: () => setModalState(() {
+                                      startDate = null;
+                                      endDate = null;
+                                    }),
+                                    icon: const Icon(Icons.close),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 18),
+                            _FilterSectionTitle(
+                              icon: Icons.people_alt_outlined,
+                              title: 'Khách và phòng',
+                            ),
+                            const SizedBox(height: 8),
+                            _CounterRow(
+                              label: 'Người lớn',
+                              value: adults,
+                              onDecrease: adults > 0
+                                  ? () => setModalState(() => adults--)
+                                  : null,
+                              onIncrease: () => setModalState(() => adults++),
+                            ),
+                            _CounterRow(
+                              label: 'Trẻ em',
+                              value: children,
+                              onDecrease: children > 0
+                                  ? () => setModalState(() => children--)
+                                  : null,
+                              onIncrease: () => setModalState(() => children++),
+                            ),
+                            _CounterRow(
+                              label: 'Số phòng',
+                              value: roomCount,
+                              onDecrease: roomCount > 0
+                                  ? () => setModalState(() => roomCount--)
+                                  : null,
+                              onIncrease: () =>
+                                  setModalState(() => roomCount++),
+                            ),
+                            const SizedBox(height: 18),
+                            _FilterSectionTitle(
+                              icon: Icons.star_outline,
+                              title: 'Đánh giá tối thiểu',
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: List.generate(5, (index) {
+                                final rating = index + 1;
+                                return ChoiceChip(
+                                  label: Text('$rating sao'),
+                                  selected: minRating == rating,
+                                  onSelected: (selected) {
+                                    setModalState(() {
+                                      minRating = selected ? rating : null;
+                                    });
+                                  },
+                                );
+                              }),
+                            ),
+                            const SizedBox(height: 18),
+                            _FilterSectionTitle(
+                              icon: Icons.payments_outlined,
+                              title: 'Khoảng giá mỗi đêm',
+                            ),
+                            const SizedBox(height: 10),
+                            _PriceRangeSlider(
+                              values: priceRange,
+                              min: _minSelectablePrice,
+                              max: _maxSelectablePrice,
+                              divisions: _priceDivisions,
+                              formatPrice: _formatPrice,
+                              onChanged: (values) {
+                                setModalState(() => priceRange = values);
+                              },
+                            ),
+                            const SizedBox(height: 18),
+                            _buildAmenityFilters(
+                              isLoading: isLoadingAmenitiesSnapshot,
+                              error: amenitiesErrorSnapshot,
+                              amenities: amenitiesSnapshot,
+                              hotelAmenities: hotelAmenitiesSnapshot,
+                              roomAmenities: roomAmenitiesSnapshot,
+                              selectedAmenityIds: selectedAmenityIds,
+                              setModalState: setModalState,
+                              onRetry: vm.loadAmenities,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        12,
+                        16,
+                        MediaQuery.of(context).padding.bottom + 12,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () => Navigator.of(
+                                context,
+                              ).pop(const _HotelFilterSheetResult.clear()),
+                              icon: const Icon(Icons.restart_alt),
+                              label: const Text('Xóa lọc'),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => Navigator.of(context).pop(
+                                _HotelFilterSheetResult.apply(
+                                  cityProvince: cityController.text,
+                                  startDate: startDate,
+                                  endDate: endDate,
+                                  adults: _nullIfZero(adults),
+                                  children: _nullIfZero(children),
+                                  roomCount: _nullIfZero(roomCount),
+                                  minRating: minRating,
+                                  minPrice: _minPriceFilterValue(priceRange),
+                                  maxPrice: _maxPriceFilterValue(priceRange),
+                                  amenityIds: selectedAmenityIds.toList(),
+                                ),
+                              ),
+                              icon: const Icon(Icons.check),
+                              label: const Text('Áp dụng'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2563EB),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           },
         );
       },
     );
 
+    // Let the modal route finish tearing down before rebuilding this page.
+    await Future<void>.delayed(const Duration(milliseconds: 260));
     cityController.dispose();
+
+    if (!mounted || result == null) return;
+
+    if (result.shouldClear) {
+      vm.clearFilters();
+      return;
+    }
+
+    vm.applyFilters(
+      keyword: _searchController.text,
+      cityProvince: result.cityProvince,
+      startDate: result.startDate,
+      endDate: result.endDate,
+      adults: result.adults,
+      children: result.children,
+      roomCount: result.roomCount,
+      minRating: result.minRating,
+      minPrice: result.minPrice,
+      maxPrice: result.maxPrice,
+      amenityIds: result.amenityIds,
+    );
   }
 
   Widget _buildAmenityFilters({
-    required HotelHomeViewModel vm,
+    required bool isLoading,
+    required String? error,
+    required List<HotelAmenityData> amenities,
+    required List<HotelAmenityData> hotelAmenities,
+    required List<HotelAmenityData> roomAmenities,
     required Set<String> selectedAmenityIds,
     required StateSetter setModalState,
+    required VoidCallback onRetry,
   }) {
-    if (vm.isLoadingAmenities) {
+    if (isLoading) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
         child: LinearProgressIndicator(),
       );
     }
 
-    if (vm.amenitiesError != null && vm.amenities.isEmpty) {
+    if (error != null && amenities.isEmpty) {
       return Row(
         children: [
           const Expanded(
@@ -681,12 +708,12 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
               style: TextStyle(color: Color(0xFF6B7280)),
             ),
           ),
-          TextButton(onPressed: vm.loadAmenities, child: const Text('Thử lại')),
+          TextButton(onPressed: onRetry, child: const Text('Thử lại')),
         ],
       );
     }
 
-    if (vm.amenities.isEmpty) {
+    if (amenities.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -699,7 +726,7 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
         ),
         const SizedBox(height: 8),
         _AmenityChipGroup(
-          amenities: vm.hotelAmenities,
+          amenities: hotelAmenities,
           selectedIds: selectedAmenityIds,
           onChanged: (id, selected) {
             setModalState(() {
@@ -709,7 +736,7 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
             });
           },
         ),
-        if (vm.roomAmenities.isNotEmpty) ...[
+        if (roomAmenities.isNotEmpty) ...[
           const SizedBox(height: 16),
           _FilterSectionTitle(
             icon: Icons.bed_outlined,
@@ -717,7 +744,7 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
           ),
           const SizedBox(height: 8),
           _AmenityChipGroup(
-            amenities: vm.roomAmenities,
+            amenities: roomAmenities,
             selectedIds: selectedAmenityIds,
             onChanged: (id, selected) {
               setModalState(() {
@@ -731,6 +758,46 @@ class _HotelHomeScreenState extends State<HotelHomeScreen> {
       ],
     );
   }
+}
+
+class _HotelFilterSheetResult {
+  const _HotelFilterSheetResult.apply({
+    required this.cityProvince,
+    required this.startDate,
+    required this.endDate,
+    required this.adults,
+    required this.children,
+    required this.roomCount,
+    required this.minRating,
+    required this.minPrice,
+    required this.maxPrice,
+    required this.amenityIds,
+  }) : shouldClear = false;
+
+  const _HotelFilterSheetResult.clear()
+    : shouldClear = true,
+      cityProvince = null,
+      startDate = null,
+      endDate = null,
+      adults = null,
+      children = null,
+      roomCount = null,
+      minRating = null,
+      minPrice = null,
+      maxPrice = null,
+      amenityIds = null;
+
+  final bool shouldClear;
+  final String? cityProvince;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final int? adults;
+  final int? children;
+  final int? roomCount;
+  final int? minRating;
+  final double? minPrice;
+  final double? maxPrice;
+  final List<String>? amenityIds;
 }
 
 class _FilterChipLabel extends StatelessWidget {

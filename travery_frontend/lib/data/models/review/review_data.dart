@@ -26,7 +26,10 @@ class ReviewData {
       id: _readString(json['id']),
       authorName: _firstNonEmpty([
         json['authorName'],
+        json['reviewerName'],
         json['userName'],
+        json['customerName'],
+        json['touristName'],
         json['fullName'],
         json['name'],
         user?['fullName'],

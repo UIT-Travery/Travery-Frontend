@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
+import 'package:travery_frontend/utils/review_guards.dart';
 
 class HotelBookingDetailViewModel extends ChangeNotifier {
   HotelBookingDetailViewModel({required HotelService hotelService})
@@ -201,6 +202,9 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
   }) async {
     final booking = _booking;
     if (booking == null) return 'Không tìm thấy thông tin đặt phòng';
+    if (!canCreateReview) {
+      return 'Bạn đã gửi đánh giá cho đơn này rồi. Cảm ơn bạn đã chia sẻ trải nghiệm.';
+    }
 
     _isSubmittingReview = true;
     _error = null;
@@ -220,19 +224,14 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
         notifyListeners();
         return null;
       case Error(error: final e):
-        final message = _cleanError(e);
+        if (isDuplicateReviewError(e)) {
+          _reviewedBookingIds.add(booking.id);
+        }
+        final message = friendlyReviewError(e);
         _error = message;
         _isSubmittingReview = false;
         notifyListeners();
         return message;
     }
-  }
-
-  String _cleanError(Object error) {
-    final message = error.toString();
-    if (message.startsWith('HttpException: ')) {
-      return message.substring('HttpException: '.length);
-    }
-    return message;
   }
 }

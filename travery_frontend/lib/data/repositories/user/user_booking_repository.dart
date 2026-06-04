@@ -10,6 +10,7 @@ import 'package:travery_frontend/data/services/api/model/booking/user_booking_li
 import 'package:travery_frontend/data/services/booking/booking_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
+import 'package:travery_frontend/utils/review_guards.dart';
 
 class UserBookingRepository extends BookingService {
   UserBookingRepository({required TokenRefreshService tokenRefreshService})
@@ -95,10 +96,7 @@ class UserBookingRepository extends BookingService {
             paymentExpiresAt:
                 (data['payment'] as Map<String, dynamic>?)?['expiresAt']
                     as String?,
-            hasReview:
-                data['hasReview'] as bool? ??
-                data['reviewed'] as bool? ??
-                data['review'] != null,
+            hasReview: readHasReview(data),
           ),
         );
       } else {

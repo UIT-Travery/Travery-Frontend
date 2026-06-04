@@ -845,6 +845,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     TripBookingData booking,
     TripBookingDetailViewModel vm,
   ) async {
+    if (booking.hasReview || !vm.canCreateReview) {
+      _showAlreadyReviewedMessage(context);
+      return;
+    }
+
     final submitted = await pushWriteReviewScreen(
       context,
       title: 'Đánh giá chuyến xe',
@@ -857,6 +862,15 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showAlreadyReviewedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bạn đã gửi đánh giá cho đơn này rồi.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
