@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -87,9 +86,9 @@ class HotelMyBookingViewModel extends ChangeNotifier {
       case 'PENDING':
         return 'Đang chờ';
       case 'CHECKED_IN':
-        return 'Đang ở';
+        return 'Đã checkin';
       case 'CHECKED_OUT':
-        return 'Đã trả phòng';
+        return 'Đã checkout';
       case 'CANCELLED':
         return 'Đã hủy';
       default:

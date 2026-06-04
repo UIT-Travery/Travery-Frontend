@@ -61,6 +61,11 @@ class _BookingNavigationShellState extends State<BookingNavigationShell> {
   late int _selectedIndex;
   bool _showRail = false;
 
+  String _shortTitle(String title) {
+    if (title.length <= 20) return title;
+    return '${title.substring(0, 20)}...';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -138,7 +143,9 @@ class _BookingNavigationShellState extends State<BookingNavigationShell> {
           : null,
       automaticallyImplyLeading: !widget.showBackButton,
       title: Text(
-        currentTitle,
+        _shortTitle(currentTitle),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w700,

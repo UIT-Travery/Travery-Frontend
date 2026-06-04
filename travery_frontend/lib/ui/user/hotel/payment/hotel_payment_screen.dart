@@ -118,7 +118,6 @@ class _HotelPaymentScreenState extends State<HotelPaymentScreen> {
   }
 
   void _handleNavigation(String url) {
-    // Check for VNPay response codes
     if (url.contains('vnp_ResponseCode') || url.contains('responseCode')) {
       _pollingTimer?.cancel();
       final uri = Uri.parse(url);
@@ -130,7 +129,6 @@ class _HotelPaymentScreenState extends State<HotelPaymentScreen> {
       return;
     }
 
-    // Check for custom scheme return URLs (e.g., travery://payment-result?...)
     if (url.startsWith('travery://') ||
         url.startsWith('app://') ||
         url.contains('payment-result')) {

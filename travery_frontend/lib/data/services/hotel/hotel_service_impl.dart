@@ -6,6 +6,7 @@ import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_list_data.dart';
+import 'package:travery_frontend/data/models/review/review_data.dart';
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -34,6 +35,46 @@ class HotelServiceImpl implements HotelService {
       return jsonMap['message'] as String? ?? defaultMessage;
     } catch (_) {
       return defaultMessage;
+    }
+  }
+
+  @override
+  Future<Result<List<HotelAmenityData>>> getAmenities() async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.getUrl(
+        Uri.https(AppConfig.baseUrl, '/api/v1/amenities'),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as List<dynamic>? ?? [];
+        final amenities = data
+            .map((e) => HotelAmenityData.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        return Result.ok(amenities);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải danh sách tiện ích',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
     }
   }
 
@@ -126,13 +167,15 @@ class HotelServiceImpl implements HotelService {
             .map((e) => HotelListData.fromJson(e as Map<String, dynamic>))
             .toList();
 
+        final pageData = data['page'] as Map<String, dynamic>? ?? data;
+
         return Result.ok(
           HotelSearchResult(
             hotels: hotels,
-            totalElements: data['totalElements'] as int? ?? 0,
-            totalPages: data['totalPages'] as int? ?? 0,
-            currentPage: data['number'] as int? ?? 0,
-            pageSize: data['size'] as int? ?? size,
+            totalElements: pageData['totalElements'] as int? ?? 0,
+            totalPages: pageData['totalPages'] as int? ?? 0,
+            currentPage: pageData['number'] as int? ?? page,
+            pageSize: pageData['size'] as int? ?? size,
           ),
         );
       } else {
@@ -176,6 +219,92 @@ class HotelServiceImpl implements HotelService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Không thể tải thông tin khách sạn',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<ReviewPageData>> getHotelReviews(
+    String hotelId, {
+    int page = 0,
+    int size = 10,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.getUrl(
+        Uri.https(AppConfig.baseUrl, '/api/v1/hotels/$hotelId/reviews', {
+          'page': page.toString(),
+          'size': size.toString(),
+        }),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(ReviewPageData.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải đánh giá khách sạn',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<bool>> createReview({
+    required String bookingId,
+    required int rating,
+    required String comment,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.postUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/hotel-bookings/$bookingId/reviews',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        'application/json; charset=utf-8',
+      );
+      await _setBearerAuth(request);
+      request.write(jsonEncode({'rating': rating, 'comment': comment}));
+
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await response.drain<void>();
+        return const Result.ok(true);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể gửi đánh giá khách sạn',
         );
         return Result.error(HttpException(errorMsg));
       }

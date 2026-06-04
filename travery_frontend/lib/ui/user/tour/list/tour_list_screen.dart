@@ -134,7 +134,6 @@ class _TourListScreenState extends State<TourListScreen> {
                     ],
                   ),
 
-                  // Price filter with RangeSlider
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -217,7 +216,6 @@ class _TourListScreenState extends State<TourListScreen> {
                     ],
                   ),
 
-                  // Rating filter
                   const SizedBox(height: 20),
                   const Text(
                     'Đánh giá',
@@ -279,7 +277,6 @@ class _TourListScreenState extends State<TourListScreen> {
                     }).toList(),
                   ),
 
-                  // Date filter
                   const SizedBox(height: 20),
                   const Text(
                     'Ngày khởi hành',
@@ -399,7 +396,6 @@ class _TourListScreenState extends State<TourListScreen> {
       appBar: const UserAppBar(title: 'Danh sách Tour'),
       body: Column(
         children: [
-          // Search Bar
           Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             color: Colors.white,
@@ -489,7 +485,6 @@ class _TourListScreenState extends State<TourListScreen> {
             ),
           ),
 
-          // Active filters
           Consumer<TourListViewModel>(
             builder: (context, vm, _) {
               if (!vm.hasActiveFilters) return const SizedBox.shrink();
@@ -552,7 +547,6 @@ class _TourListScreenState extends State<TourListScreen> {
 
           const SizedBox(height: 4),
 
-          // Tour List
           Expanded(
             child: Consumer<TourListViewModel>(
               builder: (context, vm, _) {

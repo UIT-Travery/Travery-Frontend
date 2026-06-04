@@ -27,6 +27,9 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
   bool _isCancelling = false;
   bool get isCancelling => _isCancelling;
 
+  bool _isSubmittingReview = false;
+  bool get isSubmittingReview => _isSubmittingReview;
+
   double get serviceTotal {
     return _booking?.services.fold<double>(0, (sum, s) => sum + s.total) ?? 0;
   }
@@ -54,12 +57,10 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
       );
     }
 
-    // Always fetch fresh data from API to get complete items/members
     await _fetchBookingDetail(bookingId);
     await _fetchAddOnBill(bookingId);
   }
 
-  // Alias for public refresh access
   Future<void> loadBookings(String bookingId) => loadBooking(bookingId);
 
   Future<void> _fetchBookingDetail(String bookingId) async {
@@ -170,7 +171,6 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
         notifyListeners();
         return cancelResponse;
       } else {
-        // Error case
         debugPrint('CancelBooking: Error - ${result.toString()}');
         _error = result.toString();
         return null;
@@ -183,5 +183,45 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
       _isCancelling = false;
       notifyListeners();
     }
+  }
+
+  Future<String?> createReview({
+    required int rating,
+    required String comment,
+  }) async {
+    final booking = _booking;
+    if (booking == null) return 'Không tìm thấy thông tin đặt phòng';
+
+    _isSubmittingReview = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await _hotelService.createReview(
+      bookingId: booking.id,
+      rating: rating,
+      comment: comment,
+    );
+
+    switch (result) {
+      case Ok():
+        await loadBooking(booking.id);
+        _isSubmittingReview = false;
+        notifyListeners();
+        return null;
+      case Error(error: final e):
+        final message = _cleanError(e);
+        _error = message;
+        _isSubmittingReview = false;
+        notifyListeners();
+        return message;
+    }
+  }
+
+  String _cleanError(Object error) {
+    final message = error.toString();
+    if (message.startsWith('HttpException: ')) {
+      return message.substring('HttpException: '.length);
+    }
+    return message;
   }
 }

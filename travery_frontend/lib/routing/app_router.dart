@@ -58,7 +58,6 @@ import 'package:travery_frontend/ui/user/trip/booking_review/view_models/trip_bo
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/ui/user/trip/payment/trip_payment_screen.dart';
 import 'package:travery_frontend/ui/user/trip/payment_result/trip_payment_result_screen.dart';
-import 'package:travery_frontend/ui/user/trip/my_booking/my_trip_booking_screen.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/trip_booking_detail_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel/trip_cancel_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel_success/trip_cancel_success_screen.dart';
@@ -354,6 +353,8 @@ GoRouter appRouter(
             childCount: extra['childCount'] as int,
             pricePerAdult: extra['pricePerAdult'] as double,
             pricePerChild: extra['pricePerChild'] as double,
+            contactName: extra['contactName'] as String? ?? '',
+            contactPhone: extra['contactPhone'] as String? ?? '',
             specialRequests: extra['specialRequests'] as String,
             startDate: extra['startDate'] as String,
             endDate: extra['endDate'] as String,

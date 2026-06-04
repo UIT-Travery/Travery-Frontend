@@ -102,7 +102,6 @@ class _SeatPickerScreenState extends State<SeatPickerScreen> {
     );
   }
 
-  // ── SINGLE DECK VIEW ──────────────────────────────────────────
   Widget _buildSingleDeckView(SeatPickerViewModel vm) {
     final seats = vm.seatsForActiveDeck;
     if (seats.isEmpty) return const SizedBox.shrink();
@@ -116,7 +115,6 @@ class _SeatPickerScreenState extends State<SeatPickerScreen> {
     );
   }
 
-  // ── DOUBLE DECK VIEW ─────────────────────────────────────────
   Widget _buildDoubleDeckView(SeatPickerViewModel vm) {
     final lowerSeats = vm.seatsForLowerDeck;
     final upperSeats = vm.seatsForUpperDeck;
@@ -130,7 +128,6 @@ class _SeatPickerScreenState extends State<SeatPickerScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Tầng dưới
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +148,7 @@ class _SeatPickerScreenState extends State<SeatPickerScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Tầng trên
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,10 +306,6 @@ class _SeatPickerScreenState extends State<SeatPickerScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────
-// DECK LABEL
-// ─────────────────────────────────────────────────────────────────
-
 class _DeckLabel extends StatelessWidget {
   const _DeckLabel({required this.label, required this.color});
   final String label;
@@ -339,10 +332,6 @@ class _DeckLabel extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────
-// SEAT GRID (reusable)
-// ─────────────────────────────────────────────────────────────────
 
 class _SeatGrid extends StatelessWidget {
   const _SeatGrid({required this.seats, required this.vm, this.seatColor});

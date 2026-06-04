@@ -487,7 +487,6 @@ class _ServiceCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Name
               Text(
                 service.name ?? '',
                 style: const TextStyle(
@@ -496,7 +495,7 @@ class _ServiceCard extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              // Description
+
               if (service.description != null &&
                   service.description!.isNotEmpty) ...[
                 const SizedBox(height: 6),
@@ -512,7 +511,7 @@ class _ServiceCard extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 12),
-              // Price + Unit + Quantity selector row
+
               Row(
                 children: [
                   Expanded(
@@ -545,7 +544,7 @@ class _ServiceCard extends StatelessWidget {
                   ),
                 ],
               ),
-              // Inactive badge
+
               if (!isActive) ...[
                 const SizedBox(height: 8),
                 Container(

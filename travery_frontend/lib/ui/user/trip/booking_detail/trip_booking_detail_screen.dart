@@ -7,6 +7,7 @@ import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_v
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_sheet.dart';
 
 class TripBookingDetailScreen extends StatefulWidget {
   const TripBookingDetailScreen({super.key, this.bookingId = ''});
@@ -119,11 +120,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── STATUS CARD ───────────────────────────────────────────────────
   Widget _buildStatusCard(TripBookingData booking) {
     final isPaid = booking.status == 'PAID';
     final isCancelled = booking.status == 'CANCELLED';
     final isCheckedIn = booking.status == 'CHECKED_IN';
+    final isCheckedOut = booking.status == 'CHECKED_OUT';
 
     Color statusColor;
     IconData statusIcon;
@@ -146,6 +147,12 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       statusIcon = Icons.person;
       statusLabel = 'Đã check-in';
       statusDesc = 'Bạn đã check-in thành công. Chúc bạn có chuyến đi vui vẻ!';
+    } else if (isCheckedOut) {
+      statusColor = const Color(0xFF64748B);
+      statusIcon = Icons.flag_circle;
+      statusLabel = 'Đã hoàn thành';
+      statusDesc =
+          'Chuyến đi đã kết thúc. Bạn có thể gửi đánh giá trải nghiệm.';
     } else {
       statusColor = Colors.orange;
       statusIcon = Icons.hourglass_empty;
@@ -208,7 +215,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── THONG TIN CHUYEN DI ───────────────────────────────────────────────
   Widget _buildTripInfo(TripBookingData booking) {
     final departureDt = booking.departureTime;
     final seatCount = booking.bookedSeatNames.length;
@@ -317,18 +323,15 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
           ],
           const SizedBox(height: 24),
 
-          // Timeline — Boarding / Alighting
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left column: icons stacked with vertical line between them
                 SizedBox(
                   width: 24,
                   child: Stack(
                     alignment: Alignment.topCenter,
                     children: [
-                      // Dashed vertical line (full height of the two nodes)
                       Positioned.fill(
                         child: CustomPaint(
                           painter: _DashedLinePainter(
@@ -339,7 +342,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                           ),
                         ),
                       ),
-                      // First icon (Lên xe)
+
                       Positioned(
                         top: 0,
                         child: Container(
@@ -360,7 +363,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                           ),
                         ),
                       ),
-                      // Second icon (Xuống xe)
+
                       Positioned(
                         bottom: 0,
                         child: Container(
@@ -385,7 +388,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Right column: text content
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,7 +472,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Icon is now rendered in the Stack, so no icon here
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -537,7 +539,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── THONG TIN KHACH HANG (READ-ONLY) ───────────────────────────────
   Widget _buildCustomerInfoReadOnly(TripBookingData booking) {
     return Container(
       width: double.infinity,
@@ -634,7 +635,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── CHI TIET THANH TOAN ───────────────────────────────────────────
   Widget _buildPaymentDetails(TripBookingData booking) {
     final seatCount = booking.bookedSeatNames.length;
 
@@ -728,7 +728,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── BOTTOM BAR ────────────────────────────────────────────────────
   Widget _buildBottomBar(
     BuildContext context,
     TripBookingData booking,
@@ -736,7 +735,8 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   ) {
     final isPending = booking.status == 'PENDING';
     final isPaid = booking.status == 'PAID';
-    if (!isPending && !isPaid) return const SizedBox.shrink();
+    final canReview = booking.status == 'CHECKED_OUT';
+    if (!isPending && !isPaid && !canReview) return const SizedBox.shrink();
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -757,7 +757,25 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       ),
       child: SafeArea(
         top: false,
-        child: isPending
+        child: canReview
+            ? ElevatedButton.icon(
+                onPressed: () => _openReviewSheet(context, booking, vm),
+                icon: const Icon(Icons.star_rounded, size: 20),
+                label: const Text(
+                  'Viết đánh giá',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  elevation: 0,
+                ),
+              )
+            : isPending
             ? ElevatedButton(
                 onPressed: () => _onPayPressed(context, booking, vm),
                 style: ElevatedButton.styleFrom(
@@ -818,6 +836,29 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
+  Future<void> _openReviewSheet(
+    BuildContext context,
+    TripBookingData booking,
+    TripBookingDetailViewModel vm,
+  ) async {
+    final submitted = await showWriteReviewSheet(
+      context,
+      title: 'Đánh giá chuyến xe',
+      subtitle:
+          '${booking.originDestination} - ${booking.destinationDestination}',
+      onSubmit: vm.createReview,
+    );
+
+    if (!context.mounted || submitted != true) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Future<void> _onPayPressed(
     BuildContext context,
     TripBookingData booking,
@@ -869,7 +910,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     }
   }
 
-  // ─── HELPERS ───────────────────────────────────────────────────────
   String _shortCode(String id) {
     final clean = id.replaceAll('-', '');
     return clean.length >= 8
@@ -890,7 +930,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   }
 }
 
-// ─── Dashed line painter ────────────────────────────────────────────────────
 class _DashedLinePainter extends CustomPainter {
   _DashedLinePainter({
     required this.color,

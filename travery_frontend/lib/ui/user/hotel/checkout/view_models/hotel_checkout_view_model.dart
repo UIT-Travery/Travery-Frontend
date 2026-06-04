@@ -152,7 +152,7 @@ class HotelCheckoutViewModel extends ChangeNotifier {
     notifyListeners();
 
     bool allSuccess = true;
-    // Schedule for tomorrow to avoid server timezone/past validation issues
+
     final scheduledTime = DateTime.now().add(const Duration(hours: 26));
 
     for (final item in _cartItems) {
@@ -195,5 +195,11 @@ class HotelCheckoutViewModel extends ChangeNotifier {
     _error = 'Không thể hủy dịch vụ. Vui lòng thử lại.';
     notifyListeners();
     return false;
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

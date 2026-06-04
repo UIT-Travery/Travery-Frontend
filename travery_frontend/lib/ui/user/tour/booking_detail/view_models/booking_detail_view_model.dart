@@ -25,6 +25,9 @@ class BookingDetailViewModel extends ChangeNotifier {
   bool _isCreatingPayment = false;
   bool get isCreatingPayment => _isCreatingPayment;
 
+  bool _isSubmittingReview = false;
+  bool get isSubmittingReview => _isSubmittingReview;
+
   Future<void> loadBookingDetail(String bookingId) async {
     _isLoading = true;
     _error = null;
@@ -68,5 +71,45 @@ class BookingDetailViewModel extends ChangeNotifier {
     if (_bookingDetail != null) {
       await loadBookingDetail(_bookingDetail!.id);
     }
+  }
+
+  Future<String?> createReview({
+    required int rating,
+    required String comment,
+  }) async {
+    final booking = _bookingDetail;
+    if (booking == null) return 'Không tìm thấy thông tin đặt tour';
+
+    _isSubmittingReview = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await _bookingService.createReview(
+      bookingId: booking.id,
+      rating: rating,
+      comment: comment,
+    );
+
+    switch (result) {
+      case Ok():
+        await loadBookingDetail(booking.id);
+        _isSubmittingReview = false;
+        notifyListeners();
+        return null;
+      case Error(error: final e):
+        final message = _cleanError(e);
+        _error = message;
+        _isSubmittingReview = false;
+        notifyListeners();
+        return message;
+    }
+  }
+
+  String _cleanError(Object error) {
+    final message = error.toString();
+    if (message.startsWith('HttpException: ')) {
+      return message.substring('HttpException: '.length);
+    }
+    return message;
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/models/trip/trip_search_item.dart';
 import 'package:travery_frontend/data/models/trip/trip_seat_data.dart';
@@ -55,13 +56,20 @@ class TripServiceImpl implements TripService {
         ContentType.json.value,
       );
       await _setBearerAuth(requestObj);
-      requestObj.write(jsonEncode(request.toJson()));
+      final body = jsonEncode(request.toJson());
+      requestObj.write(body);
+
+      debugPrint('[TripService] searchTrips request body: $body');
 
       final response = await requestObj.close();
+      final stringData = await response.transform(utf8.decoder).join();
+      debugPrint(
+        '[TripService] searchTrips response status: ${response.statusCode}',
+      );
+      debugPrint('[TripService] searchTrips response body: $stringData');
 
       if (response.statusCode == 200) {
         try {
-          final stringData = await response.transform(utf8.decoder).join();
           final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
           final data = jsonMap['data'] as List<dynamic>?;
           if (data == null) return Result.ok([]);
@@ -246,10 +254,10 @@ class TripServiceImpl implements TripService {
       );
       await _setBearerAuth(requestObj);
       final body = jsonEncode({
-        if (reason != null) 'reason': reason,
-        if (bankName != null) 'bankName': bankName,
-        if (accountNumber != null) 'accountNumber': accountNumber,
-        if (accountHolderName != null) 'accountHolderName': accountHolderName,
+        ?'reason': reason,
+        ?'bankName': bankName,
+        ?'accountNumber': accountNumber,
+        ?'accountHolderName': accountHolderName,
       });
       requestObj.write(body);
 
@@ -319,6 +327,48 @@ class TripServiceImpl implements TripService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Tạo thanh toán thất bại',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<bool>> createReview({
+    required String bookingId,
+    required int rating,
+    required String comment,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.postUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/coach-bookings/$bookingId/reviews',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        'application/json; charset=utf-8',
+      );
+      await _setBearerAuth(request);
+      request.write(jsonEncode({'rating': rating, 'comment': comment}));
+
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await response.drain<void>();
+        return const Result.ok(true);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể gửi đánh giá chuyến xe',
         );
         return Result.error(HttpException(errorMsg));
       }

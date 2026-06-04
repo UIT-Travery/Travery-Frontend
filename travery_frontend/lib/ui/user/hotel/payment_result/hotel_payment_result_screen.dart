@@ -245,7 +245,6 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hotel info
           if (_bookingData != null) ...[
             Row(
               children: [
@@ -296,7 +295,6 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
             const SizedBox(height: 16),
           ],
 
-          // Room type
           if (firstItem != null) ...[
             _buildRow('Loại phòng', firstItem.roomTypeName),
             const SizedBox(height: 12),
@@ -306,7 +304,6 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
             const SizedBox(height: 12),
           ],
 
-          // Check-in / Check-out
           if (booking?.startDate != null && booking?.endDate != null) ...[
             _buildRow('Nhận phòng', _formatDate(booking!.startDate!)),
             const SizedBox(height: 12),
@@ -317,11 +314,9 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
           const Divider(color: AppColors.inputBackground),
           const SizedBox(height: 12),
 
-          // Transaction ID
           _buildRow('Mã giao dịch', _shortCode(transactionId), isPrimary: true),
           const SizedBox(height: 12),
 
-          // Total price
           _buildRow('Tổng thanh toán', _formatPrice(totalPrice), isBold: true),
 
           if (_bookingData == null) ...[

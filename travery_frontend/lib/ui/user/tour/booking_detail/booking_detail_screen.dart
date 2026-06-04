@@ -6,6 +6,7 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 import 'package:travery_frontend/ui/user/widgets/member_row.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_sheet.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   const BookingDetailScreen({
@@ -211,7 +212,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             return const SizedBox.shrink();
           }
 
-          final canCancel = vm.bookingDetail!.canCancel;
+          final booking = vm.bookingDetail!;
+          final canCancel = booking.canCancel;
+          final canReview = booking.status.toUpperCase() == 'CHECKED_OUT';
           return Container(
             padding: EdgeInsets.fromLTRB(
               20,
@@ -252,36 +255,84 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   ),
                   const SizedBox(width: 12),
                 ],
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                if (canReview) ...[
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _openReviewSheet(context, vm),
+                      icon: const Icon(Icons.star_rounded, size: 18),
+                      label: const Text(
+                        'Viết đánh giá',
+                        style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.group, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Vào group chat',
-                          style: TextStyle(fontWeight: FontWeight.w700),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
+                        elevation: 0,
+                      ),
                     ),
                   ),
-                ),
+                ] else
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.group, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Vào group chat',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Future<void> _openReviewSheet(
+    BuildContext context,
+    BookingDetailViewModel vm,
+  ) async {
+    final booking = vm.bookingDetail;
+    if (booking == null) return;
+
+    final submitted = await showWriteReviewSheet(
+      context,
+      title: 'Đánh giá tour',
+      subtitle: booking.tourName.isNotEmpty
+          ? booking.tourName
+          : 'Chia sẻ trải nghiệm tour của bạn',
+      onSubmit: vm.createReview,
+    );
+
+    if (!context.mounted || submitted != true) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }

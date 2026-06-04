@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/data/models/trip/cancel_trip_data.dart';
-import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
 
 class TripCancelSuccessScreen extends StatelessWidget {
   const TripCancelSuccessScreen({super.key, this.cancelData, this.booking});
@@ -15,7 +14,6 @@ class TripCancelSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
     final cancelData = extra?['cancelData'] as CancelTripData?;
-    final booking = extra?['booking'] as TripBookingData?;
 
     return PopScope(
       canPop: false,

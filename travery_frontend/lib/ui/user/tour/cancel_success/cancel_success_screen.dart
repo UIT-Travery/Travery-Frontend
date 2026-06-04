@@ -17,13 +17,6 @@ class CancelSuccessScreen extends StatelessWidget {
   final double refundAmount;
   final double refundPercentage;
 
-  String get _shortCode {
-    final clean = bookingId.replaceAll('-', '');
-    return clean.length >= 8
-        ? clean.substring(0, 8).toUpperCase()
-        : clean.toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +36,6 @@ class CancelSuccessScreen extends StatelessWidget {
                     children: [
                       const Spacer(flex: 1),
 
-                      // Success Icon
                       Container(
                         width: 80,
                         height: 80,
@@ -86,7 +78,6 @@ class CancelSuccessScreen extends StatelessWidget {
 
                       const SizedBox(height: 32),
 
-                      // Refund Info Card
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
@@ -155,7 +146,6 @@ class CancelSuccessScreen extends StatelessWidget {
 
                       const SizedBox(height: 16),
 
-                      // Note Card
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -187,7 +177,6 @@ class CancelSuccessScreen extends StatelessWidget {
 
                       const Spacer(flex: 2),
 
-                      // Action Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

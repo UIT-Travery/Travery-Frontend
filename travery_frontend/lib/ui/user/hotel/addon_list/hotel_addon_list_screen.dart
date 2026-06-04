@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
@@ -454,7 +453,9 @@ class _ServiceCardState extends State<_ServiceCard> {
       scheduledTime: time,
     );
 
-    if (order != null && mounted) {
+    if (!context.mounted) return;
+
+    if (order != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Đã đặt "${widget.service.name}" thành công!'),
@@ -462,7 +463,7 @@ class _ServiceCardState extends State<_ServiceCard> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } else if (widget.vm.error != null && mounted) {
+    } else if (widget.vm.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(widget.vm.error!),

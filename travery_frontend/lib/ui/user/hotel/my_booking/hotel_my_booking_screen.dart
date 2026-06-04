@@ -115,9 +115,9 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
       case 'PAID':
         return 'Đã thanh toán';
       case 'CHECKED_IN':
-        return 'Đang ở';
+        return 'Đã checkin';
       case 'CHECKED_OUT':
-        return 'Đã trả phòng';
+        return 'Đã checkout';
       case 'CANCELLED':
         return 'Đã hủy';
       default:

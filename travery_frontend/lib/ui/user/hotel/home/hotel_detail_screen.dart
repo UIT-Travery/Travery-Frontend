@@ -5,6 +5,7 @@ import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
+import 'package:travery_frontend/ui/user/widgets/review_section.dart';
 
 class HotelDetailScreen extends StatefulWidget {
   const HotelDetailScreen({super.key});
@@ -75,6 +76,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                   _buildCheckInTime(hotel),
                   _buildAmenities(hotel),
                   _buildRoomTypes(hotel, vm),
+                  _buildReviews(hotel, vm),
                 ],
               ),
               Positioned(
@@ -96,9 +98,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
     return Stack(
       children: [
         GestureDetector(
-          onTap: () {
-            // TODO: Open full screen image viewer
-          },
+          onTap: () {},
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: imageUrls.isNotEmpty
@@ -112,7 +112,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                       return Image.network(
                         imageUrls[index],
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, __) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           color: const Color(0xFFF0F7FF),
                           child: const Center(
                             child: Icon(
@@ -344,7 +344,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                           amenity.iconUrl!,
                           width: 18,
                           height: 18,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (_, _, _) => const Icon(
                             Icons.check_circle,
                             size: 16,
                             color: Color(0xFF007AFF),
@@ -418,6 +418,27 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReviews(HotelDetailData hotel, HotelDetailViewModel vm) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: ReviewSection(
+        averageRating: hotel.rating,
+        totalReviews: vm.reviewTotalElements,
+        reviews: vm.reviews,
+        isLoading: vm.isLoadingReviews,
+        hasMore: vm.hasMoreReviews,
+        error: vm.reviewsError,
+        onLoadMore: () async {
+          await vm.loadMoreReviews();
+          return ReviewListState(
+            reviews: vm.reviews,
+            hasMore: vm.hasMoreReviews,
+          );
+        },
       ),
     );
   }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_detail/view_models/hotel_booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_sheet.dart';
 
 class HotelBookingDetailScreen extends StatefulWidget {
   const HotelBookingDetailScreen({super.key});
@@ -33,12 +33,10 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
   void _loadFromRoute() {
     if (!mounted) return;
 
-    // Try to get booking from route extra (if passed from list)
     final extra =
         GoRouterState.of(context).extra as Map<String, HotelBookingData>?;
     final booking = extra?['booking'];
 
-    // Get bookingId: from passed booking, or from URL path parameter
     final bookingId =
         booking?.id ?? GoRouterState.of(context).pathParameters['id'] ?? '';
 
@@ -192,7 +190,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   ),
                 ),
               ),
-              _buildBottomActions(context, booking),
+              _buildBottomActions(context, booking, vm),
             ],
           );
         },
@@ -450,7 +448,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: item.amenities!.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
                           itemBuilder: (context, idx) {
                             final amenity = item.amenities![idx];
                             return Container(
@@ -659,7 +657,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _formatPrice(order.unitPrice) + '/dịch vụ',
+                        '${_formatPrice(order.unitPrice)}/dịch vụ',
                         style: const TextStyle(
                           fontSize: 11,
                           color: Color(0xFF9CA3AF),
@@ -814,15 +812,20 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     }
   }
 
-  Widget _buildBottomActions(BuildContext context, HotelBookingData booking) {
+  Widget _buildBottomActions(
+    BuildContext context,
+    HotelBookingData booking,
+    HotelBookingDetailViewModel vm,
+  ) {
     final status = booking.status;
     final canCancel = status == 'PAID' && _isBeforeCheckIn(booking);
     final isCheckedIn = status == 'CHECKED_IN';
+    final canReview = status.toUpperCase() == 'CHECKED_OUT';
 
     final hasCancel = canCancel;
     final hasAddon = isCheckedIn;
 
-    if (!hasCancel && !hasAddon) {
+    if (!hasCancel && !hasAddon && !canReview) {
       return const SizedBox.shrink();
     }
 
@@ -891,8 +894,53 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                   ),
                 ),
               ),
+            if ((hasCancel || hasAddon) && canReview) const SizedBox(width: 12),
+            if (canReview)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => _openReviewSheet(context, booking, vm),
+                  icon: const Icon(Icons.star_rounded, size: 18),
+                  label: const Text(
+                    'Viết đánh giá',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF007AFF),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _openReviewSheet(
+    BuildContext context,
+    HotelBookingData booking,
+    HotelBookingDetailViewModel vm,
+  ) async {
+    final submitted = await showWriteReviewSheet(
+      context,
+      title: 'Đánh giá khách sạn',
+      subtitle: booking.hotelName.isNotEmpty
+          ? booking.hotelName
+          : 'Chia sẻ trải nghiệm lưu trú của bạn',
+      onSubmit: vm.createReview,
+    );
+
+    if (!context.mounted || submitted != true) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }

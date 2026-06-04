@@ -1,10 +1,14 @@
 import 'package:travery_frontend/data/models/hotel/hotel_booking_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_list_data.dart';
+import 'package:travery_frontend/data/models/review/review_data.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Abstract service interface for hotel operations.
 abstract class HotelService {
+  /// Get all public hotel and room amenities.
+  Future<Result<List<HotelAmenityData>>> getAmenities();
+
   /// Search hotels with optional filters.
   Future<Result<HotelSearchResult>> searchHotels({
     String? keyword,
@@ -27,6 +31,19 @@ abstract class HotelService {
 
   /// Get hotel detail by ID.
   Future<Result<HotelDetailData>> getHotelById(String hotelId);
+
+  /// Get paginated public reviews for a hotel.
+  Future<Result<ReviewPageData>> getHotelReviews(
+    String hotelId, {
+    int page = 0,
+    int size = 10,
+  });
+
+  Future<Result<bool>> createReview({
+    required String bookingId,
+    required int rating,
+    required String comment,
+  });
 
   /// Get my bookings (user's booking history)
   /// GET /api/v1/hotel-bookings/me

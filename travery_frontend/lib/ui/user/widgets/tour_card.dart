@@ -139,7 +139,7 @@ class TourCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    // crossAxisAlignment: CrossAxisAlignment.center,
+
                     children: [
                       if (durationDays != null)
                         Flexible(

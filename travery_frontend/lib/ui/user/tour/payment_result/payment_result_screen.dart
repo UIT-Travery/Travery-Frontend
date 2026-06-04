@@ -54,7 +54,7 @@ class _PaymentResultScreenState extends State<PaymentResultScreen> {
         final status = uri.queryParameters['status'];
         final code = uri.queryParameters['responseCode'];
         final ref = uri.queryParameters['txnRef'];
-        // Re-initialize viewModel with deeplink data
+
         widget.viewModel.initState(
           txnRef: ref,
           deeplinkStatus: status,
@@ -91,6 +91,8 @@ class _PaymentResultScreenState extends State<PaymentResultScreen> {
           ),
           title: const Text(
             'Kết quả thanh toán',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,

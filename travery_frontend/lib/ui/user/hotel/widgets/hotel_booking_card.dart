@@ -54,7 +54,6 @@ class HotelBookingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Status bar
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -87,7 +86,6 @@ class HotelBookingCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hotel name as title
                   Text(
                     booking.hotelName ?? '',
                     style: const TextStyle(
@@ -99,7 +97,7 @@ class HotelBookingCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  // Date row
+
                   Row(
                     children: [
                       const Icon(
@@ -117,7 +115,7 @@ class HotelBookingCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  // Payment deadline
+
                   if (_isPending && booking.paymentDeadline != null) ...[
                     const SizedBox(height: 8),
                     Row(
@@ -140,7 +138,7 @@ class HotelBookingCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 12),
-                  // Bottom row
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

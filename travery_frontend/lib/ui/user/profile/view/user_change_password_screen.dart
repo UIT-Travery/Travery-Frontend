@@ -22,7 +22,7 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
 
-  int _passwordStrength = 0; // 0-3
+  int _passwordStrength = 0;
 
   @override
   void initState() {
@@ -45,11 +45,11 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
     if (password.isEmpty) {
       strength = 0;
     } else if (password.length < 6) {
-      strength = 1; // Weak
+      strength = 1;
     } else if (password.length < 10) {
-      strength = 2; // Medium
+      strength = 2;
     } else {
-      strength = 3; // Strong
+      strength = 3;
     }
 
     setState(() {
@@ -80,6 +80,8 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
         ),
         title: const Text(
           'Đổi mật khẩu',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 20,
@@ -123,7 +125,6 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
                 children: [
                   const SizedBox(height: 32),
 
-                  // Lock Icon
                   Container(
                     width: 96,
                     height: 96,
@@ -148,7 +149,6 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Current Password
                   _buildPasswordField(
                     controller: _currentPasswordController,
                     label: 'Mật khẩu hiện tại',
@@ -169,7 +169,6 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
 
                   const SizedBox(height: 24),
 
-                  // New Password
                   _buildPasswordField(
                     controller: _newPasswordController,
                     label: 'Mật khẩu mới',
@@ -192,7 +191,6 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
                     showStrengthIndicator: true,
                   ),
 
-                  // Password Strength Indicator
                   if (_newPasswordController.text.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     _buildStrengthIndicator(),
@@ -200,7 +198,6 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Confirm Password
                   _buildPasswordField(
                     controller: _confirmPasswordController,
                     label: 'Xác nhận mật khẩu mới',
@@ -224,7 +221,6 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Submit Button
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -266,7 +262,6 @@ class _UserChangePasswordScreenState extends State<UserChangePasswordScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Security Message
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(

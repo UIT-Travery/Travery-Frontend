@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
+import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 
 class TripPaymentResultScreen extends StatefulWidget {
   const TripPaymentResultScreen({
@@ -47,22 +48,12 @@ class _TripPaymentResultScreenState extends State<TripPaymentResultScreen> {
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
+        appBar: UserAppBar(
+          title: 'Kết quả thanh toán',
           leading: IconButton(
             icon: const Icon(Icons.close, color: Color(0xFF1E293B)),
             onPressed: () => context.go(Routes.home),
           ),
-          title: const Text(
-            'Kết quả thanh toán',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
-            ),
-          ),
-          centerTitle: true,
         ),
         body: Consumer<TripPaymentResultViewModel>(
           builder: (context, vm, _) {
@@ -130,35 +121,9 @@ class _TripPaymentResultScreenState extends State<TripPaymentResultScreen> {
           ],
         );
       case TripPaymentConfirmState.confirmed:
-        return Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.go(
-                    Routes.tripBookingDetail,
-                    extra: {'bookingId': vm.bookingData?.id ?? ''},
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text('Xem chi tiết đặt vé'),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () => context.go(Routes.home),
-              child: const Text('Về trang chủ'),
-            ),
-          ],
+        return TextButton(
+          onPressed: () => context.go(Routes.home),
+          child: const Text('Về trang chủ'),
         );
       case TripPaymentConfirmState.failed:
       case TripPaymentConfirmState.processingTimeout:

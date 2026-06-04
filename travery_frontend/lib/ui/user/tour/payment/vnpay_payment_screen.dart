@@ -69,7 +69,6 @@ class _VNPayPaymentScreenState extends State<VNPayPaymentScreen> {
   }
 
   void _handleNavigation(String url) {
-    // VNPay return URL check - vnp_ResponseCode=00 means success
     if (url.contains('vnp_ResponseCode') || url.contains('responseCode')) {
       _hasNavigatedAway = true;
       _pollingTimer?.cancel();
@@ -79,15 +78,12 @@ class _VNPayPaymentScreenState extends State<VNPayPaymentScreen> {
           uri.queryParameters['vnp_ResponseCode'] ??
           uri.queryParameters['responseCode'];
 
-      // DEBUG: log VNPay response
       debugPrint('=== VNPay Return URL: $url');
       debugPrint('=== VNPay ResponseCode: $responseCode');
 
-      // VNPay 00 = success, otherwise stay on screen
       if (responseCode == '00') {
         _navigateToResult(success: true);
       }
-      // If not 00, user can continue payment - stay on screen
     }
   }
 
@@ -102,7 +98,7 @@ class _VNPayPaymentScreenState extends State<VNPayPaymentScreen> {
 
       if (_pollAttempts >= _maxPollAttempts) {
         _pollingTimer?.cancel();
-        // Timeout - stay on screen, user can manually check
+
         return;
       }
 
@@ -120,7 +116,6 @@ class _VNPayPaymentScreenState extends State<VNPayPaymentScreen> {
         case CheckResult.pending:
         case CheckResult.error:
         case CheckResult.failed:
-          // Continue polling - stay on screen
           break;
       }
     });
@@ -176,7 +171,6 @@ class _VNPayPaymentScreenState extends State<VNPayPaymentScreen> {
       ),
       body: Column(
         children: [
-          // Payment info bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             color: Colors.white,
@@ -214,7 +208,6 @@ class _VNPayPaymentScreenState extends State<VNPayPaymentScreen> {
           ),
           const Divider(height: 1),
 
-          // WebView
           Expanded(
             child: Stack(
               children: [

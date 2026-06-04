@@ -136,6 +136,8 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
         ),
         title: const Text(
           'Chỉnh sửa hồ sơ',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: AppColors.primary,
             fontSize: 20,
@@ -148,7 +150,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
         builder: (context, viewModel, child) {
           _initializeControllers(viewModel);
 
-          // Handle update success
           if (viewModel.isUpdateSuccess) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -162,7 +163,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
             });
           }
 
-          // Handle error
           if (viewModel.errorMessage != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -175,7 +175,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
             });
           }
 
-          // Show loading while profile is being loaded
           if (viewModel.loadProfile.running || viewModel.profile == null) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
@@ -192,12 +191,10 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
                     children: [
                       const SizedBox(height: 24),
 
-                      // Avatar Section
                       _buildAvatarSection(viewModel),
 
                       const SizedBox(height: 32),
 
-                      // Full Name
                       _buildTextField(
                         label: 'Họ và tên',
                         controller: _nameController,
@@ -213,7 +210,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Phone Number
                       _buildTextField(
                         label: 'Số điện thoại',
                         controller: _phoneController,
@@ -229,7 +225,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Date of Birth & Gender
                       Row(
                         children: [
                           Expanded(child: _buildDateField()),
@@ -240,7 +235,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Passport Number
                       _buildTextField(
                         label: 'Số hộ chiếu (Passport)',
                         controller: _passportController,
@@ -250,7 +244,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Email (Read-only)
                       _buildReadOnlyField(
                         label: 'Email',
                         value: viewModel.profile?.email ?? '',
@@ -262,7 +255,6 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
                 ),
               ),
 
-              // Fixed Bottom Button
               Positioned(
                 left: 0,
                 right: 0,
