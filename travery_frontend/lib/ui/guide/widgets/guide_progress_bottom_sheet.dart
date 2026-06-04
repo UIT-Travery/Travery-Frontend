@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
-import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 
 class GuideProgressBottomSheet extends StatefulWidget {
   const GuideProgressBottomSheet({
@@ -10,11 +10,13 @@ class GuideProgressBottomSheet extends StatefulWidget {
     required this.missionId,
     required this.currentStatus,
     required this.onStatusSelected,
+    this.onSubmitStatus,
   });
 
   final String missionId;
   final String currentStatus;
   final ValueChanged<String> onStatusSelected;
+  final Future<Result<void>> Function(String status)? onSubmitStatus;
 
   @override
   State<GuideProgressBottomSheet> createState() =>
@@ -26,85 +28,81 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
   bool _isLoading = false;
   String? _error;
 
+  bool get _isTerminalStatus {
+    final status = widget.currentStatus.toUpperCase();
+    return status == 'COMPLETED' || status == 'CANCELLED';
+  }
+
   @override
   void initState() {
     super.initState();
-    final statuses = _getAvailableStatuses();
-    _selectedStatus = _firstSelectableStatus(statuses);
+    _selectedStatus = _firstSelectableStatus(_availableStatuses);
   }
 
-  bool get _isTerminalStatus =>
-      widget.currentStatus == 'COMPLETED' ||
-      widget.currentStatus == 'CANCELLED';
-
-  List<_TourStatusOption> _getAvailableStatuses() {
+  List<_ProgressStatusOption> get _availableStatuses {
     const selectable = ['IN_PROGRESS', 'COMPLETED'];
-    final result = <_TourStatusOption>[];
-
-    result.add(_buildOption(widget.currentStatus));
+    final current = widget.currentStatus.toUpperCase();
+    final result = <_ProgressStatusOption>[_buildStatusOptionData(current)];
 
     for (final status in selectable) {
-      if (status != widget.currentStatus) {
-        result.add(_buildOption(status));
-      }
+      if (status != current) result.add(_buildStatusOptionData(status));
     }
 
     return result;
   }
 
-  String? _firstSelectableStatus(List<_TourStatusOption> statuses) {
+  String? _firstSelectableStatus(List<_ProgressStatusOption> statuses) {
     if (_isTerminalStatus) return null;
+    final current = widget.currentStatus.toUpperCase();
     for (final status in statuses) {
-      if (status.value != widget.currentStatus) {
-        return status.value;
-      }
+      if (status.value != current) return status.value;
     }
     return null;
   }
 
-  _TourStatusOption _buildOption(String status) {
+  _ProgressStatusOption _buildStatusOptionData(String status) {
     switch (status) {
       case 'PLANNING':
       case 'PENDING':
-        return _TourStatusOption(
+        return _ProgressStatusOption(
           value: status,
-          label: _getStatusLabel(status),
+          label: _statusLabel(status),
           description: 'Chờ bắt đầu',
         );
       case 'OPEN':
-        return _TourStatusOption(
+        return _ProgressStatusOption(
           value: status,
-          label: _getStatusLabel(status),
+          label: _statusLabel(status),
           description: 'Mở đăng ký',
         );
       case 'FULL':
-        return _TourStatusOption(
+        return _ProgressStatusOption(
           value: status,
-          label: _getStatusLabel(status),
+          label: _statusLabel(status),
           description: 'Đã đủ khách',
         );
       case 'IN_PROGRESS':
-        return _TourStatusOption(
+        return _ProgressStatusOption(
           value: status,
-          label: _getStatusLabel(status),
+          label: _statusLabel(status),
           description: 'Đang diễn ra',
         );
       case 'COMPLETED':
-        return _TourStatusOption(
+        return _ProgressStatusOption(
           value: status,
-          label: _getStatusLabel(status),
+          label: _statusLabel(status),
           description: 'Hoàn thành',
         );
       case 'CANCELLED':
-        return _TourStatusOption(
+        return _ProgressStatusOption(
           value: status,
-          label: _getStatusLabel(status),
+          label: _statusLabel(status),
           description: 'Đã hủy',
         );
       default:
-        return _TourStatusOption(
+        return _ProgressStatusOption(
           value: status,
-          label: _getStatusLabel(status),
+          label: _statusLabel(status),
           description: status,
         );
     }
@@ -124,7 +122,6 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
             Container(
               margin: const EdgeInsets.only(top: 12),
               width: 40,
@@ -134,7 +131,6 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            // Title
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 12, 12),
               child: Column(
@@ -171,7 +167,7 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Hiện tại: ${_getStatusLabel(widget.currentStatus)}',
+                    'Hiện tại: ${_statusLabel(widget.currentStatus)}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
@@ -181,13 +177,8 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
               ),
             ),
             const Divider(height: 1),
-            // Content
-            if (_isTerminalStatus)
-              _buildTerminalState()
-            else
-              _buildStatusOptions(),
+            if (_isTerminalStatus) _buildTerminalState() else _buildOptions(),
             const SizedBox(height: 12),
-            // Action buttons
             _buildActions(),
             const SizedBox(height: 12),
           ],
@@ -198,20 +189,20 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
 
   Widget _buildTerminalState() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 4),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFfef2f2),
+        color: const Color(0xFFFEF2F2),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const Icon(Icons.info_outline, color: Color(0xFFef4444)),
-          const SizedBox(width: 12),
+          Icon(Icons.info_outline, color: Color(0xFFEF4444)),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
               'Chuyến đi đã kết thúc, không thể thay đổi trạng thái.',
-              style: TextStyle(fontSize: 14, color: const Color(0xFFef4444)),
+              style: TextStyle(fontSize: 14, color: Color(0xFFEF4444)),
             ),
           ),
         ],
@@ -219,8 +210,8 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     );
   }
 
-  Widget _buildStatusOptions() {
-    final statuses = _getAvailableStatuses();
+  Widget _buildOptions() {
+    final statuses = _availableStatuses;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -238,7 +229,7 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (index == 0) const SizedBox(height: 8),
-                  _buildStatusOption(status),
+                  _buildStatusOptionTile(status),
                   if (index == statuses.length - 1) const SizedBox(height: 8),
                 ],
               );
@@ -249,7 +240,7 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Text(
-              _error!,
+              _cleanError(_error!),
               style: const TextStyle(fontSize: 12, color: AppColors.error),
             ),
           ),
@@ -257,9 +248,10 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     );
   }
 
-  Widget _buildStatusOption(_TourStatusOption status) {
+  Widget _buildStatusOptionTile(_ProgressStatusOption status) {
+    final current = widget.currentStatus.toUpperCase();
     final isSelected = _selectedStatus == status.value;
-    final isCurrent = status.value == widget.currentStatus;
+    final isCurrent = status.value == current;
 
     return GestureDetector(
       onTap: isCurrent ? null : () => _selectStatus(status.value),
@@ -422,7 +414,13 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
   }
 
   Future<void> _confirmStatus() async {
-    if (_selectedStatus == null || !_canSubmitStatus(_selectedStatus!)) return;
+    final selected = _selectedStatus;
+    if (selected == null || !_canSubmitStatus(selected)) return;
+
+    final submit = widget.onSubmitStatus;
+    final missionService = submit == null
+        ? context.read<GuideMissionService>()
+        : null;
 
     setState(() {
       _isLoading = true;
@@ -430,37 +428,25 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     });
 
     try {
-      final missionService = context.read<GuideMissionService>();
-      final result = await missionService.updateProgress(
-        widget.missionId,
-        _selectedStatus!,
-      );
+      final result = submit == null
+          ? await missionService!.updateProgress(widget.missionId, selected)
+          : await submit(selected);
 
       if (!mounted) return;
 
       switch (result) {
         case Ok():
-          widget.onStatusSelected(_selectedStatus!);
+          widget.onStatusSelected(selected);
           Navigator.pop(context);
           break;
         case Error(:final error):
-          setState(() {
-            _error = error.toString();
-          });
+          setState(() => _error = error.toString());
           break;
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = 'Đã xảy ra lỗi: $e';
-        });
-      }
+      if (mounted) setState(() => _error = 'Đã xảy ra lỗi: $e');
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -468,8 +454,8 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
     return status == 'IN_PROGRESS' || status == 'COMPLETED';
   }
 
-  String _getStatusLabel(String status) {
-    switch (status) {
+  String _statusLabel(String status) {
+    switch (status.toUpperCase()) {
       case 'PLANNING':
         return 'Đang lập kế hoạch';
       case 'PENDING':
@@ -488,16 +474,20 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
         return status;
     }
   }
+
+  String _cleanError(String message) {
+    return message.replaceFirst('HttpException: ', '');
+  }
 }
 
-class _TourStatusOption {
-  final String value;
-  final String label;
-  final String description;
-
-  const _TourStatusOption({
+class _ProgressStatusOption {
+  const _ProgressStatusOption({
     required this.value,
     required this.label,
     required this.description,
   });
+
+  final String value;
+  final String label;
+  final String description;
 }

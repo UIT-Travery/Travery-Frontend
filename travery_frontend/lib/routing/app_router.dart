@@ -10,6 +10,9 @@ import 'package:travery_frontend/data/services/guide/guide_mission_service.dart'
 import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/detail/guide_coach_trip_detail_screen.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/list/guide_coach_trip_list_screen.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/passengers/guide_coach_trip_passengers_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
@@ -893,6 +896,24 @@ GoRouter appRouter(
           ),
           child: const UserChangePasswordScreen(),
         ),
+      ),
+      GoRoute(
+        path: Routes.guideCoachTrips,
+        builder: (context, state) => const GuideCoachTripListScreen(),
+      ),
+      GoRoute(
+        path: Routes.guideCoachTripDetail,
+        builder: (context, state) {
+          final tripId = state.pathParameters['id'] ?? '';
+          return GuideCoachTripDetailScreen(tripId: tripId);
+        },
+      ),
+      GoRoute(
+        path: Routes.guideCoachTripPassengers,
+        builder: (context, state) {
+          final tripId = state.pathParameters['id'] ?? '';
+          return GuideCoachTripPassengersScreen(tripId: tripId);
+        },
       ),
       GoRoute(
         path: Routes.missionDetail,
