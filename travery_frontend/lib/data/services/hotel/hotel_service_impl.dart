@@ -602,7 +602,7 @@ class HotelServiceImpl implements HotelService {
       final response = await request.close();
       debugPrint('CreateAddOnOrder Response Status: ${response.statusCode}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         final stringData = await response.transform(utf8.decoder).join();
         debugPrint('CreateAddOnOrder Response Body: $stringData');
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
