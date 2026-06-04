@@ -274,26 +274,33 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'LÝ DO HỦY',
+            'Lý do hủy *',
             style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF9CA3AF),
-              letterSpacing: 1,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF414755),
             ),
           ),
           const SizedBox(height: 8),
           TextFormField(
             controller: _reasonController,
+            maxLines: 4,
             decoration: InputDecoration(
               hintText: 'Nhập lý do hủy đặt phòng',
+              hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE8EAF0)),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE8EAF0)),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF007AFF)),
+              ),
+              contentPadding: const EdgeInsets.all(16),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -302,79 +309,114 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'THÔNG TIN HOÀN TIỀN',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF9CA3AF),
-              letterSpacing: 1,
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F3FF),
+              borderRadius: BorderRadius.circular(16),
             ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _bankNameController,
-            decoration: InputDecoration(
-              labelText: 'Tên ngân hàng',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.account_balance,
+                      size: 18,
+                      color: Color(0xFF007AFF),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Thông tin hoàn tiền',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF131B2E),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Nhập thông tin tài khoản để nhận hoàn tiền',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF414755)),
+                ),
+                const SizedBox(height: 16),
+                _buildBankField(
+                  controller: _bankNameController,
+                  label: 'Tên ngân hàng',
+                  hint: 'VD: Vietcombank',
+                ),
+                const SizedBox(height: 12),
+                _buildBankField(
+                  controller: _accountNumberController,
+                  label: 'Số tài khoản',
+                  hint: 'Nhập số tài khoản',
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 12),
+                _buildBankField(
+                  controller: _accountHolderController,
+                  label: 'Tên chủ tài khoản',
+                  hint: 'Nhập tên chủ tài khoản',
+                ),
+              ],
             ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Vui lòng nhập tên ngân hàng';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _accountNumberController,
-            decoration: InputDecoration(
-              labelText: 'Số tài khoản',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-            ),
-            keyboardType: TextInputType.number,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Vui lòng nhập số tài khoản';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _accountHolderController,
-            decoration: InputDecoration(
-              labelText: 'Tên chủ tài khoản',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Vui lòng nhập tên chủ tài khoản';
-              }
-              return null;
-            },
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBankField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF414755),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE8EAF0)),
+          ),
+          child: TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(
+                color: Color(0xFF9CA3AF),
+                fontSize: 13,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Vui lòng nhập $label';
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -450,71 +492,46 @@ class _HotelCancelScreenState extends State<HotelCancelScreen> {
         color: Colors.white,
         border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isCancelling ? null : _handleCancel,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF007AFF),
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(
-                  0xFF007AFF,
-                ).withValues(alpha: 0.7),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: _isCancelling
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _isCancelling ? null : _handleCancel,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF007AFF),
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: const Color(
+              0xFF007AFF,
+            ).withValues(alpha: 0.7),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
+          child: _isCancelling
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle_outline, size: 18),
+                    SizedBox(width: 8),
+                    Text(
+                      'Xác nhận hủy',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                       ),
-                    )
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check_circle_outline, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Xác nhận hủy',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
                     ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => context.pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE9E9EB),
-                foregroundColor: const Color(0xFF374151),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  ],
                 ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Quay lại',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -405,7 +405,7 @@ class HotelServiceImpl implements HotelService {
       );
       request.headers.set(
         HttpHeaders.contentTypeHeader,
-        ContentType.json.value,
+        'application/json; charset=utf-8',
       );
       await _setBearerAuth(request);
 
@@ -424,8 +424,11 @@ class HotelServiceImpl implements HotelService {
 
       final response = await request.close();
 
-      if (response.statusCode == 201) {
+      debugPrint('CreateBooking Response Status: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final stringData = await response.transform(utf8.decoder).join();
+        debugPrint('CreateBooking Response Body: $stringData');
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
         final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
 

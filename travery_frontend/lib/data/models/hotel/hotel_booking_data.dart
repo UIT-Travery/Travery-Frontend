@@ -183,12 +183,14 @@ class HotelMemberData {
     required this.identityNumber,
     required this.dateOfBirth,
     required this.memberType,
+    this.attendanceStatus,
   });
 
   final String fullName;
   final String identityNumber;
   final String dateOfBirth;
   final String memberType;
+  final String? attendanceStatus;
 
   factory HotelMemberData.fromJson(Map<String, dynamic> json) {
     return HotelMemberData(
@@ -196,6 +198,7 @@ class HotelMemberData {
       identityNumber: json['identityNumber'] as String? ?? '',
       dateOfBirth: json['dateOfBirth'] as String? ?? '',
       memberType: json['memberType'] as String? ?? 'ADULT',
+      attendanceStatus: json['attendanceStatus'] as String?,
     );
   }
 }

@@ -109,45 +109,47 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
             child: Column(
               children: [
                 Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ScaleTransition(
-                              scale: _scaleAnimation,
-                              child: _buildSuccessBadge(),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 32),
+                          ScaleTransition(
+                            scale: _scaleAnimation,
+                            child: _buildSuccessBadge(),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            _isSuccess
+                                ? 'Đặt phòng thành công!'
+                                : 'Thanh toán thất bại',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
                             ),
-                            const SizedBox(height: 32),
-                            Text(
-                              _isSuccess
-                                  ? 'Đặt phòng thành công!'
-                                  : 'Thanh toán thất bại',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _isSuccess
+                                ? 'Cảm ơn bạn đã tin tưởng Travery. Hành trình của bạn đã sẵn sàng bắt đầu.'
+                                : 'Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                              height: 1.4,
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              _isSuccess
-                                  ? 'Cảm ơn bạn đã tin tưởng Travery. Hành trình của bạn đã sẵn sàng bắt đầu.'
-                                  : 'Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.',
-                              style: const TextStyle(
-                                fontSize: AppTextTheme.bodyMedium,
-                                color: AppColors.textSecondary,
-                                height: 1.5,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 32),
-                            _buildBookingCard(),
-                          ],
-                        ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 24),
+                          _buildBookingCard(),
+                        ],
                       ),
                     ),
                   ),
@@ -402,11 +404,7 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            if (_isSuccess) {
-              context.go(Routes.hotelMyBookings);
-            } else {
-              context.pop();
-            }
+            GoRouter.of(context).go(Routes.home);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: _isSuccess ? AppColors.primary : AppColors.error,
@@ -416,9 +414,9 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen>
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Text(
-            _isSuccess ? 'Xem đơn đặt phòng' : 'Quay lại',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          child: const Text(
+            'Về trang chủ',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ),
       ),

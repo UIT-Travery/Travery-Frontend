@@ -33,19 +33,27 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
     String bookingId, {
     HotelBookingData? bookingData,
   }) async {
+    debugPrint(
+      '[ViewModel.loadBooking] bookingId=$bookingId, bookingData=${bookingData != null}',
+    );
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     if (bookingData != null) {
+      debugPrint('[ViewModel.loadBooking] Using passed bookingData');
       _booking = bookingData;
-      _isLoading = false;
-      notifyListeners();
-      return;
+      debugPrint(
+        '[ViewModel.loadBooking] _booking.hotelName=${_booking?.hotelName}, items=${_booking?.items?.length}',
+      );
     }
 
+    // Always fetch fresh data from API to get complete items/members
     await _fetchBookingDetail(bookingId);
   }
+
+  // Alias for public refresh access
+  Future<void> loadBookings(String bookingId) => loadBooking(bookingId);
 
   Future<void> _fetchBookingDetail(String bookingId) async {
     try {
@@ -54,11 +62,16 @@ class HotelBookingDetailViewModel extends ChangeNotifier {
       if (result is Ok) {
         final okResult = result as Ok<HotelBookingData>;
         _booking = okResult.value;
+        debugPrint(
+          '[ViewModel._fetchBookingDetail] Success - hotelName=${_booking?.hotelName}, items=${_booking?.items?.length}, members=${_booking?.members?.length}',
+        );
       } else {
         _error = 'Không thể tải chi tiết đặt phòng';
+        debugPrint('[ViewModel._fetchBookingDetail] Error: $_error');
       }
     } catch (e) {
       _error = e.toString();
+      debugPrint('[ViewModel._fetchBookingDetail] Exception: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

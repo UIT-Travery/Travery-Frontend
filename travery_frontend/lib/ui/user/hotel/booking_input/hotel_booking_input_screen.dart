@@ -3,6 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
 import 'package:travery_frontend/data/services/user_storage_service.dart';
+import 'package:travery_frontend/data/services/security_storage_service.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelBookingInputScreen extends StatefulWidget {
@@ -19,6 +23,10 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   int _adults = 1;
   int _children = 0;
   int get _totalGuests => _adults + _children;
+
+  // Booking dates
+  DateTime _checkInDate = DateTime.now().add(const Duration(days: 1));
+  DateTime _checkOutDate = DateTime.now().add(const Duration(days: 2));
 
   // Get selected rooms from route
   List<HotelRoomData> _selectedRooms = [];
@@ -57,13 +65,52 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   }
 
   Future<void> _loadUserInfo() async {
-    final userStorage = await UserStorageService.getInstance();
-    if (mounted) {
-      setState(() {
-        _contactName = userStorage.fullName;
-        _contactPhone = userStorage.phone;
-      });
+    try {
+      final securityStorage = SecurityStorageService();
+      final accessToken = await securityStorage.getAccessToken();
+
+      if (accessToken != null) {
+        final profileService = ProfileService();
+        final result = await profileService.getProfile(
+          accessToken: accessToken,
+        );
+
+        switch (result) {
+          case Ok<ProfileData>(:final value):
+            final profile = value;
+            final userStorage = await UserStorageService.getInstance();
+            await userStorage.saveUserInfo(
+              fullName: profile.fullName,
+              phone: profile.phoneNumber,
+              email: profile.email,
+            );
+            if (mounted) {
+              setState(() {
+                _contactName = profile.fullName;
+                _contactPhone = profile.phoneNumber;
+              });
+            }
+          case Error<ProfileData>():
+            _loadFromLocalStorage();
+        }
+      } else {
+        _loadFromLocalStorage();
+      }
+    } catch (e) {
+      _loadFromLocalStorage();
     }
+  }
+
+  void _loadFromLocalStorage() {
+    if (!mounted) return;
+    UserStorageService.getInstance().then((userStorage) {
+      if (mounted) {
+        setState(() {
+          _contactName = userStorage.fullName;
+          _contactPhone = userStorage.phone;
+        });
+      }
+    });
   }
 
   void _loadSelectedRooms() {
@@ -84,6 +131,8 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
   }
 
   void _initGuests() {
+    final startDate = DateTime.now().add(const Duration(days: 1));
+    final endDate = DateTime.now().add(const Duration(days: 2));
     _guestControllers = List.generate(_totalGuests, (index) {
       final isAdult = index == 0;
       return {
@@ -92,6 +141,8 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
         'dob': DateTime.now().subtract(
           Duration(days: isAdult ? 25 * 365 : 5 * 365),
         ),
+        'startDate': startDate,
+        'endDate': endDate,
         'isAdult': isAdult,
       };
     });
@@ -111,7 +162,8 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
       guest['name']?.dispose();
       guest['idNumber']?.dispose();
     }
-
+    final startDate = DateTime.now().add(const Duration(days: 1));
+    final endDate = DateTime.now().add(const Duration(days: 2));
     _guestControllers = List.generate(_totalGuests, (index) {
       final isAdult = index < _adults;
       return {
@@ -120,6 +172,8 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
         'dob': DateTime.now().subtract(
           Duration(days: isAdult ? 25 * 365 : 5 * 365),
         ),
+        'startDate': startDate,
+        'endDate': endDate,
         'isAdult': isAdult,
       };
     });
@@ -159,7 +213,45 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
   double get _totalPrice => 4500000;
+
+  Future<void> _selectCheckInDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _checkInDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _checkInDate = picked;
+        if (_checkOutDate.isBefore(picked) ||
+            _checkOutDate.isAtSameMomentAs(picked)) {
+          _checkOutDate = picked.add(const Duration(days: 1));
+        }
+      });
+    }
+  }
+
+  Future<void> _selectCheckOutDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _checkOutDate,
+      firstDate: _checkInDate.add(const Duration(days: 1)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _checkOutDate = picked;
+      });
+    }
+  }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -213,12 +305,10 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
       };
     }).toList();
 
-    // TODO: Get these from hotel detail page
-    final rooms = [
-      {'roomTypeId': 'f1000000-0000-0000-0000-000000000117', 'quantity': 1},
-    ];
-    const startDate = '2026-06-10';
-    const endDate = '2026-06-12';
+    final startDateStr =
+        '${_checkInDate.year}-${_checkInDate.month.toString().padLeft(2, '0')}-${_checkInDate.day.toString().padLeft(2, '0')}';
+    final endDateStr =
+        '${_checkOutDate.year}-${_checkOutDate.month.toString().padLeft(2, '0')}-${_checkOutDate.day.toString().padLeft(2, '0')}';
     const pricePerNight = 600000.0;
     const totalPrice = 1200000.0;
     const nights = 2;
@@ -226,9 +316,11 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
     context.push(
       Routes.hotelBookingReview,
       extra: {
-        'rooms': rooms,
-        'startDate': startDate,
-        'endDate': endDate,
+        'rooms': [
+          {'roomTypeId': 'f1000000-0000-0000-0000-000000000117', 'quantity': 1},
+        ],
+        'startDate': startDateStr,
+        'endDate': endDateStr,
         'members': members,
         'contactName': _contactName ?? '',
         'contactPhone': _contactPhone ?? '',
@@ -252,6 +344,8 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  _buildDateSection(),
+                  const SizedBox(height: 16),
                   _buildGuestCountSection(),
                   const SizedBox(height: 16),
                   _buildGuestSection(),
@@ -408,6 +502,133 @@ class _HotelBookingInputScreenState extends State<HotelBookingInputScreen> {
             onPressed: atMax ? null : onIncrease,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
             color: atMax ? Colors.grey : const Color(0xFF007AFF),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Ngày đặt',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: _selectCheckInDate,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Ngày nhận phòng',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today,
+                              size: 16,
+                              color: Color(0xFF6B7280),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatDate(_checkInDate),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: _selectCheckOutDate,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Ngày trả phòng',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today,
+                              size: 16,
+                              color: Color(0xFF6B7280),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatDate(_checkOutDate),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -619,16 +840,6 @@ class _GuestCard extends StatelessWidget {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
-  int _calculateAge(DateTime dob) {
-    final now = DateTime.now();
-    int age = now.year - dob.year;
-    if (now.month < dob.month ||
-        (now.month == dob.month && now.day < dob.day)) {
-      age--;
-    }
-    return age;
-  }
-
   Future<void> _selectDob(BuildContext context) async {
     final now = DateTime.now();
     DateTime firstDate;
@@ -654,6 +865,16 @@ class _GuestCard extends StatelessWidget {
       final isAdult = age >= 12;
       onDobChanged(picked, isAdult);
     }
+  }
+
+  int _calculateAge(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
   }
 
   @override
@@ -709,11 +930,6 @@ class _GuestCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                '$index tuổi',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
-              ),
               const Spacer(),
               if (onRemove != null)
                 GestureDetector(
@@ -744,7 +960,7 @@ class _GuestCard extends StatelessWidget {
               Expanded(
                 child: _GuestTextField(
                   controller: _idController,
-                  label: 'Số CCCD/Hộ chiếu',
+                  label: 'Số CCCD',
                   hint: '012345678',
                   keyboardType: TextInputType.number,
                   validator: (value) {
