@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class GuideCoachTripDetailViewModel extends ChangeNotifier {
@@ -33,7 +34,10 @@ class GuideCoachTripDetailViewModel extends ChangeNotifier {
       case Ok(:final value):
         _trip = value;
       case Error(:final error):
-        _errorMessage = error.toString();
+        _errorMessage = guideFriendlyErrorMessage(
+          error,
+          fallback: 'Không tải được thông tin chuyến xe. Vui lòng thử lại.',
+        );
     }
 
     _isLoading = false;
@@ -75,7 +79,11 @@ class GuideCoachTripDetailViewModel extends ChangeNotifier {
         notifyListeners();
         return true;
       case Error(:final error):
-        _actionError = error.toString();
+        _actionError = guideFriendlyErrorMessage(
+          error,
+          fallback:
+              'Không cập nhật được trạng thái chuyến xe. Vui lòng thử lại.',
+        );
         _isUpdating = false;
         notifyListeners();
         return false;
@@ -119,10 +127,14 @@ class GuideCoachTripDetailViewModel extends ChangeNotifier {
         notifyListeners();
         return const Result.ok(null);
       case Error(:final error):
-        _actionError = error.toString();
+        _actionError = guideFriendlyErrorMessage(
+          error,
+          fallback:
+              'Không cập nhật được trạng thái chuyến xe. Vui lòng thử lại.',
+        );
         _isUpdating = false;
         notifyListeners();
-        return Result.error(error);
+        return Result.error(Exception(_actionError!));
     }
   }
 }

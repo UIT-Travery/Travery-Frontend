@@ -113,14 +113,6 @@ class _PaymentResultScreenState extends State<PaymentResultScreen> {
             details: _tourPaymentDetails(vm.bookingData),
             actions: [
               UserResultAction.primary(
-                label: 'Xem chi tiết đặt tour',
-                icon: Icons.article_outlined,
-                onPressed: () => context.push(
-                  Routes.bookingDetailScreen,
-                  extra: {'bookingId': vm.bookingData?.id ?? ''},
-                ),
-              ),
-              UserResultAction.secondary(
                 label: 'Về trang chủ',
                 icon: Icons.home_outlined,
                 onPressed: () => context.go(Routes.home),

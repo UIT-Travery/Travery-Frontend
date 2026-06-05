@@ -7,6 +7,7 @@ import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/guide/coach_trip/coach_trip_status.dart';
 import 'package:travery_frontend/ui/guide/coach_trip/list/guide_coach_trip_list_view_model.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/ui/guide/widgets/guide_bottom_nav_bar.dart';
 
 class GuideCoachTripListScreen extends StatefulWidget {
@@ -131,7 +132,10 @@ class _GuideCoachTripListScreenState extends State<GuideCoachTripListScreen> {
       return _StateMessage(
         icon: Icons.error_outline,
         title: 'Không tải được chuyến xe',
-        message: _cleanError(_viewModel.errorMessage!),
+        message: guideFriendlyErrorMessage(
+          _viewModel.errorMessage,
+          fallback: 'Không tải được danh sách chuyến xe. Vui lòng thử lại.',
+        ),
         actionLabel: 'Thử lại',
         onAction: _viewModel.loadInitial,
       );
@@ -175,10 +179,6 @@ class _GuideCoachTripListScreenState extends State<GuideCoachTripListScreen> {
         },
       ),
     );
-  }
-
-  String _cleanError(String message) {
-    return message.replaceFirst('HttpException: ', '');
   }
 
   void _onNavTap(int index) {

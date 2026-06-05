@@ -24,6 +24,7 @@ class BookingReviewScreen extends StatefulWidget {
     required this.pricePerChild,
     required this.contactName,
     required this.contactPhone,
+    required this.contactEmail,
     required this.specialRequests,
     required this.startDate,
     required this.endDate,
@@ -43,6 +44,7 @@ class BookingReviewScreen extends StatefulWidget {
   final double pricePerChild;
   final String contactName;
   final String contactPhone;
+  final String contactEmail;
   final String specialRequests;
   final String startDate;
   final String endDate;
@@ -531,7 +533,9 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
         : vm.userPhone?.isNotEmpty == true
         ? vm.userPhone!
         : 'Chưa cập nhật';
-    final email = vm.userEmail?.isNotEmpty == true
+    final email = widget.contactEmail.isNotEmpty
+        ? widget.contactEmail
+        : vm.userEmail?.isNotEmpty == true
         ? vm.userEmail!
         : 'Chưa cập nhật';
 

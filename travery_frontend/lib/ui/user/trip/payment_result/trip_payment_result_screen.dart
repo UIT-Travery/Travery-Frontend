@@ -82,18 +82,7 @@ class _TripPaymentResultScreenState extends State<TripPaymentResultScreen> {
             summaryIcon: Icons.receipt_long_outlined,
             details: _tripPaymentDetails(vm.bookingData),
             actions: [
-              if (vm.bookingData != null)
-                UserResultAction.primary(
-                  label: 'Xem chi tiết vé',
-                  icon: Icons.article_outlined,
-                  onPressed: () => context.push(
-                    Routes.tripBookingDetail.replaceFirst(
-                      ':id',
-                      vm.bookingData!.id,
-                    ),
-                  ),
-                ),
-              UserResultAction.secondary(
+              UserResultAction.primary(
                 label: 'Về trang chủ',
                 icon: Icons.home_outlined,
                 onPressed: () => context.go(Routes.home),

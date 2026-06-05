@@ -470,6 +470,7 @@ GoRouter appRouter(
             pricePerChild: extra['pricePerChild'] as double,
             contactName: extra['contactName'] as String? ?? '',
             contactPhone: extra['contactPhone'] as String? ?? '',
+            contactEmail: extra['contactEmail'] as String? ?? '',
             specialRequests: extra['specialRequests'] as String,
             startDate: extra['startDate'] as String,
             endDate: extra['endDate'] as String,

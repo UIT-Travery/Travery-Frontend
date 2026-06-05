@@ -29,7 +29,7 @@ class _TourListScreenState extends State<TourListScreen> {
     super.initState();
     _searchController.text = widget.keyword ?? '';
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.viewModel.loadTours(keyword: widget.keyword);
+      widget.viewModel.loadTours(keyword: widget.keyword ?? '', refresh: true);
     });
     _scrollController.addListener(_onScroll);
   }
@@ -43,8 +43,10 @@ class _TourListScreenState extends State<TourListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    if (position.extentAfter < 500) {
       widget.viewModel.loadMore();
     }
   }
@@ -557,8 +559,7 @@ class _TourListScreenState extends State<TourListScreen> {
                 if (vm.error != null) {
                   return ErrorState(
                     message: 'Không thể tải danh sách tour',
-                    onRetry: () =>
-                        vm.loadTours(keyword: widget.keyword, refresh: true),
+                    onRetry: () => vm.loadTours(refresh: true),
                   );
                 }
 
@@ -575,17 +576,18 @@ class _TourListScreenState extends State<TourListScreen> {
                 }
 
                 return RefreshIndicator(
-                  onRefresh: () =>
-                      vm.loadTours(keyword: widget.keyword, refresh: true),
+                  onRefresh: () => vm.loadTours(refresh: true),
                   child: ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: vm.tours.length + (vm.isLoadingMore ? 1 : 0),
+                    itemCount:
+                        vm.tours.length +
+                        (vm.isLoadingMore || vm.loadMoreError != null ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index >= vm.tours.length) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
+                        return _LoadMoreFooter(
+                          isLoading: vm.isLoadingMore,
+                          onRetry: () => vm.loadMore(retry: true),
                         );
                       }
 
@@ -664,6 +666,35 @@ class _FilterChip extends StatelessWidget {
             child: const Icon(Icons.close, size: 14, color: AppColors.primary),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LoadMoreFooter extends StatelessWidget {
+  const _LoadMoreFooter({required this.isLoading, required this.onRetry});
+
+  final bool isLoading;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 18),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      child: Center(
+        child: TextButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh, size: 18),
+          label: const Text('Tải thêm tour'),
+          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        ),
       ),
     );
   }
