@@ -8,6 +8,7 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/c
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
 
 abstract class CoordinatorRepository extends ChangeNotifier {
   /// GET /api/v1/staff/coordinator/instances
@@ -99,4 +100,17 @@ abstract class CoordinatorRepository extends ChangeNotifier {
 
   /// GET /api/v1/coordinator/coach-trips/{id}
   Future<Result<CoachTripDetailResponse>> getCoachTripDetail(String id);
+
+  /// GET /api/v1/coordinator/routes
+  Future<Result<List<CoachRouteResponse>>> getRoutes();
+
+  /// POST /api/v1/coordinator/routes
+  Future<Result<CoachRouteResponse>> createRoute({
+    required String originDestinationId,
+    required String destinationDestinationId,
+    required double distanceKm,
+    required int estimatedHours,
+    required double basePrice,
+    String? refundPolicyId,
+  });
 }

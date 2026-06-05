@@ -10,6 +10,7 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/c
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class CoordinatorRepositoryRemote extends CoordinatorRepository {
@@ -547,6 +548,61 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
         id: id,
       );
       
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<CoachRouteResponse>>> getRoutes() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getCoordinatorRoutes(
+        accessToken: token,
+      );
+
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<CoachRouteResponse>> createRoute({
+    required String originDestinationId,
+    required String destinationDestinationId,
+    required double distanceKm,
+    required int estimatedHours,
+    required double basePrice,
+    String? refundPolicyId,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.createCoordinatorRoute(
+        accessToken: token,
+        originDestinationId: originDestinationId,
+        destinationDestinationId: destinationDestinationId,
+        distanceKm: distanceKm,
+        estimatedHours: estimatedHours,
+        basePrice: basePrice,
+        refundPolicyId: refundPolicyId,
+      );
+
       switch (result) {
         case Ok():
           return Result.ok(result.value);

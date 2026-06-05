@@ -10,6 +10,7 @@ import 'package:travery_frontend/data/services/api/model/tour/tour_response/tour
 import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Service for coordinator staff GET APIs.
@@ -750,6 +751,96 @@ class CoordinatorApiService {
       }
     } on Exception catch (error) {
       return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/coordinator/routes
+  Future<Result<List<CoachRouteResponse>>> getCoordinatorRoutes({
+    required String accessToken,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/routes');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final rawData = jsonMap['data'] as List<dynamic>? ?? [];
+        final routes = rawData
+            .map((e) => CoachRouteResponse.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return Result.ok(routes);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Coordinator Routes Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// POST /api/v1/coordinator/routes
+  Future<Result<CoachRouteResponse>> createCoordinatorRoute({
+    required String accessToken,
+    required String originDestinationId,
+    required String destinationDestinationId,
+    required double distanceKm,
+    required int estimatedHours,
+    required double basePrice,
+    String? refundPolicyId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/routes');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final bodyMap = <String, dynamic>{
+        'originDestinationId': originDestinationId,
+        'destinationDestinationId': destinationDestinationId,
+        'distanceKm': distanceKm,
+        'estimatedHours': estimatedHours,
+        'basePrice': basePrice,
+      };
+      if (refundPolicyId != null && refundPolicyId.isNotEmpty) {
+        bodyMap['refundPolicyId'] = refundPolicyId;
+      }
+
+      final encoded = jsonEncode(bodyMap);
+      request.contentLength = utf8.encode(encoded).length;
+      request.write(encoded);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(CoachRouteResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Create Coordinator Route Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } catch (error) {
+      return Result.error(Exception(error.toString()));
     } finally {
       client.close();
     }
