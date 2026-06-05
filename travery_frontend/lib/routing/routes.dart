@@ -126,6 +126,8 @@ class Routes {
 
   // Guide
   static const String guideHome = '/guide/home';
+  static const String guideEditProfile = '/guide/edit-profile';
+  static const String guideChangePassword = '/guide/change-password';
   static const String guideCoachTrips = '/guide/coach-trips';
   static const String guideCoachTripDetail = '/guide/coach-trips/:id';
   static const String guideCoachTripPassengers =
