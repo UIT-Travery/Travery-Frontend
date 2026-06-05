@@ -45,15 +45,19 @@ class _TripHomeScreenState extends State<TripHomeScreen> {
       appBar: const UserAppBar(title: 'Đặt vé xe khách'),
       body: Consumer<TripHomeViewModel>(
         builder: (context, vm, _) {
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 24),
-              _buildSearchCard(context, vm),
-              const SizedBox(height: 24),
-              _buildBannerCarousel(),
-            ],
+          return RefreshIndicator(
+            onRefresh: vm.loadStations,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 24),
+                _buildSearchCard(context, vm),
+                const SizedBox(height: 24),
+                _buildBannerCarousel(),
+              ],
+            ),
           );
         },
       ),

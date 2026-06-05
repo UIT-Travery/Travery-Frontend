@@ -183,9 +183,9 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
                       const SizedBox(height: 16),
                       _buildRoomSection(booking),
                       const SizedBox(height: 16),
-                      _buildAddOnSection(vm),
-                      const SizedBox(height: 16),
                       _buildPaymentSection(booking),
+                      const SizedBox(height: 16),
+                      _buildAddOnSection(booking, vm),
                     ],
                   ),
                 ),
@@ -549,9 +549,18 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     return Icons.check_circle_outline;
   }
 
-  Widget _buildAddOnSection(HotelBookingDetailViewModel vm) {
+  Widget _buildAddOnSection(
+    HotelBookingData booking,
+    HotelBookingDetailViewModel vm,
+  ) {
     final addOnBill = vm.addOnBill;
-    if (addOnBill == null && !vm.isLoadingAddOnBill) {
+    final shouldShowAddOnCard =
+        booking.status == 'CHECKED_IN' ||
+        booking.status == 'CHECKED_OUT' ||
+        (addOnBill?.addOnOrders.isNotEmpty ?? false) ||
+        vm.isLoadingAddOnBill;
+
+    if (!shouldShowAddOnCard) {
       return const SizedBox.shrink();
     }
 
@@ -573,7 +582,6 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
     }
 
     final orders = addOnBill?.addOnOrders ?? [];
-    if (orders.isEmpty) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -608,89 +616,113 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          ...orders.asMap().entries.map((entry) {
-            final index = entry.key;
-            final order = entry.value;
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              margin: EdgeInsets.only(top: index > 0 ? 8 : 0),
+          if (orders.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                border: index < orders.length - 1
-                    ? const Border(bottom: BorderSide(color: Color(0xFFF3F4F6)))
-                    : null,
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Icon(Icons.info_outline, size: 16, color: Color(0xFF9CA3AF)),
+                  SizedBox(width: 8),
+                  Text(
+                    'Chưa có dịch vụ nào',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            ...orders.asMap().entries.map((entry) {
+              final index = entry.key;
+              final order = entry.value;
+              return Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                margin: EdgeInsets.only(top: index > 0 ? 8 : 0),
+                decoration: BoxDecoration(
+                  border: index < orders.length - 1
+                      ? const Border(
+                          bottom: BorderSide(color: Color(0xFFF3F4F6)),
+                        )
+                      : null,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            order.serviceName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF1F2937),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${order.quantity}x',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF6B7280),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          order.serviceName,
+                          _formatPrice(order.totalPrice),
                           style: const TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF1F2937),
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF007AFF),
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${order.quantity}x',
+                          '${_formatPrice(order.unitPrice)}/dịch vụ',
                           style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            fontSize: 11,
+                            color: Color(0xFF9CA3AF),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        _formatPrice(order.totalPrice),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF007AFF),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${_formatPrice(order.unitPrice)}/dịch vụ',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF9CA3AF),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
-          const Divider(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Tổng dịch vụ',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1F2937),
+                  ],
                 ),
-              ),
-              Text(
-                _formatPrice(addOnBill?.totalAddOnCharges ?? 0),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF007AFF),
+              );
+            }),
+            const Divider(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Tổng dịch vụ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1F2937),
+                  ),
                 ),
-              ),
-            ],
-          ),
+                Text(
+                  _formatPrice(addOnBill?.totalAddOnCharges ?? 0),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF007AFF),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -712,7 +744,7 @@ class _HotelBookingDetailScreenState extends State<HotelBookingDetailScreen> {
           ),
           const SizedBox(width: 12),
           const Text(
-            'Tổng tiền',
+            'Tổng tiền đặt phòng',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

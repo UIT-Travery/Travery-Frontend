@@ -456,13 +456,15 @@ class _ServiceCardState extends State<_ServiceCard> {
     if (!context.mounted) return;
 
     if (order != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Đã đặt "${widget.service.name}" thành công!'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
       );
+      Navigator.of(context).pop();
     } else if (widget.vm.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -68,7 +68,6 @@ class HotelCheckoutViewModel extends ChangeNotifier {
 
   void _init() {
     loadServices();
-    loadBill();
   }
 
   Future<void> loadServices() async {
@@ -172,7 +171,6 @@ class HotelCheckoutViewModel extends ChangeNotifier {
 
     if (allSuccess) {
       _quantities.clear();
-      await loadBill();
     }
 
     if (_disposed) return false;

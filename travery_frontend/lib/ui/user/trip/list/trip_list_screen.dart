@@ -46,13 +46,16 @@ class _TripListScreenState extends State<TripListScreen> {
               _DateStrip(vm: vm),
               _FilterChips(vm: vm),
               Expanded(
-                child: vm.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : vm.error != null
-                    ? _buildError(vm)
-                    : vm.trips.isEmpty
-                    ? _buildEmpty()
-                    : _buildTripList(vm),
+                child: RefreshIndicator(
+                  onRefresh: vm.search,
+                  child: vm.isLoading
+                      ? _buildLoading()
+                      : vm.error != null
+                      ? _buildError(vm)
+                      : vm.trips.isEmpty
+                      ? _buildEmpty()
+                      : _buildTripList(vm),
+                ),
               ),
             ],
           );
@@ -122,6 +125,7 @@ class _TripListScreenState extends State<TripListScreen> {
 
   Widget _buildTripList(TripListViewModel vm) {
     return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: vm.trips.length,
       separatorBuilder: (_, _) => const SizedBox(height: 12),
@@ -130,6 +134,26 @@ class _TripListScreenState extends State<TripListScreen> {
         return _TripCard(
           trip: trip,
           onTap: () => context.push(Routes.tripSeatPicker, extra: trip),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoading() {
+    return _buildScrollableState(
+      child: const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildScrollableState({required Widget child}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: child,
+          ),
         );
       },
     );

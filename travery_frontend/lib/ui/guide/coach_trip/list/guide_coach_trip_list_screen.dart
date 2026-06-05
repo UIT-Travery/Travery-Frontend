@@ -99,6 +99,7 @@ class _GuideCoachTripListScreenState extends State<GuideCoachTripListScreen> {
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
               selected: isSelected,
+              showCheckmark: false,
               label: Text(filter.label),
               onSelected: (_) => _viewModel.setFilter(filter),
               selectedColor: AppColors.primary,
