@@ -1,14 +1,28 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:travery_frontend/data/repositories/notification/notification_repository.dart';
 import 'package:travery_frontend/data/services/api/model/notification/notification_model.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class NotificationViewModel extends ChangeNotifier {
   final NotificationRepository _repository;
+  StreamSubscription<RemoteMessage>? _messagingSubscription;
 
   NotificationViewModel({required NotificationRepository repository})
       : _repository = repository {
     _init();
+    
+    // Listen to Firebase foreground messages for real-time updates
+    _messagingSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      fetchNotifications();
+    });
+  }
+
+  @override
+  void dispose() {
+    _messagingSubscription?.cancel();
+    super.dispose();
   }
 
   bool _isLoading = false;
@@ -23,6 +37,8 @@ class NotificationViewModel extends ChangeNotifier {
   int _unreadCount = 0;
   int get unreadCount => _unreadCount;
 
+
+
   Future<void> _init() async {
     await fetchNotifications();
   }
@@ -36,7 +52,7 @@ class NotificationViewModel extends ChangeNotifier {
     final result = await _repository.getNotifications(page: page, size: size);
     switch (result) {
       case Ok():
-        _notifications = result.value.notifications.content;
+        _notifications = result.value.notifications.content.toList();
         _unreadCount = result.value.unreadCount;
         break;
       case Error():
@@ -49,16 +65,13 @@ class NotificationViewModel extends ChangeNotifier {
   }
 
   Future<void> markAsRead(String notificationId) async {
-    final result = await _repository.markAsRead(notificationId);
-    if (result is Ok) {
-      final index = _notifications.indexWhere((n) => n.id == notificationId);
-      if (index != -1 && !_notifications[index].isRead) {
-        // Optimistically update the UI
-        _notifications[index] = _notifications[index].copyWith(isRead: true);
-        if (_unreadCount > 0) _unreadCount--;
-        notifyListeners();
-      }
+    final index = _notifications.indexWhere((n) => n.id == notificationId);
+    if (index != -1 && !_notifications[index].isRead) {
+      _notifications[index] = _notifications[index].copyWith(isRead: true);
+      if (_unreadCount > 0) _unreadCount--;
+      notifyListeners();
     }
+    await _repository.markAsRead(notificationId);
   }
 
   Future<void> markAllAsRead() async {
@@ -71,12 +84,13 @@ class NotificationViewModel extends ChangeNotifier {
   }
 
   Future<void> deleteNotification(String notificationId) async {
-    final result = await _repository.deleteNotification(notificationId);
-    if (result is Ok) {
-      final notification = _notifications.firstWhere((n) => n.id == notificationId);
-      _notifications.removeWhere((n) => n.id == notificationId);
+    final index = _notifications.indexWhere((n) => n.id == notificationId);
+    if (index != -1) {
+      final notification = _notifications[index];
+      _notifications.removeAt(index);
       if (!notification.isRead && _unreadCount > 0) _unreadCount--;
       notifyListeners();
     }
+    await _repository.deleteNotification(notificationId);
   }
 }

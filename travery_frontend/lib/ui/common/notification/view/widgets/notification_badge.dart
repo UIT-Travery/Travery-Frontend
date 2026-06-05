@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/data/repositories/notification/notification_repository.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
@@ -20,22 +22,47 @@ class NotificationBadge extends StatefulWidget {
   State<NotificationBadge> createState() => _NotificationBadgeState();
 }
 
-class _NotificationBadgeState extends State<NotificationBadge> {
+class _NotificationBadgeState extends State<NotificationBadge> with WidgetsBindingObserver {
   int _unreadCount = 0;
-  Timer? _timer;
+  StreamSubscription<RemoteMessage>? _messagingSubscription;
+  GoRouter? _router;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _fetchUnreadCount();
-    // Refresh every 30 seconds
-    _timer = Timer.periodic(const Duration(seconds: 30), (_) => _fetchUnreadCount());
+    
+    // Listen to Firebase foreground messages for real-time updates
+    _messagingSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      _fetchUnreadCount();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final router = GoRouter.of(context);
+    if (_router != router) {
+      _router?.routerDelegate.removeListener(_fetchUnreadCount);
+      _router = router;
+      _router?.routerDelegate.addListener(_fetchUnreadCount);
+    }
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _router?.routerDelegate.removeListener(_fetchUnreadCount);
+    WidgetsBinding.instance.removeObserver(this);
+    _messagingSubscription?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _fetchUnreadCount();
+    }
   }
 
   Future<void> _fetchUnreadCount() async {
