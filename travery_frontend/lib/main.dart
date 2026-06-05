@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -27,14 +28,14 @@ class MyApp extends StatelessWidget {
         extensions: [
           // Light Mode
           CometChatColorPalette(
-            primary: Color(0xFF6852D6),
+            primary: AppColors.primary,
             textPrimary: Color(0xFF141414),
             textSecondary: Color(0xFF727272),
             background1: Color(0xFFFFFFFF),
             borderLight: Color(0xFFF5F5F5),
             borderDark: Color(0xFFDCDCDC),
             iconSecondary: Color(0xFFA1A1A1),
-            iconHighlight: Color(0xFF6852D6),
+            iconHighlight: AppColors.primary,
             success: Color(0xFF09C26F),
             warning: Color(0xFFFAAB00),
             extendedPrimary500: Color(0xFFAA9EE8),

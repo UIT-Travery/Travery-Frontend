@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
-import 'package:travery_frontend/ui/core/widgets/app_bar_widget.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/data/services/chat/chat_service.dart';
@@ -23,7 +22,7 @@ class ChatScreen extends StatefulWidget {
     this.uid,
     this.guid,
     required this.title,
-    this.showBackButton = true,
+    this.showBackButton = false,
   });
 
   @override
@@ -89,6 +88,86 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  List<CometChatMessageTemplate> _getCustomTemplates() {
+    List<CometChatMessageTemplate> defaultTemplates =
+        MessageTemplateUtils.getAllMessageTemplates();
+
+    for (var template in defaultTemplates) {
+      if (template.category == MessageCategoryConstants.action) {
+        template.contentView = (message, context, alignment, {additionalConfigurations}) {
+          String text = '';
+          try {
+            text = (message as dynamic).message ?? '';
+          } catch (e) {
+            text = '';
+          }
+          
+          if (text.contains('added')) {
+            text = text.replaceAll('added', 'đã thêm');
+          }
+          if (text.contains('left')) {
+            text = text.replaceAll('left', 'đã rời khỏi');
+          }
+          if (text.contains('joined')) {
+            text = text.replaceAll('joined', 'đã tham gia');
+          }
+          if (text.contains('kicked')) {
+            text = text.replaceAll('kicked', 'đã xóa');
+          }
+          if (text.contains('System')) {
+            text = text.replaceAll('System', 'Hệ thống');
+          }
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: const EdgeInsets.only(bottom: 8, top: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.black54, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          );
+        };
+      } else {
+        // Áp dụng cho các tin nhắn thường (text, image, file, v.v...)
+        final defaultContentView = template.contentView;
+        template.contentView = (message, context, alignment, {additionalConfigurations}) {
+          if (message.deletedAt != null) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: alignment == BubbleAlignment.right ? AppColors.primary.withAlpha(25) : Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: alignment == BubbleAlignment.right ? AppColors.primary.withAlpha(50) : Colors.grey[300]!),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.block, size: 14, color: Colors.grey),
+                  SizedBox(width: 4),
+                  Text(
+                    'Tin nhắn này đã bị xóa',
+                    style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          }
+          if (defaultContentView != null) {
+            return defaultContentView(message, context, alignment, additionalConfigurations: additionalConfigurations);
+          }
+          return const SizedBox.shrink();
+        };
+      }
+    }
+    return defaultTemplates;
+  }
+
   @override
   Widget build(BuildContext context) {
     String displayTitle = widget.title.isEmpty 
@@ -99,9 +178,8 @@ class _ChatScreenState extends State<ChatScreen> {
       future: _initFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBarWidget(title: displayTitle),
-            body: const Center(
+          return const Scaffold(
+            body: Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             ),
           );
@@ -112,7 +190,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
         if (snapshot.hasError || user == null) {
           return Scaffold(
-            appBar: AppBarWidget(title: displayTitle),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -141,14 +218,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: const Text('Thử lại'),
                   ),
                   TextButton(
-                    onPressed: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.go('/');
+                    onPressed: () async {
+                      try {
+                        await context.read<ChatService>().logout();
+                      } catch (_) {}
+                      if (context.mounted) {
+                        context.go(Routes.login);
                       }
                     },
-                    child: const Text('Quay lại'),
+                    child: const Text('Đăng nhập lại'),
                   ),
                 ],
               ),
@@ -161,7 +239,18 @@ class _ChatScreenState extends State<ChatScreen> {
           return Scaffold(
             body: CometChatConversations(
               title: 'Tin nhắn',
-              showBackButton: widget.showBackButton,
+              showBackButton: false,
+              appBarOptions: [
+                IconButton(
+                  icon: const Icon(Icons.refresh, color: AppColors.primary),
+                  tooltip: 'Tải lại',
+                  onPressed: () {
+                    setState(() {
+                      _initFuture = _initialize();
+                    });
+                  },
+                ),
+              ],
               emptyStateView: (context) => const Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -218,6 +307,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     group: widget.guid != null ? Group(guid: widget.guid!, name: displayTitle, type: GroupTypeConstants.public) : null,
                     hideVideoCallButton: true,
                     hideVoiceCallButton: true,
+                    subtitleView: (group, user, context) => const SizedBox.shrink(),
                   ),
                   if (isCoordinator && widget.guid != null)
                     Positioned(
@@ -237,8 +327,21 @@ class _ChatScreenState extends State<ChatScreen> {
                   group: widget.guid != null ? Group(guid: widget.guid!, name: displayTitle, type: GroupTypeConstants.public) : null,
                   hideStickyDate: true,
                   alignment: ChatAlignment.standard,
-                  style: const CometChatMessageListStyle(
+                  templates: _getCustomTemplates(),
+                  style: CometChatMessageListStyle(
                     backgroundColor: Colors.white,
+                    outgoingMessageBubbleStyle: const CometChatOutgoingMessageBubbleStyle(
+                      backgroundColor: AppColors.primary,
+                      textBubbleStyle: CometChatTextBubbleStyle(
+                        textColor: Colors.white,
+                      ),
+                    ),
+                    incomingMessageBubbleStyle: CometChatIncomingMessageBubbleStyle(
+                      backgroundColor: Colors.grey[200],
+                      textBubbleStyle: const CometChatTextBubbleStyle(
+                        textColor: Colors.black,
+                      ),
+                    ),
                   ),
                   dateSeparatorStyle: const CometChatDateStyle(
                     backgroundColor: Colors.white,
@@ -250,50 +353,50 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: CircularProgressIndicator(),
                     ),
                   ),
-                  emptyStateView: (context) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(25),
-                              shape: BoxShape.circle,
+                    emptyStateView: (context) => Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withAlpha(25),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.support_agent_rounded,
+                                size: 64,
+                                color: AppColors.primary,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.support_agent_rounded,
-                              size: 64,
-                              color: AppColors.primary,
+                            const SizedBox(height: 24),
+                            const Text(
+                              'Thiết kế Tour riêng',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Thiết kế Tour riêng',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Hãy nhắn tin để bắt đầu thiết kế Tour riêng cho mình. Vui lòng chờ đợi để một Điều phối viên vào tư vấn cho bạn.',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black54,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Hãy nhắn tin để bắt đầu thiết kế Tour riêng cho mình. Vui lòng chờ đợi để một Điều phối viên vào tư vấn cho bạn.',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.black54,
-                              height: 1.5,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
               CometChatMessageComposer(   
                 user: widget.uid != null ? User(uid: widget.uid!, name: displayTitle) : null,
                 group: widget.guid != null ? Group(guid: widget.guid!, name: displayTitle, type: GroupTypeConstants.public) : null,
