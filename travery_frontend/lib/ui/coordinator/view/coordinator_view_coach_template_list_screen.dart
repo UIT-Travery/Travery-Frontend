@@ -80,8 +80,11 @@ class _CoordinatorViewCoachTemplateListScreenState
     widget.viewModel.loadRoutes.execute();
   }
 
-  void _onSelect(CoachRouteResponse route) {
-    context.push(Routes.coordinatorCreateCoach, extra: route);
+  Future<void> _onSelect(CoachRouteResponse route) async {
+    final result = await context.push<bool>(Routes.coordinatorCreateCoach, extra: route);
+    if (result == true && mounted) {
+      Navigator.of(context).pop(true);
+    }
   }
 
   String _formatHours(double hours) {

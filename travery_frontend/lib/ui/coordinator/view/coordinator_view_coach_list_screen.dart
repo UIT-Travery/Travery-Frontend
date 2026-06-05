@@ -50,10 +50,6 @@ class _CoordinatorViewCoachListScreenState
 
   void _onResult() {
     if (widget.viewModel.loadCoachTrips.error) {
-      final errorMessage =
-          widget.viewModel.loadCoachTrips.errorMessage ??
-          'Lỗi tải danh sách chuyến xe';
-      Utils.showErrorNotification(context, errorMessage);
       widget.viewModel.loadCoachTrips.clearResult();
     }
   }
@@ -120,7 +116,9 @@ class _CoordinatorViewCoachListScreenState
               title: 'Tìm kiếm',
               hint: 'Search',
               controller: _searchController,
-              onSearchTap: () {}, // Stub
+              onSearchTap: () {
+                setState(() {});
+              },
             ),
           ),
           // const SizedBox(width: 12),
@@ -148,6 +146,17 @@ class _CoordinatorViewCoachListScreenState
         List<CoachTripResponse> trips = [];
         if (result is core.Ok<List<CoachTripResponse>>) {
           trips = result.value;
+        }
+
+        final query = _searchController.text.trim().toLowerCase();
+        if (query.isNotEmpty) {
+          trips = trips.where((trip) {
+            final originName =
+                trip.originDestination?.name?.toLowerCase() ?? '';
+            final destName =
+                trip.destinationDestination?.name?.toLowerCase() ?? '';
+            return originName.contains(query) || destName.contains(query);
+          }).toList();
         }
 
         if (trips.isEmpty) {

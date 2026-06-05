@@ -1,6 +1,7 @@
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_guide/coordinator_guide.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
@@ -195,5 +196,23 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return Result.error(Exception('Not implemented in dev mode'));
+  }
+
+  @override
+  Future<Result<CoachTripDetailResponse>> createCoachTrip({
+    required String routeId,
+    required String coachId,
+    required String driverId,
+    required String guideId,
+    required String departureTime,
+  }) {
+    // TODO: implement createCoachTrip
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<List<CoordinatorGuide>>> getAllGuides() {
+    // TODO: implement getAllGuides
+    throw UnimplementedError();
   }
 }

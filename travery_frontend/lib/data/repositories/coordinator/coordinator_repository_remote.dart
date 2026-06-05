@@ -3,6 +3,7 @@ import 'package:travery_frontend/data/services/api/coordinator_api_service.dart'
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/tour_instance_detail_response/tour_instance_detail_response.dart';
 import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_guide/coordinator_guide.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
@@ -273,13 +274,19 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
               name: r.name,
               imageUrl: r.images.isNotEmpty
                   ? r.images
-                      .firstWhere((img) => !img.isThumbnail, orElse: () => r.images.first)
-                      .url
+                        .firstWhere(
+                          (img) => !img.isThumbnail,
+                          orElse: () => r.images.first,
+                        )
+                        .url
                   : '',
               thumbnailUrl: r.images.isNotEmpty
                   ? r.images
-                      .firstWhere((img) => img.isThumbnail, orElse: () => r.images.first)
-                      .url
+                        .firstWhere(
+                          (img) => img.isThumbnail,
+                          orElse: () => r.images.first,
+                        )
+                        .url
                   : '',
               images: r.images.map((img) => img.url).toList(),
               description: r.description,
@@ -507,16 +514,109 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
 
   @override
   Future<Result<List<CoordinatorDriver>>> getAllDrivers() async {
-    return const Result.ok([]);
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getDrivers(accessToken: token);
+      switch (result) {
+        case Ok():
+          final drivers = result.value.map((e) {
+            return CoordinatorDriver(
+              id: e['id']?.toString() ?? '',
+              name: e['fullName']?.toString() ?? e['name']?.toString() ?? '',
+              email: e['email']?.toString() ?? '',
+              status:
+                  (e['status']?.toString().toLowerCase() == 'active' ||
+                      e['status']?.toString().toLowerCase() == 'sẵn sàng')
+                  ? DriverStatus.available
+                  : DriverStatus.unavailable,
+              imageUrl:
+                  e['avatarUrl']?.toString() ?? e['imageUrl']?.toString() ?? '',
+            );
+          }).toList();
+          return Result.ok(drivers);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 
   @override
   Future<Result<List<CoordinatorVehicle>>> getAllVehicles() async {
-    return const Result.ok([]);
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getCoaches(accessToken: token);
+      switch (result) {
+        case Ok():
+          final vehicles = result.value.map((e) {
+            return CoordinatorVehicle(
+              id: e['id']?.toString() ?? '',
+              licensePlate: e['licensePlate']?.toString() ?? '',
+              vehicleType:
+                  e['coachType']?.toString() ??
+                  e['vehicleType']?.toString() ??
+                  '',
+              vehicleStatus: e['status']?.toString() ?? 'Sẵn sàng',
+              capacity: int.tryParse(e['capacity']?.toString() ?? '0') ?? 0,
+              imageUrl: e['imageUrl']?.toString() ?? '',
+            );
+          }).toList();
+          return Result.ok(vehicles);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 
   @override
-  Future<Result<List<CoachTripResponse>>> getCoachTrips({String? status}) async {
+  Future<Result<List<CoordinatorGuide>>> getAllGuides() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getGuides(accessToken: token);
+      switch (result) {
+        case Ok():
+          final guides = result.value.map((e) {
+            final rawLangs = e['languages'] as List<dynamic>? ?? [];
+            final languages = rawLangs.map((l) => l.toString()).toList();
+
+            return CoordinatorGuide(
+              id: e['id']?.toString() ?? '',
+              name: e['fullName']?.toString() ?? '',
+              email: e['email']?.toString() ?? '',
+              imageUrl: e['avatarUrl']?.toString() ?? '',
+              phoneNumber: e['phoneNumber']?.toString(),
+              yearsExperience:
+                  int.tryParse(e['yearsExperience']?.toString() ?? '0') ?? 0,
+              languages: languages,
+              status:
+                  (e['status']?.toString().toLowerCase() == 'active' ||
+                      e['status']?.toString().toLowerCase() == 'sẵn sàng')
+                  ? GuideStatus.available
+                  : GuideStatus.unavailable,
+            );
+          }).toList();
+          return Result.ok(guides);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<CoachTripResponse>>> getCoachTrips({
+    String? status,
+  }) async {
     try {
       final token = await _getToken();
       if (token == null) return Result.error(Exception('Not authenticated'));
@@ -525,7 +625,7 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
         accessToken: token,
         status: status,
       );
-      
+
       switch (result) {
         case Ok():
           return Result.ok(result.value);
@@ -547,7 +647,7 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
         accessToken: token,
         id: id,
       );
-      
+
       switch (result) {
         case Ok():
           return Result.ok(result.value);
@@ -565,9 +665,7 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
       final token = await _getToken();
       if (token == null) return Result.error(Exception('Not authenticated'));
 
-      final result = await _apiService.getCoordinatorRoutes(
-        accessToken: token,
-      );
+      final result = await _apiService.getCoordinatorRoutes(accessToken: token);
 
       switch (result) {
         case Ok():
@@ -601,6 +699,38 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
         estimatedHours: estimatedHours,
         basePrice: basePrice,
         refundPolicyId: refundPolicyId,
+      );
+
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<CoachTripDetailResponse>> createCoachTrip({
+    required String routeId,
+    required String coachId,
+    required String driverId,
+    required String guideId,
+    required String departureTime,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.createCoachTrip(
+        accessToken: token,
+        routeId: routeId,
+        coachId: coachId,
+        driverId: driverId,
+        guideId: guideId,
+        departureTime: departureTime,
       );
 
       switch (result) {

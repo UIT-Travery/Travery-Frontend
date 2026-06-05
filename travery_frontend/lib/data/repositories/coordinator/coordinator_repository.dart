@@ -2,13 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
-import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
-import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_guide/coordinator_guide.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
 
 abstract class CoordinatorRepository extends ChangeNotifier {
   /// GET /api/v1/staff/coordinator/instances
@@ -94,6 +95,7 @@ abstract class CoordinatorRepository extends ChangeNotifier {
   Future<Result<List<CoordinatorHotel>>> getAllHotels();
   Future<Result<List<CoordinatorDriver>>> getAllDrivers();
   Future<Result<List<CoordinatorVehicle>>> getAllVehicles();
+  Future<Result<List<CoordinatorGuide>>> getAllGuides();
 
   /// GET /api/v1/coordinator/coach-trips
   Future<Result<List<CoachTripResponse>>> getCoachTrips({String? status});
@@ -112,5 +114,13 @@ abstract class CoordinatorRepository extends ChangeNotifier {
     required int estimatedHours,
     required double basePrice,
     String? refundPolicyId,
+  });
+
+  Future<Result<CoachTripDetailResponse>> createCoachTrip({
+    required String routeId,
+    required String coachId,
+    required String driverId,
+    required String guideId,
+    required String departureTime,
   });
 }

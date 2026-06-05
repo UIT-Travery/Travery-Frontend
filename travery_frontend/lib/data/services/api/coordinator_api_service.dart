@@ -629,7 +629,7 @@ class CoordinatorApiService {
       final uri = Uri.https(_host, '/api/v1/tours/templates');
       final request = await client.postUrl(uri);
       _addAuth(request, accessToken);
-      
+
       final boundary = 'boundary${DateTime.now().millisecondsSinceEpoch}';
       request.headers.contentType = ContentType(
         'multipart',
@@ -683,6 +683,56 @@ class CoordinatorApiService {
     }
   }
 
+  /// POST /api/v1/coordinator/coach-trips
+  Future<Result<CoachTripDetailResponse>> createCoachTrip({
+    required String accessToken,
+    required String routeId,
+    required String coachId,
+    required String driverId,
+    required String guideId,
+    required String departureTime,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/coach-trips');
+      final request = await client.postUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode({
+        'routeId': routeId,
+        'coachId': coachId,
+        'driverId': driverId,
+        'guideId': guideId,
+        'departureTime': departureTime,
+      });
+
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(CoachTripDetailResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Create Coach Trip Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } catch (error) {
+      return Result.error(Exception(error.toString()));
+    } finally {
+      client.close();
+    }
+  }
+
   /// GET /api/v1/coordinator/coach-trips
   Future<Result<List<CoachTripResponse>>> getCoordinatorCoachTrips({
     required String accessToken,
@@ -692,10 +742,17 @@ class CoordinatorApiService {
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
 
     try {
-      final queryParams = <String, String>{};
+      final queryParams = <String, String>{
+        'size': '1000',
+        'sort': 'createdAt,desc',
+      };
       if (status != null && status.isNotEmpty) queryParams['status'] = status;
 
-      final uri = Uri.https(_host, '/api/v1/coordinator/coach-trips', queryParams.isEmpty ? null : queryParams);
+      final uri = Uri.https(
+        _host,
+        '/api/v1/coordinator/coach-trips',
+        queryParams.isEmpty ? null : queryParams,
+      );
       final request = await client.getUrl(uri);
       _addAuth(request, accessToken);
       final response = await request.close();
@@ -746,6 +803,70 @@ class CoordinatorApiService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Get Coordinator Coach Trip Detail Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/admin/coaches
+  Future<Result<List<dynamic>>> getCoaches({
+    required String accessToken,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/coaches');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as List<dynamic>? ?? [];
+        return Result.ok(data);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Coaches Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/admin/drivers
+  Future<Result<List<dynamic>>> getDrivers({
+    required String accessToken,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/admin/drivers');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as List<dynamic>? ?? [];
+        return Result.ok(data);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Drivers Error',
         );
         return Result.error(HttpException(errorMsg));
       }
@@ -841,6 +962,119 @@ class CoordinatorApiService {
       }
     } catch (error) {
       return Result.error(Exception(error.toString()));
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PUT /api/v1/coordinator/coach-trips/{id}/coach
+  Future<Result<CoachTripDetailResponse>> reassignCoach({
+    required String accessToken,
+    required String id,
+    required String coachId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/coach-trips/$id/coach');
+      final request = await client.putUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode({'coachId': coachId});
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(CoachTripDetailResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Reassign Coach Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } catch (error) {
+      return Result.error(Exception(error.toString()));
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PUT /api/v1/coordinator/coach-trips/{id}/driver
+  Future<Result<CoachTripDetailResponse>> reassignDriver({
+    required String accessToken,
+    required String id,
+    required String driverId,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(
+        _host,
+        '/api/v1/coordinator/coach-trips/$id/driver',
+      );
+      final request = await client.putUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode({'driverId': driverId});
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(CoachTripDetailResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Reassign Driver Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } catch (error) {
+      return Result.error(Exception(error.toString()));
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/coordinator/guides
+  Future<Result<List<dynamic>>> getGuides({required String accessToken}) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/guides');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as List<dynamic>? ?? [];
+        return Result.ok(data);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Guides Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
     } finally {
       client.close();
     }
