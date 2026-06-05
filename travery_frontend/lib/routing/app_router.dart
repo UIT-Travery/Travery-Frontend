@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
@@ -849,7 +850,9 @@ GoRouter appRouter(
           final hotelId = extra['hotelId'] as String? ?? '';
           return ImageManagementScreen(
             hotelId: hotelId,
-            viewModel: ImageManagementViewModel(adminRepository: context.read()),
+            viewModel: ImageManagementViewModel(
+              adminRepository: context.read(),
+            ),
           );
         },
       ),
