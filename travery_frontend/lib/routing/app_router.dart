@@ -191,6 +191,7 @@ import 'package:travery_frontend/ui/coordinator/view/coordinator_view_ended_tour
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_reviews_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_task_list_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_template_list_view_model.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_refund_list_view_model.dart';
 
 import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_view_model.dart';
 import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
@@ -290,6 +291,11 @@ GoRouter appRouter(
             ),
             Provider(
               create: (context) => CoordinatorCoachTripListViewModel(
+                coordinatorRepository: context.read<CoordinatorRepository>(),
+              ),
+            ),
+            ChangeNotifierProvider(
+              create: (context) => CoordinatorRefundListViewModel(
                 coordinatorRepository: context.read<CoordinatorRepository>(),
               ),
             ),

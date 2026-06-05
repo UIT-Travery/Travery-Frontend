@@ -11,6 +11,7 @@ import 'package:travery_frontend/data/services/api/model/tour/tour_summart_respo
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/refund_response/refund_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Service for coordinator staff GET APIs.
@@ -1075,6 +1076,140 @@ class CoordinatorApiService {
       }
     } on Exception catch (error) {
       return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  // ── Refund APIs ────────────────────────────────────────────────────────────
+
+  /// GET /api/v1/coordinator/refunds
+  Future<Result<Map<String, dynamic>>> getRefunds({
+    required String accessToken,
+    String? status,
+    String? type,
+    int page = 0,
+    int size = 10,
+    String? sort,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final queryParams = <String, String>{
+        'page': '$page',
+        'size': '$size',
+      };
+      if (status != null && status.isNotEmpty) queryParams['status'] = status;
+      if (type != null && type.isNotEmpty) queryParams['type'] = type;
+      if (sort != null && sort.isNotEmpty) queryParams['sort'] = sort;
+
+      final uri = Uri.https(_host, '/api/v1/coordinator/refunds', queryParams);
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        final rawContent = data['content'] as List<dynamic>? ?? [];
+        final content = rawContent
+            .map((e) => RefundResponse.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return Result.ok({
+          'content': content,
+          'page': data['page'],
+        });
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Refunds Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PUT /api/v1/coordinator/refunds/{refundId}/process
+  Future<Result<RefundResponse>> processRefund({
+    required String accessToken,
+    required String refundId,
+    required double actualRefunded,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/refunds/$refundId/process');
+      final request = await client.putUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode({'actualRefunded': actualRefunded});
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(RefundResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Process Refund Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } catch (error) {
+      return Result.error(Exception(error.toString()));
+    } finally {
+      client.close();
+    }
+  }
+
+  /// PUT /api/v1/coordinator/refunds/{refundId}/reject
+  Future<Result<RefundResponse>> rejectRefund({
+    required String accessToken,
+    required String refundId,
+    required String reason,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/refunds/$refundId/reject');
+      final request = await client.putUrl(uri);
+      _addAuth(request, accessToken);
+      request.headers.contentType = ContentType.json;
+
+      final body = jsonEncode({'reason': reason});
+      request.contentLength = utf8.encode(body).length;
+      request.write(body);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(RefundResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Reject Refund Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } catch (error) {
+      return Result.error(Exception(error.toString()));
     } finally {
       client.close();
     }

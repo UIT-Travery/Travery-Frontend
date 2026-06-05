@@ -9,6 +9,7 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/c
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/refund_response/refund_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Development/local implementation of [CoordinatorRepository].
@@ -213,6 +214,34 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
   @override
   Future<Result<List<CoordinatorGuide>>> getAllGuides() {
     // TODO: implement getAllGuides
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<Map<String, dynamic>>> getRefunds({
+    String? status,
+    String? type,
+    int page = 0,
+    int size = 10,
+    String? sort,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok({'content': [], 'page': {}});
+  }
+
+  @override
+  Future<Result<RefundResponse>> processRefund({
+    required String refundId,
+    required double actualRefunded,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<RefundResponse>> rejectRefund({
+    required String refundId,
+    required String reason,
+  }) {
     throw UnimplementedError();
   }
 }

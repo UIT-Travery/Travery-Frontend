@@ -14,7 +14,7 @@ class TourInstanceResponse with _$TourInstanceResponse {
     required int currentParticipants,
     int? maxParticipants,
     int? availableSlots,
-    String? imageUrl,
+    String? thumbnailUrl,
   }) = _TourInstanceResponse;
 
   factory TourInstanceResponse.fromJson(Map<String, dynamic> json) =>

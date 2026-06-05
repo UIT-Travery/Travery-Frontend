@@ -9,6 +9,7 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_temp
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/refund_response/refund_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
 
 abstract class CoordinatorRepository extends ChangeNotifier {
@@ -122,5 +123,26 @@ abstract class CoordinatorRepository extends ChangeNotifier {
     required String driverId,
     required String guideId,
     required String departureTime,
+  });
+
+  /// GET /api/v1/coordinator/refunds
+  Future<Result<Map<String, dynamic>>> getRefunds({
+    String? status,
+    String? type,
+    int page = 0,
+    int size = 10,
+    String? sort,
+  });
+
+  /// PUT /api/v1/coordinator/refunds/{refundId}/process
+  Future<Result<RefundResponse>> processRefund({
+    required String refundId,
+    required double actualRefunded,
+  });
+
+  /// PUT /api/v1/coordinator/refunds/{refundId}/reject
+  Future<Result<RefundResponse>> rejectRefund({
+    required String refundId,
+    required String reason,
   });
 }

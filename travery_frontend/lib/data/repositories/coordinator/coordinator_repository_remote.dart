@@ -12,6 +12,7 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_temp
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/data/services/api/model/coordinator/coach_route_response/coach_route_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/refund_response/refund_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class CoordinatorRepositoryRemote extends CoordinatorRepository {
@@ -86,7 +87,7 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
               maxParticipants: r.maxParticipants ?? 0,
               currentParticipants: r.currentParticipants,
               status: r.status,
-              imageUrl: r.imageUrl,
+              imageUrl: r.thumbnailUrl,
             );
           }).toList();
           notifyListeners();
@@ -731,6 +732,90 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
         driverId: driverId,
         guideId: guideId,
         departureTime: departureTime,
+      );
+
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<Map<String, dynamic>>> getRefunds({
+    String? status,
+    String? type,
+    int page = 0,
+    int size = 10,
+    String? sort,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getRefunds(
+        accessToken: token,
+        status: status,
+        type: type,
+        page: page,
+        size: size,
+        sort: sort,
+      );
+
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<RefundResponse>> processRefund({
+    required String refundId,
+    required double actualRefunded,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.processRefund(
+        accessToken: token,
+        refundId: refundId,
+        actualRefunded: actualRefunded,
+      );
+
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<RefundResponse>> rejectRefund({
+    required String refundId,
+    required String reason,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.rejectRefund(
+        accessToken: token,
+        refundId: refundId,
+        reason: reason,
       );
 
       switch (result) {
