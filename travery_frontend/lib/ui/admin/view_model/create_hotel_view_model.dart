@@ -1,16 +1,20 @@
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
+import 'package:travery_frontend/data/services/api/model/hotel/amenity_response.dart';
+import 'package:travery_frontend/data/services/api/model/tour/refund_policy_response/refund_policy_response.dart';
 import 'package:travery_frontend/utils/command.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Payload for [CreateHotelViewModel.createHotel].
 typedef CreateHotelPayload = ({
-  String id,
   String name,
+  String? description,
   String address,
   String cityProvince,
-  double starRating,
-  String status,
+  String checkInTime,
+  String checkOutTime,
+  List<String> amenityIds,
+  String refundPolicyId,
 });
 
 class CreateHotelViewModel extends ChangeNotifier {
@@ -18,24 +22,81 @@ class CreateHotelViewModel extends ChangeNotifier {
 
   CreateHotelViewModel({required AdminRepository adminRepository})
     : _adminRepository = adminRepository {
-    createHotel = Command1<void, CreateHotelPayload>(_createHotel);
+    createHotel = Command1<String, CreateHotelPayload>(_createHotel);
+    loadAmenities = Command0<void>(_loadAmenities);
+    loadRefundPolicies = Command0<void>(_loadRefundPolicies);
+    searchDestinations = Command1<void, String>(_searchDestinations);
   }
 
-  late final Command1<void, CreateHotelPayload> createHotel;
+  late final Command1<String, CreateHotelPayload> createHotel;
+  late final Command0<void> loadAmenities;
+  late final Command0<void> loadRefundPolicies;
+  late final Command1<void, String> searchDestinations;
 
-  Future<Result<void>> _createHotel(CreateHotelPayload payload) async {
+  List<AmenityResponse> amenities = [];
+  List<RefundPolicyResponse> refundPolicies = [];
+  List<Map<String, dynamic>> destinations = [];
+
+  Future<Result<void>> _loadAmenities() async {
+    final result = await _adminRepository.getAllAmenities();
+    switch (result) {
+      case Ok<List<dynamic>>():
+        amenities = result.value
+            .map((e) => AmenityResponse.fromJson(e as Map<String, dynamic>))
+            .toList();
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  Future<Result<void>> _loadRefundPolicies() async {
+    final result = await _adminRepository.getAllRefundPolicies();
+    switch (result) {
+      case Ok<List<dynamic>>():
+        final all = result.value
+            .map(
+              (e) => RefundPolicyResponse.fromJson(e as Map<String, dynamic>),
+            )
+            .toList();
+        refundPolicies = all
+            .where((element) => element.serviceType == 'HOTEL')
+            .toList();
+        notifyListeners();
+        return const Result.ok(null);
+      case Error<List<dynamic>>():
+        return Result.error(result.error);
+    }
+  }
+
+  Future<Result<String>> _createHotel(CreateHotelPayload payload) async {
     final result = await _adminRepository.createHotel(
-      id: payload.id,
       name: payload.name,
+      description: payload.description,
       address: payload.address,
       cityProvince: payload.cityProvince,
-      starRating: payload.starRating,
-      status: payload.status,
+      checkInTime: payload.checkInTime,
+      checkOutTime: payload.checkOutTime,
+      amenityIds: payload.amenityIds,
+      refundPolicyId: payload.refundPolicyId,
     );
     switch (result) {
-      case Ok<void>():
+      case Ok<String>():
+        return Result.ok(result.value);
+      case Error<String>():
+        return Result.error(result.error);
+    }
+  }
+
+  Future<Result<void>> _searchDestinations(String keyword) async {
+    final result = await _adminRepository.searchDestinations(keyword: keyword);
+    switch (result) {
+      case Ok<List<dynamic>>():
+        destinations = result.value.map((e) => e as Map<String, dynamic>).toList();
+        notifyListeners();
         return const Result.ok(null);
-      case Error<void>():
+      case Error<List<dynamic>>():
         return Result.error(result.error);
     }
   }

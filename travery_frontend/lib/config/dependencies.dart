@@ -23,12 +23,23 @@ import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_service_impl.dart';
+import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/data/services/guide/guide_mission_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/data/services/trip/trip_service_impl.dart';
 import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
 // import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/profile/profile_repository_remote.dart';
+import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
+
+import 'package:travery_frontend/data/services/api/receptionist_api_service.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository_remote.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selection_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_checkinout_list_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_detail_booking_view_model.dart';
 
 import 'package:travery_frontend/data/services/booking/booking_service.dart';
 import 'package:travery_frontend/data/repositories/mission_repository_impl.dart';
@@ -60,12 +71,12 @@ import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_v
 import 'package:travery_frontend/ui/user/trip/payment_result/view_models/trip_payment_result_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/my_booking/view_models/my_trip_booking_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
+import 'package:travery_frontend/ui/user/hotel/my_booking/view_models/hotel_my_booking_view_model.dart';
 
-import 'package:travery_frontend/ui/guide/home/view_models/guide_home_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/view_models/mission_detail_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/check_in/view_models/check_in_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_progress/view_models/tour_progress_view_model.dart';
-import 'package:travery_frontend/ui/guide/mission/tour_completed/view_models/our_completed_view_model.dart';
+import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
+import 'package:travery_frontend/data/services/hotel/hotel_service_impl.dart';
+import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
+import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
 
 import '../data/services/tour/tour_service_impl.dart';
 
@@ -161,6 +172,27 @@ List<SingleChildWidget> get providers => [
         TripBookingDetailViewModel(tripService: context.read<TripService>()),
   ),
 
+  // ── Hotel Service ─────────────────────────────────────────────────────────
+  Provider<HotelService>(
+    create: (context) => HotelServiceImpl(
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+
+  // ── Hotel ViewModels ───────────────────────────────────────────────────────
+  ChangeNotifierProvider(
+    create: (context) =>
+        HotelMyBookingViewModel(hotelService: context.read<HotelService>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) =>
+        HotelHomeViewModel(hotelService: context.read<HotelService>()),
+  ),
+  ChangeNotifierProvider(
+    create: (context) =>
+        HotelDetailViewModel(hotelService: context.read<HotelService>()),
+  ),
+
   // ── Admin service ─────────────────────────────────────────────────────────
   Provider<AdminApiService>(create: (context) => AdminApiService()),
 
@@ -183,6 +215,12 @@ List<SingleChildWidget> get providers => [
       securityStorageService: context.read<SecurityStorageService>(),
     ),
   ),
+  ChangeNotifierProvider<AdminProfileViewModel>(
+    create: (context) => AdminProfileViewModel(
+      authRepository: context.read<AuthRepository>(),
+      profileRepository: context.read<ProfileRepository>(),
+    ),
+  ),
 
   // ── Coordinator service ───────────────────────────────────────────────
   Provider<CoordinatorApiService>(create: (context) => CoordinatorApiService()),
@@ -192,6 +230,29 @@ List<SingleChildWidget> get providers => [
     create: (context) => CoordinatorRepositoryRemote(
       apiService: context.read<CoordinatorApiService>(),
       tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+
+  // ── Receptionist service ───────────────────────────────────────────────
+  Provider<ReceptionistApiService>(
+    create: (context) => ReceptionistApiService(),
+  ),
+
+  // ── Receptionist repository (remote) ──────────────────────────────────────
+  ChangeNotifierProvider<ReceptionistRepository>(
+    create: (context) => ReceptionistRepositoryRemote(
+      apiService: context.read<ReceptionistApiService>(),
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+  Provider<RecepViewCheckinoutListViewModel>(
+    create: (context) => RecepViewCheckinoutListViewModel(
+      repository: context.read<ReceptionistRepository>(),
+    ),
+  ),
+  Provider<RecepViewDetailBookingViewModel>(
+    create: (context) => RecepViewDetailBookingViewModel(
+      repository: context.read<ReceptionistRepository>(),
     ),
   ),
 
@@ -250,6 +311,11 @@ List<SingleChildWidget> get providers => [
       tokenRefreshService: context.read<TokenRefreshService>(),
     ),
   ),
+  Provider<GuideMissionService>(
+    create: (context) => GuideMissionServiceImpl(
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
   Provider<MissionRepository>(
     create: (context) => MissionRepositoryImpl(
       tokenRefreshService: context.read<TokenRefreshService>(),
@@ -268,29 +334,6 @@ List<SingleChildWidget> get providers => [
   Provider<TourCompletedRepository>(
     create: (context) => TourCompletedRepositoryImpl(
       tokenRefreshService: context.read<TokenRefreshService>(),
-    ),
-  ),
-  ChangeNotifierProvider(
-    create: (context) =>
-        GuideHomeViewModel(guideService: context.read<GuideService>()),
-  ),
-  ChangeNotifierProvider(
-    create: (context) => MissionDetailViewModel(
-      missionRepository: context.read<MissionRepository>(),
-    ),
-  ),
-  ChangeNotifierProvider(
-    create: (context) =>
-        CheckInViewModel(checkInRepository: context.read<CheckInRepository>()),
-  ),
-  ChangeNotifierProvider(
-    create: (context) => TourProgressViewModel(
-      repository: context.read<TourProgressRepository>(),
-    ),
-  ),
-  ChangeNotifierProvider(
-    create: (context) => TourCompletedViewModel(
-      repository: context.read<TourCompletedRepository>(),
     ),
   ),
 ];

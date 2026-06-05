@@ -7,6 +7,7 @@ import 'package:travery_frontend/ui/user/trip/booking_input/view_models/trip_boo
 import 'package:travery_frontend/data/models/trip/trip_search_item.dart';
 import 'package:travery_frontend/data/models/trip/trip_seat_data.dart';
 import 'package:travery_frontend/data/models/trip/destination_data.dart';
+import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 
 class TripBookingInputScreen extends StatefulWidget {
   const TripBookingInputScreen({super.key});
@@ -65,25 +66,7 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Xác nhận thông tin',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      appBar: const UserAppBar(title: 'Điền thông tin'),
       body: Consumer<TripBookingInputViewModel>(
         builder: (context, vm, _) {
           return Form(
@@ -161,7 +144,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
     );
   }
 
-  // ─── THÔNG TIN CHUYẾN ĐI ───────────────────────────────────────────────
   Widget _buildTripInfo(TripBookingInputViewModel vm) {
     final trip = vm.trip;
     if (trip == null) return const SizedBox.shrink();
@@ -188,7 +170,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section label
           const Text(
             'THÔNG TIN CHUYẾN ĐI',
             style: TextStyle(
@@ -200,7 +181,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Route summary row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -271,32 +251,78 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
 
           const SizedBox(height: 24),
 
-          // Timeline — Boarding / Alighting
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Dashed vertical line
                 SizedBox(
                   width: 24,
-                  child: CustomPaint(
-                    size: const Size(24, double.infinity),
-                    painter: _DashedLinePainter(
-                      color: AppColors.primary,
-                      strokeWidth: 1.5,
-                      dashHeight: 4,
-                      dashSpace: 3,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _DashedLinePainter(
+                            color: AppColors.primary,
+                            strokeWidth: 1.5,
+                            dashHeight: 4,
+                            dashSpace: 3,
+                          ),
+                        ),
+                      ),
+
+                      Positioned(
+                        top: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.success,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.trip_origin,
+                            size: 12,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.error,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.location_on,
+                            size: 12,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Boarding point
                       _buildStationNode(
-                        icon: Icons.trip_origin,
+                        icon: null,
                         iconColor: AppColors.success,
                         title: 'Lên xe: ',
                         stationName: originName,
@@ -309,7 +335,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
 
                       const SizedBox(height: 12),
 
-                      // Warning
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -342,9 +367,8 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
 
                       const SizedBox(height: 12),
 
-                      // Alighting point
                       _buildStationNode(
-                        icon: Icons.location_on,
+                        icon: null,
                         iconColor: AppColors.error,
                         title: 'Xuống xe: ',
                         stationName: destinationName,
@@ -365,7 +389,7 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
   }
 
   Widget _buildStationNode({
-    required IconData icon,
+    required IconData? icon,
     required Color iconColor,
     required String title,
     required String stationName,
@@ -378,19 +402,8 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: iconColor, width: 2),
-                color: Colors.white,
-              ),
-              child: Icon(icon, size: 12, color: iconColor),
-            ),
-            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,23 +441,11 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.copy_outlined,
-                size: 16,
-                color: Color(0xFF6B7280),
-              ),
-            ),
           ],
         ),
         if (isBoarding && timeLabel != null && timeValue != null)
           Padding(
-            padding: const EdgeInsets.only(left: 34, top: 6),
+            padding: const EdgeInsets.only(top: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -470,7 +471,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
     );
   }
 
-  // ─── THÔNG TIN KHÁCH HÀNG ───────────────────────────────────────────
   Widget _buildCustomerInfo(TripBookingInputViewModel vm) {
     return Container(
       width: double.infinity,
@@ -524,7 +524,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
     );
   }
 
-  // ─── CHI TIẾT THANH TOÁN ───────────────────────────────────────────
   Widget _buildPaymentDetails(TripBookingInputViewModel vm) {
     final trip = vm.trip;
     if (trip == null) return const SizedBox.shrink();
@@ -694,7 +693,6 @@ class _TripBookingInputScreenState extends State<TripBookingInputScreen> {
   }
 }
 
-// ─── Dashed line painter ────────────────────────────────────────────────────
 class _DashedLinePainter extends CustomPainter {
   _DashedLinePainter({
     required this.color,

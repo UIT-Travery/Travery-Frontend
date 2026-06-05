@@ -7,7 +7,9 @@ import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_filter_
 import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_tour_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
 
 class CoordinatorTourListScreen extends StatefulWidget {
   final CoordinatorTourListViewModel viewModel;
@@ -29,22 +31,41 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
   @override
   void initState() {
     super.initState();
-    widget.viewModel.loadTours.addListener(_onLoadToursChanged);
+    widget.viewModel.loadTours.addListener(_onResult);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.viewModel.loadTours.execute();
+      widget.viewModel.loadProfile.execute();
     });
   }
 
-  void _onLoadToursChanged() {
-    if (mounted) setState(() {});
+  @override
+  void didUpdateWidget(covariant CoordinatorTourListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.loadTours.removeListener(_onResult);
+    widget.viewModel.loadTours.addListener(_onResult);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    widget.viewModel.loadTours.removeListener(_onLoadToursChanged);
-    // ViewModel lifecycle is managed by CoordinatorMainScreen
+    widget.viewModel.loadTours.removeListener(_onResult);
     super.dispose();
+  }
+
+  void _onResult() {
+    if (!mounted) return;
+    if (widget.viewModel.loadTours.error) {
+      final result = widget.viewModel.loadTours.result;
+      String errorMessage = 'Không thể tải danh sách tour';
+      if (result != null && result is core_result.Error) {
+        errorMessage = (result as core_result.Error).error
+            .toString()
+            .replaceAll('HttpException: ', '');
+      }
+      // widget.viewModel.loadTours.clearResult();
+      Utils.showErrorNotification(context, errorMessage);
+    }
+    setState(() {});
   }
 
   @override
@@ -56,12 +77,13 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
         listenable: Listenable.merge([
           widget.viewModel.loadTours,
           widget.viewModel.filteredTours,
+          widget.viewModel.loadProfile,
         ]),
         builder: (context, child) {
           final viewModel = widget.viewModel;
           return Column(
             children: [
-              _buildHeader(context),
+              _buildHeader(context, viewModel),
               const SizedBox(height: 16),
               _buildSearchAndFilterRow(context),
               const SizedBox(height: 8),
@@ -73,8 +95,18 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(
+    BuildContext context,
+    CoordinatorTourListViewModel viewModel,
+  ) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
+
+    String userName = 'Đang tải...';
+    final profileResult = viewModel.loadProfile.result;
+    if (profileResult is core_result.Ok<ProfileData>) {
+      userName = profileResult.value.fullName;
+    }
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(24, statusBarHeight + 20, 24, 28),
@@ -93,7 +125,7 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -107,7 +139,7 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
                 ),
                 SizedBox(height: 6),
                 Text(
-                  'Đỗ Minh Trí',
+                  userName,
                   style: TextStyle(
                     fontSize: AppTextTheme.headlineSmall,
                     color: Colors.white,
@@ -121,7 +153,11 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
             onPressed: () {
               context.push(Routes.coordinatorViewProfile);
             },
-            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 28),
+            icon: const Icon(
+              Icons.settings_outlined,
+              color: Colors.white,
+              size: 28,
+            ),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
@@ -144,12 +180,6 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
                 widget.viewModel.searchQuery.value = _searchController.text;
               },
             ),
-          ),
-          const SizedBox(width: 12),
-          CoordinatorFilterButton(
-            onFilterTap: () {
-              // Open filter dialog or perform sorting if needed
-            },
           ),
         ],
       ),
@@ -218,19 +248,36 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
       itemCount: tours.length,
       itemBuilder: (context, index) {
         final tour = tours[index];
+        final formattedStart = _formatDate(tour.startDate);
+        final formattedEnd = _formatDate(tour.endDate);
+        final displayDate =
+            (formattedEnd.isNotEmpty && formattedStart != formattedEnd)
+            ? '$formattedStart → $formattedEnd'
+            : formattedStart;
+
         return CoordinatorTourCard(
           label: tour.tourName,
           status: _localizedStatus(tour.status),
           bookingnumber: tour.currentParticipants,
           maxParticipants: tour.maxParticipants,
-          date: '${tour.startDate} → ${tour.endDate}',
-          imageUrl: '',
+          date: displayDate,
+          imageUrl: tour.imageUrl,
           onTap: () {
             context.push(Routes.coordinatorTourDetail, extra: tour);
           },
         );
       },
     );
+  }
+
+  String _formatDate(String isoDate) {
+    if (isoDate.isEmpty) return '';
+    try {
+      final dt = DateTime.parse(isoDate);
+      return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+    } catch (_) {
+      return isoDate;
+    }
   }
 
   /// Converts API status strings to Vietnamese labels shown in the card.

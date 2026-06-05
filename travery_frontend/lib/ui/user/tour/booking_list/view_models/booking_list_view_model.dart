@@ -24,38 +24,43 @@ class BookingListViewModel extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  String? _selectedStatus;
-  String? get selectedStatus => _selectedStatus;
+  String _selectedStatus = allStatusFilter;
+  String get selectedStatus => _selectedStatus;
 
   int _currentPage = 0;
   static const int _pageSize = 20;
+  static const String allStatusFilter = 'Tất cả';
 
-  final List<String> _statusFilters = [
-    'Tất cả',
+  static const List<String> _statusFilters = [
+    allStatusFilter,
     'PENDING',
     'PAID',
+    'CHECKED_IN',
+    'CHECKED_OUT',
     'CANCELLED',
+    'NO_SHOW',
   ];
   List<String> get statusFilters => _statusFilters;
 
   Future<void> loadBookings({String? status, bool refresh = false}) async {
-    if (refresh) {
+    final nextStatus = _normalizeStatus(status);
+    if (_isLoading) return;
+
+    final shouldReset = refresh || nextStatus != _selectedStatus;
+
+    if (shouldReset) {
       _currentPage = 0;
       _bookings = [];
       _hasMore = true;
     }
 
-    _selectedStatus = status;
-    if (_isLoading) return;
-
+    _selectedStatus = nextStatus;
     _isLoading = _currentPage == 0;
     _error = null;
     notifyListeners();
 
-    final apiStatus = status == 'Tất cả' ? null : status;
-
     final result = await _bookingService.getMyBookings(
-      status: apiStatus,
+      status: _statusForApi(_selectedStatus),
       page: _currentPage,
       size: _pageSize,
     );
@@ -79,10 +84,9 @@ class BookingListViewModel extends ChangeNotifier {
     notifyListeners();
 
     _currentPage++;
-    final apiStatus = _selectedStatus == 'Tất cả' ? null : _selectedStatus;
 
     final result = await _bookingService.getMyBookings(
-      status: apiStatus,
+      status: _statusForApi(_selectedStatus),
       page: _currentPage,
       size: _pageSize,
     );
@@ -100,6 +104,17 @@ class BookingListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _normalizeStatus(String? status) {
+    if (status == null || status.isEmpty) {
+      return _selectedStatus;
+    }
+    return status;
+  }
+
+  String? _statusForApi(String status) {
+    return status == allStatusFilter ? null : status;
+  }
+
   String getStatusLabel(String status) {
     switch (status) {
       case 'PAID':
@@ -110,8 +125,10 @@ class BookingListViewModel extends ChangeNotifier {
         return 'Đã check-out';
       case 'CANCELLED':
         return 'Đã hủy';
+      case 'NO_SHOW':
+        return 'Không đến';
       default:
-        return status;
+        return 'Đang chờ';
     }
   }
 
@@ -119,10 +136,16 @@ class BookingListViewModel extends ChangeNotifier {
     switch (status) {
       case 'PAID':
         return 'green';
+      case 'CHECKED_IN':
+        return 'blue';
+      case 'CHECKED_OUT':
+        return 'grey';
       case 'CANCELLED':
         return 'red';
+      case 'NO_SHOW':
+        return 'orange';
       default:
-        return 'grey';
+        return 'orange';
     }
   }
 }

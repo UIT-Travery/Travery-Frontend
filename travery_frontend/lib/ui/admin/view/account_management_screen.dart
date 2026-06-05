@@ -136,7 +136,10 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     if (cmd.running) return;
     if (cmd.error) {
       final msg = cmd.result is Error
-          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          ? (cmd.result as Error).error.toString().replaceAll(
+              'HttpException: ',
+              '',
+            )
           : 'Không thể cấm người dùng';
       cmd.clearResult();
       if (mounted) Utils.showErrorNotification(context, msg);
@@ -154,14 +157,20 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     if (cmd.running) return;
     if (cmd.error) {
       final msg = cmd.result is Error
-          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          ? (cmd.result as Error).error.toString().replaceAll(
+              'HttpException: ',
+              '',
+            )
           : 'Không thể bỏ cấm người dùng';
       cmd.clearResult();
       if (mounted) Utils.showErrorNotification(context, msg);
     } else if (cmd.completed) {
       cmd.clearResult();
       if (mounted) {
-        Utils.showSuccessNotification(context, 'Đã bỏ cấm tài khoản thành công');
+        Utils.showSuccessNotification(
+          context,
+          'Đã bỏ cấm tài khoản thành công',
+        );
         _loadUsers();
       }
     }
@@ -172,7 +181,10 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     if (cmd.running) return;
     if (cmd.error) {
       final msg = cmd.result is Error
-          ? (cmd.result as Error).error.toString().replaceAll('HttpException: ', '')
+          ? (cmd.result as Error).error.toString().replaceAll(
+              'HttpException: ',
+              '',
+            )
           : 'Không thể xóa tài khoản';
       cmd.clearResult();
       if (mounted) Utils.showErrorNotification(context, msg);
@@ -195,8 +207,6 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildAppBar(),
-            const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: AdminSearchBar(
@@ -239,6 +249,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                         email: account.email,
                         role: account.role,
                         status: account.status,
+                        avatarUrl: account.avatarUrl,
                         onTap: () => _onAccountTap(account),
                         onMenuTap: () => _showAccountMenu(context, account),
                       );
@@ -250,39 +261,15 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  // ── App bar ──────────────────────────────────────────────────────────────────
-
-  Widget _buildAppBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.grid_view_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            'Travery Admin',
-            style: TextStyle(
-              fontSize: AppTextTheme.headlineMedium,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await context.push(Routes.adminCreateAccount);
+          if (result == true && mounted) {
+            _loadUsers();
+          }
+        },
+        backgroundColor: AppColors.primaryDarkBlackBlue,
+        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }
@@ -311,8 +298,11 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
-  void _onAccountTap(BusinessAccount account) {
-    context.push(Routes.adminViewDetailAccountWithId(account.id));
+  void _onAccountTap(BusinessAccount account) async {
+    await context.push(Routes.adminViewDetailAccountWithId(account.id));
+    if (mounted) {
+      _loadUsers();
+    }
   }
 
   void _showAccountMenu(BuildContext context, BusinessAccount account) {

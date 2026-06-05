@@ -73,6 +73,8 @@ class _SplashScreenState extends State<SplashScreen>
         return Routes.coordinatorMain;
       case 'ROLE_GUIDE':
         return Routes.guideHome;
+      case 'ROLE_RECEPTIONIST':
+        return Routes.recepMain;
       case 'ROLE_TOURIST':
         return Routes.tourHome;
       default:

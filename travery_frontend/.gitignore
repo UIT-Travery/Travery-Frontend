@@ -54,3 +54,4 @@ VNPAY_FE_Integration_Guide.md
 .env.local
 .env.development
 !.env.example
+docs/

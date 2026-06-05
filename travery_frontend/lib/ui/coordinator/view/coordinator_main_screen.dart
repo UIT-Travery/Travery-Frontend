@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_list_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_list_view_model.dart';
 import 'coordinator_view_tour_list_screen.dart';
 import 'coordinator_view_coach_list_screen.dart';
 import 'coordinator_selection_screen.dart';
-import 'coordinator_view_ended_tour_screen.dart';
+import 'coordinator_view_refund_list_screen.dart';
+import '../view_models/coordinator_refund_list_view_model.dart';
 import 'widgets/coordinator_bottom_navigation_bar.dart';
 
 class CoordinatorMainScreen extends StatefulWidget {
@@ -63,10 +65,14 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
           CoordinatorTourListScreen(
             viewModel: context.read<CoordinatorTourListViewModel>(),
           ),
-          const CoordinatorViewCoachListScreen(),
-          CoordinatorSelectionScreen(),
+          CoordinatorViewCoachListScreen(
+            viewModel: context.read<CoordinatorCoachTripListViewModel>(),
+          ),
+          const CoordinatorSelectionScreen(),
           const Center(child: Text('Chat')),
-          const CoordinatorViewEndedTourScreen(),
+          CoordinatorViewRefundListScreen(
+            viewModel: context.read<CoordinatorRefundListViewModel>(),
+          ),
         ],
       ),
       bottomNavigationBar: CoordinatorBottomNavigationBar(

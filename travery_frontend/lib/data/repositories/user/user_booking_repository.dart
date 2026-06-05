@@ -10,6 +10,7 @@ import 'package:travery_frontend/data/services/api/model/booking/user_booking_li
 import 'package:travery_frontend/data/services/booking/booking_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
+import 'package:travery_frontend/utils/review_guards.dart';
 
 class UserBookingRepository extends BookingService {
   UserBookingRepository({required TokenRefreshService tokenRefreshService})
@@ -85,6 +86,7 @@ class UserBookingRepository extends BookingService {
             paymentMethod: data['paymentMethod'] as String?,
             paymentStatus: data['paymentStatus'] as String?,
             transactionId: data['transactionId'] as String?,
+            gatewayTransactionId: data['gatewayTransactionId'] as String?,
             paymentUrl:
                 (data['payment'] as Map<String, dynamic>?)?['paymentUrl']
                     as String?,
@@ -94,6 +96,7 @@ class UserBookingRepository extends BookingService {
             paymentExpiresAt:
                 (data['payment'] as Map<String, dynamic>?)?['expiresAt']
                     as String?,
+            hasReview: readHasReview(data),
           ),
         );
       } else {
@@ -235,6 +238,48 @@ class UserBookingRepository extends BookingService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Tạo thanh toán thất bại',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<bool>> createReview({
+    required String bookingId,
+    required int rating,
+    required String content,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.postUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/tour-bookings/$bookingId/reviews',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        'application/json; charset=utf-8',
+      );
+      await _setBearerAuth(request);
+      request.write(jsonEncode({'rating': rating, 'content': content}));
+
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await response.drain<void>();
+        return const Result.ok(true);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể gửi đánh giá tour',
         );
         return Result.error(HttpException(errorMsg));
       }

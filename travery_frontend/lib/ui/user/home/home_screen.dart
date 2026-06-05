@@ -33,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
               onRefresh: vm.refresh,
               child: CustomScrollView(
                 slivers: [
-                  // TopBar
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -41,54 +40,43 @@ class _HomeScreenState extends State<HomeScreen> {
                         vertical: 16,
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.waving_hand,
-                                  color: AppColors.primary,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Xin chào!',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF414755),
-                                    ),
-                                  ),
-                                  Text(
-                                    'Khám phá ngay',
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF131B2E),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.waving_hand,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
                           ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.notifications_outlined,
-                              color: Color(0xFF717786),
-                              size: 26,
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Xin chào!',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF414755),
+                                  ),
+                                ),
+                                Text(
+                                  'Khám phá ngay',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF131B2E),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -96,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Search Bar
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -137,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-                  // Services Grid
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -166,7 +152,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
-                  // Featured Tours Header
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -200,10 +185,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
-                  // Featured Tours List
                   _buildFeaturedTours(vm),
 
-                  // Expert Consultation Banner
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(20),

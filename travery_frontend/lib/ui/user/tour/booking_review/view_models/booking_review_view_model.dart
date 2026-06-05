@@ -13,9 +13,7 @@ class BookingReviewViewModel extends ChangeNotifier {
     ProfileService? profileService,
   }) : _tourService = tourService,
        _tokenRefreshService = tokenRefreshService,
-       _profileService = profileService ?? ProfileService() {
-    _loadProfile();
-  }
+       _profileService = profileService ?? ProfileService();
 
   final TourService _tourService;
   final TokenRefreshService _tokenRefreshService;
@@ -31,9 +29,11 @@ class BookingReviewViewModel extends ChangeNotifier {
   bool _isLoadingProfile = false;
   bool get isLoadingProfile => _isLoadingProfile;
 
-  Future<void> _loadProfile() async {
-    _isLoadingProfile = true;
-    notifyListeners();
+  Future<void> _loadProfile({bool isRefresh = false}) async {
+    if (!isRefresh) {
+      _isLoadingProfile = true;
+      notifyListeners();
+    }
 
     final tokenResult = await _tokenRefreshService.getValidAccessToken();
     final token = switch (tokenResult) {
@@ -60,6 +60,19 @@ class BookingReviewViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> refreshProfile() async {
+    await _loadProfile(isRefresh: true);
+  }
+
+  Future<void> initProfile() async {
+    if (_userName == null && _userPhone == null && _userEmail == null) {
+      await _loadProfile();
+    } else {
+      _isLoadingProfile = false;
+      notifyListeners();
+    }
+  }
+
   bool _isCreatingBooking = false;
   bool get isCreatingBooking => _isCreatingBooking;
 
@@ -77,10 +90,9 @@ class BookingReviewViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Converts date from DD/MM/YYYY to YYYY-MM-DD (ISO 8601) format.
   String _toIsoDate(String dateStr) {
     if (dateStr.isEmpty) return '';
-    // dateStr is in DD/MM/YYYY format from the date picker
+
     final parts = dateStr.split('/');
     if (parts.length != 3) return dateStr;
     final day = parts[0];
@@ -166,7 +178,6 @@ class BookingReviewViewModel extends ChangeNotifier {
       return 'Đặt tour đã bị đóng. Vui lòng chọn tour khác.';
     }
 
-    // Strip generic prefixes like "Exception:" or "Error:"
     var msg = raw.replaceAll(
       RegExp(r'^(Exception|Error|ErrorCode)?[:\s]*', caseSensitive: false),
       '',

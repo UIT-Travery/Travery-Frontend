@@ -1,3 +1,5 @@
+import 'package:travery_frontend/utils/review_guards.dart';
+
 class TripBookingData {
   const TripBookingData({
     required this.id,
@@ -19,6 +21,7 @@ class TripBookingData {
     this.paymentStatus,
     this.transactionId,
     this.gatewayTransactionId,
+    this.hasReview = false,
   });
 
   final String id;
@@ -40,6 +43,7 @@ class TripBookingData {
   final String? paymentStatus;
   final String? transactionId;
   final String? gatewayTransactionId;
+  final bool hasReview;
 
   factory TripBookingData.fromJson(Map<String, dynamic> json) {
     return TripBookingData(
@@ -74,6 +78,7 @@ class TripBookingData {
       paymentStatus: json['paymentStatus'] as String?,
       transactionId: json['transactionId'] as String?,
       gatewayTransactionId: json['gatewayTransactionId'] as String?,
+      hasReview: readHasReview(json),
     );
   }
 }

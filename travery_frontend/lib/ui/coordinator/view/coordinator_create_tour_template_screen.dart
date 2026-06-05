@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
@@ -25,6 +27,7 @@ class _ItineraryEntry {
   final TextEditingController labelController;
   final TextEditingController descriptionController;
   String? imageUrl;
+  File? imageFile;
 
   _ItineraryEntry()
     : labelController = TextEditingController(),
@@ -43,21 +46,12 @@ class _CoordinatorCreateTourTemplateScreenState
   final TextEditingController _adultPriceController = TextEditingController();
   final TextEditingController _childPriceController = TextEditingController();
 
-  String? _selectedPickupLocation;
-  String? _selectedDestinationId;
+  final TextEditingController _pickupLocationController = TextEditingController();
+  final TextEditingController _destinationController = TextEditingController();
 
-  final List<String> _branches = [
-    'Chi nhánh Hà Nội',
-    'Chi nhánh Đà Nẵng',
-    'Chi nhánh TP.HCM'
-  ];
-  final List<String> _destinations = [
-    'Hà Nội',
-    'Đà Nẵng',
-    'Nha Trang',
-    'Phú Quốc',
-    'TP.HCM'
-  ];
+  File? _thumbnailImage;
+  final List<File> _otherImages = [];
+  final ImagePicker _picker = ImagePicker();
 
   final List<_ItineraryEntry> _itineraries = [_ItineraryEntry()];
 
@@ -86,6 +80,8 @@ class _CoordinatorCreateTourTemplateScreenState
     _descriptionController.dispose();
     _adultPriceController.dispose();
     _childPriceController.dispose();
+    _pickupLocationController.dispose();
+    _destinationController.dispose();
     for (final e in _itineraries) {
       e.dispose();
     }
@@ -113,6 +109,39 @@ class _CoordinatorCreateTourTemplateScreenState
     }
   }
 
+  Future<void> _pickThumbnail() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _thumbnailImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _pickOtherImages() async {
+    final pickedFiles = await _picker.pickMultiImage();
+    if (pickedFiles.isNotEmpty) {
+      setState(() {
+        _otherImages.addAll(pickedFiles.map((e) => File(e.path)));
+      });
+    }
+  }
+
+  void _removeOtherImage(int index) {
+    setState(() {
+      _otherImages.removeAt(index);
+    });
+  }
+
+  Future<void> _pickItineraryImage(int index) async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _itineraries[index].imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   void _addItinerary() {
     setState(() {
       _itineraries.add(_ItineraryEntry());
@@ -130,14 +159,14 @@ class _CoordinatorCreateTourTemplateScreenState
     // Validate required fields
     final name = _nameController.text.trim();
     final description = _descriptionController.text.trim();
-    final destinationId = _selectedDestinationId;
-    final pickupLocation = _selectedPickupLocation;
+    final destinationId = _destinationController.text.trim();
+    final pickupLocation = _pickupLocationController.text.trim();
     final adultPriceStr = _adultPriceController.text.trim();
     final childPriceStr = _childPriceController.text.trim();
 
     if (name.isEmpty ||
-        destinationId == null ||
-        pickupLocation == null ||
+        destinationId.isEmpty ||
+        pickupLocation.isEmpty ||
         adultPriceStr.isEmpty ||
         childPriceStr.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -178,6 +207,7 @@ class _CoordinatorCreateTourTemplateScreenState
         'dayNumber': i + 1,
         'title': e.labelController.text.trim(),
         'description': e.descriptionController.text.trim(),
+        'imageFile': e.imageFile,
       });
     }
 
@@ -191,6 +221,8 @@ class _CoordinatorCreateTourTemplateScreenState
       'pricePerChild': childPrice,
       'isCustom': false,
       'itineraries': itineraries,
+      'thumbnailImage': _thumbnailImage,
+      'otherImages': _otherImages,
     });
   }
 
@@ -214,7 +246,7 @@ class _CoordinatorCreateTourTemplateScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -311,19 +343,106 @@ class _CoordinatorCreateTourTemplateScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Cover image placeholder
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLightWhiteBlue,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.image_outlined,
-                        color: AppColors.primary,
-                        size: 40,
-                      ),
+                    _buildSectionHeader('Ảnh Thumbnail & Các ảnh khác'),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: _pickThumbnail,
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLightWhiteBlue,
+                              borderRadius: BorderRadius.circular(12),
+                              image: _thumbnailImage != null
+                                  ? DecorationImage(
+                                      image: FileImage(_thumbnailImage!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: _thumbnailImage == null
+                                ? const Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.add_photo_alternate, color: AppColors.primary, size: 30),
+                                        SizedBox(height: 4),
+                                        Text('Thumbnail', style: TextStyle(fontSize: 10, color: AppColors.primary)),
+                                      ],
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                ..._otherImages.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final file = entry.value;
+                                  return Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Container(
+                                        width: 100,
+                                        height: 100,
+                                        margin: const EdgeInsets.only(right: 12),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryLightWhiteBlue,
+                                          borderRadius: BorderRadius.circular(12),
+                                          image: DecorationImage(
+                                            image: FileImage(file),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: -5,
+                                        right: 5,
+                                        child: GestureDetector(
+                                          onTap: () => _removeOtherImage(index),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                                            child: const Icon(Icons.close, size: 16, color: Colors.red),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                                GestureDetector(
+                                  onTap: _pickOtherImages,
+                                  child: Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryLightWhiteBlue,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.add_photo_alternate, color: AppColors.primary, size: 30),
+                                          SizedBox(height: 4),
+                                          Text('Thêm ảnh', style: TextStyle(fontSize: 10, color: AppColors.primary)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 20),
@@ -395,48 +514,36 @@ class _CoordinatorCreateTourTemplateScreenState
                     const SizedBox(height: 12),
 
                     // Điểm khởi hành
-                    CoordinatorDropdownButton(
+                    CoordinatorInputField(
                       label: 'Điểm khởi hành',
-                      textholder: 'Chọn chi nhánh',
-                      value: _selectedPickupLocation,
-                      items: _branches,
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedPickupLocation = val;
-                        });
-                      },
+                      hintText: 'Nhập điểm khởi hành...',
+                      controller: _pickupLocationController,
                       prefixIcon: const Icon(
                         Icons.location_on_outlined,
                         size: 18,
                         color: AppColors.textPrimary,
                       ),
                       suffixIcon: const Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 18,
+                        Icons.edit,
+                        size: 16,
                         color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 12),
 
                     // Điểm đến
-                    CoordinatorDropdownButton(
+                    CoordinatorInputField(
                       label: 'Điểm đến',
-                      textholder: 'Chọn chi nhánh',
-                      value: _selectedDestinationId,
-                      items: _destinations,
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedDestinationId = val;
-                        });
-                      },
+                      hintText: 'Nhập điểm đến...',
+                      controller: _destinationController,
                       prefixIcon: const Icon(
                         Icons.location_on_outlined,
                         size: 18,
                         color: AppColors.textPrimary,
                       ),
                       suffixIcon: const Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 18,
+                        Icons.edit,
+                        size: 16,
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -585,17 +692,28 @@ class _CoordinatorCreateTourTemplateScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Small image placeholder
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLightWhiteBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.image_outlined,
-                    color: AppColors.textPrimary,
-                    size: 24,
+                GestureDetector(
+                  onTap: () => _pickItineraryImage(index),
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLightWhiteBlue,
+                      borderRadius: BorderRadius.circular(8),
+                      image: entry.imageFile != null
+                          ? DecorationImage(
+                              image: FileImage(entry.imageFile!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: entry.imageFile == null
+                        ? const Icon(
+                            Icons.image_outlined,
+                            color: AppColors.textPrimary,
+                            size: 24,
+                          )
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -692,10 +810,7 @@ class _CoordinatorCreateTourTemplateScreenState
             Container(
               decoration: const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(
-                    color: AppColors.textSecondary,
-                    width: 1,
-                  ),
+                  bottom: BorderSide(color: AppColors.textSecondary, width: 1),
                 ),
               ),
               child: TextField(

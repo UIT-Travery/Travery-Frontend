@@ -4,19 +4,14 @@ import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 enum PaymentConfirmState {
-  /// User opened VNPAY but deeplink hasn't arrived yet
   waitingDeeplink,
 
-  /// Deeplink received — polling booking status
   confirming,
 
-  /// Booking confirmed PAID
   confirmed,
 
-  /// Payment failed (deeplink failed or booking CANCELLED)
   failed,
 
-  /// Polling timeout after ~45s
   processingTimeout,
 }
 
@@ -32,43 +27,34 @@ class PaymentResultViewModel extends ChangeNotifier {
   TourBookingData? _bookingData;
   TourBookingData? get bookingData => _bookingData;
 
-  String? _txnRef;
   String? _deeplinkStatus;
   String? _responseCode;
   String? _bookingId;
   String? get responseCode => _responseCode;
 
-  /// Called when screen receives data (from route extra or from deeplink stream).
   void initState({
     String? txnRef,
     String? deeplinkStatus,
     String? responseCode,
     String? bookingId,
   }) {
-    // Update values if provided (non-null)
-    if (txnRef != null) _txnRef = txnRef;
     if (deeplinkStatus != null) _deeplinkStatus = deeplinkStatus;
     if (responseCode != null) _responseCode = responseCode;
     if (bookingId != null) _bookingId = bookingId;
 
-    // VNPay returned 00 → start polling to check booking status
     if (_responseCode == '00' || _deeplinkStatus == 'success') {
       _state = PaymentConfirmState.confirming;
       notifyListeners();
       _pollBookingStatus();
     } else if (_deeplinkStatus == 'failed' || _responseCode != null) {
-      // VNPay returned non-00 code = failed
       _state = PaymentConfirmState.failed;
       notifyListeners();
     } else {
-      // No deeplink yet (user opened from VNPayPaymentScreen)
       _state = PaymentConfirmState.waitingDeeplink;
       notifyListeners();
     }
   }
 
-  /// User manually taps "Đã thanh toán — Kiểm tra ngay"
-  /// Uses the bookingId from route extra to start polling.
   void checkManually() {
     if (_bookingId == null) {
       _state = PaymentConfirmState.processingTimeout;
@@ -88,7 +74,7 @@ class PaymentResultViewModel extends ChangeNotifier {
     }
 
     const maxAttempts = 8;
-    const delays = [5, 5, 10, 10, 15, 15, 20, 20]; // ~100s total
+    const delays = [5, 5, 10, 10, 15, 15, 20, 20];
 
     for (int i = 0; i < maxAttempts; i++) {
       await Future.delayed(Duration(seconds: delays[i]));
@@ -98,7 +84,7 @@ class PaymentResultViewModel extends ChangeNotifier {
       switch (result) {
         case Ok(value: final data):
           _bookingData = data;
-          // Check paymentStatus (PENDING/PAID) or status (PAID)
+
           if (data.paymentStatus == 'PAID' || data.status == 'PAID') {
             _state = PaymentConfirmState.confirmed;
             notifyListeners();

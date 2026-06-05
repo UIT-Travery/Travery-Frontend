@@ -10,7 +10,8 @@ class HotelDetailData {
     required this.checkOutTime,
     required this.amenities,
     required this.rooms,
-    required this.reviews,
+    this.cityProvince,
+    this.reviews = const [],
   });
 
   final String id;
@@ -21,32 +22,119 @@ class HotelDetailData {
   final String description;
   final String checkInTime;
   final String checkOutTime;
-  final List<String> amenities;
+  final List<HotelAmenityData> amenities;
   final List<HotelRoomData> rooms;
+  final String? cityProvince;
   final List<HotelReviewData> reviews;
 
   factory HotelDetailData.fromJson(Map<String, dynamic> json) {
+    // Parse images - get all image URLs
+    final imagesList = json['images'] as List<dynamic>? ?? [];
+    final imageUrls = imagesList
+        .map((img) => img['url'] as String? ?? '')
+        .where((url) => url.isNotEmpty)
+        .toList();
+
+    // Parse amenities - full HotelAmenityData objects
+    final amenitiesList = json['amenities'] as List<dynamic>? ?? [];
+    final amenityObjects = amenitiesList
+        .map((a) => HotelAmenityData.fromJson(a as Map<String, dynamic>))
+        .toList();
+
+    // Parse room types
+    final roomTypesList = json['roomTypes'] as List<dynamic>? ?? [];
+    final rooms = roomTypesList
+        .map((r) => HotelRoomData.fromJson(r as Map<String, dynamic>))
+        .toList();
+
+    // Parse check-in/out times - handle both String ("HH:mm:ss") and Map ({hour, minute})
+    String checkInTime = '14:00';
+    String checkOutTime = '12:00';
+
+    final checkInValue = json['checkInTime'];
+    if (checkInValue is String) {
+      // Parse "14:00:00" -> "14:00"
+      final parts = checkInValue.split(':');
+      if (parts.length >= 2) {
+        checkInTime = '${parts[0]}:${parts[1]}';
+      }
+    } else if (checkInValue is Map<String, dynamic>) {
+      final hour = checkInValue['hour'] as int? ?? 14;
+      final minute = checkInValue['minute'] as int? ?? 0;
+      checkInTime =
+          '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    }
+
+    final checkOutValue = json['checkOutTime'];
+    if (checkOutValue is String) {
+      // Parse "12:00:00" -> "12:00"
+      final parts = checkOutValue.split(':');
+      if (parts.length >= 2) {
+        checkOutTime = '${parts[0]}:${parts[1]}';
+      }
+    } else if (checkOutValue is Map<String, dynamic>) {
+      final hour = checkOutValue['hour'] as int? ?? 12;
+      final minute = checkOutValue['minute'] as int? ?? 0;
+      checkOutTime =
+          '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    }
+
     return HotelDetailData(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      imageUrls: (json['imageUrls'] as List<dynamic>?)?.cast<String>() ?? [],
+      imageUrls: imageUrls,
       address: json['address'] as String? ?? '',
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
+      rating: (json['averageRating'] as num?)?.toDouble() ?? 0.0,
       description: json['description'] as String? ?? '',
-      checkInTime: json['checkInTime'] as String? ?? '14:00',
-      checkOutTime: json['checkOutTime'] as String? ?? '12:00',
-      amenities: (json['amenities'] as List<dynamic>?)?.cast<String>() ?? [],
-      rooms:
-          (json['rooms'] as List<dynamic>?)
-              ?.map((e) => HotelRoomData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      reviews:
-          (json['reviews'] as List<dynamic>?)
-              ?.map((e) => HotelReviewData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      checkInTime: checkInTime,
+      checkOutTime: checkOutTime,
+      amenities: amenityObjects,
+      rooms: rooms,
+      cityProvince: json['cityProvince'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'images': imageUrls.map((url) => {'url': url}).toList(),
+      'address': address,
+      'averageRating': rating,
+      'description': description,
+      'checkInTime': checkInTime,
+      'checkOutTime': checkOutTime,
+      'amenities': amenities,
+      'roomTypes': rooms.map((r) => r.toJson()).toList(),
+      'cityProvince': cityProvince,
+    };
+  }
+}
+
+class HotelAmenityData {
+  HotelAmenityData({
+    required this.id,
+    required this.name,
+    this.iconUrl,
+    this.type,
+  });
+
+  final String id;
+  final String name;
+  final String? iconUrl;
+  final String? type;
+
+  factory HotelAmenityData.fromJson(Map<String, dynamic> json) {
+    return HotelAmenityData(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      iconUrl: json['iconUrl'] as String?,
+      type: json['type'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'iconUrl': iconUrl, 'type': type};
   }
 }
 
@@ -58,6 +146,12 @@ class HotelRoomData {
     required this.imageUrl,
     required this.features,
     required this.isAvailable,
+    this.description,
+    this.capacityAdults,
+    this.capacityChildren,
+    this.bedType,
+    this.amenities,
+    this.images,
   });
 
   final String id;
@@ -66,16 +160,91 @@ class HotelRoomData {
   final String imageUrl;
   final List<String> features;
   final bool isAvailable;
+  final String? description;
+  final int? capacityAdults;
+  final int? capacityChildren;
+  final String? bedType;
+  final List<HotelAmenityData>? amenities;
+  final List<String>? images;
 
   factory HotelRoomData.fromJson(Map<String, dynamic> json) {
+    // Parse images - get all URLs
+    final imagesList = json['images'] as List<dynamic>? ?? [];
+    final images = imagesList
+        .map((img) => img['url'] as String? ?? '')
+        .where((url) => url.isNotEmpty)
+        .toList();
+    final imageUrl = images.isNotEmpty ? images.first : '';
+
+    // Parse amenities - full HotelAmenityData objects
+    final amenitiesList = json['amenities'] as List<dynamic>? ?? [];
+    final amenityNames = amenitiesList
+        .map((a) => a['name'] as String? ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
+    final amenities = amenitiesList
+        .map((a) => HotelAmenityData.fromJson(a as Map<String, dynamic>))
+        .toList();
+
+    // Parse bedType for features display
+    final bedType = json['bedType'] as String?;
+
+    // Build features list
+    final features = <String>[];
+    if (bedType != null) {
+      features.add(HotelRoomData.getBedTypeLabel(bedType));
+    }
+    features.addAll(amenityNames);
+
     return HotelRoomData(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      pricePerNight: (json['pricePerNight'] as num?)?.toDouble() ?? 0.0,
-      imageUrl: json['imageUrl'] as String? ?? '',
-      features: (json['features'] as List<dynamic>?)?.cast<String>() ?? [],
-      isAvailable: json['isAvailable'] as bool? ?? true,
+      pricePerNight: (json['basePrice'] as num?)?.toDouble() ?? 0.0,
+      imageUrl: imageUrl,
+      features: features,
+      isAvailable: true,
+      description: json['description'] as String?,
+      capacityAdults: json['capacityAdults'] as int?,
+      capacityChildren: json['capacityChildren'] as int?,
+      bedType: bedType,
+      amenities: amenities,
+      images: images,
     );
+  }
+
+  static String getBedTypeLabel(String? bedType) {
+    switch (bedType?.toUpperCase()) {
+      case 'SINGLE':
+        return 'Giường đơn';
+      case 'DOUBLE':
+        return 'Giường đôi';
+      case 'TWIN':
+        return 'Giường twin';
+      case 'QUEEN':
+        return 'Giường queen';
+      case 'KING':
+        return 'Giường king';
+      case 'SUITE':
+        return 'Giường suite';
+      default:
+        return bedType ?? 'Giường standard';
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'basePrice': pricePerNight,
+      'images': images?.map((url) => {'url': url}).toList() ?? [],
+      'features': features,
+      'isAvailable': isAvailable,
+      'description': description,
+      'capacityAdults': capacityAdults,
+      'capacityChildren': capacityChildren,
+      'bedType': bedType,
+      'amenities': amenities?.map((a) => a.toJson()).toList(),
+    };
   }
 }
 
@@ -94,10 +263,22 @@ class HotelReviewData {
 
   factory HotelReviewData.fromJson(Map<String, dynamic> json) {
     return HotelReviewData(
-      authorName: json['authorName'] as String? ?? '',
+      authorName:
+          json['authorName'] as String? ??
+          json['userName'] as String? ??
+          'Khách hàng',
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      date: json['date'] as String? ?? '',
-      comment: json['comment'] as String? ?? '',
+      date: json['date'] as String? ?? json['createdAt'] as String? ?? '',
+      comment: json['comment'] as String? ?? json['content'] as String? ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'authorName': authorName,
+      'rating': rating,
+      'date': date,
+      'comment': comment,
+    };
   }
 }

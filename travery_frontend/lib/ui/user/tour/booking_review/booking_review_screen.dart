@@ -15,13 +15,16 @@ class BookingReviewScreen extends StatefulWidget {
     required this.instanceId,
     required this.tourName,
     this.destinationName,
-    // this.startLocation,
+
     required this.tourImageUrl,
     required this.members,
     required this.adultCount,
     required this.childCount,
     required this.pricePerAdult,
     required this.pricePerChild,
+    required this.contactName,
+    required this.contactPhone,
+    required this.contactEmail,
     required this.specialRequests,
     required this.startDate,
     required this.endDate,
@@ -32,13 +35,16 @@ class BookingReviewScreen extends StatefulWidget {
   final String instanceId;
   final String tourName;
   final String? destinationName;
-  // final String? startLocation;
+
   final String? tourImageUrl;
   final List<Map<String, dynamic>> members;
   final int adultCount;
   final int childCount;
   final double pricePerAdult;
   final double pricePerChild;
+  final String contactName;
+  final String contactPhone;
+  final String contactEmail;
   final String specialRequests;
   final String startDate;
   final String endDate;
@@ -56,8 +62,6 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = widget.viewModel;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: UserAppBar(
@@ -68,12 +72,11 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
         ),
       ),
       body: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         children: [
-          // ── Contact Info ──
-          _buildContactSection(vm),
+          _buildContactSection(),
 
-          // ── Section 1: Tour Info & Members ──
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -110,15 +113,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                     text: widget.destinationName!,
                   ),
                 ],
-                // if (widget.startLocation != null &&
-                //     widget.startLocation!.isNotEmpty) ...[
-                //   const SizedBox(height: 6),
-                //   _buildInfoRow(
-                //     icon: Icons.flight_takeoff_outlined,
-                //     label: 'Điểm xuất phát',
-                //     text: widget.startLocation!,
-                //   ),
-                // ],
+
                 const SizedBox(height: 16),
                 if (widget.startDate.isNotEmpty) ...[
                   _buildInfoRow(
@@ -218,7 +213,6 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
 
           const SizedBox(height: 16),
 
-          // ── Section 2: Special Requests ──
           if (widget.specialRequests.isNotEmpty) ...[
             Container(
               padding: const EdgeInsets.all(20),
@@ -278,7 +272,6 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
             const SizedBox(height: 16),
           ],
 
-          // ── Section 3: Terms Checkbox ──
           GestureDetector(
             onTap: () => setState(() => _termsAccepted = !_termsAccepted),
             behavior: HitTestBehavior.opaque,
@@ -461,15 +454,15 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
     );
   }
 
-  Widget _buildContactSection(BookingReviewViewModel vm) {
-    final name = vm.userName?.isNotEmpty == true
-        ? vm.userName!
+  Widget _buildContactSection() {
+    final name = widget.contactName.isNotEmpty
+        ? widget.contactName
         : 'Chưa cập nhật';
-    final phone = vm.userPhone?.isNotEmpty == true
-        ? vm.userPhone!
+    final phone = widget.contactPhone.isNotEmpty
+        ? widget.contactPhone
         : 'Chưa cập nhật';
-    final email = vm.userEmail?.isNotEmpty == true
-        ? vm.userEmail!
+    final email = widget.contactEmail.isNotEmpty
+        ? widget.contactEmail
         : 'Chưa cập nhật';
 
     return Column(
@@ -556,7 +549,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       specialRequests: widget.specialRequests,
     );
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (!success) {
       _showErrorDialog(context, vm.error ?? 'Error');
@@ -571,6 +564,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
         booking.payment!.transactionId,
         booking.id,
       );
+      if (!context.mounted) return;
     }
 
     if (booking.payment != null && booking.payment!.paymentUrl.isNotEmpty) {
@@ -631,7 +625,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Người lớn phải từ 12 tuổi trở lên, trẻ em phải từ 11 tuổi trở xuống',
+              'Không thể hoàn tất việc đặt tour của bạn do có lỗi xảy ra. Vui lòng thử lại sau hoặc liên hệ với bộ phận hỗ trợ khách hàng để được giúp đỡ.\n\nLỗi: $message',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 14,

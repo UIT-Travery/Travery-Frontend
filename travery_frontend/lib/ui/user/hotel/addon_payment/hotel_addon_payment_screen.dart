@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelAddonPaymentScreen extends StatefulWidget {
   const HotelAddonPaymentScreen({super.key});
@@ -47,18 +48,9 @@ class _HotelAddonPaymentScreenState extends State<HotelAddonPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1F2937),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
-          'Thanh toán dịch vụ',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+      appBar: const HotelAppBar(
+        title: 'Thanh toán dịch vụ',
+        leadingIcon: Icons.close,
       ),
       body: Stack(
         children: [

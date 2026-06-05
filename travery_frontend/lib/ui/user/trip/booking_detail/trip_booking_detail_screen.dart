@@ -6,6 +6,8 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/trip/payment/view_models/trip_payment_view_model.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/view_models/trip_booking_detail_view_model.dart';
 import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
+import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_screen.dart';
 
 class TripBookingDetailScreen extends StatefulWidget {
   const TripBookingDetailScreen({super.key, this.bookingId = ''});
@@ -49,30 +51,16 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: true,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
           _lastLoadedBookingId = null;
-          final vm = context.read<TripBookingDetailViewModel>();
-          final booking = vm.bookingData;
-          if (booking != null) vm.loadBooking(booking.id);
+          context.go('${Routes.tripMyBookings}?tab=1');
         }
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFF3F4F6),
-        appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pushReplacement(Routes.tripMyBookings),
-          ),
-          title: const Text(
-            'Chi tiết đặt vé',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
+        appBar: const UserAppBar(title: 'Chi tiết đặt vé'),
         body: Consumer<TripBookingDetailViewModel>(
           builder: (context, vm, _) {
             if (vm.isLoading) {
@@ -132,11 +120,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── STATUS CARD ───────────────────────────────────────────────────
   Widget _buildStatusCard(TripBookingData booking) {
     final isPaid = booking.status == 'PAID';
     final isCancelled = booking.status == 'CANCELLED';
     final isCheckedIn = booking.status == 'CHECKED_IN';
+    final isCheckedOut = booking.status == 'CHECKED_OUT';
 
     Color statusColor;
     IconData statusIcon;
@@ -159,6 +147,12 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       statusIcon = Icons.person;
       statusLabel = 'Đã check-in';
       statusDesc = 'Bạn đã check-in thành công. Chúc bạn có chuyến đi vui vẻ!';
+    } else if (isCheckedOut) {
+      statusColor = const Color(0xFF64748B);
+      statusIcon = Icons.flag_circle;
+      statusLabel = 'Đã hoàn thành';
+      statusDesc =
+          'Chuyến đi đã kết thúc. Bạn có thể gửi đánh giá trải nghiệm.';
     } else {
       statusColor = Colors.orange;
       statusIcon = Icons.hourglass_empty;
@@ -221,7 +215,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── THONG TIN CHUYEN DI ───────────────────────────────────────────────
   Widget _buildTripInfo(TripBookingData booking) {
     final departureDt = booking.departureTime;
     final seatCount = booking.bookedSeatNames.length;
@@ -329,34 +322,84 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
             ),
           ],
           const SizedBox(height: 24),
+
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   width: 24,
-                  child: CustomPaint(
-                    size: const Size(24, double.infinity),
-                    painter: _DashedLinePainter(
-                      color: AppColors.primary,
-                      strokeWidth: 1.5,
-                      dashHeight: 4,
-                      dashSpace: 3,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _DashedLinePainter(
+                            color: AppColors.primary,
+                            strokeWidth: 1.5,
+                            dashHeight: 4,
+                            dashSpace: 3,
+                          ),
+                        ),
+                      ),
+
+                      Positioned(
+                        top: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.success,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.trip_origin,
+                            size: 12,
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.error,
+                              width: 2,
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.location_on,
+                            size: 12,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStationNode(
-                        icon: Icons.trip_origin,
+                        icon: null,
                         iconColor: AppColors.success,
                         title: 'Lên xe: ',
                         stationName: booking.originDestination,
                         address: '',
-                        timeLabel: 'Giờ có mặt tại bên',
+                        timeLabel: 'Giờ có mặt tại bến',
                         timeValue:
                             '${_formatTime(departureDt.subtract(const Duration(minutes: 15)))} ${_formatDate(departureDt)}',
                         isBoarding: true,
@@ -393,7 +436,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                       ),
                       const SizedBox(height: 12),
                       _buildStationNode(
-                        icon: Icons.location_on,
+                        icon: null,
                         iconColor: AppColors.error,
                         title: 'Xuống xe: ',
                         stationName: booking.destinationDestination,
@@ -414,7 +457,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   }
 
   Widget _buildStationNode({
-    required IconData icon,
+    required IconData? icon,
     required Color iconColor,
     required String title,
     required String stationName,
@@ -427,19 +470,8 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: iconColor, width: 2),
-                color: Colors.white,
-              ),
-              child: Icon(icon, size: 12, color: iconColor),
-            ),
-            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,23 +509,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.copy_outlined,
-                size: 16,
-                color: Color(0xFF6B7280),
-              ),
-            ),
           ],
         ),
         if (isBoarding && timeLabel != null && timeValue != null)
           Padding(
-            padding: const EdgeInsets.only(left: 34, top: 6),
+            padding: const EdgeInsets.only(top: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -519,7 +539,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── THONG TIN KHACH HANG (READ-ONLY) ───────────────────────────────
   Widget _buildCustomerInfoReadOnly(TripBookingData booking) {
     return Container(
       width: double.infinity,
@@ -616,7 +635,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── CHI TIET THANH TOAN ───────────────────────────────────────────
   Widget _buildPaymentDetails(TripBookingData booking) {
     final seatCount = booking.bookedSeatNames.length;
 
@@ -651,7 +669,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                       style: TextStyle(fontSize: 13, color: Color(0xFF4B5563)),
                     ),
                     Text(
-                      '#${_shortCode(booking.gatewayTransactionId ?? booking.transactionId ?? booking.id)}',
+                      _shortCode(
+                        booking.gatewayTransactionId ??
+                            booking.transactionId ??
+                            booking.id,
+                      ),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -710,7 +732,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     );
   }
 
-  // ─── BOTTOM BAR ────────────────────────────────────────────────────
   Widget _buildBottomBar(
     BuildContext context,
     TripBookingData booking,
@@ -718,7 +739,8 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
   ) {
     final isPending = booking.status == 'PENDING';
     final isPaid = booking.status == 'PAID';
-    if (!isPending && !isPaid) return const SizedBox.shrink();
+    final canReview = vm.canCreateReview;
+    if (!isPending && !isPaid && !canReview) return const SizedBox.shrink();
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -739,7 +761,25 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
       ),
       child: SafeArea(
         top: false,
-        child: isPending
+        child: canReview
+            ? ElevatedButton.icon(
+                onPressed: () => _openReviewSheet(context, booking, vm),
+                icon: const Icon(Icons.star_rounded, size: 20),
+                label: const Text(
+                  'Viết đánh giá',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  elevation: 0,
+                ),
+              )
+            : isPending
             ? ElevatedButton(
                 onPressed: () => _onPayPressed(context, booking, vm),
                 style: ElevatedButton.styleFrom(
@@ -766,45 +806,72 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                   ],
                 ),
               )
-            : Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push(
-                        Routes.tripCancelConfirmation,
-                        extra: {'booking': booking},
-                      ),
-                      icon: const Icon(Icons.cancel_outlined, size: 18),
-                      label: const Text('Hủy vé'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: BorderSide(color: Colors.red.shade300),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
+            : ElevatedButton(
+                onPressed: () => context.push(
+                  Routes.tripCancelConfirmation,
+                  extra: {'booking': booking},
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.red,
+                  side: BorderSide(color: Colors.red.shade300),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Hủy vé',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.phone, size: 18),
-                      label: const Text('Liên hệ'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                ],
+                    SizedBox(width: 8),
+                    Icon(Icons.close, size: 20),
+                  ],
+                ),
               ),
+      ),
+    );
+  }
+
+  Future<void> _openReviewSheet(
+    BuildContext context,
+    TripBookingData booking,
+    TripBookingDetailViewModel vm,
+  ) async {
+    if (booking.hasReview || !vm.canCreateReview) {
+      _showAlreadyReviewedMessage(context);
+      return;
+    }
+
+    final submitted = await pushWriteReviewScreen(
+      context,
+      title: 'Đánh giá chuyến xe',
+      imageUrl: '',
+      onSubmit: vm.createReview,
+    );
+
+    if (!context.mounted || submitted != true) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showAlreadyReviewedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bạn đã gửi đánh giá cho đơn này rồi.'),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -860,7 +927,6 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     }
   }
 
-  // ─── HELPERS ───────────────────────────────────────────────────────
   String _shortCode(String id) {
     final clean = id.replaceAll('-', '');
     return clean.length >= 8
@@ -877,11 +943,10 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
-    return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}d';
+    return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 }
 
-// ─── Dashed line painter ────────────────────────────────────────────────────
 class _DashedLinePainter extends CustomPainter {
   _DashedLinePainter({
     required this.color,

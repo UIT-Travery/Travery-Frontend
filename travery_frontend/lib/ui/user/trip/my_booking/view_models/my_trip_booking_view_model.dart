@@ -18,28 +18,39 @@ class MyTripBookingViewModel extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  String? _selectedStatus;
-  String? get selectedStatus => _selectedStatus;
+  String _selectedStatus = allStatusFilter;
+  String get selectedStatus => _selectedStatus;
 
+  static const String allStatusFilter = 'Tất cả';
   static const List<String> _allStatuses = [
-    'Tất cả',
+    allStatusFilter,
     'PENDING',
     'PAID',
+    'CHECKED_IN',
+    'CHECKED_OUT',
     'CANCELLED',
+    'NO_SHOW',
   ];
   List<String> get statusFilters => _allStatuses;
 
   Future<void> loadBookings({String? status, bool refresh = false}) async {
-    if (refresh) {
+    final nextStatus = _normalizeStatus(status);
+    if (_isLoading) return;
+
+    final shouldReset = refresh || nextStatus != _selectedStatus;
+
+    if (shouldReset) {
       _bookings = [];
     }
-    _selectedStatus = status ?? 'Tất cả';
+
+    _selectedStatus = nextStatus;
     _isLoading = true;
     _error = null;
     notifyListeners();
 
-    final apiStatus = _selectedStatus == 'Tất cả' ? null : _selectedStatus;
-    final result = await _repository.getMyBookings(status: apiStatus);
+    final result = await _repository.getMyBookings(
+      status: _statusForApi(_selectedStatus),
+    );
 
     switch (result) {
       case Ok(value: final data):
@@ -52,14 +63,29 @@ class MyTripBookingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _normalizeStatus(String? status) {
+    if (status == null || status.isEmpty) {
+      return _selectedStatus;
+    }
+    return status;
+  }
+
+  String? _statusForApi(String status) {
+    return status == allStatusFilter ? null : status;
+  }
+
   String getStatusLabel(String status) {
     switch (status) {
       case 'PAID':
         return 'Đã thanh toán';
-      case 'CANCELLED':
-        return 'Đã hủy';
       case 'CHECKED_IN':
         return 'Đã check-in';
+      case 'CHECKED_OUT':
+        return 'Đã check-out';
+      case 'CANCELLED':
+        return 'Đã hủy';
+      case 'NO_SHOW':
+        return 'Không đến';
       default:
         return 'Đang chờ';
     }

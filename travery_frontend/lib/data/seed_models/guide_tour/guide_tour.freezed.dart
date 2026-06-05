@@ -49,7 +49,12 @@ mixin _$GuideTour {
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError; // Extended fields from API response
+  String? get driverPhone => throw _privateConstructorUsedError;
+  String? get coachType => throw _privateConstructorUsedError;
+  String? get pickupLocation => throw _privateConstructorUsedError;
+  int? get passengerCount => throw _privateConstructorUsedError;
+  int? get bookingsCount => throw _privateConstructorUsedError;
 
   /// Serializes this GuideTour to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -83,6 +88,11 @@ abstract class $GuideTourCopyWith<$Res> {
     @JsonKey(name: 'driver_name') String? driverName,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    String? driverPhone,
+    String? coachType,
+    String? pickupLocation,
+    int? passengerCount,
+    int? bookingsCount,
   });
 }
 
@@ -117,6 +127,11 @@ class _$GuideTourCopyWithImpl<$Res, $Val extends GuideTour>
     Object? driverName = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? driverPhone = freezed,
+    Object? coachType = freezed,
+    Object? pickupLocation = freezed,
+    Object? passengerCount = freezed,
+    Object? bookingsCount = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -184,6 +199,26 @@ class _$GuideTourCopyWithImpl<$Res, $Val extends GuideTour>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            driverPhone: freezed == driverPhone
+                ? _value.driverPhone
+                : driverPhone // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            coachType: freezed == coachType
+                ? _value.coachType
+                : coachType // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            pickupLocation: freezed == pickupLocation
+                ? _value.pickupLocation
+                : pickupLocation // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            passengerCount: freezed == passengerCount
+                ? _value.passengerCount
+                : passengerCount // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            bookingsCount: freezed == bookingsCount
+                ? _value.bookingsCount
+                : bookingsCount // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -216,6 +251,11 @@ abstract class _$$GuideTourImplCopyWith<$Res>
     @JsonKey(name: 'driver_name') String? driverName,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    String? driverPhone,
+    String? coachType,
+    String? pickupLocation,
+    int? passengerCount,
+    int? bookingsCount,
   });
 }
 
@@ -249,6 +289,11 @@ class __$$GuideTourImplCopyWithImpl<$Res>
     Object? driverName = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? driverPhone = freezed,
+    Object? coachType = freezed,
+    Object? pickupLocation = freezed,
+    Object? passengerCount = freezed,
+    Object? bookingsCount = freezed,
   }) {
     return _then(
       _$GuideTourImpl(
@@ -316,6 +361,26 @@ class __$$GuideTourImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        driverPhone: freezed == driverPhone
+            ? _value.driverPhone
+            : driverPhone // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        coachType: freezed == coachType
+            ? _value.coachType
+            : coachType // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        pickupLocation: freezed == pickupLocation
+            ? _value.pickupLocation
+            : pickupLocation // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        passengerCount: freezed == passengerCount
+            ? _value.passengerCount
+            : passengerCount // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        bookingsCount: freezed == bookingsCount
+            ? _value.bookingsCount
+            : bookingsCount // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -341,6 +406,11 @@ class _$GuideTourImpl implements _GuideTour {
     @JsonKey(name: 'driver_name') this.driverName,
     @JsonKey(name: 'created_at') this.createdAt,
     @JsonKey(name: 'updated_at') this.updatedAt,
+    this.driverPhone,
+    this.coachType,
+    this.pickupLocation,
+    this.passengerCount,
+    this.bookingsCount,
   });
 
   factory _$GuideTourImpl.fromJson(Map<String, dynamic> json) =>
@@ -391,10 +461,21 @@ class _$GuideTourImpl implements _GuideTour {
   @override
   @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
+  // Extended fields from API response
+  @override
+  final String? driverPhone;
+  @override
+  final String? coachType;
+  @override
+  final String? pickupLocation;
+  @override
+  final int? passengerCount;
+  @override
+  final int? bookingsCount;
 
   @override
   String toString() {
-    return 'GuideTour(id: $id, tourInstanceId: $tourInstanceId, tourId: $tourId, tourName: $tourName, startDate: $startDate, endDate: $endDate, groupSize: $groupSize, groupDescription: $groupDescription, status: $status, bookingId: $bookingId, customerName: $customerName, customerPhone: $customerPhone, vehiclePlate: $vehiclePlate, driverName: $driverName, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'GuideTour(id: $id, tourInstanceId: $tourInstanceId, tourId: $tourId, tourName: $tourName, startDate: $startDate, endDate: $endDate, groupSize: $groupSize, groupDescription: $groupDescription, status: $status, bookingId: $bookingId, customerName: $customerName, customerPhone: $customerPhone, vehiclePlate: $vehiclePlate, driverName: $driverName, createdAt: $createdAt, updatedAt: $updatedAt, driverPhone: $driverPhone, coachType: $coachType, pickupLocation: $pickupLocation, passengerCount: $passengerCount, bookingsCount: $bookingsCount)';
   }
 
   @override
@@ -429,12 +510,22 @@ class _$GuideTourImpl implements _GuideTour {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.driverPhone, driverPhone) ||
+                other.driverPhone == driverPhone) &&
+            (identical(other.coachType, coachType) ||
+                other.coachType == coachType) &&
+            (identical(other.pickupLocation, pickupLocation) ||
+                other.pickupLocation == pickupLocation) &&
+            (identical(other.passengerCount, passengerCount) ||
+                other.passengerCount == passengerCount) &&
+            (identical(other.bookingsCount, bookingsCount) ||
+                other.bookingsCount == bookingsCount));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     tourInstanceId,
@@ -452,7 +543,12 @@ class _$GuideTourImpl implements _GuideTour {
     driverName,
     createdAt,
     updatedAt,
-  );
+    driverPhone,
+    coachType,
+    pickupLocation,
+    passengerCount,
+    bookingsCount,
+  ]);
 
   /// Create a copy of GuideTour
   /// with the given fields replaced by the non-null parameter values.
@@ -486,6 +582,11 @@ abstract class _GuideTour implements GuideTour {
     @JsonKey(name: 'driver_name') final String? driverName,
     @JsonKey(name: 'created_at') final DateTime? createdAt,
     @JsonKey(name: 'updated_at') final DateTime? updatedAt,
+    final String? driverPhone,
+    final String? coachType,
+    final String? pickupLocation,
+    final int? passengerCount,
+    final int? bookingsCount,
   }) = _$GuideTourImpl;
 
   factory _GuideTour.fromJson(Map<String, dynamic> json) =
@@ -535,7 +636,17 @@ abstract class _GuideTour implements GuideTour {
   DateTime? get createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt;
+  DateTime? get updatedAt; // Extended fields from API response
+  @override
+  String? get driverPhone;
+  @override
+  String? get coachType;
+  @override
+  String? get pickupLocation;
+  @override
+  int? get passengerCount;
+  @override
+  int? get bookingsCount;
 
   /// Create a copy of GuideTour
   /// with the given fields replaced by the non-null parameter values.

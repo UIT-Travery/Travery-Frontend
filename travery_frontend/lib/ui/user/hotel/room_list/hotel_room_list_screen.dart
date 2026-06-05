@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/ui/user/hotel/widgets/hotel_app_bar.dart';
 
 class HotelRoomListScreen extends StatefulWidget {
   const HotelRoomListScreen({super.key});
@@ -12,6 +13,7 @@ class HotelRoomListScreen extends StatefulWidget {
 
 class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
   final List<HotelRoomData> _selectedRooms = [];
+  List<HotelRoomData> _rooms = _dummyRooms;
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
@@ -23,71 +25,48 @@ class _HotelRoomListScreenState extends State<HotelRoomListScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      final hotel = extra?['hotel'];
+      if (hotel != null && hotel is HotelDetailData) {
+        setState(() {
+          _rooms = hotel.rooms;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: _dummyRooms.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final room = _dummyRooms[index];
-                final isSelected = _selectedRooms.contains(room);
-                return _RoomCard(
-                  room: room,
-                  isSelected: isSelected,
-                  formatPrice: _formatPrice,
-                  onToggle: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedRooms.remove(room);
-                      } else {
-                        _selectedRooms.add(room);
-                      }
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+      appBar: const HotelAppBar(title: 'Danh sách loại phòng'),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: _rooms.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final room = _rooms[index];
+          final isSelected = _selectedRooms.contains(room);
+          return _RoomCard(
+            room: room,
+            isSelected: isSelected,
+            formatPrice: _formatPrice,
+            onToggle: () {
+              setState(() {
+                if (isSelected) {
+                  _selectedRooms.remove(room);
+                } else {
+                  _selectedRooms.add(room);
+                }
+              });
+            },
+          );
+        },
       ),
       bottomNavigationBar: _buildBottomBar(),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(
-        4,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        16,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-          const Expanded(
-            child: Text(
-              'Danh sách loại phòng',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -260,20 +239,48 @@ class _RoomCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (room.isAvailable)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2ECC71),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFF10B981)
+                          : Colors.white.withValues(alpha: 0.9),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFFD1D5DB),
+                        width: 2,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.white,
+                            )
+                          : const SizedBox.shrink(),
                     ),
                   ),
+                ),
               ],
             ),
             Padding(
@@ -283,13 +290,31 @@ class _RoomCard extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        room.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1F2937),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              room.name,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                            if (room.bedType != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                HotelRoomData.getBedTypeLabel(room.bedType!),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       Column(
@@ -314,31 +339,87 @@ class _RoomCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: room.features.map((f) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                  if (room.description != null &&
+                      room.description!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      room.description!,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF4B5563),
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  if (room.capacityAdults != null ||
+                      room.capacityChildren != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.people_outline,
+                          size: 14,
+                          color: Color(0xFF6B7280),
                         ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
-                        ),
-                        child: Text(
-                          f,
+                        const SizedBox(width: 4),
+                        Text(
+                          '${room.capacityAdults ?? 0} người lớn${room.capacityChildren != null ? ', ${room.capacityChildren} trẻ em' : ''}',
                           style: const TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF4B5563),
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ],
+                    ),
+                  ],
+                  if (room.amenities != null && room.amenities!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 32,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: room.amenities!.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, idx) {
+                          final amenity = room.amenities![idx];
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: const Color(0xFFE5E7EB),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getAmenityIcon(amenity.name),
+                                  size: 14,
+                                  color: const Color(0xFF007AFF),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  amenity.name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF4B5563),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -346,5 +427,55 @@ class _RoomCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static IconData _getAmenityIcon(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('wifi') || lower.contains('wi-fi')) {
+      return Icons.wifi;
+    } else if (lower.contains('ac') ||
+        lower.contains('điều hòa') ||
+        lower.contains('air')) {
+      return Icons.ac_unit;
+    } else if (lower.contains('tv') || lower.contains('television')) {
+      return Icons.tv;
+    } else if (lower.contains('bath') ||
+        lower.contains('bồn') ||
+        lower.contains('hot')) {
+      return Icons.bathtub;
+    } else if (lower.contains('pool') ||
+        lower.contains('bể') ||
+        lower.contains('swim')) {
+      return Icons.pool;
+    } else if (lower.contains('parking') ||
+        lower.contains('đỗ') ||
+        lower.contains('garage')) {
+      return Icons.local_parking;
+    } else if (lower.contains('restaurant') ||
+        lower.contains('eat') ||
+        lower.contains('buffet')) {
+      return Icons.restaurant;
+    } else if (lower.contains('gym') ||
+        lower.contains('fitness') ||
+        lower.contains('sport')) {
+      return Icons.fitness_center;
+    } else if (lower.contains('spa') || lower.contains('massage')) {
+      return Icons.spa;
+    } else if (lower.contains('breakfast') || lower.contains('sáng')) {
+      return Icons.free_breakfast;
+    } else if (lower.contains('laundry') ||
+        lower.contains('giặt') ||
+        lower.contains('iron')) {
+      return Icons.local_laundry_service;
+    } else if (lower.contains('shuttle') ||
+        lower.contains('đưa') ||
+        lower.contains('đón')) {
+      return Icons.airport_shuttle;
+    } else if (lower.contains('pet') || lower.contains('thú')) {
+      return Icons.pets;
+    } else if (lower.contains('balcony') || lower.contains('ban công')) {
+      return Icons.balcony;
+    }
+    return Icons.check_circle_outline;
   }
 }

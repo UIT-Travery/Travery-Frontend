@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 
 class TripBookingCard extends StatelessWidget {
   const TripBookingCard({
@@ -14,6 +13,7 @@ class TripBookingCard extends StatelessWidget {
     required this.status,
     required this.statusLabel,
     required this.onTap,
+    required this.onPay,
     this.coachLicensePlate,
     this.paymentDeadline,
     this.paymentMethod,
@@ -30,316 +30,201 @@ class TripBookingCard extends StatelessWidget {
   final String status;
   final String statusLabel;
   final VoidCallback onTap;
+  final VoidCallback onPay;
   final String? coachLicensePlate;
   final DateTime? paymentDeadline;
   final String? paymentMethod;
   final String? paymentStatus;
 
-  Color _statusColor(String s) {
-    switch (s.toUpperCase()) {
+  bool get _isPending => status == 'PENDING';
+
+  Color _getStatusColor() {
+    switch (status.toUpperCase()) {
       case 'PAID':
-        return Colors.green;
-      case 'CANCELLED':
-        return Colors.red;
-      case 'CHECKED_IN':
-        return Colors.blue;
-      case 'NO_SHOW':
-        return Colors.red.shade300;
-      case 'CHECKED_OUT':
-        return Colors.teal;
+        return const Color(0xFF10B981);
       case 'PENDING':
+        return const Color(0xFFF59E0B);
+      case 'CHECKED_IN':
+        return const Color(0xFF007AFF);
+      case 'CHECKED_OUT':
+        return const Color(0xFF6B7280);
+      case 'CANCELLED':
+        return const Color(0xFFEF4444);
+      case 'NO_SHOW':
+        return const Color(0xFFF59E0B);
       default:
-        return Colors.orange;
+        return const Color(0xFF6B7280);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final sc = _statusColor(status);
-    final duration = arrivalTime != null
-        ? _formatDuration(departureTime, arrivalTime!)
-        : null;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // === Header: route + status ===
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: sc.withValues(alpha: 0.06),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: _getStatusColor().withValues(alpha: 0.1),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(),
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                const SizedBox(width: 8),
+                Text(
+                  statusLabel.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _getStatusColor(),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$originDestination → $destinationDestination',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF131B2E),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+
+                if (_isPending && paymentDeadline != null) ...[
                   Row(
                     children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.directions_bus,
-                          color: AppColors.primary,
-                          size: 22,
+                      const Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.orange,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Hạn: ${_formatDate(paymentDeadline!)} ${_formatTime(paymentDeadline!)}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Tổng cộng',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF717786),
+                          ),
+                        ),
+                        Text(
+                          _formatPrice(totalPrice),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF0058BC),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_isPending)
+                      ElevatedButton(
+                        onPressed: onPay,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF6B35),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
+                            Icon(Icons.payment, size: 16),
+                            SizedBox(width: 4),
                             Text(
-                              originDestination,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 14,
+                              'Thanh toán',
+                              style: TextStyle(
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF131B2E),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              destinationDestination,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF131B2E),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: sc.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          statusLabel,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: sc,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // === Body ===
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Date + Time row
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        _formatDate(departureTime),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: sc,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (arrivalTime != null)
-                        Text(
-                          '${_formatTime(departureTime)} → ${_formatTime(arrivalTime!)}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: sc,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      if (duration != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: sc.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            duration,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: sc,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Seats
-                  if (bookedSeatNames.isNotEmpty) ...[
-                    _InfoRow(
-                      icon: Icons.event_seat_outlined,
-                      text: 'Ghế: ${bookedSeatNames.join(", ")}',
-                    ),
-                    const SizedBox(height: 6),
-                  ],
-
-                  // Coach plate
-                  if (coachLicensePlate != null &&
-                      coachLicensePlate!.isNotEmpty) ...[
-                    _InfoRow(
-                      icon: Icons.directions_car_outlined,
-                      text: coachLicensePlate!,
-                    ),
-                    const SizedBox(height: 6),
-                  ],
-
-                  // Payment method
-                  if (paymentMethod != null && paymentMethod!.isNotEmpty) ...[
-                    _InfoRow(
-                      icon: Icons.payment_outlined,
-                      text: paymentMethod!,
-                    ),
-                    const SizedBox(height: 6),
-                  ],
-
-                  const SizedBox(height: 6),
-                  const Divider(height: 1, color: Color(0xFFF0F0F5)),
-                  const SizedBox(height: 10),
-
-                  // Price + Xem them
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (bookedSeatNames.length > 1)
-                            Text(
-                              '${bookedSeatNames.length} × ${_formatPrice(basePrice)}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFF717786),
-                              ),
-                            ),
-                          Text(
-                            _formatPrice(totalPrice),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
+                      )
+                    else
                       GestureDetector(
                         onTap: onTap,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Xem thêm',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primary,
-                                ),
+                        behavior: HitTestBehavior.opaque,
+                        child: const Row(
+                          children: [
+                            Text(
+                              'Xem chi tiết',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0058BC),
                               ),
-                              SizedBox(width: 2),
-                              Icon(
-                                Icons.chevron_right,
-                                size: 14,
-                                color: AppColors.primary,
-                              ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 18,
+                              color: Color(0xFF0058BC),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // === Footer: payment deadline for PENDING ===
-            if (status == 'PENDING' && paymentDeadline != null)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFF8E6),
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(16),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.timer_outlined,
-                      size: 14,
-                      color: Colors.orange.shade700,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'Hạn thanh toán: ${_formatDate(paymentDeadline!)} lúc ${_formatTime(paymentDeadline!)}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.orange.shade800,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
-              ),
-          ],
-        ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -348,41 +233,25 @@ class TripBookingCard extends StatelessWidget {
       '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
   String _formatDate(DateTime dt) {
-    const weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-    return '${weekdays[dt.weekday - 1]}, ${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
-  }
-
-  String _formatDuration(DateTime start, DateTime end) {
-    final diff = end.difference(start);
-    return '${diff.inHours}h${diff.inMinutes % 60 > 0 ? ' ${diff.inMinutes % 60}p' : ''}';
+    const months = [
+      'Th1',
+      'Th2',
+      'Th3',
+      'Th4',
+      'Th5',
+      'Th6',
+      'Th7',
+      'Th8',
+      'Th9',
+      'Th10',
+      'Th11',
+      'Th12',
+    ];
+    return '${dt.day.toString().padLeft(2, '0')}/${months[dt.month - 1]}/${dt.year}';
   }
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
     return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 13, color: const Color(0xFF717786)),
-        const SizedBox(width: 5),
-        Flexible(
-          child: Text(
-            text,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF414755)),
-          ),
-        ),
-      ],
-    );
   }
 }
