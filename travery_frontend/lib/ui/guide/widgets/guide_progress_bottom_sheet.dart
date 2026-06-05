@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class GuideProgressBottomSheet extends StatefulWidget {
@@ -240,7 +241,10 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Text(
-              _cleanError(_error!),
+              guideFriendlyErrorMessage(
+                _error,
+                fallback: 'Không cập nhật được tiến độ. Vui lòng kiểm tra lại.',
+              ),
               style: const TextStyle(fontSize: 12, color: AppColors.error),
             ),
           ),
@@ -440,11 +444,23 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
           Navigator.pop(context);
           break;
         case Error(:final error):
-          setState(() => _error = error.toString());
+          setState(() {
+            _error = guideFriendlyErrorMessage(
+              error,
+              fallback: 'Không cập nhật được tiến độ. Vui lòng kiểm tra lại.',
+            );
+          });
           break;
       }
     } catch (e) {
-      if (mounted) setState(() => _error = 'Đã xảy ra lỗi: $e');
+      if (mounted) {
+        setState(() {
+          _error = guideFriendlyErrorMessage(
+            e,
+            fallback: 'Không cập nhật được tiến độ. Vui lòng kiểm tra lại.',
+          );
+        });
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -473,10 +489,6 @@ class _GuideProgressBottomSheetState extends State<GuideProgressBottomSheet> {
       default:
         return status;
     }
-  }
-
-  String _cleanError(String message) {
-    return message.replaceFirst('HttpException: ', '');
   }
 }
 

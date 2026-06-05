@@ -5,9 +5,7 @@ import 'package:travery_frontend/utils/core_result.dart';
 
 class MyTripBookingViewModel extends ChangeNotifier {
   MyTripBookingViewModel({required TripBookingRepository repository})
-    : _repository = repository {
-    loadBookings();
-  }
+    : _repository = repository;
 
   final TripBookingRepository _repository;
 

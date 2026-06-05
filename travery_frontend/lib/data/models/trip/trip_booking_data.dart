@@ -1,3 +1,5 @@
+import 'package:travery_frontend/utils/review_guards.dart';
+
 class TripBookingData {
   const TripBookingData({
     required this.id,
@@ -76,10 +78,7 @@ class TripBookingData {
       paymentStatus: json['paymentStatus'] as String?,
       transactionId: json['transactionId'] as String?,
       gatewayTransactionId: json['gatewayTransactionId'] as String?,
-      hasReview:
-          json['hasReview'] as bool? ??
-          json['reviewed'] as bool? ??
-          json['review'] != null,
+      hasReview: readHasReview(json),
     );
   }
 }

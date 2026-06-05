@@ -110,50 +110,54 @@ class UserResultScreen extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(20, 28, 20, 18),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      _ResultBadge(status: status),
-                      const SizedBox(height: 22),
-                      Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1E293B),
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          message,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 8),
+                        _ResultBadge(status: status),
+                        const SizedBox(height: 22),
+                        Text(
+                          title,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF64748B),
-                            height: 1.45,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                            height: 1.2,
                           ),
                         ),
-                      ),
-                      if (summaryTitle != null ||
-                          details.isNotEmpty ||
-                          isSummaryLoading) ...[
-                        const SizedBox(height: 24),
-                        _SummaryCard(
-                          title: summaryTitle,
-                          icon: summaryIcon,
-                          details: details,
-                          isLoading: isSummaryLoading,
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            message,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF64748B),
+                              height: 1.45,
+                            ),
+                          ),
                         ),
+                        if (summaryTitle != null ||
+                            details.isNotEmpty ||
+                            isSummaryLoading) ...[
+                          const SizedBox(height: 24),
+                          _SummaryCard(
+                            title: summaryTitle,
+                            icon: summaryIcon,
+                            details: details,
+                            isLoading: isSummaryLoading,
+                          ),
+                        ],
+                        if (note != null && note!.trim().isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          _NoteBox(icon: noteIcon, text: note!),
+                        ],
                       ],
-                      if (note != null && note!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 14),
-                        _NoteBox(icon: noteIcon, text: note!),
-                      ],
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -200,28 +204,28 @@ class _ResultBadge extends StatelessWidget {
     return Container(
       width: 86,
       height: 86,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         shape: BoxShape.circle,
       ),
-      child: Center(
-        child: Container(
-          width: 62,
-          height: 62,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          child: status == UserResultStatus.processing
-              ? const Center(
-                  child: SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
-                )
-              : Icon(icon, color: Colors.white, size: 34),
-        ),
+      child: Container(
+        width: 62,
+        height: 62,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        child: status == UserResultStatus.processing
+            ? const SizedBox.square(
+                dimension: 28,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : SizedBox.square(
+                dimension: 34,
+                child: Center(child: Icon(icon, color: Colors.white, size: 34)),
+              ),
       ),
     );
   }
@@ -265,6 +269,7 @@ class _SummaryCard extends StatelessWidget {
                 Container(
                   width: 36,
                   height: 36,
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
@@ -371,7 +376,12 @@ class _NoteBox extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.primary, size: 18),
+          SizedBox.square(
+            dimension: 18,
+            child: Center(
+              child: Icon(icon, color: AppColors.primary, size: 18),
+            ),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -473,7 +483,13 @@ class _ActionLabel extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
+        if (icon != null) ...[
+          SizedBox.square(
+            dimension: 18,
+            child: Center(child: Icon(icon, size: 18)),
+          ),
+          const SizedBox(width: 8),
+        ],
         Flexible(
           child: Text(
             action.label,

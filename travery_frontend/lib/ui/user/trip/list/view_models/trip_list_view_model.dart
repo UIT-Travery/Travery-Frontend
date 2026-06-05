@@ -142,7 +142,9 @@ class TripListViewModel extends ChangeNotifier {
 
     switch (result) {
       case Ok(value: final data):
-        _trips = data;
+        _trips = data
+            .where((trip) => trip.status.toUpperCase() == 'OPEN')
+            .toList();
       case Error(error: final e):
         _error = e.toString();
     }

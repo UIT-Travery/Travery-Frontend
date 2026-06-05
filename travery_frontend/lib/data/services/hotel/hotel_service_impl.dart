@@ -55,7 +55,7 @@ class HotelServiceImpl implements HotelService {
 
       final response = await request.close();
 
-      if (response.statusCode == 200) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         final stringData = await response.transform(utf8.decoder).join();
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
         final data = jsonMap['data'] as List<dynamic>? ?? [];

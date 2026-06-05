@@ -182,8 +182,7 @@ List<SingleChildWidget> get providers => [
   // ── Hotel ViewModels ───────────────────────────────────────────────────────
   ChangeNotifierProvider(
     create: (context) =>
-        HotelMyBookingViewModel(hotelService: context.read<HotelService>())
-          ..loadBookings(),
+        HotelMyBookingViewModel(hotelService: context.read<HotelService>()),
   ),
   ChangeNotifierProvider(
     create: (context) =>

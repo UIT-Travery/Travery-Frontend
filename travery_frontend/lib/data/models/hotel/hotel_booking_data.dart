@@ -1,4 +1,5 @@
 import 'package:travery_frontend/data/models/hotel/hotel_detail_data.dart';
+import 'package:travery_frontend/utils/review_guards.dart';
 
 class HotelBookingData {
   HotelBookingData({
@@ -131,10 +132,7 @@ class HotelBookingData {
       guestCount: json['guestCount'] as int?,
       items: items,
       members: members,
-      hasReview:
-          json['hasReview'] as bool? ??
-          json['reviewed'] as bool? ??
-          json['review'] != null,
+      hasReview: readHasReview(json),
     );
   }
 }

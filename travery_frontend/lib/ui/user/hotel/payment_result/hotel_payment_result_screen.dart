@@ -62,7 +62,6 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bookingId = _bookingId ?? _bookingData?.id;
     final isSuccess = _isSuccess;
 
     return UserResultScreen(
@@ -77,27 +76,12 @@ class _HotelPaymentResultScreenState extends State<HotelPaymentResultScreen> {
       details: isSuccess ? _hotelPaymentDetails() : const [],
       isSummaryLoading: isSuccess && _isLoading && _bookingData == null,
       actions: [
-        if (isSuccess && bookingId != null && bookingId.isNotEmpty)
-          UserResultAction.primary(
-            label: 'Xem chi tiết đặt phòng',
-            icon: Icons.article_outlined,
-            onPressed: () => context.push(
-              Routes.hotelBookingDetail.replaceFirst(':id', bookingId),
-            ),
-          ),
-        if (isSuccess && bookingId != null && bookingId.isNotEmpty)
-          UserResultAction.secondary(
-            label: 'Về trang chủ',
-            icon: Icons.home_outlined,
-            onPressed: () => context.go(Routes.home),
-          )
-        else
-          UserResultAction.primary(
-            label: 'Về trang chủ',
-            icon: Icons.home_outlined,
-            backgroundColor: isSuccess ? AppColors.primary : AppColors.error,
-            onPressed: () => context.go(Routes.home),
-          ),
+        UserResultAction.primary(
+          label: 'Về trang chủ',
+          icon: Icons.home_outlined,
+          backgroundColor: isSuccess ? AppColors.primary : AppColors.error,
+          onPressed: () => context.go(Routes.home),
+        ),
       ],
       onClose: () => context.go(Routes.home),
     );

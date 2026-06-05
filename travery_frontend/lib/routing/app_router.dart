@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -23,8 +24,6 @@ import 'package:travery_frontend/ui/receptionist/view_models/recep_view_addon_li
 import 'package:travery_frontend/ui/guide/coach_trip/detail/guide_coach_trip_detail_screen.dart';
 import 'package:travery_frontend/ui/guide/coach_trip/list/guide_coach_trip_list_screen.dart';
 import 'package:travery_frontend/ui/guide/coach_trip/passengers/guide_coach_trip_passengers_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
 import 'package:travery_frontend/ui/guide/mission/guide_mission_detail_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/guide_mission_detail_view_model.dart';
@@ -119,7 +118,6 @@ import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_det
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/home/hotel_home_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/hotel_detail_screen.dart';
-import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
 import 'package:travery_frontend/ui/user/hotel/room_list/hotel_room_list_screen.dart';
@@ -140,7 +138,6 @@ import 'package:travery_frontend/ui/user/hotel/checkout/hotel_checkout_screen.da
 import 'package:travery_frontend/ui/user/hotel/checkout/view_models/hotel_checkout_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout_success/hotel_checkout_success_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart';
 import '../ui/admin/view_model/create_hotel_view_model.dart';
 import '../ui/admin/view_model/create_vehicle_view_model.dart';
 import '../ui/admin/view_model/hotel_management_view_model.dart';
@@ -500,6 +497,7 @@ GoRouter appRouter(
             pricePerChild: extra['pricePerChild'] as double,
             contactName: extra['contactName'] as String? ?? '',
             contactPhone: extra['contactPhone'] as String? ?? '',
+            contactEmail: extra['contactEmail'] as String? ?? '',
             specialRequests: extra['specialRequests'] as String,
             startDate: extra['startDate'] as String,
             endDate: extra['endDate'] as String,
@@ -626,7 +624,14 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.tripMyBookings,
-        builder: (context, state) => const UserBottomNav(initialIndex: 1),
+        builder: (context, state) {
+          final bookingTab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '') ?? 0;
+          return UserBottomNav(
+            initialIndex: 1,
+            initialBookingTab: bookingTab.clamp(0, 2),
+          );
+        },
       ),
       GoRoute(
         path: Routes.tripBookingDetail,
@@ -660,11 +665,8 @@ GoRouter appRouter(
       // --- HOTEL ROUTES ---
       GoRoute(
         path: Routes.hotelHome,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (_) =>
-              HotelHomeViewModel(hotelService: context.read<HotelService>()),
-          child: const HotelHomeScreen(),
-        ),
+        builder: (context, state) =>
+            HotelHomeScreen(hotelService: context.read<HotelService>()),
       ),
       GoRoute(
         path: Routes.hotelList,
@@ -1264,39 +1266,6 @@ GoRouter appRouter(
           child: const UserProfileScreen(),
         ),
       ),
-      GoRoute(
-        path: Routes.userEditProfile,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserEditProfileScreen(),
-        ),
-      ),
-      GoRoute(
-        path: Routes.userChangePassword,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserChangePasswordScreen(),
-        ),
-      ),
-      GoRoute(
-        path: Routes.userSettings,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserSettingsScreen(),
-        ),
-      ),
 
       // ==== Guide Routes ====
       GoRoute(
@@ -1312,28 +1281,6 @@ GoRouter appRouter(
                 GuideHomeViewModel(guideService: ctx.read<GuideService>()),
             child: const GuideHomeScreen(),
           ),
-        ),
-      ),
-      GoRoute(
-        path: Routes.guideEditProfile,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserEditProfileScreen(),
-        ),
-      ),
-      GoRoute(
-        path: Routes.guideChangePassword,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserChangePasswordScreen(),
         ),
       ),
       GoRoute(

@@ -3,6 +3,7 @@ import 'package:travery_frontend/data/models/trip/trip_booking_data.dart';
 import 'package:travery_frontend/data/models/trip/cancel_trip_data.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
+import 'package:travery_frontend/utils/review_guards.dart';
 
 class TripBookingDetailViewModel extends ChangeNotifier {
   TripBookingDetailViewModel({required TripService tripService})
@@ -99,6 +100,9 @@ class TripBookingDetailViewModel extends ChangeNotifier {
   }) async {
     final booking = _bookingData;
     if (booking == null) return 'Không tìm thấy thông tin đặt xe';
+    if (!canCreateReview) {
+      return 'Bạn đã gửi đánh giá cho đơn này rồi. Cảm ơn bạn đã chia sẻ trải nghiệm.';
+    }
 
     _isSubmittingReview = true;
     _error = null;
@@ -118,19 +122,14 @@ class TripBookingDetailViewModel extends ChangeNotifier {
         notifyListeners();
         return null;
       case Error(error: final e):
-        final msg = _cleanError(e);
-        _error = msg;
+        if (isDuplicateReviewError(e)) {
+          _reviewedBookingIds.add(booking.id);
+        }
+        final message = friendlyReviewError(e);
+        _error = message;
         _isSubmittingReview = false;
         notifyListeners();
-        return msg;
+        return message;
     }
-  }
-
-  String _cleanError(Object error) {
-    final message = error.toString();
-    if (message.startsWith('HttpException: ')) {
-      return message.substring('HttpException: '.length);
-    }
-    return message;
   }
 }

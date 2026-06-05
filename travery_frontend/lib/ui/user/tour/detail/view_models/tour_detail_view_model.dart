@@ -28,6 +28,9 @@ class TourDetailViewModel extends ChangeNotifier {
   bool _isLoadingInstances = false;
   bool get isLoadingInstances => _isLoadingInstances;
 
+  String? _instancesError;
+  String? get instancesError => _instancesError;
+
   String? _error;
   String? get error => _error;
 
@@ -120,6 +123,7 @@ class TourDetailViewModel extends ChangeNotifier {
   Future<void> loadTourInstances(String tourId) async {
     _isLoadingInstances = true;
     _selectedInstanceId = null;
+    _instancesError = null;
     notifyListeners();
 
     final result = await _tourService.getTourInstances(tourId);
@@ -132,10 +136,31 @@ class TourDetailViewModel extends ChangeNotifier {
           ..sort((a, b) => a.startDate.compareTo(b.startDate));
         _loadedInstancesForTourId = tourId;
       case Error(error: final e):
-        _error = e.toString();
+        _instances = [];
+        _instancesError = _friendlyInstancesError(e);
     }
 
     _isLoadingInstances = false;
     notifyListeners();
+  }
+
+  String _friendlyInstancesError(Object error) {
+    final raw = error.toString().toLowerCase();
+    if (raw.contains('socket') ||
+        raw.contains('network') ||
+        raw.contains('connection') ||
+        raw.contains('failed host lookup')) {
+      return 'Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.';
+    }
+    if (raw.contains('timeout')) {
+      return 'Tải lịch khởi hành mất quá nhiều thời gian. Vui lòng thử lại.';
+    }
+    if (raw.contains('401') ||
+        raw.contains('403') ||
+        raw.contains('token') ||
+        raw.contains('unauthorized')) {
+      return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+    }
+    return 'Không tải được lịch khởi hành. Vui lòng thử lại.';
   }
 }

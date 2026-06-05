@@ -669,7 +669,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
                       style: TextStyle(fontSize: 13, color: Color(0xFF4B5563)),
                     ),
                     Text(
-                      '#${_shortCode(booking.gatewayTransactionId ?? booking.transactionId ?? booking.id)}',
+                      _shortCode(
+                        booking.gatewayTransactionId ??
+                            booking.transactionId ??
+                            booking.id,
+                      ),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -841,6 +845,11 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     TripBookingData booking,
     TripBookingDetailViewModel vm,
   ) async {
+    if (booking.hasReview || !vm.canCreateReview) {
+      _showAlreadyReviewedMessage(context);
+      return;
+    }
+
     final submitted = await pushWriteReviewScreen(
       context,
       title: 'Đánh giá chuyến xe',
@@ -853,6 +862,15 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showAlreadyReviewedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bạn đã gửi đánh giá cho đơn này rồi.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -925,7 +943,7 @@ class _TripBookingDetailScreenState extends State<TripBookingDetailScreen> {
 
   String _formatPrice(double price) {
     final str = price.toStringAsFixed(0);
-    return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}d';
+    return '${str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}đ';
   }
 }
 

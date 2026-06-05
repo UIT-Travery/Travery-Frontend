@@ -148,13 +148,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     color: AppColors.primary,
                   ),
                 ),
-                if (booking.transactionId != null &&
-                    booking.transactionId!.isNotEmpty) ...[
+                if (booking.gatewayTransactionId != null &&
+                    booking.gatewayTransactionId!.isNotEmpty) ...[
                   _buildDivider(),
-                  _buildFormRow(
-                    'Mã giao dịch',
-                    _shortCode(booking.transactionId!),
-                  ),
+                  _buildFormRow('Mã giao dịch', booking.gatewayTransactionId!),
                 ],
                 if (booking.createdAt != null) ...[
                   _buildDivider(),
@@ -317,6 +314,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   ) async {
     final booking = vm.bookingDetail;
     if (booking == null) return;
+    if (booking.hasReview || !vm.canCreateReview) {
+      _showAlreadyReviewedMessage(context);
+      return;
+    }
 
     final submitted = await pushWriteReviewScreen(
       context,
@@ -330,6 +331,15 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showAlreadyReviewedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bạn đã gửi đánh giá cho đơn này rồi.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -454,10 +464,5 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     } catch (_) {
       return dateTimeStr;
     }
-  }
-
-  String _shortCode(String id) {
-    final clean = id.replaceAll('-', '');
-    return clean.length >= 8 ? clean.substring(clean.length - 8) : clean;
   }
 }

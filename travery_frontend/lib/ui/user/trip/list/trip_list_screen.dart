@@ -1143,32 +1143,12 @@ class _TripCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF2F3FF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.straighten,
-                        size: 12,
-                        color: Color(0xFF717786),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        duration,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF717786),
-                        ),
-                      ),
-                    ],
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: Color(0xFF717786),
                   ),
                 ),
                 Expanded(
