@@ -8,6 +8,8 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coo
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 class CoordinatorRepositoryRemote extends CoordinatorRepository {
@@ -510,5 +512,49 @@ class CoordinatorRepositoryRemote extends CoordinatorRepository {
   @override
   Future<Result<List<CoordinatorVehicle>>> getAllVehicles() async {
     return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<List<CoachTripResponse>>> getCoachTrips({String? status}) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getCoordinatorCoachTrips(
+        accessToken: token,
+        status: status,
+      );
+      
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<CoachTripDetailResponse>> getCoachTripDetail(String id) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Result.error(Exception('Not authenticated'));
+
+      final result = await _apiService.getCoordinatorCoachTripDetail(
+        accessToken: token,
+        id: id,
+      );
+      
+      switch (result) {
+        case Ok():
+          return Result.ok(result.value);
+        case Error():
+          return Result.error(result.error);
+      }
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 }

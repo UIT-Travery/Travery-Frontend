@@ -8,6 +8,8 @@ import 'package:travery_frontend/data/services/api/model/tour/tour_detail_respon
 import 'package:travery_frontend/data/services/api/model/tour/tour_instance_response/tour_instance_response.dart';
 import 'package:travery_frontend/data/services/api/model/tour/tour_response/tour_response.dart';
 import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Service for coordinator staff GET APIs.
@@ -670,6 +672,79 @@ class CoordinatorApiService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Create Tour Template Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/coordinator/coach-trips
+  Future<Result<List<CoachTripResponse>>> getCoordinatorCoachTrips({
+    required String accessToken,
+    String? status,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final queryParams = <String, String>{};
+      if (status != null && status.isNotEmpty) queryParams['status'] = status;
+
+      final uri = Uri.https(_host, '/api/v1/coordinator/coach-trips', queryParams.isEmpty ? null : queryParams);
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final pageData = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        final rawContent = pageData['content'] as List<dynamic>? ?? [];
+        final trips = rawContent
+            .map((e) => CoachTripResponse.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return Result.ok(trips);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Coordinator Coach Trips Error',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// GET /api/v1/coordinator/coach-trips/{id}
+  Future<Result<CoachTripDetailResponse>> getCoordinatorCoachTripDetail({
+    required String accessToken,
+    required String id,
+  }) async {
+    final client = _clientFactory();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final uri = Uri.https(_host, '/api/v1/coordinator/coach-trips/$id');
+      final request = await client.getUrl(uri);
+      _addAuth(request, accessToken);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+        return Result.ok(CoachTripDetailResponse.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Get Coordinator Coach Trip Detail Error',
         );
         return Result.error(HttpException(errorMsg));
       }

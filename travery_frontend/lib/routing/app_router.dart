@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
@@ -13,6 +14,7 @@ import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'package:travery_frontend/ui/admin/view/image_management.dart';
 import 'package:travery_frontend/ui/admin/view_model/image_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view/view_hotel_room_list.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_list_view_model.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_hotel_room_screen.dart';
@@ -183,6 +185,7 @@ import 'package:travery_frontend/ui/coordinator/view/coordinator_create_coach_te
 import 'package:travery_frontend/ui/coordinator/view/coordinator_selection_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_list_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_detail_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_template_list_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_ended_tour_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_reviews_screen.dart';
@@ -277,11 +280,20 @@ GoRouter appRouter(
       // --- COORDINATOR ROUTES ---
       GoRoute(
         path: Routes.coordinatorMain,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => CoordinatorTourListViewModel(
-            coordinatorRepository: context.read<CoordinatorRepository>(),
-            profileRepository: context.read<ProfileRepository>(),
-          ),
+        builder: (context, state) => MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create: (context) => CoordinatorTourListViewModel(
+                coordinatorRepository: context.read<CoordinatorRepository>(),
+                profileRepository: context.read<ProfileRepository>(),
+              ),
+            ),
+            Provider(
+              create: (context) => CoordinatorCoachTripListViewModel(
+                coordinatorRepository: context.read<CoordinatorRepository>(),
+              ),
+            ),
+          ],
           child: const CoordinatorMainScreen(),
         ),
       ),
@@ -368,15 +380,22 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.coordinatorViewCoachList,
-        builder: (context, state) => const CoordinatorViewCoachListScreen(),
+        builder: (context, state) => CoordinatorViewCoachListScreen(
+          viewModel: CoordinatorCoachTripListViewModel(
+            coordinatorRepository: context.read<CoordinatorRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.coordinatorViewCoach,
         builder: (context, state) {
-          final coach =
-              state.extra
-                  as CoordinatorCoach; // It needs a dynamic or specific type, passing what was in extra
-          return CoordinatorViewCoachScreen(coach: coach);
+          final id = state.extra as String;
+          return CoordinatorViewCoachScreen(
+            id: id,
+            viewModel: CoordinatorCoachTripDetailViewModel(
+              coordinatorRepository: context.read<CoordinatorRepository>(),
+            ),
+          );
         },
       ),
       GoRoute(

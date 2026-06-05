@@ -6,6 +6,8 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coo
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 
 abstract class CoordinatorRepository extends ChangeNotifier {
   /// GET /api/v1/staff/coordinator/instances
@@ -91,4 +93,10 @@ abstract class CoordinatorRepository extends ChangeNotifier {
   Future<Result<List<CoordinatorHotel>>> getAllHotels();
   Future<Result<List<CoordinatorDriver>>> getAllDrivers();
   Future<Result<List<CoordinatorVehicle>>> getAllVehicles();
+
+  /// GET /api/v1/coordinator/coach-trips
+  Future<Result<List<CoachTripResponse>>> getCoachTrips({String? status});
+
+  /// GET /api/v1/coordinator/coach-trips/{id}
+  Future<Result<CoachTripDetailResponse>> getCoachTripDetail(String id);
 }

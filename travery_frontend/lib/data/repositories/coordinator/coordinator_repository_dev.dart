@@ -1,10 +1,12 @@
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_detail_response/coach_trip_detail_response.dart';
 import 'package:travery_frontend/data/services/api/model/tour/tour_summart_response/tour_summary_response.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coordinator_tour.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_hotel/coordinator_hotel.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
+import 'package:travery_frontend/data/services/api/model/coordinator/coach_trip_response/coach_trip_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 /// Development/local implementation of [CoordinatorRepository].
@@ -158,6 +160,20 @@ class CoordinatorRepositoryDev extends CoordinatorRepository {
     List<String>? itineraryImageNames,
   }) {
     // TODO: implement createTourTemplate
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<List<CoachTripResponse>>> getCoachTrips({
+    String? status,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return const Result.ok([]);
+  }
+
+  @override
+  Future<Result<CoachTripDetailResponse>> getCoachTripDetail(String id) {
+    // TODO: implement getCoachTripDetail
     throw UnimplementedError();
   }
 }
