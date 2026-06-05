@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_guide/coordinator_guide.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
+import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_driver_vehicle_guide_selection_bottomsheet.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_tour_view_model.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
@@ -26,6 +30,10 @@ class _CoordinatorCreateTourScreenState
   DateTime? _endDate;
   final TextEditingController _minPeopleController = TextEditingController();
   final TextEditingController _maxPeopleController = TextEditingController();
+
+  CoordinatorDriver? _selectedDriver;
+  CoordinatorVehicle? _selectedVehicle;
+  CoordinatorGuide? _selectedGuide;
 
   @override
   void initState() {
@@ -246,30 +254,30 @@ class _CoordinatorCreateTourScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    // const SizedBox(height: 16),
 
-                    // ── Min/Max people ─────────────────────────────────────
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildTextField(
-                            label: 'Số lượng người tối thiểu',
-                            hint: 'Nhập số lượng...',
-                            controller: _minPeopleController,
-                            trailingIcon: Icons.person_remove_alt_1_outlined,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildTextField(
-                            label: 'Số lượng người tối đa',
-                            hint: 'Nhập số lượng...',
-                            controller: _maxPeopleController,
-                            trailingIcon: Icons.person_add_alt_1_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // // ── Min/Max people ─────────────────────────────────────
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: _buildTextField(
+                    //         label: 'Số lượng người tối thiểu',
+                    //         hint: 'Nhập số lượng...',
+                    //         controller: _minPeopleController,
+                    //         trailingIcon: Icons.person_remove_alt_1_outlined,
+                    //       ),
+                    //     ),
+                    //     const SizedBox(width: 12),
+                    //     Expanded(
+                    //       child: _buildTextField(
+                    //         label: 'Số lượng người tối đa',
+                    //         hint: 'Nhập số lượng...',
+                    //         controller: _maxPeopleController,
+                    //         trailingIcon: Icons.person_add_alt_1_outlined,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     const SizedBox(height: 24),
 
                     // ── Select guide, driver, vehicle button ───────────────
@@ -449,32 +457,67 @@ class _CoordinatorCreateTourScreenState
   }
 
   Widget _buildSelectGuideDriverVehicleButton() {
-    return InkWell(
-      onTap: () {
-        // TODO: Implement select guide, driver, vehicle
-      },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.primaryDarkBlackBlue, width: 1.5),
-        ),
-        child: Column(
-          children: const [
-            Icon(Icons.add, color: AppColors.textPrimary, size: 24),
-            SizedBox(height: 4),
-            Text(
-              'Chọn hướng dẫn viên, tài xế và xe',
-              style: TextStyle(
-                fontSize: AppTextTheme.bodyMedium,
-                color: AppColors.textSecondary,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_selectedDriver != null || _selectedVehicle != null || _selectedGuide != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_selectedDriver != null)
+                  Text('• Tài xế: ${_selectedDriver!.name}'),
+                if (_selectedVehicle != null)
+                  Text('• Xe: ${_selectedVehicle!.licensePlate} (${_selectedVehicle!.vehicleType})'),
+                if (_selectedGuide != null)
+                  Text('• HDV: ${_selectedGuide!.name}'),
+              ],
             ),
-          ],
+          ),
+        InkWell(
+          onTap: () async {
+            final result = await CoordinatorDriverVehicleGuideSelectionBottomSheet.show(context);
+            if (result != null) {
+              setState(() {
+                _selectedDriver = result['driver'] as CoordinatorDriver?;
+                _selectedVehicle = result['vehicle'] as CoordinatorVehicle?;
+                _selectedGuide = result['guide'] as CoordinatorGuide?;
+              });
+            }
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.primaryDarkBlackBlue, width: 1.5),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  (_selectedDriver != null || _selectedVehicle != null || _selectedGuide != null)
+                      ? Icons.edit
+                      : Icons.add,
+                  color: AppColors.textPrimary,
+                  size: 24,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  (_selectedDriver != null || _selectedVehicle != null || _selectedGuide != null)
+                      ? 'Chỉnh sửa hướng dẫn viên, tài xế và xe'
+                      : 'Chọn hướng dẫn viên, tài xế và xe',
+                  style: const TextStyle(
+                    fontSize: AppTextTheme.bodyMedium,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
