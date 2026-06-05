@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_list_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_list_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_template_list_view_model.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
@@ -88,8 +89,8 @@ class _CoordinatorSelectionScreenState extends State<CoordinatorSelectionScreen>
                   title: 'Thiết lập Chuyến Xe',
                   description:
                       'Phân bổ phương tiện, điều phối\ntài xế và sắp xếp lịch trình vận\nchuyển trong ngày.',
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -101,6 +102,13 @@ class _CoordinatorSelectionScreenState extends State<CoordinatorSelectionScreen>
                             ),
                       ),
                     );
+
+                    if (result == true && mounted) {
+                      context
+                          .read<CoordinatorCoachTripListViewModel>()
+                          .loadCoachTrips
+                          .execute(null);
+                    }
                   },
                 ),
                 const SizedBox(height: 16),

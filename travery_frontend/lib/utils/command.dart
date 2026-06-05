@@ -16,6 +16,8 @@ abstract class Command<T> extends ChangeNotifier {
 
   bool get error => _result is Error;
 
+  String? get errorMessage => _result is Error ? (_result as Error).error.toString().replaceAll('Exception: ', '') : null;
+
   bool get completed => _result is Ok;
 
   void clearResult() {

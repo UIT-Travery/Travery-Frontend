@@ -1,19 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_driver/coordinator_driver.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_guide/coordinator_guide.dart';
+import 'package:travery_frontend/domain/models/coordinator/coordinator_vehicle/coordinator_vehicle.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_driver_vehicle_guide_selection_view_model.dart';
+import 'package:travery_frontend/utils/core_result.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 
 class CoordinatorDriverVehicleGuideSelectionBottomSheet extends StatefulWidget {
-  const CoordinatorDriverVehicleGuideSelectionBottomSheet({super.key});
+  final CoordinatorDriverVehicleGuideSelectionViewModel viewModel;
+
+  const CoordinatorDriverVehicleGuideSelectionBottomSheet({
+    super.key,
+    required this.viewModel,
+  });
 
   /// Shows the bottom sheet
-  static Future<void> show(BuildContext context) {
-    return showModalBottomSheet(
+  static Future<Map<String, dynamic>?> show(BuildContext context) {
+    final viewModel = CoordinatorDriverVehicleGuideSelectionViewModel(
+      coordinatorRepository: context.read<CoordinatorRepository>(),
+    );
+    return showModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) =>
-          const CoordinatorDriverVehicleGuideSelectionBottomSheet(),
+      builder: (context) => CoordinatorDriverVehicleGuideSelectionBottomSheet(
+        viewModel: viewModel,
+      ),
     );
   }
 
@@ -26,19 +42,30 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
     extends State<CoordinatorDriverVehicleGuideSelectionBottomSheet> {
   int _currentStep = 0; // 0: Tài xế, 1: Xe, 2: Hướng dẫn viên
 
-  final List<Map<String, dynamic>> _mockDrivers = [
-    {'name': 'Nguyễn Văn Bình', 'email': 'binh@tra.gm.com', 'isReady': true},
-    {'name': 'Nguyễn Văn Bình', 'email': 'binh@tra.gm.com', 'isReady': false},
-    {'name': 'Nguyễn Văn Bình', 'email': 'binh@tra.gm.com', 'isReady': true},
-    {'name': 'Nguyễn Văn Bình', 'email': 'binh@tra.gm.com', 'isReady': true},
-  ];
+  CoordinatorDriver? _selectedDriver;
+  CoordinatorVehicle? _selectedVehicle;
+  CoordinatorGuide? _selectedGuide;
 
-  final List<Map<String, dynamic>> _mockVehicles = [
-    {'plate': '95A-123.45', 'type': 'Limosine', 'isReady': true},
-    {'plate': '95A-123.45', 'type': 'Limosine', 'isReady': false},
-    {'plate': '95A-123.45', 'type': 'Limosine', 'isReady': true},
-    {'plate': '95A-123.45', 'type': 'Limosine', 'isReady': true},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.executeLoadAll();
+    widget.viewModel.loadDrivers.addListener(_onDataLoaded);
+    widget.viewModel.loadVehicles.addListener(_onDataLoaded);
+    widget.viewModel.loadGuides.addListener(_onDataLoaded);
+  }
+
+  void _onDataLoaded() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.loadDrivers.removeListener(_onDataLoaded);
+    widget.viewModel.loadVehicles.removeListener(_onDataLoaded);
+    widget.viewModel.loadGuides.removeListener(_onDataLoaded);
+    super.dispose();
+  }
 
   void _nextStep() {
     if (_currentStep < 2) {
@@ -47,7 +74,11 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
       });
     } else {
       // Finished all selections
-      Navigator.of(context).pop();
+      Navigator.of(context).pop({
+        'driver': _selectedDriver,
+        'vehicle': _selectedVehicle,
+        'guide': _selectedGuide,
+      });
     }
   }
 
@@ -105,7 +136,7 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildStepChip('Tài xế', 0),
+        _buildStepChip('Tài xế', 0, _selectedDriver != null),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8),
           child: Icon(
@@ -114,7 +145,7 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
             color: AppColors.textPrimary,
           ),
         ),
-        _buildStepChip('Xe', 1),
+        _buildStepChip('Xe', 1, _selectedVehicle != null),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8),
           child: Icon(
@@ -123,26 +154,39 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
             color: AppColors.textPrimary,
           ),
         ),
-        _buildStepChip('Hướng dẫn viên', 2),
+        _buildStepChip('Hướng dẫn viên', 2, _selectedGuide != null),
       ],
     );
   }
 
-  Widget _buildStepChip(String label, int stepIndex) {
+  Widget _buildStepChip(String label, int stepIndex, bool isSelected) {
     final isActive = _currentStep == stepIndex;
+    final isDone = isSelected && !isActive;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: isActive ? AppColors.primary : Colors.grey.shade200,
+        color: isActive
+            ? AppColors.primary
+            : (isDone ? Colors.green : Colors.grey.shade200),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: isActive ? Colors.white : Colors.grey.shade600,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isDone) ...[
+            const Icon(Icons.check, size: 14, color: Colors.white),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: (isActive || isDone) ? Colors.white : Colors.grey.shade600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -150,56 +194,134 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
   Widget _buildListContent() {
     switch (_currentStep) {
       case 0:
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: _mockDrivers.length,
-          itemBuilder: (context, index) {
-            final driver = _mockDrivers[index];
-            return _buildPersonCard(
-              name: driver['name'],
-              email: driver['email'],
-              isReady: driver['isReady'],
-              onSelect: _nextStep,
-            );
-          },
-        );
+        return _buildDriverList();
       case 1:
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: _mockVehicles.length,
-          itemBuilder: (context, index) {
-            final vehicle = _mockVehicles[index];
-            return _buildVehicleCard(
-              plate: vehicle['plate'],
-              type: vehicle['type'],
-              isReady: vehicle['isReady'],
-              onSelect: _nextStep,
-            );
-          },
-        );
+        return _buildVehicleList();
       case 2:
       default:
-        // Use mock drivers as guide list for demonstration
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: _mockDrivers.length,
-          itemBuilder: (context, index) {
-            final guide = _mockDrivers[index];
-            return _buildPersonCard(
-              name: guide['name'],
-              email: guide['email'],
-              isReady: guide['isReady'],
-              onSelect: _nextStep,
-            );
+        return _buildGuideList();
+    }
+  }
+
+  Widget _buildDriverList() {
+    final cmd = widget.viewModel.loadDrivers;
+    if (cmd.running) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (cmd.error) {
+      return Center(child: Text('Lỗi: ${cmd.result}'));
+    }
+    final result = cmd.result;
+    final drivers = result is Ok<List<CoordinatorDriver>> ? result.value : <CoordinatorDriver>[];
+    if (drivers.isEmpty) {
+      return const Center(child: Text('Không có tài xế nào'));
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: drivers.length,
+      itemBuilder: (context, index) {
+        final driver = drivers[index];
+        final isSelected = _selectedDriver?.id == driver.id;
+        return _buildPersonCard(
+          name: driver.name,
+          email: driver.email,
+          imageUrl: driver.imageUrl,
+          isReady: driver.status == DriverStatus.available,
+          isSelected: isSelected,
+          onSelect: () {
+            setState(() {
+              _selectedDriver = driver;
+            });
+            _nextStep();
           },
         );
+      },
+    );
+  }
+
+  Widget _buildVehicleList() {
+    final cmd = widget.viewModel.loadVehicles;
+    if (cmd.running) {
+      return const Center(child: CircularProgressIndicator());
     }
+    if (cmd.error) {
+      return Center(child: Text('Lỗi: ${cmd.result}'));
+    }
+    final result = cmd.result;
+    final vehicles = result is Ok<List<CoordinatorVehicle>> ? result.value : <CoordinatorVehicle>[];
+    if (vehicles.isEmpty) {
+      return const Center(child: Text('Không có xe nào'));
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: vehicles.length,
+      itemBuilder: (context, index) {
+        final vehicle = vehicles[index];
+        final isSelected = _selectedVehicle?.id == vehicle.id;
+        return _buildVehicleCard(
+          plate: vehicle.licensePlate,
+          type: vehicle.vehicleType,
+          capacity: vehicle.capacity,
+          imageUrl: vehicle.imageUrl,
+          isReady: vehicle.vehicleStatus == 'AVAILABLE' ||
+              vehicle.vehicleStatus == 'Sẵn sàng',
+          isSelected: isSelected,
+          onSelect: () {
+            setState(() {
+              _selectedVehicle = vehicle;
+            });
+            _nextStep();
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildGuideList() {
+    final cmd = widget.viewModel.loadGuides;
+    if (cmd.running) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (cmd.error) {
+      return Center(child: Text('Lỗi: ${cmd.result}'));
+    }
+    final result = cmd.result;
+    final guides = result is Ok<List<CoordinatorGuide>> ? result.value : <CoordinatorGuide>[];
+    if (guides.isEmpty) {
+      return const Center(child: Text('Không có hướng dẫn viên nào'));
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: guides.length,
+      itemBuilder: (context, index) {
+        final guide = guides[index];
+        final isSelected = _selectedGuide?.id == guide.id;
+        return _buildPersonCard(
+          name: guide.name,
+          email: guide.email,
+          imageUrl: guide.imageUrl,
+          isReady: guide.status == GuideStatus.available,
+          isSelected: isSelected,
+          onSelect: () {
+            setState(() {
+              _selectedGuide = guide;
+            });
+            _nextStep();
+          },
+        );
+      },
+    );
   }
 
   Widget _buildPersonCard({
     required String name,
     required String email,
+    required String imageUrl,
     required bool isReady,
+    required bool isSelected,
     required VoidCallback onSelect,
   }) {
     return Container(
@@ -207,7 +329,12 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
       decoration: BoxDecoration(
         color: AppColors.surface, // Often white
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.primary.withValues(alpha: 0.1),
+          width: isSelected ? 2 : 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -230,12 +357,20 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(8),
+                    image: imageUrl.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
-                  child: const Icon(
-                    Icons.person_outline,
-                    color: AppColors.textSecondary,
-                    size: 28,
-                  ),
+                  child: imageUrl.isEmpty
+                      ? const Icon(
+                          Icons.person_outline,
+                          color: AppColors.textSecondary,
+                          size: 28,
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 12),
                 // Info
@@ -260,11 +395,14 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
                             color: AppColors.textSecondary,
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            email,
-                            style: const TextStyle(
-                              fontSize: AppTextTheme.bodySmall,
-                              color: AppColors.textSecondary,
+                          Expanded(
+                            child: Text(
+                              email,
+                              style: const TextStyle(
+                                fontSize: AppTextTheme.bodySmall,
+                                color: AppColors.textSecondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -285,16 +423,16 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
               child: ElevatedButton(
                 onPressed: onSelect,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: isSelected ? Colors.green : AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
                 ),
-                child: const Text(
-                  'Chọn',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: Text(
+                  isSelected ? 'Đã Chọn' : 'Chọn',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -307,7 +445,10 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
   Widget _buildVehicleCard({
     required String plate,
     required String type,
+    required int capacity,
+    required String imageUrl,
     required bool isReady,
+    required bool isSelected,
     required VoidCallback onSelect,
   }) {
     return Container(
@@ -315,7 +456,12 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
       decoration: BoxDecoration(
         color: AppColors.surface, // Often white
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: isSelected
+              ? AppColors.primary
+              : AppColors.primary.withValues(alpha: 0.1),
+          width: isSelected ? 2 : 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -338,12 +484,20 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(8),
+                    image: imageUrl.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
-                  child: const Icon(
-                    Icons.directions_bus_outlined,
-                    color: AppColors.textSecondary,
-                    size: 28,
-                  ),
+                  child: imageUrl.isEmpty
+                      ? const Icon(
+                          Icons.directions_bus_outlined,
+                          color: AppColors.textSecondary,
+                          size: 28,
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 12),
                 // Info
@@ -368,11 +522,14 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
                             color: AppColors.textSecondary,
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            type,
-                            style: const TextStyle(
-                              fontSize: AppTextTheme.bodySmall,
-                              color: AppColors.textSecondary,
+                          Expanded(
+                            child: Text(
+                              '$type • $capacity chỗ',
+                              style: const TextStyle(
+                                fontSize: AppTextTheme.bodySmall,
+                                color: AppColors.textSecondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -393,16 +550,16 @@ class _CoordinatorDriverVehicleGuideSelectionBottomSheetState
               child: ElevatedButton(
                 onPressed: onSelect,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: isSelected ? Colors.green : AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
                 ),
-                child: const Text(
-                  'Chọn',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: Text(
+                  isSelected ? 'Đã Chọn' : 'Chọn',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ),

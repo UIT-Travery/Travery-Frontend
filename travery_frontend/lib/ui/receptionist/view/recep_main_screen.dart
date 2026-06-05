@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_checkinout_list_screen.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_addon_list_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_hotel_room_view_model.dart';
+import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
 import 'recep_dashboard_screen.dart';
 import 'recep_view_addon_list_screen.dart';
 import 'recep_view_hotel_room_screen.dart';
-import 'recep_view_reviews.dart';
+
 import 'widgets/recep_bottom_nav_bar.dart';
 
 class RecepMainScreen extends StatefulWidget {
@@ -16,11 +20,19 @@ class RecepMainScreen extends StatefulWidget {
 class _RecepMainScreenState extends State<RecepMainScreen> {
   late PageController _pageController;
   int _currentIndex = 0;
+  late final RecepViewHotelRoomViewModel _roomViewModel;
+  late final RecepViewAddonListViewModel _addonViewModel;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
+    _roomViewModel = RecepViewHotelRoomViewModel(
+      repository: context.read<ReceptionistRepository>(),
+    );
+    _addonViewModel = RecepViewAddonListViewModel(
+      repository: context.read<ReceptionistRepository>(),
+    );
   }
 
   @override
@@ -49,12 +61,12 @@ class _RecepMainScreenState extends State<RecepMainScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
-        children: const [
-          RecepDashboardScreen(),
-          RecepViewCheckinoutListScreen(),
-          RecepViewHotelRoomScreen(),
-          RecepViewAddonListScreen(),
-          RecepViewReviews(),
+        children: [
+          const RecepDashboardScreen(),
+          const RecepViewCheckinoutListScreen(),
+          RecepViewHotelRoomScreen(viewModel: _roomViewModel),
+          RecepViewAddonListScreen(viewModel: _addonViewModel),
+
         ],
       ),
       bottomNavigationBar: RecepBottomNavBar(
