@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'recep_update_profile_screen.dart';
-
 import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
 import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -9,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/receptionist/view/widgets/recep_app_bar_avatar.dart';
 
 class RecepViewProfileScreen extends StatefulWidget {
   final AdminProfileViewModel viewModel;
@@ -34,10 +33,6 @@ class _RecepViewProfileScreenState extends State<RecepViewProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-          onPressed: () => context.pop(),
-        ),
         title: Row(
           children: [
             const Icon(Icons.home_outlined, color: AppColors.primary),
@@ -55,19 +50,7 @@ class _RecepViewProfileScreenState extends State<RecepViewProfileScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.person,
-                color: AppColors.primary,
-                size: 20,
-              ),
-            ),
+            child: const RecepAppBarAvatar(),
           ),
         ],
       ),
@@ -88,7 +71,8 @@ class _RecepViewProfileScreenState extends State<RecepViewProfileScreen> {
             email = result.value.email;
             role = result.value.role;
             avatarUrl = result.value.avatarUrl;
-            if (result.value.hotelName != null && result.value.hotelName!.isNotEmpty) {
+            if (result.value.hotelName != null &&
+                result.value.hotelName!.isNotEmpty) {
               hotelName = result.value.hotelName!;
             } else {
               hotelName = "Chưa cập nhật";
@@ -100,6 +84,16 @@ class _RecepViewProfileScreenState extends State<RecepViewProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () => context.pop(),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),

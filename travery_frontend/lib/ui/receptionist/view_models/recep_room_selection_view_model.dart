@@ -6,23 +6,28 @@ import 'package:travery_frontend/utils/core_result.dart';
 class RecepRoomSelectionViewModel {
   final ReceptionistRepository _repository;
 
-  List<AvailableRoomResponse> availableRooms = [];
+  Map<String, List<AvailableRoomResponse>> availableRoomsMap = {};
 
   RecepRoomSelectionViewModel({required ReceptionistRepository repository})
       : _repository = repository {
-    loadAvailableRooms = Command1<void, String>(_loadAvailableRooms);
+    loadAvailableRooms = Command1<void, List<String>>(_loadAvailableRooms);
   }
 
-  late final Command1<void, String> loadAvailableRooms;
+  late final Command1<void, List<String>> loadAvailableRooms;
 
-  Future<Result<void>> _loadAvailableRooms(String roomTypeId) async {
-    final result = await _repository.getAvailableRooms(roomTypeId);
-    switch (result) {
-      case Ok<List<AvailableRoomResponse>>():
-        availableRooms = result.value;
-        return const Result.ok(null);
-      case Error<List<AvailableRoomResponse>>():
-        return Result.error(result.error);
+  Future<Result<void>> _loadAvailableRooms(List<String> roomTypeIds) async {
+    availableRoomsMap.clear();
+    for (final id in roomTypeIds) {
+      final result = await _repository.getAvailableRooms(id);
+      switch (result) {
+        case Ok<List<AvailableRoomResponse>>():
+          availableRoomsMap[id] = result.value;
+          break;
+        case Error<List<AvailableRoomResponse>>():
+          return Result.error(result.error);
+      }
     }
+    return const Result.ok(null);
   }
 }
+

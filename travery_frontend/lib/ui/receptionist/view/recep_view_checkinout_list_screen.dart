@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
-import 'package:travery_frontend/domain/models/receptionist/recep_room/recep_room.dart';
+import 'package:provider/provider.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_check_in_out_card.dart';
-import 'package:travery_frontend/ui/receptionist/view/widgets/recep_large_button.dart';
+import 'package:travery_frontend/ui/receptionist/view/widgets/recep_app_bar_avatar.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_checkinout_list_view_model.dart';
 
 class RecepViewCheckinoutListScreen extends StatefulWidget {
   const RecepViewCheckinoutListScreen({super.key});
@@ -18,6 +19,54 @@ class _RecepViewCheckinoutListScreenState
     extends State<RecepViewCheckinoutListScreen> {
   String _selectedFilter = 'TẤT CẢ';
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    String? apiStatus;
+    switch (_selectedFilter) {
+      case 'CHỜ NHẬN PHÒNG':
+        apiStatus = 'PENDING';
+        break;
+      case 'ĐANG Ở':
+        apiStatus = 'CHECKED_IN';
+        break;
+      case 'ĐÃ TRẢ PHÒNG':
+        apiStatus = 'CHECKED_OUT';
+        break;
+      case 'TẤT CẢ':
+      default:
+        apiStatus = null;
+        break;
+    }
+
+    final viewModel = context.read<RecepViewCheckinoutListViewModel>();
+    viewModel.loadBookings.execute(apiStatus);
+    viewModel.loadBookings.addListener(_onResult);
+  }
+
+  @override
+  void dispose() {
+    final viewModel = context.read<RecepViewCheckinoutListViewModel>();
+    viewModel.loadBookings.removeListener(_onResult);
+    super.dispose();
+  }
+
+  void _onResult() {
+    final viewModel = context.read<RecepViewCheckinoutListViewModel>();
+    if (viewModel.loadBookings.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(viewModel.loadBookings.errorMessage ?? 'Có lỗi xảy ra'),
+        ),
+      );
+    }
+    if (mounted) setState(() {});
+  }
+
   Widget _buildFilterChip(String label) {
     final isSelected = _selectedFilter == label;
     return GestureDetector(
@@ -25,6 +74,7 @@ class _RecepViewCheckinoutListScreenState
         setState(() {
           _selectedFilter = label;
         });
+        _loadData();
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -49,8 +99,9 @@ class _RecepViewCheckinoutListScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: AppColors.surface,
         title: const Row(
           children: [
@@ -71,10 +122,7 @@ class _RecepViewCheckinoutListScreenState
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
               onTap: () => context.push(Routes.recepProfile),
-              child: const CircleAvatar(
-                backgroundColor: AppColors.primaryDarkBlackBlue,
-                child: Icon(Icons.person, color: Colors.white, size: 20),
-              ),
+              child: const RecepAppBarAvatar(),
             ),
           ),
         ],
@@ -96,10 +144,7 @@ class _RecepViewCheckinoutListScreenState
             const SizedBox(height: 8),
             const Text(
               'Chọn một hành khách để tiến hành điều phối',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 20),
             SingleChildScrollView(
@@ -118,32 +163,57 @@ class _RecepViewCheckinoutListScreenState
             ),
             const SizedBox(height: 24),
             Expanded(
-              child: ListView(
-                children: [
-                  RecepCheckInOutCard(
-                    guestName: 'Trần Văn A',
-                    roomCount: 3,
-                    guestCount: 6,
-                    roomType: 'Standard',
-                    bedType: RecepBedType.single,
-                    bedCount: 2,
-                    isCheckIn: true,
-                    date: 'Today',
-                    onTapAction: () {},
-                  ),
-                  const SizedBox(height: 16),
-                  RecepCheckInOutCard(
-                    guestName: 'Trần Văn A',
-                    roomCount: 3,
-                    guestCount: 6,
-                    roomType: 'Standard',
-                    bedType: RecepBedType.single,
-                    bedCount: 2,
-                    isCheckIn: true,
-                    date: '26/05/2026',
-                    onTapAction: () {},
-                  ),
-                ],
+              child: Builder(
+                builder: (context) {
+                  final viewModel = context
+                      .watch<RecepViewCheckinoutListViewModel>();
+                  return ListenableBuilder(
+                    listenable: viewModel.loadBookings,
+                    builder: (context, child) {
+                      final isLoading = viewModel.loadBookings.running;
+
+                      if (isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (viewModel.bookings.isEmpty) {
+                        return const Center(child: Text('Không có dữ liệu'));
+                      }
+
+                      return ListView.builder(
+                        itemCount: viewModel.bookings.length,
+                        itemBuilder: (context, index) {
+                          final booking = viewModel.bookings[index];
+                          // Note: API response RecepBookingListResponse does not have roomCount, guestCount, etc.
+                          // We will map the available fields and use placeholders for others.
+                          final isCheckIn = booking.status == 'PENDING';
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: RecepCheckInOutCard(
+                              guestName: booking.guestName,
+                              phoneNumber: booking.phoneNumber,
+                              roomCount: 1, // Placeholder
+                              guestCount: 2, // Placeholder
+                              checkInDate: booking.checkInDate,
+                              checkOutDate: booking.checkOutDate,
+                              status: booking.status,
+                              onTapAction: () {
+                                context.push(
+                                  Routes.recepDetailBooking.replaceFirst(
+                                    ':id',
+                                    booking.id,
+                                  ),
+                                  extra: {'isCheckIn': isCheckIn},
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],

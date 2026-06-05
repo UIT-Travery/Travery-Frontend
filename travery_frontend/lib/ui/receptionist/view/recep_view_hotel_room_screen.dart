@@ -5,6 +5,7 @@ import 'package:travery_frontend/data/services/api/model/receptionist/recep_room
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_room_card.dart';
 import 'package:travery_frontend/ui/receptionist/view_models/recep_view_hotel_room_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view/widgets/recep_app_bar_avatar.dart';
 import 'package:travery_frontend/ui/core/widgets/loading_overlay.dart';
 import 'package:travery_frontend/utils/alert.dart';
 
@@ -81,8 +82,10 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
   @override
   Widget build(BuildContext context) {
     List<RecepRoomResponse> filteredRooms = rooms.where((room) {
-      if (_selectedStatus != null && room.status.toUpperCase() != _selectedStatus) {
-        if (_selectedStatus == 'AVAILABLE' && room.status.toUpperCase() == 'READY') {
+      if (_selectedStatus != null &&
+          room.status.toUpperCase() != _selectedStatus) {
+        if (_selectedStatus == 'AVAILABLE' &&
+            room.status.toUpperCase() == 'READY') {
           // Both are considered available
         } else {
           return false;
@@ -107,13 +110,19 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
     final sortedFloors = groupedRooms.keys.toList()..sort();
 
     return ListenableBuilder(
-      listenable: Listenable.merge([widget.viewModel.loadRooms, widget.viewModel.updateRoomStatus]),
+      listenable: Listenable.merge([
+        widget.viewModel.loadRooms,
+        widget.viewModel.updateRoomStatus,
+      ]),
       builder: (context, child) {
         return LoadingOverlay(
-          isLoading: widget.viewModel.loadRooms.running || widget.viewModel.updateRoomStatus.running,
+          isLoading:
+              widget.viewModel.loadRooms.running ||
+              widget.viewModel.updateRoomStatus.running,
           child: Scaffold(
-            backgroundColor: AppColors.background,
+            backgroundColor: AppColors.surface,
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: AppColors.surface,
               title: const Row(
                 children: [
@@ -137,10 +146,7 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
                   padding: const EdgeInsets.only(right: 16.0),
                   child: GestureDetector(
                     onTap: () => context.push(Routes.recepProfile),
-                    child: const CircleAvatar(
-                      backgroundColor: AppColors.primaryDarkBlackBlue,
-                      child: Icon(Icons.person, color: Colors.white, size: 20),
-                    ),
+                    child: const RecepAppBarAvatar(),
                   ),
                 ),
               ],
@@ -212,7 +218,9 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
                   ),
                   _buildLegendGrid(),
                   Expanded(
-                    child: sortedFloors.isEmpty && !widget.viewModel.loadRooms.running
+                    child:
+                        sortedFloors.isEmpty &&
+                            !widget.viewModel.loadRooms.running
                         ? const Center(
                             child: Text(
                               'Không có phòng nào trong khách sạn.',
@@ -285,7 +293,8 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
               itemBuilder: (context, index) {
                 return RecepRoomCard(
                   room: rooms[index],
-                  onTap: () => _showUpdateStatusBottomSheet(context, rooms[index]),
+                  onTap: () =>
+                      _showUpdateStatusBottomSheet(context, rooms[index]),
                 );
               },
             ),
@@ -389,22 +398,38 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
                         setModalState(() => _selectedStatus = null);
                         setState(() {});
                       }),
-                      _buildFilterChip('Sẵn sàng', _selectedStatus == 'AVAILABLE', () {
-                        setModalState(() => _selectedStatus = 'AVAILABLE');
-                        setState(() {});
-                      }),
-                      _buildFilterChip('Đang dọn', _selectedStatus == 'DIRTY', () {
-                        setModalState(() => _selectedStatus = 'DIRTY');
-                        setState(() {});
-                      }),
-                      _buildFilterChip('Đang ở', _selectedStatus == 'OCCUPIED', () {
-                        setModalState(() => _selectedStatus = 'OCCUPIED');
-                        setState(() {});
-                      }),
-                      _buildFilterChip('Đang bảo trì', _selectedStatus == 'MAINTENANCE', () {
-                        setModalState(() => _selectedStatus = 'MAINTENANCE');
-                        setState(() {});
-                      }),
+                      _buildFilterChip(
+                        'Sẵn sàng',
+                        _selectedStatus == 'AVAILABLE',
+                        () {
+                          setModalState(() => _selectedStatus = 'AVAILABLE');
+                          setState(() {});
+                        },
+                      ),
+                      _buildFilterChip(
+                        'Đang dọn',
+                        _selectedStatus == 'DIRTY',
+                        () {
+                          setModalState(() => _selectedStatus = 'DIRTY');
+                          setState(() {});
+                        },
+                      ),
+                      _buildFilterChip(
+                        'Đang ở',
+                        _selectedStatus == 'OCCUPIED',
+                        () {
+                          setModalState(() => _selectedStatus = 'OCCUPIED');
+                          setState(() {});
+                        },
+                      ),
+                      _buildFilterChip(
+                        'Đang bảo trì',
+                        _selectedStatus == 'MAINTENANCE',
+                        () {
+                          setModalState(() => _selectedStatus = 'MAINTENANCE');
+                          setState(() {});
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -421,10 +446,14 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
                         setState(() {});
                       }),
                       ...uniqueRoomTypes.map(
-                        (type) => _buildFilterChip(type, _selectedRoomType == type, () {
-                          setModalState(() => _selectedRoomType = type);
-                          setState(() {});
-                        }),
+                        (type) => _buildFilterChip(
+                          type,
+                          _selectedRoomType == type,
+                          () {
+                            setModalState(() => _selectedRoomType = type);
+                            setState(() {});
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -471,9 +500,12 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
     );
   }
 
-  void _showUpdateStatusBottomSheet(BuildContext context, RecepRoomResponse room) {
+  void _showUpdateStatusBottomSheet(
+    BuildContext context,
+    RecepRoomResponse room,
+  ) {
     String selectedStatus = room.status.toUpperCase();
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -509,18 +541,36 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
                   Wrap(
                     spacing: 8,
                     children: [
-                      _buildFilterChip('Sẵn sàng', selectedStatus == 'AVAILABLE' || selectedStatus == 'READY', () {
-                        setModalState(() => selectedStatus = 'AVAILABLE');
-                      }),
-                      _buildFilterChip('Đang dọn', selectedStatus == 'CLEANING' || selectedStatus == 'DIRTY', () {
-                        setModalState(() => selectedStatus = 'CLEANING');
-                      }),
-                      _buildFilterChip('Đang ở', selectedStatus == 'OCCUPIED', () {
-                        setModalState(() => selectedStatus = 'OCCUPIED');
-                      }),
-                      _buildFilterChip('Đang bảo trì', selectedStatus == 'MAINTENANCE', () {
-                        setModalState(() => selectedStatus = 'MAINTENANCE');
-                      }),
+                      _buildFilterChip(
+                        'Sẵn sàng',
+                        selectedStatus == 'AVAILABLE' ||
+                            selectedStatus == 'READY',
+                        () {
+                          setModalState(() => selectedStatus = 'AVAILABLE');
+                        },
+                      ),
+                      _buildFilterChip(
+                        'Đang dọn',
+                        selectedStatus == 'CLEANING' ||
+                            selectedStatus == 'DIRTY',
+                        () {
+                          setModalState(() => selectedStatus = 'CLEANING');
+                        },
+                      ),
+                      _buildFilterChip(
+                        'Đang ở',
+                        selectedStatus == 'OCCUPIED',
+                        () {
+                          setModalState(() => selectedStatus = 'OCCUPIED');
+                        },
+                      ),
+                      _buildFilterChip(
+                        'Đang bảo trì',
+                        selectedStatus == 'MAINTENANCE',
+                        () {
+                          setModalState(() => selectedStatus = 'MAINTENANCE');
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -530,7 +580,10 @@ class _RecepViewHotelRoomScreenState extends State<RecepViewHotelRoomScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        widget.viewModel.updateRoomStatus.execute(room.id, selectedStatus);
+                        widget.viewModel.updateRoomStatus.execute(
+                          room.id,
+                          selectedStatus,
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryDarkBlackBlue,

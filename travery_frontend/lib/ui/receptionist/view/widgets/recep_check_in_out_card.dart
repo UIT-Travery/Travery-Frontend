@@ -1,146 +1,181 @@
 import 'package:flutter/material.dart';
-import 'package:travery_frontend/domain/models/receptionist/recep_room/recep_room.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
-import 'package:travery_frontend/ui/receptionist/view/widgets/recep_large_button.dart';
 
 class RecepCheckInOutCard extends StatelessWidget {
   final String guestName;
+  final String phoneNumber;
   final int roomCount;
   final int guestCount;
-  final String roomType;
-  final RecepBedType bedType;
-  final int bedCount;
-  final bool isCheckIn;
-  final String date;
+  final String checkInDate;
+  final String checkOutDate;
+  final String status;
   final VoidCallback? onTapAction;
 
   const RecepCheckInOutCard({
     super.key,
     required this.guestName,
+    required this.phoneNumber,
     required this.roomCount,
     required this.guestCount,
-    required this.roomType,
-    required this.bedType,
-    required this.bedCount,
-    required this.isCheckIn,
-    required this.date,
+    required this.checkInDate,
+    required this.checkOutDate,
+    required this.status,
     this.onTapAction,
   });
 
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'PENDING':
+        return 'Chờ nhận phòng';
+      case 'CHECKED_IN':
+        return 'Đang ở';
+      case 'CHECKED_OUT':
+        return 'Đã trả phòng';
+      case 'CANCELLED':
+        return 'Đã hủy';
+      default:
+        return 'Chưa rõ';
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'PENDING':
+        return Colors.orange;
+      case 'CHECKED_IN':
+        return Colors.blue;
+      case 'CHECKED_OUT':
+        return Colors.green;
+      case 'CANCELLED':
+        return Colors.red;
+      default:
+        return AppColors.textSecondary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Con số x3 được tính bằng số người chia (số giường nhân loại giường) làm tròn lên
-    final int bedCapacity = bedType == RecepBedType.single ? 1 : 2;
-    final int quantity = (guestCount / (bedCount * bedCapacity)).ceil();
-
-    final String bedTypeName = bedType == RecepBedType.single ? 'Giường đơn' : 'Giường đôi';
-
-    return Container(
-      height: 235,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  guestName,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+    return InkWell(
+      onTap: onTapAction,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    guestName,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$roomCount Phòng - $guestCount Người',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(status).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    _getStatusText(status),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: _getStatusColor(status),
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                size: 16,
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              phoneNumber,
+              style: const TextStyle(
+                fontSize: 14,
                 color: AppColors.textSecondary,
               ),
-              const SizedBox(width: 4),
-              Text(
-                '12:00 $date',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '$roomCount Phòng - $guestCount Người',
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
                     children: [
-                      Text(
-                        roomType,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
+                      const Icon(
+                        Icons.login,
+                        size: 16,
+                        color: AppColors.textSecondary,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$bedCount $bedTypeName',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          checkInDate,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  Text(
-                    'x$quantity',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.logout,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          checkOutDate,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          RecepLargeButton(
-            label: 'Xem chi tiết',
-            onTap: onTapAction,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
