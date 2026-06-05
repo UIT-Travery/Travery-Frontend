@@ -25,7 +25,6 @@ class TripPaymentResultViewModel extends ChangeNotifier {
 
   String? get transactionId => _bookingData?.payment?.transactionId;
 
-  String? _txnRef;
   String? _deeplinkStatus;
   String? _responseCode;
   String? _bookingId;
@@ -36,7 +35,6 @@ class TripPaymentResultViewModel extends ChangeNotifier {
     String? responseCode,
     String? bookingId,
   }) {
-    if (txnRef != null) _txnRef = txnRef;
     if (deeplinkStatus != null) _deeplinkStatus = deeplinkStatus;
     if (responseCode != null) _responseCode = responseCode;
     if (bookingId != null) _bookingId = bookingId;

@@ -12,9 +12,6 @@ class UserSettingsScreen extends StatefulWidget {
 }
 
 class _UserSettingsScreenState extends State<UserSettingsScreen> {
-  bool _pushNotifications = true;
-  bool _emailNotifications = false;
-
   void _handleDeleteAccount() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -77,6 +74,8 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         ),
         title: const Text(
           'Cài đặt',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 20,
@@ -114,37 +113,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 children: [
                   const SizedBox(height: 16),
 
-                  // Notifications Section
-                  _buildSectionHeader('Thông báo'),
-                  _buildSettingsCard([
-                    _buildToggleItem(
-                      icon: Icons.notifications_outlined,
-                      title: 'Thông báo đẩy',
-                      subtitle: 'Nhận cập nhật tức thì',
-                      value: _pushNotifications,
-                      onChanged: (value) {
-                        setState(() {
-                          _pushNotifications = value;
-                        });
-                      },
-                    ),
-                    const Divider(height: 1, indent: 72),
-                    _buildToggleItem(
-                      icon: Icons.mail_outline,
-                      title: 'Thông báo qua Email',
-                      subtitle: 'Bản tin và ưu đãi',
-                      value: _emailNotifications,
-                      onChanged: (value) {
-                        setState(() {
-                          _emailNotifications = value;
-                        });
-                      },
-                    ),
-                  ]),
-
-                  const SizedBox(height: 24),
-
-                  // Information Section
                   _buildSectionHeader('Thông tin'),
                   _buildSettingsCard([
                     _buildInfoItem(
@@ -162,23 +130,18 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                     _buildLinkItem(
                       icon: Icons.description_outlined,
                       title: 'Điều khoản & Điều kiện',
-                      onTap: () {
-                        // TODO: Navigate to terms page
-                      },
+                      onTap: () {},
                     ),
                     const Divider(height: 1, indent: 72),
                     _buildLinkItem(
                       icon: Icons.shield_outlined,
                       title: 'Chính sách bảo mật',
-                      onTap: () {
-                        // TODO: Navigate to privacy policy page
-                      },
+                      onTap: () {},
                     ),
                   ]),
 
                   const SizedBox(height: 24),
 
-                  // Account Section
                   _buildSectionHeader('Tài khoản'),
                   _buildSettingsCard([
                     _buildDangerItem(
@@ -191,7 +154,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Promo Banner
                   _buildPromoBanner(),
 
                   const SizedBox(height: 32),
@@ -233,59 +195,6 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         ],
       ),
       child: Column(children: children),
-    );
-  }
-
-  Widget _buildToggleItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceBlue,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.secondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: AppColors.primaryContainer,
-          ),
-        ],
-      ),
     );
   }
 
@@ -458,9 +367,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: () {
-                    // TODO: Navigate to upgrade page
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,

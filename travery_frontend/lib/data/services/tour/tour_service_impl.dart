@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:travery_frontend/config/app_config.dart';
+import 'package:travery_frontend/data/models/review/review_data.dart';
 import 'package:travery_frontend/data/models/tour/tour_detail_page_data.dart';
 import 'package:travery_frontend/data/models/tour/tour_featured_response.dart';
 import 'package:travery_frontend/data/models/tour/tour_search_response.dart';
@@ -188,6 +189,50 @@ class TourServiceImpl implements TourService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Get tour failed',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<ReviewPageData>> getTourReviews(
+    String tourId, {
+    int page = 0,
+    int size = 10,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.getUrl(
+        Uri.https(AppConfig.baseUrl, '/api/v1/tours/$tourId/reviews', {
+          'page': page.toString(),
+          'size': size.toString(),
+        }),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(ReviewPageData.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải đánh giá tour',
         );
         return Result.error(HttpException(errorMsg));
       }

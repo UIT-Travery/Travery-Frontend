@@ -17,7 +17,7 @@ _TourInstanceResponse _$TourInstanceResponseFromJson(
   currentParticipants: (json['currentParticipants'] as num).toInt(),
   maxParticipants: (json['maxParticipants'] as num?)?.toInt(),
   availableSlots: (json['availableSlots'] as num?)?.toInt(),
-  imageUrl: json['imageUrl'] as String?,
+  thumbnailUrl: json['thumbnailUrl'] as String?,
 );
 
 Map<String, dynamic> _$TourInstanceResponseToJson(
@@ -31,5 +31,5 @@ Map<String, dynamic> _$TourInstanceResponseToJson(
   'currentParticipants': instance.currentParticipants,
   'maxParticipants': instance.maxParticipants,
   'availableSlots': instance.availableSlots,
-  'imageUrl': instance.imageUrl,
+  'thumbnailUrl': instance.thumbnailUrl,
 };

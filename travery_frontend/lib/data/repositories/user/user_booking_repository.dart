@@ -95,6 +95,10 @@ class UserBookingRepository extends BookingService {
             paymentExpiresAt:
                 (data['payment'] as Map<String, dynamic>?)?['expiresAt']
                     as String?,
+            hasReview:
+                data['hasReview'] as bool? ??
+                data['reviewed'] as bool? ??
+                data['review'] != null,
           ),
         );
       } else {
@@ -236,6 +240,48 @@ class UserBookingRepository extends BookingService {
         final errorMsg = await _extractErrorMessage(
           response,
           'Tạo thanh toán thất bại',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
+  Future<Result<bool>> createReview({
+    required String bookingId,
+    required int rating,
+    required String content,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.postUrl(
+        Uri.https(
+          AppConfig.baseUrl,
+          '/api/v1/tour-bookings/$bookingId/reviews',
+        ),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        'application/json; charset=utf-8',
+      );
+      await _setBearerAuth(request);
+      request.write(jsonEncode({'rating': rating, 'content': content}));
+
+      final response = await request.close();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await response.drain<void>();
+        return const Result.ok(true);
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể gửi đánh giá tour',
         );
         return Result.error(HttpException(errorMsg));
       }

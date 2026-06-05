@@ -37,6 +37,25 @@ import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/data/services/trip/trip_service_impl.dart';
+import 'package:travery_frontend/data/services/trip/trip_booking_repository.dart';
+// import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
+import 'package:travery_frontend/data/repositories/profile/profile_repository_remote.dart';
+import 'package:travery_frontend/ui/admin/view_model/admin_profile_view_model.dart';
+
+import 'package:travery_frontend/data/services/api/receptionist_api_service.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository_remote.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selection_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_checkinout_list_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_detail_booking_view_model.dart';
+
+import 'package:travery_frontend/data/services/booking/booking_service.dart';
+import 'package:travery_frontend/data/repositories/mission_repository_impl.dart';
+import 'package:travery_frontend/data/repositories/check_in_repository_impl.dart';
+import 'package:travery_frontend/data/repositories/tour_progress_repository_impl.dart';
+
 import 'package:travery_frontend/ui/user/home/view_models/home_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/booking_input/view_models/booking_input_view_model.dart';
@@ -180,9 +199,6 @@ List<SingleChildWidget> get providers => [
     create: (context) =>
         TripBookingDetailViewModel(tripService: context.read<TripService>()),
   ),
-  ChangeNotifierProvider(
-    create: (context) => HotelMyBookingViewModel()..loadBookings(),
-  ),
 
   // ── Hotel Service ─────────────────────────────────────────────────────────
   Provider<HotelService>(
@@ -192,6 +208,11 @@ List<SingleChildWidget> get providers => [
   ),
 
   // ── Hotel ViewModels ───────────────────────────────────────────────────────
+  ChangeNotifierProvider(
+    create: (context) =>
+        HotelMyBookingViewModel(hotelService: context.read<HotelService>())
+          ..loadBookings(),
+  ),
   ChangeNotifierProvider(
     create: (context) =>
         HotelHomeViewModel(hotelService: context.read<HotelService>()),
@@ -223,6 +244,12 @@ List<SingleChildWidget> get providers => [
       securityStorageService: context.read<SecurityStorageService>(),
     ),
   ),
+  ChangeNotifierProvider<AdminProfileViewModel>(
+    create: (context) => AdminProfileViewModel(
+      authRepository: context.read<AuthRepository>(),
+      profileRepository: context.read<ProfileRepository>(),
+    ),
+  ),
 
   // ── Coordinator service ───────────────────────────────────────────────
   Provider<CoordinatorApiService>(create: (context) => CoordinatorApiService()),
@@ -241,6 +268,28 @@ List<SingleChildWidget> get providers => [
     create: (context) => NotificationRepositoryRemote(
       apiService: context.read<NotificationApiService>(),
       tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+  // ── Receptionist service ───────────────────────────────────────────────
+  Provider<ReceptionistApiService>(
+    create: (context) => ReceptionistApiService(),
+  ),
+
+  // ── Receptionist repository (remote) ──────────────────────────────────────
+  ChangeNotifierProvider<ReceptionistRepository>(
+    create: (context) => ReceptionistRepositoryRemote(
+      apiService: context.read<ReceptionistApiService>(),
+      tokenRefreshService: context.read<TokenRefreshService>(),
+    ),
+  ),
+  Provider<RecepViewCheckinoutListViewModel>(
+    create: (context) => RecepViewCheckinoutListViewModel(
+      repository: context.read<ReceptionistRepository>(),
+    ),
+  ),
+  Provider<RecepViewDetailBookingViewModel>(
+    create: (context) => RecepViewDetailBookingViewModel(
+      repository: context.read<ReceptionistRepository>(),
     ),
   ),
 

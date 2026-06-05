@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 
 class GuideBottomNavBar extends StatelessWidget {
@@ -44,9 +42,9 @@ class GuideBottomNavBar extends StatelessWidget {
                 onTap: () => onTap(0),
               ),
               _NavItem(
-                icon: Icons.chat_bubble_outline,
-                activeIcon: Icons.chat_bubble,
-                label: 'Chat',
+                icon: Icons.directions_bus_outlined,
+                activeIcon: Icons.directions_bus,
+                label: 'Chuyến xe',
                 isActive: currentIndex == 1,
                 onTap: () => onTap(1),
               ),
@@ -55,7 +53,7 @@ class GuideBottomNavBar extends StatelessWidget {
                 activeIcon: Icons.person,
                 label: 'Cá nhân',
                 isActive: currentIndex == 2,
-                onTap: () => context.push(Routes.userProfile),
+                onTap: () => onTap(2),
               ),
             ],
           ),

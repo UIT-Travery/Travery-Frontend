@@ -36,7 +36,7 @@ class CoordinatorBottomNavigationBar extends StatelessWidget {
               _buildNavItem(1, Icons.directions_car_outlined, "Đặt xe"),
               _buildNavItem(2, Icons.add, "Thêm tour", isCenter: true),
               _buildNavItem(3, Icons.chat_bubble_outline_rounded, "Chat"),
-              _buildNavItem(4, Icons.star_border_rounded, "ĐÁNH GIÁ"),
+              _buildNavItem(4, Icons.receipt_long_outlined, "Hoàn tiền"),
             ],
           ),
         ),

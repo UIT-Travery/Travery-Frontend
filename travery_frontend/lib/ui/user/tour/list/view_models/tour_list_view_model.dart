@@ -25,7 +25,6 @@ class TourListViewModel extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  // Filter state
   String _keyword = '';
   double? _minPrice;
   double? _maxPrice;
@@ -35,11 +34,9 @@ class TourListViewModel extends ChangeNotifier {
   static const int _pageSize = 20;
   static const int _defaultMinDays = 5;
 
-  // Debounce timer for search
   Timer? _debounceTimer;
   static const Duration _debounceDuration = Duration(milliseconds: 500);
 
-  // Getters for filter state
   String get keyword => _keyword;
   double? get minPrice => _minPrice;
   double? get maxPrice => _maxPrice;
@@ -82,7 +79,6 @@ class TourListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Set keyword with debounce support
   void setKeywordDebounced(String value) {
     _keyword = value;
     _debounceTimer?.cancel();
@@ -92,14 +88,12 @@ class TourListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Immediate search without debounce
   void setKeywordImmediate(String value) {
     _keyword = value;
     _debounceTimer?.cancel();
     notifyListeners();
   }
 
-  /// Perform immediate search
   void searchNow() {
     _debounceTimer?.cancel();
     loadTours(keyword: _keyword, refresh: true);

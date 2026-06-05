@@ -5,7 +5,7 @@ part 'admin_user_page_response.freezed.dart';
 part 'admin_user_page_response.g.dart';
 
 @freezed
-class AdminUserPageResponse with _$AdminUserPageResponse {
+abstract class AdminUserPageResponse with _$AdminUserPageResponse {
   const factory AdminUserPageResponse({
     @Default([]) List<AdminUserResponse> content,
     @Default(0) int totalElements,

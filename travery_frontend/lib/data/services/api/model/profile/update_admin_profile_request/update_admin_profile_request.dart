@@ -4,7 +4,7 @@ part 'update_admin_profile_request.freezed.dart';
 part 'update_admin_profile_request.g.dart';
 
 @freezed
-class UpdateAdminProfileRequest with _$UpdateAdminProfileRequest {
+abstract class UpdateAdminProfileRequest with _$UpdateAdminProfileRequest {
   const factory UpdateAdminProfileRequest({
     String? fullName,
     String? phoneNumber,

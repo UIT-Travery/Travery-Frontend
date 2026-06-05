@@ -1,6 +1,7 @@
 enum DriverStatus { available, unavailable }
 
 class CoordinatorDriver {
+  final String id;
   final String name;
   final String email;
   final String imageUrl;
@@ -8,6 +9,7 @@ class CoordinatorDriver {
   final DriverStatus status;
 
   const CoordinatorDriver({
+    required this.id,
     required this.name,
     required this.email,
     required this.imageUrl,

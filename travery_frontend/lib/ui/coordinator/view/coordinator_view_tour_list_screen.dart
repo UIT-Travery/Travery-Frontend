@@ -192,12 +192,6 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
               },
             ),
           ),
-          const SizedBox(width: 12),
-          CoordinatorFilterButton(
-            onFilterTap: () {
-              // Open filter dialog or perform sorting if needed
-            },
-          ),
         ],
       ),
     );

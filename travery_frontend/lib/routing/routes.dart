@@ -126,6 +126,10 @@ class Routes {
 
   // Guide
   static const String guideHome = '/guide/home';
+  static const String guideCoachTrips = '/guide/coach-trips';
+  static const String guideCoachTripDetail = '/guide/coach-trips/:id';
+  static const String guideCoachTripPassengers =
+      '/guide/coach-trips/:id/passengers';
   static const String missionDetail = '/guide/mission/:id';
   static const String checkIn = '/guide/mission/:id/check-in';
   static const String tourProgress = '/guide/mission/:id/progress';
@@ -159,8 +163,11 @@ class Routes {
   static const String recepDashboard = '/recep/dashboard';
   static const String recepCheckInOut = '/recep/check-in-out';
   static const String recepHotel = '/recep/hotel';
-  static const String recepAddon = '/recep/addon';
+  static const String recepAddOnList = '/recep/add-on';
+  static const String recepBookingBill = '/recep/booking-bill';
   static const String recepProfile = '/recep/profile';
+  static const String recepRoomSelection = '/recep/room-selection/:id';
+  static const String recepDetailBooking = '/recep/detail-booking/:id';
 
   // User Profile
   static const String userProfile = '/user/profile';

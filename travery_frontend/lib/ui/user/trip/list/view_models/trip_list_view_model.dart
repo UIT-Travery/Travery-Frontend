@@ -5,7 +5,6 @@ import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/data/services/api/model/trip/search_trip_request/search_trip_request.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
-/// 0 = all, -1 = low to high, 1 = high to low
 class TripListViewModel extends ChangeNotifier {
   TripListViewModel({required TripService tripService})
     : _tripService = tripService;
@@ -27,7 +26,6 @@ class TripListViewModel extends ChangeNotifier {
   TimeSlot? _selectedTimeSlot;
   TimeSlot? get selectedTimeSlot => _selectedTimeSlot;
 
-  /// 0 = all, -1 = low to high, 1 = high to low
   int _priceSort = 0;
   int get priceSort => _priceSort;
 
@@ -134,6 +132,10 @@ class TripListViewModel extends ChangeNotifier {
       sortByPriceAsc: _priceSort == -1
           ? true
           : (_priceSort == 1 ? false : null),
+    );
+
+    debugPrint(
+      '[TripListVM] Searching with originId=${_origin!.id}, destinationId=${_destination!.id}, date=${request.departureDate}',
     );
 
     final result = await _tripService.searchTrips(request);

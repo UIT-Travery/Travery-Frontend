@@ -34,11 +34,11 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
   /// The live instance detail (refreshed from API after mutations)
   CoordinatorTour get _tour =>
       widget.viewModel.loadTourDetail.completed &&
-              widget.viewModel.loadTourDetail.result is core_result.Ok
-          ? (widget.viewModel.loadTourDetail.result
-                  as core_result.Ok<CoordinatorTour>)
-              .value
-          : widget.tour;
+          widget.viewModel.loadTourDetail.result is core_result.Ok
+      ? (widget.viewModel.loadTourDetail.result
+                as core_result.Ok<CoordinatorTour>)
+            .value
+      : widget.tour;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -85,9 +85,10 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
       final result = widget.viewModel.loadTourDetail.result;
       String msg = 'Không thể tải chi tiết tour';
       if (result != null && result is core_result.Error) {
-        msg = (result as core_result.Error).error
-            .toString()
-            .replaceAll('HttpException: ', '');
+        msg = (result as core_result.Error).error.toString().replaceAll(
+          'HttpException: ',
+          '',
+        );
       }
       widget.viewModel.loadTourDetail.clearResult();
       Utils.showErrorNotification(context, msg);
@@ -96,9 +97,10 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
       final result = widget.viewModel.updateInstance.result;
       String msg = 'Cập nhật thất bại';
       if (result != null && result is core_result.Error) {
-        msg = (result as core_result.Error).error
-            .toString()
-            .replaceAll('HttpException: ', '');
+        msg = (result as core_result.Error).error.toString().replaceAll(
+          'HttpException: ',
+          '',
+        );
       }
       widget.viewModel.updateInstance.clearResult();
       Utils.showErrorNotification(context, msg);
@@ -115,9 +117,10 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
       final result = widget.viewModel.updateStatus.result;
       String msg = 'Cập nhật trạng thái thất bại';
       if (result != null && result is core_result.Error) {
-        msg = (result as core_result.Error).error
-            .toString()
-            .replaceAll('HttpException: ', '');
+        msg = (result as core_result.Error).error.toString().replaceAll(
+          'HttpException: ',
+          '',
+        );
       }
       widget.viewModel.updateStatus.clearResult();
       Utils.showErrorNotification(context, msg);
@@ -150,7 +153,14 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
   // ── Status actions ─────────────────────────────────────────────────────────
 
   void _showUpdateStatusDialog() {
-    final statuses = ['PLANNING', 'OPEN', 'FULL', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+    final statuses = [
+      'PLANNING',
+      'OPEN',
+      'FULL',
+      'IN_PROGRESS',
+      'COMPLETED',
+      'CANCELLED',
+    ];
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -186,7 +196,8 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final tour = _tour;
-    final isLoading = widget.viewModel.loadTourDetail.running ||
+    final isLoading =
+        widget.viewModel.loadTourDetail.running ||
         widget.viewModel.updateStatus.running ||
         widget.viewModel.deleteInstance.running;
 
@@ -269,7 +280,9 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 16),
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -279,7 +292,9 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                         height: 200,
                         decoration: BoxDecoration(
                           border: Border.all(
-                              color: AppColors.primary, width: 2),
+                            color: AppColors.primary,
+                            width: 2,
+                          ),
                           image: const DecorationImage(
                             image: NetworkImage(
                               'https://vnn-imgs-f.vgcloud.vn/2019/10/24/16/du-lich-dai-loan-tu-tuc-nhung-dieu-can-biet.jpg',
@@ -295,7 +310,7 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                             gradient: LinearGradient(
                               colors: [
                                 Colors.black.withValues(alpha: 0.8),
-                                Colors.transparent
+                                Colors.transparent,
                               ],
                               begin: Alignment.bottomCenter,
                               end: Alignment.topCenter,
@@ -317,7 +332,9 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                       // Status chip
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: _statusColor(tour.status),
                           borderRadius: BorderRadius.circular(20),
@@ -467,7 +484,8 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                                         tour.coachLicensePlate == null)
                                       const Padding(
                                         padding: EdgeInsets.symmetric(
-                                            vertical: 8.0),
+                                          vertical: 8.0,
+                                        ),
                                         child: Text(
                                           'Chưa phân công nhân sự',
                                           style: TextStyle(
@@ -495,12 +513,12 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                         curve: Curves.easeInOut,
                         child: _isBookingsExpanded
                             ? const Padding(
-                                padding:
-                                    EdgeInsets.symmetric(vertical: 12.0),
+                                padding: EdgeInsets.symmetric(vertical: 12.0),
                                 child: Text(
                                   'Chức năng xem danh sách booking đang được phát triển.',
                                   style: TextStyle(
-                                      color: AppColors.textSecondary),
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -511,8 +529,7 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                         title: 'Lịch trình chi tiết',
                         isExpanded: _isItineraryExpanded,
                         onTap: () => setState(
-                          () => _isItineraryExpanded =
-                              !_isItineraryExpanded,
+                          () => _isItineraryExpanded = !_isItineraryExpanded,
                         ),
                       ),
                       AnimatedSize(
@@ -520,12 +537,12 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                         curve: Curves.easeInOut,
                         child: _isItineraryExpanded
                             ? const Padding(
-                                padding:
-                                    EdgeInsets.symmetric(vertical: 12.0),
+                                padding: EdgeInsets.symmetric(vertical: 12.0),
                                 child: Text(
                                   'Chức năng xem lịch trình chi tiết đang được phát triển.',
                                   style: TextStyle(
-                                      color: AppColors.textSecondary),
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -694,4 +711,3 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
     }
   }
 }
-

@@ -23,7 +23,7 @@ class GuideHomeScreen extends StatefulWidget {
 
 class _GuideHomeScreenState extends State<GuideHomeScreen> {
   late GuideHomeViewModel _viewModel;
-  int _currentNavIndex = 0;
+  final int _currentNavIndex = 0;
 
   @override
   void initState() {
@@ -183,9 +183,13 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
   }
 
   void _onNavTap(int index) {
-    setState(() {
-      _currentNavIndex = index;
-    });
-    // Navigation handled by bottom nav
+    if (index == _currentNavIndex) return;
+    if (index == 1) {
+      context.go(Routes.guideCoachTrips);
+      return;
+    }
+    if (index == 2) {
+      context.push(Routes.userProfile);
+    }
   }
 }

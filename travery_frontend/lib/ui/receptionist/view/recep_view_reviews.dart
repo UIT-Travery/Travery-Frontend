@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/receptionist/view/widgets/recep_app_bar_avatar.dart';
 
 class RecepViewReviews extends StatelessWidget {
   const RecepViewReviews({super.key});
@@ -10,6 +11,7 @@ class RecepViewReviews extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: const Color(0xFFF5F7FA),
         elevation: 0,
         title: Row(
@@ -42,10 +44,7 @@ class RecepViewReviews extends StatelessWidget {
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
               onTap: () => context.push(Routes.recepProfile),
-              child: const CircleAvatar(
-                radius: 16,
-                backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
-              ),
+              child: const RecepAppBarAvatar(),
             ),
           ),
         ],

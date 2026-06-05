@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TourInstanceResponse {
 
- String get id; String get tourName; String get startDate; String? get endDate; String get status; int get currentParticipants; int? get maxParticipants; int? get availableSlots; String? get imageUrl;
+ String get id; String get tourName; String get startDate; String? get endDate; String get status; int get currentParticipants; int? get maxParticipants; int? get availableSlots; String? get thumbnailUrl;
 /// Create a copy of TourInstanceResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TourInstanceResponseCopyWith<TourInstanceResponse> get copyWith => _$TourInstan
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TourInstanceResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.currentParticipants, currentParticipants) || other.currentParticipants == currentParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.availableSlots, availableSlots) || other.availableSlots == availableSlots)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TourInstanceResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.currentParticipants, currentParticipants) || other.currentParticipants == currentParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.availableSlots, availableSlots) || other.availableSlots == availableSlots)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,tourName,startDate,endDate,status,currentParticipants,maxParticipants,availableSlots,imageUrl);
+int get hashCode => Object.hash(runtimeType,id,tourName,startDate,endDate,status,currentParticipants,maxParticipants,availableSlots,thumbnailUrl);
 
 @override
 String toString() {
-  return 'TourInstanceResponse(id: $id, tourName: $tourName, startDate: $startDate, endDate: $endDate, status: $status, currentParticipants: $currentParticipants, maxParticipants: $maxParticipants, availableSlots: $availableSlots, imageUrl: $imageUrl)';
+  return 'TourInstanceResponse(id: $id, tourName: $tourName, startDate: $startDate, endDate: $endDate, status: $status, currentParticipants: $currentParticipants, maxParticipants: $maxParticipants, availableSlots: $availableSlots, thumbnailUrl: $thumbnailUrl)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TourInstanceResponseCopyWith<$Res>  {
   factory $TourInstanceResponseCopyWith(TourInstanceResponse value, $Res Function(TourInstanceResponse) _then) = _$TourInstanceResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String tourName, String startDate, String? endDate, String status, int currentParticipants, int? maxParticipants, int? availableSlots, String? imageUrl
+ String id, String tourName, String startDate, String? endDate, String status, int currentParticipants, int? maxParticipants, int? availableSlots, String? thumbnailUrl
 });
 
 
@@ -65,7 +65,7 @@ class _$TourInstanceResponseCopyWithImpl<$Res>
 
 /// Create a copy of TourInstanceResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tourName = null,Object? startDate = null,Object? endDate = freezed,Object? status = null,Object? currentParticipants = null,Object? maxParticipants = freezed,Object? availableSlots = freezed,Object? imageUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tourName = null,Object? startDate = null,Object? endDate = freezed,Object? status = null,Object? currentParticipants = null,Object? maxParticipants = freezed,Object? availableSlots = freezed,Object? thumbnailUrl = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tourName: null == tourName ? _self.tourName : tourName // ignore: cast_nullable_to_non_nullable
@@ -75,7 +75,7 @@ as String?,status: null == status ? _self.status : status // ignore: cast_nullab
 as String,currentParticipants: null == currentParticipants ? _self.currentParticipants : currentParticipants // ignore: cast_nullable_to_non_nullable
 as int,maxParticipants: freezed == maxParticipants ? _self.maxParticipants : maxParticipants // ignore: cast_nullable_to_non_nullable
 as int?,availableSlots: freezed == availableSlots ? _self.availableSlots : availableSlots // ignore: cast_nullable_to_non_nullable
-as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as int?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -161,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String tourName,  String startDate,  String? endDate,  String status,  int currentParticipants,  int? maxParticipants,  int? availableSlots,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String tourName,  String startDate,  String? endDate,  String status,  int currentParticipants,  int? maxParticipants,  int? availableSlots,  String? thumbnailUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TourInstanceResponse() when $default != null:
-return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.status,_that.currentParticipants,_that.maxParticipants,_that.availableSlots,_that.imageUrl);case _:
+return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.status,_that.currentParticipants,_that.maxParticipants,_that.availableSlots,_that.thumbnailUrl);case _:
   return orElse();
 
 }
@@ -182,10 +182,10 @@ return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.stat
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String tourName,  String startDate,  String? endDate,  String status,  int currentParticipants,  int? maxParticipants,  int? availableSlots,  String? imageUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String tourName,  String startDate,  String? endDate,  String status,  int currentParticipants,  int? maxParticipants,  int? availableSlots,  String? thumbnailUrl)  $default,) {final _that = this;
 switch (_that) {
 case _TourInstanceResponse():
-return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.status,_that.currentParticipants,_that.maxParticipants,_that.availableSlots,_that.imageUrl);case _:
+return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.status,_that.currentParticipants,_that.maxParticipants,_that.availableSlots,_that.thumbnailUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +202,10 @@ return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.stat
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String tourName,  String startDate,  String? endDate,  String status,  int currentParticipants,  int? maxParticipants,  int? availableSlots,  String? imageUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String tourName,  String startDate,  String? endDate,  String status,  int currentParticipants,  int? maxParticipants,  int? availableSlots,  String? thumbnailUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _TourInstanceResponse() when $default != null:
-return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.status,_that.currentParticipants,_that.maxParticipants,_that.availableSlots,_that.imageUrl);case _:
+return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.status,_that.currentParticipants,_that.maxParticipants,_that.availableSlots,_that.thumbnailUrl);case _:
   return null;
 
 }
@@ -217,7 +217,7 @@ return $default(_that.id,_that.tourName,_that.startDate,_that.endDate,_that.stat
 @JsonSerializable()
 
 class _TourInstanceResponse implements TourInstanceResponse {
-  const _TourInstanceResponse({required this.id, required this.tourName, required this.startDate, this.endDate, required this.status, required this.currentParticipants, this.maxParticipants, this.availableSlots, this.imageUrl});
+  const _TourInstanceResponse({required this.id, required this.tourName, required this.startDate, this.endDate, required this.status, required this.currentParticipants, this.maxParticipants, this.availableSlots, this.thumbnailUrl});
   factory _TourInstanceResponse.fromJson(Map<String, dynamic> json) => _$TourInstanceResponseFromJson(json);
 
 @override final  String id;
@@ -228,7 +228,7 @@ class _TourInstanceResponse implements TourInstanceResponse {
 @override final  int currentParticipants;
 @override final  int? maxParticipants;
 @override final  int? availableSlots;
-@override final  String? imageUrl;
+@override final  String? thumbnailUrl;
 
 /// Create a copy of TourInstanceResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -243,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TourInstanceResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.currentParticipants, currentParticipants) || other.currentParticipants == currentParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.availableSlots, availableSlots) || other.availableSlots == availableSlots)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TourInstanceResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.currentParticipants, currentParticipants) || other.currentParticipants == currentParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.availableSlots, availableSlots) || other.availableSlots == availableSlots)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,tourName,startDate,endDate,status,currentParticipants,maxParticipants,availableSlots,imageUrl);
+int get hashCode => Object.hash(runtimeType,id,tourName,startDate,endDate,status,currentParticipants,maxParticipants,availableSlots,thumbnailUrl);
 
 @override
 String toString() {
-  return 'TourInstanceResponse(id: $id, tourName: $tourName, startDate: $startDate, endDate: $endDate, status: $status, currentParticipants: $currentParticipants, maxParticipants: $maxParticipants, availableSlots: $availableSlots, imageUrl: $imageUrl)';
+  return 'TourInstanceResponse(id: $id, tourName: $tourName, startDate: $startDate, endDate: $endDate, status: $status, currentParticipants: $currentParticipants, maxParticipants: $maxParticipants, availableSlots: $availableSlots, thumbnailUrl: $thumbnailUrl)';
 }
 
 
@@ -263,7 +263,7 @@ abstract mixin class _$TourInstanceResponseCopyWith<$Res> implements $TourInstan
   factory _$TourInstanceResponseCopyWith(_TourInstanceResponse value, $Res Function(_TourInstanceResponse) _then) = __$TourInstanceResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String tourName, String startDate, String? endDate, String status, int currentParticipants, int? maxParticipants, int? availableSlots, String? imageUrl
+ String id, String tourName, String startDate, String? endDate, String status, int currentParticipants, int? maxParticipants, int? availableSlots, String? thumbnailUrl
 });
 
 
@@ -280,7 +280,7 @@ class __$TourInstanceResponseCopyWithImpl<$Res>
 
 /// Create a copy of TourInstanceResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tourName = null,Object? startDate = null,Object? endDate = freezed,Object? status = null,Object? currentParticipants = null,Object? maxParticipants = freezed,Object? availableSlots = freezed,Object? imageUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tourName = null,Object? startDate = null,Object? endDate = freezed,Object? status = null,Object? currentParticipants = null,Object? maxParticipants = freezed,Object? availableSlots = freezed,Object? thumbnailUrl = freezed,}) {
   return _then(_TourInstanceResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,tourName: null == tourName ? _self.tourName : tourName // ignore: cast_nullable_to_non_nullable
@@ -290,7 +290,7 @@ as String?,status: null == status ? _self.status : status // ignore: cast_nullab
 as String,currentParticipants: null == currentParticipants ? _self.currentParticipants : currentParticipants // ignore: cast_nullable_to_non_nullable
 as int,maxParticipants: freezed == maxParticipants ? _self.maxParticipants : maxParticipants // ignore: cast_nullable_to_non_nullable
 as int?,availableSlots: freezed == availableSlots ? _self.availableSlots : availableSlots // ignore: cast_nullable_to_non_nullable
-as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as int?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

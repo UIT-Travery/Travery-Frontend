@@ -135,7 +135,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
           return CustomScrollView(
             slivers: [
-              // Top AppBar
               SliverAppBar(
                 floating: true,
                 backgroundColor: AppColors.surface,
@@ -143,6 +142,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 centerTitle: true,
                 title: const Text(
                   'Hồ sơ',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 20,
@@ -158,12 +159,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     children: [
                       const SizedBox(height: 24),
 
-                      // Avatar Section
                       _buildAvatarSection(profile.avatarUrl),
 
                       const SizedBox(height: 16),
 
-                      // Name & Role
                       Column(
                         children: [
                           Row(
@@ -219,7 +218,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                       const SizedBox(height: 32),
 
-                      // Menu List
                       _buildMenuCard([
                         _MenuItem(
                           icon: Icons.person_outline,
@@ -240,12 +238,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Logout Button
                       _buildLogoutButton(),
 
                       const SizedBox(height: 24),
 
-                      // Footer
                       _buildFooter(),
 
                       const SizedBox(height: 100),

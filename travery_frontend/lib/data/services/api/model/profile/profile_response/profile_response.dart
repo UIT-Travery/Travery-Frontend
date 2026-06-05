@@ -11,6 +11,8 @@ class ProfileData {
     this.passportNumber,
     this.dateOfBirth,
     this.gender,
+    this.hotelName,
+    this.hotelId,
   });
 
   final String id;
@@ -24,6 +26,8 @@ class ProfileData {
   final String? passportNumber;
   final String? dateOfBirth;
   final String? gender;
+  final String? hotelName;
+  final String? hotelId;
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
@@ -38,6 +42,8 @@ class ProfileData {
       passportNumber: json['passportNumber'] as String?,
       dateOfBirth: json['dateOfBirth'] as String?,
       gender: json['gender'] as String?,
+      hotelName: json['hotelName'] as String?,
+      hotelId: json['hotelId'] as String?,
     );
   }
 }

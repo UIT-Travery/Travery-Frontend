@@ -104,6 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
         return Routes.coordinatorMain;
       case 'ROLE_GUIDE':
         return Routes.guideHome;
+      case 'ROLE_RECEPTIONIST':
+        return Routes.recepMain;
       case 'ROLE_TOURIST':
       default:
         return Routes.tourHome;

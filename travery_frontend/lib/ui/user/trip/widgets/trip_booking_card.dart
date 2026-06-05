@@ -43,11 +43,17 @@ class TripBookingCard extends StatelessWidget {
       case 'PAID':
         return const Color(0xFF10B981);
       case 'PENDING':
-        return Colors.orange;
+        return const Color(0xFFF59E0B);
+      case 'CHECKED_IN':
+        return const Color(0xFF007AFF);
+      case 'CHECKED_OUT':
+        return const Color(0xFF6B7280);
       case 'CANCELLED':
-        return const Color(0xFFBA1A1A);
+        return const Color(0xFFEF4444);
+      case 'NO_SHOW':
+        return const Color(0xFFF59E0B);
       default:
-        return Colors.grey;
+        return const Color(0xFF6B7280);
     }
   }
 
@@ -70,7 +76,6 @@ class TripBookingCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Status bar
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -103,7 +108,6 @@ class TripBookingCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Route as title
                 Text(
                   '$originDestination → $destinationDestination',
                   style: const TextStyle(
@@ -115,7 +119,7 @@ class TripBookingCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                // Payment deadline
+
                 if (_isPending && paymentDeadline != null) ...[
                   Row(
                     children: [
@@ -137,7 +141,7 @@ class TripBookingCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                 ],
-                // Bottom row
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

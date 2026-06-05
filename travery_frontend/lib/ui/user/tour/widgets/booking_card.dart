@@ -17,15 +17,21 @@ class BookingCard extends StatelessWidget {
   bool get _isPending => booking.status == 'PENDING';
 
   Color _getStatusColor() {
-    switch (booking.status) {
+    switch (booking.status.toUpperCase()) {
       case 'PAID':
         return const Color(0xFF10B981);
       case 'PENDING':
-        return Colors.orange;
+        return const Color(0xFFF59E0B);
+      case 'CHECKED_IN':
+        return const Color(0xFF007AFF);
+      case 'CHECKED_OUT':
+        return const Color(0xFF6B7280);
       case 'CANCELLED':
-        return const Color(0xFFBA1A1A);
+        return const Color(0xFFEF4444);
+      case 'NO_SHOW':
+        return const Color(0xFFF59E0B);
       default:
-        return Colors.grey;
+        return const Color(0xFF6B7280);
     }
   }
 

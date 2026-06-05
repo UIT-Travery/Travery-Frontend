@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/ui/receptionist/view/widgets/recep_app_bar_avatar.dart';
 
 class RecepUpdateProfileScreen extends StatelessWidget {
   const RecepUpdateProfileScreen({super.key});
@@ -29,19 +30,7 @@ class RecepUpdateProfileScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.person,
-                color: AppColors.primary,
-                size: 20,
-              ),
-            ),
+            child: const RecepAppBarAvatar(),
           ),
         ],
       ),
@@ -50,6 +39,14 @@ class RecepUpdateProfileScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const Icon(Icons.arrow_back, color: AppColors.primary),
+              ),
+            ),
             const SizedBox(height: 16),
             Stack(
               clipBehavior: Clip.none,
