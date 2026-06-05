@@ -7,7 +7,7 @@ part 'coach_instance.freezed.dart';
 part 'coach_instance.g.dart';
 
 @freezed
-class CoachInstance with _$CoachInstance {
+abstract class CoachInstance with _$CoachInstance {
   const factory CoachInstance({
     String? id,
 

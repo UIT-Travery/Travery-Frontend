@@ -4,7 +4,7 @@ part 'vehicle_seat.freezed.dart';
 part 'vehicle_seat.g.dart';
 
 @freezed
-class VehicleSeat with _$VehicleSeat {
+abstract class VehicleSeat with _$VehicleSeat {
   const factory VehicleSeat({
     String? id,
 

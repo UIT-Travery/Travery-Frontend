@@ -3,6 +3,7 @@ import 'package:travery_frontend/data/seed_models/booking_detail/booking_detail_
 import 'package:travery_frontend/data/services/api/model/booking/create_payment_response/create_payment_response.dart';
 import 'package:travery_frontend/data/services/booking/booking_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
+import 'package:travery_frontend/utils/review_guards.dart';
 
 class BookingDetailViewModel extends ChangeNotifier {
   BookingDetailViewModel({required BookingService bookingService})
@@ -24,6 +25,18 @@ class BookingDetailViewModel extends ChangeNotifier {
 
   bool _isCreatingPayment = false;
   bool get isCreatingPayment => _isCreatingPayment;
+
+  bool _isSubmittingReview = false;
+  bool get isSubmittingReview => _isSubmittingReview;
+  final Set<String> _reviewedBookingIds = {};
+
+  bool get canCreateReview {
+    final booking = _bookingDetail;
+    if (booking == null) return false;
+    return booking.status.toUpperCase() == 'CHECKED_OUT' &&
+        !booking.hasReview &&
+        !_reviewedBookingIds.contains(booking.id);
+  }
 
   Future<void> loadBookingDetail(String bookingId) async {
     _isLoading = true;
@@ -67,6 +80,45 @@ class BookingDetailViewModel extends ChangeNotifier {
   Future<void> refreshBookingDetail() async {
     if (_bookingDetail != null) {
       await loadBookingDetail(_bookingDetail!.id);
+    }
+  }
+
+  Future<String?> createReview({
+    required int rating,
+    required String comment,
+  }) async {
+    final booking = _bookingDetail;
+    if (booking == null) return 'Không tìm thấy thông tin đặt tour';
+    if (!canCreateReview) {
+      return 'Bạn đã gửi đánh giá cho đơn này rồi. Cảm ơn bạn đã chia sẻ trải nghiệm.';
+    }
+
+    _isSubmittingReview = true;
+    _error = null;
+    notifyListeners();
+
+    final result = await _bookingService.createReview(
+      bookingId: booking.id,
+      rating: rating,
+      content: comment,
+    );
+
+    switch (result) {
+      case Ok():
+        _reviewedBookingIds.add(booking.id);
+        await loadBookingDetail(booking.id);
+        _isSubmittingReview = false;
+        notifyListeners();
+        return null;
+      case Error(error: final e):
+        if (isDuplicateReviewError(e)) {
+          _reviewedBookingIds.add(booking.id);
+        }
+        final message = friendlyReviewError(e);
+        _error = message;
+        _isSubmittingReview = false;
+        notifyListeners();
+        return message;
     }
   }
 }

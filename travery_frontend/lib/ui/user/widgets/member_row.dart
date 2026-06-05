@@ -29,7 +29,6 @@ class MemberRow extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Họ tên + Loại khách
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
             child: Row(
@@ -66,17 +65,17 @@ class MemberRow extends StatelessWidget {
             ),
           ),
           const Divider(height: 1, color: Color(0xFFE2E8F0)),
-          // CCCD
+
           if (identity != null && identity!.isNotEmpty) ...[
             _buildFieldRow('CCCD', identity!),
             const Divider(height: 1, color: Color(0xFFE2E8F0)),
           ],
-          // Ngày sinh
+
           if (dateOfBirth != null && dateOfBirth!.isNotEmpty) ...[
             _buildFieldRow('Ngày sinh', _formatDate(dateOfBirth!)),
             const Divider(height: 1, color: Color(0xFFE2E8F0)),
           ],
-          // Trạng thái điểm danh
+
           if (attendanceStatus != null && attendanceStatus!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),

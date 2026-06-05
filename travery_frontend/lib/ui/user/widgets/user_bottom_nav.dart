@@ -9,10 +9,17 @@ import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
 
+import 'package:travery_frontend/ui/chat/chat_screen.dart';
+
 class UserBottomNav extends StatefulWidget {
-  const UserBottomNav({super.key, this.initialIndex = 0});
+  const UserBottomNav({
+    super.key,
+    this.initialIndex = 0,
+    this.initialBookingTab = 0,
+  });
 
   final int initialIndex;
+  final int initialBookingTab;
 
   @override
   State<UserBottomNav> createState() => _UserBottomNavState();
@@ -20,6 +27,7 @@ class UserBottomNav extends StatefulWidget {
 
 class _UserBottomNavState extends State<UserBottomNav> {
   late int _currentIndex;
+  int _bookingRefreshTick = 0;
 
   @override
   void initState() {
@@ -30,8 +38,12 @@ class _UserBottomNavState extends State<UserBottomNav> {
   @override
   void didUpdateWidget(UserBottomNav oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialIndex != widget.initialIndex) {
-      setState(() => _currentIndex = widget.initialIndex);
+    if (oldWidget.initialIndex != widget.initialIndex ||
+        oldWidget.initialBookingTab != widget.initialBookingTab) {
+      setState(() {
+        _currentIndex = widget.initialIndex;
+        if (widget.initialIndex == 1) _bookingRefreshTick++;
+      });
     }
   }
 
@@ -42,8 +54,11 @@ class _UserBottomNavState extends State<UserBottomNav> {
         index: _currentIndex,
         children: [
           const HomeScreen(),
-          const MyTripBookingScreen(),
-          const Scaffold(body: Center(child: Text('Chat - Coming Soon'))),
+          MyTripBookingScreen(
+            initialTab: widget.initialBookingTab,
+            refreshTick: _bookingRefreshTick,
+          ),
+          const ChatScreen(title: 'Tin nhắn', showBackButton: false),
           ChangeNotifierProvider(
             create: (context) => ProfileViewModel(
               profileService: context.read<ProfileService>(),
@@ -57,7 +72,10 @@ class _UserBottomNavState extends State<UserBottomNav> {
       bottomNavigationBar: _BottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() => _currentIndex = index);
+          setState(() {
+            _currentIndex = index;
+            if (index == 1) _bookingRefreshTick++;
+          });
         },
       ),
     );

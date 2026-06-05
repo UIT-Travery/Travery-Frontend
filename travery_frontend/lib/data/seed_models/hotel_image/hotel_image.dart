@@ -4,7 +4,7 @@ part 'hotel_image.freezed.dart';
 part 'hotel_image.g.dart';
 
 @freezed
-class HotelImage with _$HotelImage {
+abstract class HotelImage with _$HotelImage {
   const factory HotelImage({
     String? id,
 

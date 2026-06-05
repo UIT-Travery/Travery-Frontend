@@ -1,12 +1,17 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/material.dart'; 
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
 import 'package:travery_frontend/domain/models/admin/business_hotel/business_hotel.dart';
+
 import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
+
+import 'package:travery_frontend/ui/guide/home/guide_main_screen.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_coach/coordinator_coach.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
@@ -14,15 +19,22 @@ import 'package:travery_frontend/data/services/api/profile_service.dart';
 import 'package:travery_frontend/ui/admin/view/image_management.dart';
 import 'package:travery_frontend/ui/admin/view_model/image_management_view_model.dart';
 import 'package:travery_frontend/ui/admin/view/view_hotel_room_list.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_list_view_model.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
+
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_edit_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_change_password_screen.dart';
+import 'package:travery_frontend/ui/receptionist/view/recep_view_hotel_room_screen.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_addon_list_view_model.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/detail/guide_coach_trip_detail_screen.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/list/guide_coach_trip_list_screen.dart';
+import 'package:travery_frontend/ui/guide/coach_trip/passengers/guide_coach_trip_passengers_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
+
 import 'package:travery_frontend/ui/guide/mission/guide_mission_detail_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/guide_mission_detail_view_model.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/guide_checkin_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/guide_checkin_view_model.dart';
+
 import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_vehicle_view_model.dart';
 import 'package:travery_frontend/ui/admin/view/admin_main_screen.dart';
@@ -36,8 +48,10 @@ import 'package:travery_frontend/ui/receptionist/view/recep_dashboard_screen.dar
 import 'package:travery_frontend/ui/receptionist/view/recep_main_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_addon_list_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_checkinout_list_screen.dart';
-import 'package:travery_frontend/ui/receptionist/view/recep_view_hotel_room_screen.dart';
+import 'package:travery_frontend/ui/receptionist/view/recep_view_detail_booking_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_profile_sceen.dart';
+import 'package:travery_frontend/ui/receptionist/view/recep_view_reviews.dart';
+import 'package:travery_frontend/ui/receptionist/view/recep_view_booking_bill_screen.dart';
 import 'package:travery_frontend/ui/user/tour/list/tour_list_screen.dart';
 import 'package:travery_frontend/ui/user/tour/list/view_models/tour_list_view_model.dart';
 import 'package:travery_frontend/ui/user/tour/detail/tour_detail_screen.dart';
@@ -64,7 +78,6 @@ import 'package:travery_frontend/ui/user/trip/booking_review/view_models/trip_bo
 import 'package:travery_frontend/data/services/trip/trip_service.dart';
 import 'package:travery_frontend/ui/user/trip/payment/trip_payment_screen.dart';
 import 'package:travery_frontend/ui/user/trip/payment_result/trip_payment_result_screen.dart';
-import 'package:travery_frontend/ui/user/trip/my_booking/my_trip_booking_screen.dart';
 import 'package:travery_frontend/ui/user/trip/booking_detail/trip_booking_detail_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel/trip_cancel_screen.dart';
 import 'package:travery_frontend/ui/user/trip/cancel_success/trip_cancel_success_screen.dart';
@@ -73,7 +86,9 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coor
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
+
 import 'package:travery_frontend/ui/admin/view/add_hotel_info_screen.dart';
+
 import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
 import 'package:travery_frontend/ui/authentication/view/login_screen.dart';
 import 'package:travery_frontend/ui/authentication/view/register_screen.dart';
@@ -107,13 +122,16 @@ import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_t
 import 'package:travery_frontend/ui/coordinator/view/coordinator_create_tour_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_tour_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_template_screen.dart';
+
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_detail_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_detail_view_model.dart';
+
 import 'package:travery_frontend/ui/user/hotel/home/hotel_home_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/hotel_detail_screen.dart';
-import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_home_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
+
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
+
 import 'package:travery_frontend/ui/user/hotel/room_list/hotel_room_list_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_input/hotel_booking_input_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_review/hotel_booking_review_screen.dart';
@@ -129,14 +147,17 @@ import 'package:travery_frontend/ui/user/hotel/addon_list/hotel_addon_list_scree
 import 'package:travery_frontend/ui/user/hotel/addon_payment/hotel_addon_payment_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/addon_payment_success/hotel_addon_payment_success_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout/hotel_checkout_screen.dart';
+import 'package:travery_frontend/ui/user/hotel/checkout/view_models/hotel_checkout_view_model.dart';
 import 'package:travery_frontend/ui/user/hotel/checkout_success/hotel_checkout_success_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view/user_profile_screen.dart';
-import 'package:travery_frontend/ui/user/profile/view/user_settings_screen.dart';
 import '../ui/admin/view_model/create_hotel_view_model.dart';
 import '../ui/admin/view_model/create_vehicle_view_model.dart';
 import '../ui/admin/view_model/hotel_management_view_model.dart';
 import '../ui/admin/view_model/tour_management_view_model.dart';
 import '../ui/admin/view_model/vehicle_management_view_model.dart';
+
+import 'package:travery_frontend/ui/common/notification/view/notification_screen.dart';
+import '../ui/chat/chat_screen.dart';
 import 'routes.dart';
 
 // Admin new imports
@@ -177,11 +198,21 @@ import 'package:travery_frontend/ui/coordinator/view/coordinator_create_coach_te
 import 'package:travery_frontend/ui/coordinator/view/coordinator_selection_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_list_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_screen.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_detail_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_coach_template_list_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_ended_tour_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_reviews_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_task_list_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_template_list_view_model.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_refund_list_view_model.dart';
+
+import 'package:travery_frontend/ui/receptionist/view_models/recep_dashboard_view_model.dart';
+import 'package:travery_frontend/data/repositories/receptionist/receptionist_repository.dart';
+import 'package:travery_frontend/ui/receptionist/view/recep_room_selection_screen.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selection_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view_models/recep_view_hotel_room_view_model.dart';
+import 'package:travery_frontend/ui/receptionist/view/recep_view_detail_booking_screen.dart';
+
 
 GoRouter appRouter(
   AuthRepository authRepository, {
@@ -195,6 +226,30 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => const SplashScreen(),
+      ),
+
+      // --- COMMON ROUTES ---
+      GoRoute(
+        path: Routes.notifications,
+        builder: (context, state) => const NotificationScreen(),
+      ),
+
+      GoRoute(
+        path: Routes.chat,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final uid = extra?['uid'] as String?;
+          final guid = extra?['guid'] as String?;
+          final title = extra?['title'] as String? ?? '';
+          final showBackButton = extra?['showBackButton'] as bool? ?? true;
+
+          return ChatScreen(
+            uid: uid,
+            guid: guid,
+            title: title,
+            showBackButton: showBackButton,
+          );
+        },
       ),
 
       // --- AUTHENTICATION ROUTES ---
@@ -264,11 +319,25 @@ GoRouter appRouter(
       // --- COORDINATOR ROUTES ---
       GoRoute(
         path: Routes.coordinatorMain,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => CoordinatorTourListViewModel(
-            coordinatorRepository: context.read<CoordinatorRepository>(),
-            profileRepository: context.read<ProfileRepository>(),
-          ),
+        builder: (context, state) => MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create: (context) => CoordinatorTourListViewModel(
+                coordinatorRepository: context.read<CoordinatorRepository>(),
+                profileRepository: context.read<ProfileRepository>(),
+              ),
+            ),
+            Provider(
+              create: (context) => CoordinatorCoachTripListViewModel(
+                coordinatorRepository: context.read<CoordinatorRepository>(),
+              ),
+            ),
+            ChangeNotifierProvider(
+              create: (context) => CoordinatorRefundListViewModel(
+                coordinatorRepository: context.read<CoordinatorRepository>(),
+              ),
+            ),
+          ],
           child: const CoordinatorMainScreen(),
         ),
       ),
@@ -336,19 +405,13 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.coordinatorViewProfile,
         builder: (context, state) => CoordinatorViewProfileScreen(
-          viewModel: AdminProfileViewModel(
-            authRepository: context.read<AuthRepository>(),
-            profileRepository: context.read<ProfileRepository>(),
-          ),
+          viewModel: context.read<AdminProfileViewModel>(),
         ),
       ),
       GoRoute(
         path: Routes.coordinatorUpdateProfile,
         builder: (context, state) => CoordinatorUpdateProfileScreen(
-          viewModel: AdminProfileViewModel(
-            authRepository: context.read<AuthRepository>(),
-            profileRepository: context.read<ProfileRepository>(),
-          ),
+          viewModel: context.read<AdminProfileViewModel>(),
         ),
       ),
       GoRoute(
@@ -361,15 +424,22 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.coordinatorViewCoachList,
-        builder: (context, state) => const CoordinatorViewCoachListScreen(),
+        builder: (context, state) => CoordinatorViewCoachListScreen(
+          viewModel: CoordinatorCoachTripListViewModel(
+            coordinatorRepository: context.read<CoordinatorRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.coordinatorViewCoach,
         builder: (context, state) {
-          final coach =
-              state.extra
-                  as CoordinatorCoach; // It needs a dynamic or specific type, passing what was in extra
-          return CoordinatorViewCoachScreen(coach: coach);
+          final id = state.extra as String;
+          return CoordinatorViewCoachScreen(
+            id: id,
+            viewModel: CoordinatorCoachTripDetailViewModel(
+              coordinatorRepository: context.read<CoordinatorRepository>(),
+            ),
+          );
         },
       ),
       GoRoute(
@@ -465,6 +535,9 @@ GoRouter appRouter(
             childCount: extra['childCount'] as int,
             pricePerAdult: extra['pricePerAdult'] as double,
             pricePerChild: extra['pricePerChild'] as double,
+            contactName: extra['contactName'] as String? ?? '',
+            contactPhone: extra['contactPhone'] as String? ?? '',
+            contactEmail: extra['contactEmail'] as String? ?? '',
             specialRequests: extra['specialRequests'] as String,
             startDate: extra['startDate'] as String,
             endDate: extra['endDate'] as String,
@@ -591,7 +664,14 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.tripMyBookings,
-        builder: (context, state) => const UserBottomNav(initialIndex: 1),
+        builder: (context, state) {
+          final bookingTab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '') ?? 0;
+          return UserBottomNav(
+            initialIndex: 1,
+            initialBookingTab: bookingTab.clamp(0, 2),
+          );
+        },
       ),
       GoRoute(
         path: Routes.tripBookingDetail,
@@ -625,25 +705,11 @@ GoRouter appRouter(
       // --- HOTEL ROUTES ---
       GoRoute(
         path: Routes.hotelHome,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (_) =>
-              HotelHomeViewModel(hotelService: context.read<HotelService>()),
-          child: const HotelHomeScreen(),
-        ),
+        builder: (context, state) =>
+            HotelHomeScreen(hotelService: context.read<HotelService>()),
       ),
       GoRoute(
-        path: Routes.hotelDetail,
-        builder: (context, state) {
-          return ChangeNotifierProvider(
-            create: (_) => HotelDetailViewModel(
-              hotelService: context.read<HotelService>(),
-            ),
-            child: const HotelDetailScreen(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.hotelRoomList,
+        path: Routes.hotelList,
         builder: (context, state) => const HotelRoomListScreen(),
       ),
       GoRoute(
@@ -665,26 +731,11 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.hotelMyBookings,
         builder: (context, state) => ChangeNotifierProvider(
-          create: (_) => HotelMyBookingViewModel(),
+          create: (_) => HotelMyBookingViewModel(
+            hotelService: context.read<HotelService>(),
+          ),
           child: const HotelMyBookingScreen(),
         ),
-      ),
-      GoRoute(
-        path: Routes.hotelBookingDetail,
-        builder: (context, state) {
-          return ChangeNotifierProvider(
-            create: (_) => HotelBookingDetailViewModel(),
-            child: HotelBookingDetailScreen(),
-          );
-        },
-      ),
-      GoRoute(
-        path: Routes.hotelCancel,
-        builder: (context, state) => const HotelCancelScreen(),
-      ),
-      GoRoute(
-        path: Routes.hotelCancelSuccess,
-        builder: (context, state) => const HotelCancelSuccessScreen(),
       ),
       GoRoute(
         path: Routes.hotelAddonList,
@@ -699,12 +750,65 @@ GoRouter appRouter(
         builder: (context, state) => const HotelAddonPaymentSuccessScreen(),
       ),
       GoRoute(
-        path: Routes.hotelCheckout,
-        builder: (context, state) => const HotelCheckoutScreen(),
-      ),
-      GoRoute(
         path: Routes.hotelCheckoutSuccess,
         builder: (context, state) => const HotelCheckoutSuccessScreen(),
+      ),
+      // Parameterized routes (must be after static routes)
+      GoRoute(
+        path: Routes.hotelDetail,
+        builder: (context, state) {
+          return ChangeNotifierProvider(
+            create: (_) => HotelDetailViewModel(
+              hotelService: context.read<HotelService>(),
+            ),
+            child: const HotelDetailScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.hotelRoomList,
+        builder: (context, state) => const HotelRoomListScreen(),
+      ),
+      GoRoute(
+        path: Routes.hotelBookingDetail,
+        builder: (context, state) {
+          return ChangeNotifierProvider(
+            create: (_) => HotelBookingDetailViewModel(
+              hotelService: context.read<HotelService>(),
+            ),
+            child: const HotelBookingDetailScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.hotelCancel,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => HotelBookingDetailViewModel(
+            hotelService: context.read<HotelService>(),
+          ),
+          child: const HotelCancelScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.hotelCancelSuccess,
+        builder: (context, state) => const HotelCancelSuccessScreen(),
+      ),
+      GoRoute(
+        path: Routes.hotelCheckout,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final bookingId =
+              extra?['bookingId'] as String? ??
+              state.pathParameters['id'] ??
+              '';
+          return ChangeNotifierProvider(
+            create: (_) => HotelCheckoutViewModel(
+              hotelService: context.read<HotelService>(),
+              bookingId: bookingId,
+            ),
+            child: const HotelCheckoutScreen(),
+          );
+        },
       ),
 
       // --- ADMIN ROUTES ---
@@ -727,12 +831,7 @@ GoRouter appRouter(
                 adminRepository: context.read<AdminRepository>(),
               ),
             ),
-            ChangeNotifierProvider(
-              create: (context) => AdminProfileViewModel(
-                authRepository: context.read<AuthRepository>(),
-                profileRepository: context.read<ProfileRepository>(),
-              ),
-            ),
+
             ChangeNotifierProvider(
               create: (context) => TourManagementViewModel(
                 adminRepository: context.read<AdminRepository>(),
@@ -818,7 +917,9 @@ GoRouter appRouter(
           final hotelId = extra['hotelId'] as String? ?? '';
           return ImageManagementScreen(
             hotelId: hotelId,
-            viewModel: ImageManagementViewModel(adminRepository: context.read()),
+            viewModel: ImageManagementViewModel(
+              adminRepository: context.read(),
+            ),
           );
         },
       ),
@@ -923,19 +1024,13 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.adminUpdateProfile,
         builder: (context, state) => UpdateProfileScreen(
-          viewModel: AdminProfileViewModel(
-            authRepository: context.read<AuthRepository>(),
-            profileRepository: context.read<ProfileRepository>(),
-          ),
+          viewModel: context.read<AdminProfileViewModel>(),
         ),
       ),
       GoRoute(
         path: Routes.adminViewProfile,
         builder: (context, state) => AdminViewProfileScreen(
-          viewModel: AdminProfileViewModel(
-            authRepository: context.read<AuthRepository>(),
-            profileRepository: context.read<ProfileRepository>(),
-          ),
+          viewModel: context.read<AdminProfileViewModel>(),
         ),
       ),
       GoRoute(
@@ -1108,11 +1203,29 @@ GoRouter appRouter(
       //======Receptionist========
       GoRoute(
         path: Routes.recepMain,
-        builder: (context, state) => const RecepMainScreen(),
+        builder: (context, state) => MultiProvider(
+          providers: [
+            Provider(
+              create: (context) => RecepDashboardViewModel(
+                repository: context.read<ReceptionistRepository>(),
+              ),
+            ),
+          ],
+          child: const RecepMainScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.recepDashboard,
-        builder: (context, state) => const RecepDashboardScreen(),
+        builder: (context, state) => MultiProvider(
+          providers: [
+            Provider(
+              create: (context) => RecepDashboardViewModel(
+                repository: context.read<ReceptionistRepository>(),
+              ),
+            ),
+          ],
+          child: const RecepDashboardScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.recepCheckInOut,
@@ -1120,15 +1233,65 @@ GoRouter appRouter(
       ),
       GoRoute(
         path: Routes.recepHotel,
-        builder: (context, state) => const RecepViewHotelRoomScreen(),
+        builder: (context, state) => RecepViewHotelRoomScreen(
+          viewModel: RecepViewHotelRoomViewModel(
+            repository: context.read<ReceptionistRepository>(),
+          ),
+        ),
       ),
       GoRoute(
-        path: Routes.recepAddon,
-        builder: (context, state) => const RecepViewAddonListScreen(),
+        path: Routes.recepAddOnList,
+        builder: (context, state) => RecepViewAddonListScreen(
+          viewModel: RecepViewAddonListViewModel(
+            repository: context.read<ReceptionistRepository>(),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.recepProfile,
-        builder: (context, state) => const RecepViewProfileScreen(),
+        builder: (context, state) => RecepViewProfileScreen(
+          viewModel: context.read<AdminProfileViewModel>(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.recepRoomSelection,
+        builder: (context, state) {
+          final bookingId = state.pathParameters['id'] ?? '';
+          final extra = state.extra as Map<String, dynamic>?;
+          final roomAllocations =
+              extra?['roomAllocations'] as List<dynamic>? ?? [];
+          return RecepRoomSelectionScreen(
+            bookingId: bookingId,
+            roomAllocations: roomAllocations,
+            viewModel: RecepRoomSelectionViewModel(
+              repository: context.read<ReceptionistRepository>(),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.recepDetailBooking,
+        builder: (context, state) {
+          final bookingId = state.pathParameters['id'] ?? '';
+          final extra = state.extra as Map<String, dynamic>?;
+          final isCheckIn = extra?['isCheckIn'] as bool? ?? true;
+          return RecepViewDetailBookingScreen(
+            bookingId: bookingId,
+            isCheckIn: isCheckIn,
+          );
+        },
+      ),
+      GoRoute(
+        path: Routes.recepBookingBill,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final checkOutPreviewData = extra?['checkOutPreviewData'];
+          final viewModel = extra?['viewModel'];
+          return RecepViewBookingBillScreen(
+            checkOutPreviewData: checkOutPreviewData,
+            viewModel: viewModel,
+          );
+        },
       ),
 
       // ==== User Profile Routes ====
@@ -1141,39 +1304,6 @@ GoRouter appRouter(
             authRepository: context.read<AuthRepository>(),
           ),
           child: const UserProfileScreen(),
-        ),
-      ),
-      GoRoute(
-        path: Routes.userEditProfile,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserEditProfileScreen(),
-        ),
-      ),
-      GoRoute(
-        path: Routes.userChangePassword,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserChangePasswordScreen(),
-        ),
-      ),
-      GoRoute(
-        path: Routes.userSettings,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserSettingsScreen(),
         ),
       ),
 
@@ -1194,26 +1324,22 @@ GoRouter appRouter(
         ),
       ),
       GoRoute(
-        path: Routes.guideEditProfile,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserEditProfileScreen(),
-        ),
+        path: Routes.guideCoachTrips,
+        builder: (context, state) => const GuideCoachTripListScreen(),
       ),
       GoRoute(
-        path: Routes.guideChangePassword,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(
-            profileService: context.read<ProfileService>(),
-            securityStorageService: context.read<SecurityStorageService>(),
-            authRepository: context.read<AuthRepository>(),
-          ),
-          child: const UserChangePasswordScreen(),
-        ),
+        path: Routes.guideCoachTripDetail,
+        builder: (context, state) {
+          final tripId = state.pathParameters['id'] ?? '';
+          return GuideCoachTripDetailScreen(tripId: tripId);
+        },
+      ),
+      GoRoute(
+        path: Routes.guideCoachTripPassengers,
+        builder: (context, state) {
+          final tripId = state.pathParameters['id'] ?? '';
+          return GuideCoachTripPassengersScreen(tripId: tripId);
+        },
       ),
       GoRoute(
         path: Routes.missionDetail,

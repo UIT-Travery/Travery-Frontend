@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:travery_frontend/data/services/api/model/profile/profile_response/profile_response.dart';
+import 'package:travery_frontend/data/services/api/profile_service.dart';
+import 'package:travery_frontend/data/services/security_storage_service.dart';
+import 'package:travery_frontend/data/services/user_storage_service.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/tour/booking_input/view_models/booking_input_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/section_title.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
-
-// ─── Top-level helpers for date-of-birth validation ───────────────────────────
+import 'package:travery_frontend/utils/core_result.dart';
 
 DateTime? _tryParseDob(String value) {
   if (value.isEmpty) return null;
@@ -51,6 +54,19 @@ String? Function(String?) _identityValidator() {
   };
 }
 
+String? Function(String?) _phoneValidator() {
+  return (value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Vui lòng nhập số điện thoại';
+    }
+    final phone = value.trim().replaceAll(RegExp(r'\s'), '');
+    if (!RegExp(r'^\+?\d{9,15}$').hasMatch(phone)) {
+      return 'Số điện thoại không hợp lệ';
+    }
+    return null;
+  };
+}
+
 String? Function(String?) _dobValidator(bool isAdult) {
   return (value) {
     if (value == null || value.trim().isEmpty) {
@@ -87,7 +103,7 @@ class BookingInputScreen extends StatefulWidget {
     required this.instanceId,
     required this.tourName,
     this.destinationName,
-    // this.startLocation,
+
     this.pricePerAdult,
     this.pricePerChild,
     this.startDate,
@@ -99,7 +115,7 @@ class BookingInputScreen extends StatefulWidget {
   final String instanceId;
   final String tourName;
   final String? destinationName;
-  // final String? startLocation;
+
   final double? pricePerAdult;
   final double? pricePerChild;
   final String? startDate;
@@ -113,6 +129,9 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
   final List<TextEditingController> _nameControllers = [];
   final List<TextEditingController> _identityControllers = [];
   final List<TextEditingController> _dobControllers = [];
+  final TextEditingController _contactNameController = TextEditingController();
+  final TextEditingController _contactPhoneController = TextEditingController();
+  String _contactEmail = '';
   final TextEditingController _specialRequestsController =
       TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -120,6 +139,7 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
   @override
   void initState() {
     super.initState();
+    _loadUserInfo();
   }
 
   void _syncControllers() {
@@ -153,8 +173,65 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
     for (final c in _dobControllers) {
       c.dispose();
     }
+    _contactNameController.dispose();
+    _contactPhoneController.dispose();
     _specialRequestsController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadUserInfo() async {
+    try {
+      final securityStorage = SecurityStorageService();
+      final accessToken = await securityStorage.getAccessToken();
+
+      if (accessToken == null) {
+        _loadFromLocalStorage();
+        return;
+      }
+
+      final profileService = ProfileService();
+      final result = await profileService.getProfile(accessToken: accessToken);
+
+      switch (result) {
+        case Ok<ProfileData>(:final value):
+          final userStorage = await UserStorageService.getInstance();
+          await userStorage.saveUserInfo(
+            fullName: value.fullName,
+            phone: value.phoneNumber,
+            email: value.email,
+          );
+          _setContactInfo(value.fullName, value.phoneNumber, value.email);
+        case Error<ProfileData>():
+          _loadFromLocalStorage();
+      }
+    } catch (_) {
+      _loadFromLocalStorage();
+    }
+  }
+
+  void _loadFromLocalStorage() {
+    UserStorageService.getInstance().then((userStorage) {
+      _setContactInfo(
+        userStorage.fullName,
+        userStorage.phone,
+        userStorage.email,
+      );
+    });
+  }
+
+  void _setContactInfo(String? fullName, String? phone, String? email) {
+    if (!mounted) return;
+    setState(() {
+      if (_contactNameController.text.trim().isEmpty) {
+        _contactNameController.text = fullName ?? '';
+      }
+      if (_contactPhoneController.text.trim().isEmpty) {
+        _contactPhoneController.text = phone ?? '';
+      }
+      if (_contactEmail.trim().isEmpty) {
+        _contactEmail = email ?? '';
+      }
+    });
   }
 
   @override
@@ -173,7 +250,6 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                // Guest Count Section
                 const SectionTitle(title: 'Số lượng hành khách'),
                 const SizedBox(height: 12),
                 Container(
@@ -214,7 +290,6 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
 
                 const SizedBox(height: 24),
 
-                // Members List
                 const SectionTitle(title: 'Danh sách thành viên'),
                 const SizedBox(height: 12),
                 ...List.generate(vm.members.length, (index) {
@@ -251,7 +326,45 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
 
                 const SizedBox(height: 24),
 
-                // Special Requests
+                const SectionTitle(title: 'Thông tin liên hệ'),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      _InputField(
+                        label: 'Họ và tên *',
+                        controller: _contactNameController,
+                        hint: 'VD: Nguyễn Văn A',
+                        validator: _nameValidator(),
+                        onChanged: (_) {},
+                      ),
+                      const SizedBox(height: 12),
+                      _InputField(
+                        label: 'Số điện thoại *',
+                        controller: _contactPhoneController,
+                        hint: 'VD: 0901234567',
+                        keyboardType: TextInputType.phone,
+                        validator: _phoneValidator(),
+                        onChanged: (_) {},
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
                 const SectionTitle(title: 'Ghi chú đặc biệt'),
                 const SizedBox(height: 12),
                 Container(
@@ -409,7 +522,7 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
         'instanceId': widget.instanceId,
         'tourName': widget.tourName,
         'destinationName': widget.destinationName ?? '',
-        // 'startLocation': widget.startLocation ?? '',
+
         'tourImageUrl': null,
         'members': widget.viewModel.members
             .map(
@@ -425,6 +538,9 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
         'childCount': widget.viewModel.childCount,
         'pricePerAdult': widget.pricePerAdult ?? 0.0,
         'pricePerChild': widget.pricePerChild ?? 0.0,
+        'contactName': _contactNameController.text.trim(),
+        'contactPhone': _contactPhoneController.text.trim(),
+        'contactEmail': _contactEmail.trim(),
         'specialRequests': widget.viewModel.specialRequests,
         'startDate': widget.startDate,
         'endDate': widget.endDate,
@@ -717,17 +833,12 @@ class _DatePickerFormField extends FormField<String> {
                    final now = DateTime.now();
                    final initial = _tryParseDob(controller?.text ?? '');
 
-                   // Calculate date range based on member type
-                   // Adult: born on or before (today - 12 years)
-                   // Child: born on or after (today - 11 years)
                    DateTime firstDate;
                    DateTime lastDate;
                    if (isAdult) {
-                     // Adult must be 12 years or older
                      firstDate = DateTime(1900);
                      lastDate = DateTime(now.year - 12, now.month, now.day);
                    } else {
-                     // Child must be 11 years or younger
                      firstDate = DateTime(
                        now.year - 11,
                        now.month,

@@ -6,8 +6,8 @@ part of 'coach_instance.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CoachInstanceImpl _$$CoachInstanceImplFromJson(Map<String, dynamic> json) =>
-    _$CoachInstanceImpl(
+_CoachInstance _$CoachInstanceFromJson(Map<String, dynamic> json) =>
+    _CoachInstance(
       id: json['id'] as String?,
       routeId: json['route_id'] as String,
       departureDate: DateTime.parse(json['departure_date'] as String),
@@ -35,7 +35,7 @@ _$CoachInstanceImpl _$$CoachInstanceImplFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$$CoachInstanceImplToJson(_$CoachInstanceImpl instance) =>
+Map<String, dynamic> _$CoachInstanceToJson(_CoachInstance instance) =>
     <String, dynamic>{
       'id': instance.id,
       'route_id': instance.routeId,

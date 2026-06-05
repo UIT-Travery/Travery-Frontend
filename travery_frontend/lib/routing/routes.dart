@@ -12,6 +12,7 @@ class Routes {
   static const String home = '/tour-home';
   static const String testHome = '/test-home';
   static const String tourHome = '/tour-home';
+  static const String notifications = '/notifications';
 
   // Tour nhóm
   static const String tourList = '/tours';
@@ -125,12 +126,19 @@ class Routes {
 
   // Guide
   static const String guideHome = '/guide/home';
+  static const String guideEditProfile = '/guide/edit-profile';
+  static const String guideChangePassword = '/guide/change-password';
+  static const String guideCoachTrips = '/guide/coach-trips';
+  static const String guideCoachTripDetail = '/guide/coach-trips/:id';
+  static const String guideCoachTripPassengers =
+      '/guide/coach-trips/:id/passengers';
   static const String missionDetail = '/guide/mission/:id';
   static const String checkIn = '/guide/mission/:id/check-in';
   static const String tourProgress = '/guide/mission/:id/progress';
   static const String tourCompleted = '/guide/mission/:id/completed';
-  static const String guideEditProfile = '/guide/profile/edit';
-  static const String guideChangePassword = '/guide/profile/change-password';
+
+  // Chat
+  static const String chat = '/chat';
 
   // Hotel nhóm
   static const String hotelHome = '/hotel/home';
@@ -155,12 +163,12 @@ class Routes {
   static const String recepDashboard = '/recep/dashboard';
   static const String recepCheckInOut = '/recep/check-in-out';
   static const String recepHotel = '/recep/hotel';
-  static const String recepAddon = '/recep/addon';
+  static const String recepAddOnList = '/recep/add-on';
+  static const String recepBookingBill = '/recep/booking-bill';
   static const String recepProfile = '/recep/profile';
+  static const String recepRoomSelection = '/recep/room-selection/:id';
+  static const String recepDetailBooking = '/recep/detail-booking/:id';
 
   // User Profile
   static const String userProfile = '/user/profile';
-  static const String userEditProfile = '/user/profile/edit';
-  static const String userChangePassword = '/user/profile/change-password';
-  static const String userSettings = '/user/profile/settings';
 }

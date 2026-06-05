@@ -46,13 +46,16 @@ class _TripListScreenState extends State<TripListScreen> {
               _DateStrip(vm: vm),
               _FilterChips(vm: vm),
               Expanded(
-                child: vm.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : vm.error != null
-                    ? _buildError(vm)
-                    : vm.trips.isEmpty
-                    ? _buildEmpty()
-                    : _buildTripList(vm),
+                child: RefreshIndicator(
+                  onRefresh: vm.search,
+                  child: vm.isLoading
+                      ? _buildLoading()
+                      : vm.error != null
+                      ? _buildError(vm)
+                      : vm.trips.isEmpty
+                      ? _buildEmpty()
+                      : _buildTripList(vm),
+                ),
               ),
             ],
           );
@@ -122,6 +125,7 @@ class _TripListScreenState extends State<TripListScreen> {
 
   Widget _buildTripList(TripListViewModel vm) {
     return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: vm.trips.length,
       separatorBuilder: (_, _) => const SizedBox(height: 12),
@@ -130,6 +134,26 @@ class _TripListScreenState extends State<TripListScreen> {
         return _TripCard(
           trip: trip,
           onTap: () => context.push(Routes.tripSeatPicker, extra: trip),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoading() {
+    return _buildScrollableState(
+      child: const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildScrollableState({required Widget child}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: child,
+          ),
         );
       },
     );
@@ -1143,32 +1167,12 @@ class _TripCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF2F3FF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.straighten,
-                        size: 12,
-                        color: Color(0xFF717786),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        duration,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF717786),
-                        ),
-                      ),
-                    ],
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: Color(0xFF717786),
                   ),
                 ),
                 Expanded(

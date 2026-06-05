@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
 /// ViewModel for Guide Check-in Screen
@@ -111,11 +112,17 @@ class GuideCheckinViewModel extends ChangeNotifier {
         attendanceChanges.value = {};
         return true;
       } else {
-        saveError.value = missionResult.toString();
+        saveError.value = guideFriendlyErrorMessage(
+          missionResult,
+          fallback: 'Không lưu được điểm danh. Vui lòng thử lại.',
+        );
         return false;
       }
     } catch (e) {
-      saveError.value = e.toString();
+      saveError.value = guideFriendlyErrorMessage(
+        e,
+        fallback: 'Không lưu được điểm danh. Vui lòng thử lại.',
+      );
       return false;
     } finally {
       isSaving.value = false;
@@ -125,11 +132,6 @@ class GuideCheckinViewModel extends ChangeNotifier {
   /// Convert internal 'CHECKED_IN' → API 'PRESENT', pass others through.
   String _toApiStatus(String internal) {
     return internal == 'CHECKED_IN' ? 'PRESENT' : internal;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
 
@@ -142,6 +144,10 @@ class AsyncTask<T> extends ChangeNotifier {
   bool get running => _running;
   bool get hasData => _result is core_result.Ok;
   bool get error => _result is core_result.Error;
+  String get friendlyErrorMessage => guideFriendlyErrorMessage(
+    _result,
+    fallback: 'Không tải được dữ liệu điểm danh. Vui lòng thử lại.',
+  );
   T? get value => _result is core_result.Ok<T>
       ? (_result as core_result.Ok<T>).value
       : null;

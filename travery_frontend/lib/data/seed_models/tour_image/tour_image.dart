@@ -3,7 +3,7 @@ part 'tour_image.freezed.dart';
 part 'tour_image.g.dart';
 
 @freezed
-class TourImage with _$TourImage {
+abstract class TourImage with _$TourImage {
   const factory TourImage({
     String? id,
 

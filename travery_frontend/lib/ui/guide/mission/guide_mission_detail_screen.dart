@@ -148,11 +148,22 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
         return (const Color(0xFFf3f4f6), const Color(0xFF6b7280), 'HOÀN THÀNH');
       case 'CANCELLED':
         return (const Color(0xFFfef2f2), const Color(0xFFef4444), 'ĐÃ HỦY');
+      case 'PLANNING':
+      case 'PENDING':
+        return (
+          const Color(0xFFfef3c7),
+          const Color(0xFFd97706),
+          'CHỜ BẮT ĐẦU',
+        );
       case 'OPEN':
       case 'FULL':
         return (const Color(0xFFeef2ff), const Color(0xFF3b82f6), 'ĐANG MỞ');
       default:
-        return (const Color(0xFFfef3c7), const Color(0xFFd97706), status);
+        return (
+          const Color(0xFFfef3c7),
+          const Color(0xFFd97706),
+          'CHỜ BẮT ĐẦU',
+        );
     }
   }
 
@@ -166,11 +177,9 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Trip Info Card
                 TripInfoCard(mission: mission),
                 const SizedBox(height: 16),
 
-                // Transport Card
                 if (mission.coachLicensePlate != null ||
                     mission.driverName != null)
                   TransportCard(mission: mission),
@@ -178,14 +187,12 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
                     mission.driverName != null)
                   const SizedBox(height: 16),
 
-                // Passenger List
                 PassengerList(bookings: mission.bookings),
                 const SizedBox(height: 100),
               ],
             ),
           ),
         ),
-        // Bottom Action Buttons
         _buildBottomActions(mission),
       ],
     );
@@ -275,7 +282,6 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
         missionId: mission.id,
         currentStatus: mission.status,
         onStatusSelected: (newStatus) {
-          Navigator.pop(context);
           _viewModel.refresh();
         },
       ),
@@ -289,8 +295,8 @@ class _GuideMissionDetailScreenState extends State<GuideMissionDetailScreen> {
         children: [
           const Icon(Icons.error_outline, color: AppColors.error, size: 48),
           const SizedBox(height: 12),
-          const Text(
-            'Đã xảy ra lỗi khi tải dữ liệu',
+          Text(
+            _viewModel.loadMission.friendlyErrorMessage,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: AppTextTheme.bodyMedium,

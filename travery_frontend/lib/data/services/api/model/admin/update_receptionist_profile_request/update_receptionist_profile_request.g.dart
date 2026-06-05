@@ -6,17 +6,17 @@ part of 'update_receptionist_profile_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UpdateReceptionistProfileRequestImpl
-_$$UpdateReceptionistProfileRequestImplFromJson(Map<String, dynamic> json) =>
-    _$UpdateReceptionistProfileRequestImpl(
-      fullName: json['fullName'] as String?,
-      phoneNumber: json['phoneNumber'] as String?,
-      shiftType: json['shiftType'] as String?,
-      hotelId: json['hotelId'] as String?,
-    );
+_UpdateReceptionistProfileRequest _$UpdateReceptionistProfileRequestFromJson(
+  Map<String, dynamic> json,
+) => _UpdateReceptionistProfileRequest(
+  fullName: json['fullName'] as String?,
+  phoneNumber: json['phoneNumber'] as String?,
+  shiftType: json['shiftType'] as String?,
+  hotelId: json['hotelId'] as String?,
+);
 
-Map<String, dynamic> _$$UpdateReceptionistProfileRequestImplToJson(
-  _$UpdateReceptionistProfileRequestImpl instance,
+Map<String, dynamic> _$UpdateReceptionistProfileRequestToJson(
+  _UpdateReceptionistProfileRequest instance,
 ) => <String, dynamic>{
   'fullName': instance.fullName,
   'phoneNumber': instance.phoneNumber,

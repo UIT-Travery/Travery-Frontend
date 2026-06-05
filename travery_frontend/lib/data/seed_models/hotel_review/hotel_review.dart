@@ -4,7 +4,7 @@ part 'hotel_review.freezed.dart';
 part 'hotel_review.g.dart';
 
 @freezed
-class HotelReview with _$HotelReview {
+abstract class HotelReview with _$HotelReview {
   const factory HotelReview({
     String? id,
 

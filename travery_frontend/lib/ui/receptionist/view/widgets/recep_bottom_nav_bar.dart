@@ -85,17 +85,7 @@ class RecepBottomNavBar extends StatelessWidget {
             ),
             label: 'DỊCH VỤ',
           ),
-          BottomNavigationBarItem(
-            icon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.star_border),
-            ),
-            activeIcon: Padding(
-              padding: EdgeInsets.only(bottom: 4.0),
-              child: Icon(Icons.star),
-            ),
-            label: 'ĐÁNH GIÁ',
-          ),
+
         ],
       ),
     );

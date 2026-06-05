@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
 /// ViewModel for Mission Detail Screen
@@ -26,11 +27,6 @@ class GuideMissionDetailViewModel extends ChangeNotifier {
   }
 
   GuideMissionDetail? get mission => loadMission.value;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 /// Async task wrapper for reactive state management
@@ -42,6 +38,10 @@ class AsyncTask<T> extends ChangeNotifier {
   bool get running => _running;
   bool get hasData => _result is core_result.Ok;
   bool get error => _result is core_result.Error;
+  String get friendlyErrorMessage => guideFriendlyErrorMessage(
+    _result,
+    fallback: 'Không tải được thông tin nhiệm vụ. Vui lòng thử lại.',
+  );
   T? get value => _result is core_result.Ok<T>
       ? (_result as core_result.Ok<T>).value
       : null;

@@ -7,7 +7,7 @@ part 'hotel.freezed.dart';
 part 'hotel.g.dart';
 
 @freezed
-class Hotel with _$Hotel {
+abstract class Hotel with _$Hotel {
   const factory Hotel({
     String? id,
 

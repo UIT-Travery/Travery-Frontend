@@ -4,7 +4,7 @@ part 'tour_itinerary_day_image.freezed.dart';
 part 'tour_itinerary_day_image.g.dart';
 
 @freezed
-class TourItineraryDayImage with _$TourItineraryDayImage {
+abstract class TourItineraryDayImage with _$TourItineraryDayImage {
   const factory TourItineraryDayImage({
     String? id,
 

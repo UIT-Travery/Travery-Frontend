@@ -56,6 +56,8 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
     setState(() {}); // Rebuild when destinations load
   }
 
+  // ── Actions ────────────────────────────────────────────────────────────────
+
   @override
   void dispose() {
     widget.viewModel.createHotel.removeListener(_onCreateHotelResult);
@@ -69,6 +71,10 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   }
 
   List<String> _selectedAmenityIds = [];
+
+  void _onCreateHotelChanged() {
+    _onCreateHotelResult();
+  }
 
   void _onCreateHotelResult() {
     final cmd = widget.viewModel.createHotel;
@@ -108,7 +114,6 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
       );
       return;
     }
-
     if (_selectedPolicy == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -412,7 +417,6 @@ class _CreateHotelScreenState extends State<CreateHotelScreen> {
   }
 
   // ── Builders ───────────────────────────────────────────────────────────────
-
   Widget _buildHeader() {
     return ListenableBuilder(
       listenable: widget.viewModel.createHotel,

@@ -6,8 +6,8 @@ part of 'hotel_booking.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$HotelBookingImpl _$$HotelBookingImplFromJson(Map<String, dynamic> json) =>
-    _$HotelBookingImpl(
+_HotelBooking _$HotelBookingFromJson(Map<String, dynamic> json) =>
+    _HotelBooking(
       id: json['id'] as String?,
       userId: json['user_id'] as String,
       roomId: json['room_id'] as String,
@@ -57,7 +57,7 @@ _$HotelBookingImpl _$$HotelBookingImplFromJson(Map<String, dynamic> json) =>
           : HotelReview.fromJson(json['review'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$HotelBookingImplToJson(_$HotelBookingImpl instance) =>
+Map<String, dynamic> _$HotelBookingToJson(_HotelBooking instance) =>
     <String, dynamic>{
       'id': instance.id,
       'user_id': instance.userId,

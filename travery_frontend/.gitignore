@@ -50,6 +50,7 @@ Travery API Documentation.md
 config.json
 deeplink-integration.md
 VNPAY_FE_Integration_Guide.md
+firebase_options.dart
 .env
 .env.local
 .env.development

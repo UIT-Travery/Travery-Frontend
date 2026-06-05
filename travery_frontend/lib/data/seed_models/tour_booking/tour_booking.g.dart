@@ -6,46 +6,45 @@ part of 'tour_booking.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourBookingImpl _$$TourBookingImplFromJson(Map<String, dynamic> json) =>
-    _$TourBookingImpl(
-      id: json['id'] as String?,
-      userId: json['user_id'] as String,
-      tourInstanceId: json['tour_instance_id'] as String?,
-      passengerName: json['passenger_name'] as String,
-      passengerPhone: json['passenger_phone'] as String,
-      adultCount: (json['adult_count'] as num).toInt(),
-      childCount: (json['child_count'] as num).toInt(),
-      totalPrice: (json['total_price'] as num).toDouble(),
-      refundAmount: (json['refund_amount'] as num?)?.toDouble(),
-      specialNotes: json['special_notes'] as String?,
-      status: $enumDecode(_$BookingStatusEnumMap, json['status']),
-      coordinatorId: json['coordinator_id'] as String?,
-      coordinatorResponse: json['coordinator_response'] as String?,
-      cancellationReason: json['cancellation_reason'] == null
-          ? null
-          : DateTime.parse(json['cancellation_reason'] as String),
-      cancelledAt: json['cancelled_at'] == null
-          ? null
-          : DateTime.parse(json['cancelled_at'] as String),
-      noShowNote: json['no_show_note'] as String?,
-      noShowAt: json['no_show_at'] == null
-          ? null
-          : DateTime.parse(json['no_show_at'] as String),
-      createdAt: json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
-      members: (json['members'] as List<dynamic>?)
-          ?.map((e) => TourBookingMember.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      review: json['review'] == null
-          ? null
-          : TourReview.fromJson(json['review'] as Map<String, dynamic>),
-    );
+_TourBooking _$TourBookingFromJson(Map<String, dynamic> json) => _TourBooking(
+  id: json['id'] as String?,
+  userId: json['user_id'] as String,
+  tourInstanceId: json['tour_instance_id'] as String?,
+  passengerName: json['passenger_name'] as String,
+  passengerPhone: json['passenger_phone'] as String,
+  adultCount: (json['adult_count'] as num).toInt(),
+  childCount: (json['child_count'] as num).toInt(),
+  totalPrice: (json['total_price'] as num).toDouble(),
+  refundAmount: (json['refund_amount'] as num?)?.toDouble(),
+  specialNotes: json['special_notes'] as String?,
+  status: $enumDecode(_$BookingStatusEnumMap, json['status']),
+  coordinatorId: json['coordinator_id'] as String?,
+  coordinatorResponse: json['coordinator_response'] as String?,
+  cancellationReason: json['cancellation_reason'] == null
+      ? null
+      : DateTime.parse(json['cancellation_reason'] as String),
+  cancelledAt: json['cancelled_at'] == null
+      ? null
+      : DateTime.parse(json['cancelled_at'] as String),
+  noShowNote: json['no_show_note'] as String?,
+  noShowAt: json['no_show_at'] == null
+      ? null
+      : DateTime.parse(json['no_show_at'] as String),
+  createdAt: json['created_at'] == null
+      ? null
+      : DateTime.parse(json['created_at'] as String),
+  updatedAt: json['updated_at'] == null
+      ? null
+      : DateTime.parse(json['updated_at'] as String),
+  members: (json['members'] as List<dynamic>?)
+      ?.map((e) => TourBookingMember.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  review: json['review'] == null
+      ? null
+      : TourReview.fromJson(json['review'] as Map<String, dynamic>),
+);
 
-Map<String, dynamic> _$$TourBookingImplToJson(_$TourBookingImpl instance) =>
+Map<String, dynamic> _$TourBookingToJson(_TourBooking instance) =>
     <String, dynamic>{
       'id': instance.id,
       'user_id': instance.userId,

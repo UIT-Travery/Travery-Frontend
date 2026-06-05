@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:travery_frontend/config/app_config.dart';
+import 'package:travery_frontend/data/models/review/review_data.dart';
 import 'package:travery_frontend/data/models/tour/tour_detail_page_data.dart';
 import 'package:travery_frontend/data/models/tour/tour_featured_response.dart';
 import 'package:travery_frontend/data/models/tour/tour_search_response.dart';
@@ -10,6 +11,7 @@ import 'package:travery_frontend/data/services/api/model/booking/booking_detail_
 import 'package:travery_frontend/data/services/api/model/booking/create_payment_response/create_payment_response.dart';
 import 'package:travery_frontend/data/services/api/model/booking/create_tour_booking_request/create_tour_booking_request.dart';
 import 'package:travery_frontend/data/services/api/model/booking/create_tour_booking_response/create_tour_booking_response.dart';
+import 'package:travery_frontend/data/services/api/model/tour/tour_instance_response/tour_instance_response.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -199,6 +201,50 @@ class TourServiceImpl implements TourService {
   }
 
   @override
+  Future<Result<ReviewPageData>> getTourReviews(
+    String tourId, {
+    int page = 0,
+    int size = 10,
+  }) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
+
+    try {
+      final request = await client.getUrl(
+        Uri.https(AppConfig.baseUrl, '/api/v1/tours/$tourId/reviews', {
+          'page': page.toString(),
+          'size': size.toString(),
+        }),
+      );
+      request.headers.set(
+        HttpHeaders.contentTypeHeader,
+        ContentType.json.value,
+      );
+      await _setBearerAuth(request);
+
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final stringData = await response.transform(utf8.decoder).join();
+        final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
+        final data = jsonMap['data'] as Map<String, dynamic>? ?? {};
+
+        return Result.ok(ReviewPageData.fromJson(data));
+      } else {
+        final errorMsg = await _extractErrorMessage(
+          response,
+          'Không thể tải đánh giá tour',
+        );
+        return Result.error(HttpException(errorMsg));
+      }
+    } on Exception catch (error) {
+      return Result.error(error);
+    } finally {
+      client.close();
+    }
+  }
+
+  @override
   Future<Result<List<TourInstance>>> getTourInstances(String tourId) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(milliseconds: AppConfig.timeout);
@@ -218,10 +264,13 @@ class TourServiceImpl implements TourService {
       if (response.statusCode == 200) {
         final stringData = await response.transform(utf8.decoder).join();
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
-        final data = jsonMap['data'] as List<dynamic>;
-        final instances = data
-            .map((e) => TourInstance.fromJson(e as Map<String, dynamic>))
-            .toList();
+        final data = jsonMap['data'] as List<dynamic>? ?? const [];
+        final instances = data.map((e) {
+          final response = TourInstanceResponse.fromJson(
+            e as Map<String, dynamic>,
+          );
+          return _tourInstanceFromResponse(response);
+        }).toList();
         return Result.ok(instances);
       } else {
         final errorMsg = await _extractErrorMessage(
@@ -235,6 +284,34 @@ class TourServiceImpl implements TourService {
     } finally {
       client.close();
     }
+  }
+
+  TourInstance _tourInstanceFromResponse(TourInstanceResponse response) {
+    final startDate = DateTime.parse(response.startDate);
+    final endDate = response.endDate != null && response.endDate!.isNotEmpty
+        ? DateTime.parse(response.endDate!)
+        : startDate;
+    final maxParticipants = response.maxParticipants ?? 0;
+    final availableSlots =
+        response.availableSlots ??
+        (maxParticipants - response.currentParticipants)
+            .clamp(0, maxParticipants)
+            .toInt();
+
+    return TourInstance(
+      id: response.id,
+      startDate: startDate,
+      endDate: endDate,
+      status: _parseTourInstanceStatus(response.status),
+      availableSlots: availableSlots,
+    );
+  }
+
+  TourInstanceStatus _parseTourInstanceStatus(String status) {
+    return TourInstanceStatus.values.firstWhere(
+      (value) => value.name == status.toUpperCase(),
+      orElse: () => TourInstanceStatus.PLANNING,
+    );
   }
 
   @override

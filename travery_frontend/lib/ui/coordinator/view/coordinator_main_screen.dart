@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_list_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_list_view_model.dart';
 import 'coordinator_view_tour_list_screen.dart';
 import 'coordinator_view_coach_list_screen.dart';
 import 'coordinator_selection_screen.dart';
-import 'coordinator_view_ended_tour_screen.dart';
+import 'coordinator_view_refund_list_screen.dart';
+import '../view_models/coordinator_refund_list_view_model.dart';
 import 'widgets/coordinator_bottom_navigation_bar.dart';
+
+import 'package:travery_frontend/ui/chat/chat_screen.dart';
 
 class CoordinatorMainScreen extends StatefulWidget {
   const CoordinatorMainScreen({super.key});
@@ -37,15 +41,6 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
   }
 
   void _onBottomNavTapped(int index) {
-    if (index == 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tính năng Chat đang được phát triển'),
-          duration: Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -63,10 +58,14 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
           CoordinatorTourListScreen(
             viewModel: context.read<CoordinatorTourListViewModel>(),
           ),
-          const CoordinatorViewCoachListScreen(),
-          CoordinatorSelectionScreen(),
-          const Center(child: Text('Chat')),
-          const CoordinatorViewEndedTourScreen(),
+          CoordinatorViewCoachListScreen(
+            viewModel: context.read<CoordinatorCoachTripListViewModel>(),
+          ),
+          const CoordinatorSelectionScreen(),
+          const ChatScreen(title: 'Tin nhắn', showBackButton: false),
+          CoordinatorViewRefundListScreen(
+            viewModel: context.read<CoordinatorRefundListViewModel>(),
+          ),
         ],
       ),
       bottomNavigationBar: CoordinatorBottomNavigationBar(

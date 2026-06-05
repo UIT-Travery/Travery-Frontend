@@ -6,9 +6,9 @@ part of 'tour_itinerary_day_image.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourItineraryDayImageImpl _$$TourItineraryDayImageImplFromJson(
+_TourItineraryDayImage _$TourItineraryDayImageFromJson(
   Map<String, dynamic> json,
-) => _$TourItineraryDayImageImpl(
+) => _TourItineraryDayImage(
   id: json['id'] as String?,
   itineraryDayId: json['itinerary_day_id'] as String,
   imageUrl: json['image_url'] as String,
@@ -22,8 +22,8 @@ _$TourItineraryDayImageImpl _$$TourItineraryDayImageImplFromJson(
       : DateTime.parse(json['updated_at'] as String),
 );
 
-Map<String, dynamic> _$$TourItineraryDayImageImplToJson(
-  _$TourItineraryDayImageImpl instance,
+Map<String, dynamic> _$TourItineraryDayImageToJson(
+  _TourItineraryDayImage instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'itinerary_day_id': instance.itineraryDayId,

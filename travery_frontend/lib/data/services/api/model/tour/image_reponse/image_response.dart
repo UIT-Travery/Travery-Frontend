@@ -4,7 +4,7 @@ part 'image_response.freezed.dart';
 part 'image_response.g.dart';
 
 @freezed
-class ImageResponse with _$ImageResponse {
+abstract class ImageResponse with _$ImageResponse {
   const factory ImageResponse({
     required String url,
     @Default(false) bool isThumbnail,

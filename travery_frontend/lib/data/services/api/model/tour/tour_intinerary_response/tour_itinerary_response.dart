@@ -5,7 +5,7 @@ part 'tour_itinerary_response.freezed.dart';
 part 'tour_itinerary_response.g.dart';
 
 @freezed
-class TourItineraryResponse with _$TourItineraryResponse {
+abstract class TourItineraryResponse with _$TourItineraryResponse {
   const factory TourItineraryResponse({
     required int dayNumber,
     required String title,

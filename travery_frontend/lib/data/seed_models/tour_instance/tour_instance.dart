@@ -5,7 +5,7 @@ part 'tour_instance.freezed.dart';
 part 'tour_instance.g.dart';
 
 @freezed
-class TourInstance with _$TourInstance {
+abstract class TourInstance with _$TourInstance {
   const factory TourInstance({
     String? id,
 

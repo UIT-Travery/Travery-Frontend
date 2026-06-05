@@ -4,7 +4,7 @@ part 'incident.freezed.dart';
 part 'incident.g.dart';
 
 @freezed
-class Incident with _$Incident {
+abstract class Incident with _$Incident {
   const factory Incident({
     String? id,
 

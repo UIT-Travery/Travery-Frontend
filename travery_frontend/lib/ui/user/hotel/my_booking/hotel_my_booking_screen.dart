@@ -19,6 +19,15 @@ class HotelMyBookingScreen extends StatefulWidget {
 
 class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<HotelMyBookingViewModel>().loadBookings();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<HotelMyBookingViewModel>(
       builder: (context, vm, _) {
@@ -32,6 +41,12 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
                   children: vm.statusFilters.map((filter) {
                     final isSelected =
                         (vm.selectedStatus ?? 'Tất cả') == filter;
+                    final chipColor = isSelected
+                        ? vm.getStatusColor(filter == 'Tất cả' ? '' : filter)
+                        : const Color(0xFFDAE2FD);
+                    final textColor = isSelected
+                        ? Colors.white
+                        : const Color(0xFF414755);
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
@@ -42,9 +57,7 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? const Color(0xFF0058BC)
-                                : const Color(0xFFDAE2FD),
+                            color: chipColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -52,9 +65,7 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF414755),
+                              color: textColor,
                             ),
                           ),
                         ),
@@ -113,7 +124,9 @@ class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
       case 'PAID':
         return 'Đã thanh toán';
       case 'CHECKED_IN':
-        return 'Đang ở';
+        return 'Đã checkin';
+      case 'CHECKED_OUT':
+        return 'Đã checkout';
       case 'CANCELLED':
         return 'Đã hủy';
       default:

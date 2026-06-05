@@ -100,21 +100,6 @@ class TourCompletedSummary {
   });
 
   String get formattedDate {
-    final months = [
-      '',
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
     return 'Ngày ${date.day} tháng ${date.month}, ${date.year}';
   }
 }

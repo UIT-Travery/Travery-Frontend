@@ -6,20 +6,19 @@ part of 'tour_summary_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourSummaryResponseImpl _$$TourSummaryResponseImplFromJson(
-  Map<String, dynamic> json,
-) => _$TourSummaryResponseImpl(
-  id: json['id'] as String,
-  name: json['name'] as String,
-  averageRating: (json['averageRating'] as num).toDouble(),
-  price: (json['price'] as num).toDouble(),
-  thumbnailUrl: json['thumbnailUrl'] as String?,
-  destinationName: json['destinationName'] as String,
-  durationDays: (json['durationDays'] as num).toInt(),
-);
+_TourSummaryResponse _$TourSummaryResponseFromJson(Map<String, dynamic> json) =>
+    _TourSummaryResponse(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      averageRating: (json['averageRating'] as num).toDouble(),
+      price: (json['price'] as num).toDouble(),
+      thumbnailUrl: json['thumbnailUrl'] as String?,
+      destinationName: json['destinationName'] as String,
+      durationDays: (json['durationDays'] as num).toInt(),
+    );
 
-Map<String, dynamic> _$$TourSummaryResponseImplToJson(
-  _$TourSummaryResponseImpl instance,
+Map<String, dynamic> _$TourSummaryResponseToJson(
+  _TourSummaryResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,

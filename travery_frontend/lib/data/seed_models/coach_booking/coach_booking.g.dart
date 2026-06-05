@@ -6,8 +6,8 @@ part of 'coach_booking.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CoachBookingImpl _$$CoachBookingImplFromJson(Map<String, dynamic> json) =>
-    _$CoachBookingImpl(
+_CoachBooking _$CoachBookingFromJson(Map<String, dynamic> json) =>
+    _CoachBooking(
       id: json['id'] as String?,
       userId: json['user_id'] as String,
       coachInstanceId: json['coach_instance_id'] as String,
@@ -38,7 +38,7 @@ _$CoachBookingImpl _$$CoachBookingImplFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updated_at'] as String),
     );
 
-Map<String, dynamic> _$$CoachBookingImplToJson(_$CoachBookingImpl instance) =>
+Map<String, dynamic> _$CoachBookingToJson(_CoachBooking instance) =>
     <String, dynamic>{
       'id': instance.id,
       'user_id': instance.userId,

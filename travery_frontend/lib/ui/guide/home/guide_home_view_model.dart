@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/seed_models/guide_tour/guide_tour.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
 
 /// Filter options for guide tours
@@ -18,7 +19,7 @@ enum GuideFilterOption {
 /// ViewModel for Guide Home Screen
 class GuideHomeViewModel extends ChangeNotifier {
   GuideHomeViewModel({required GuideService guideService})
-      : _guideService = guideService {
+    : _guideService = guideService {
     selectedFilter.addListener(_applyFilter);
     searchQuery.addListener(_applyFilter);
     loadTours.addListener(_onLoadToursChanged);
@@ -44,6 +45,13 @@ class GuideHomeViewModel extends ChangeNotifier {
   Future<void> fetchTours() async {
     loadTours.execute(_guideService);
   }
+
+  // ── Backward Compatibility for GuideMissionScreen ──────────────────────────
+  List<GuideTour> get allTours => loadTours.value ?? [];
+  bool get isLoading => loadTours.running;
+  Future<void> loadGuideTours() => fetchTours();
+  List<GuideTour> get ongoingTours =>
+      allTours.where((t) => t.status == GuideTourStatus.ongoing).toList();
 
   Future<void> _applyFilter() async {
     if (loadTours.value == null) return;
@@ -108,6 +116,10 @@ class GuideLoadToursAsyncTask extends ChangeNotifier {
   bool get running => _running;
   bool get hasData => _result is core_result.Ok;
   bool get error => _result is core_result.Error;
+  String get friendlyErrorMessage => guideFriendlyErrorMessage(
+    _result,
+    fallback: 'Không tải được chuyến đi. Vui lòng thử lại.',
+  );
   List<GuideTour>? get value => _result is core_result.Ok<List<GuideTour>>
       ? (_result as core_result.Ok<List<GuideTour>>).value
       : null;

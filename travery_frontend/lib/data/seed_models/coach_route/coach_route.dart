@@ -4,7 +4,7 @@ part 'coach_route.freezed.dart';
 part 'coach_route.g.dart';
 
 @freezed
-class CoachRoute with _$CoachRoute {
+abstract class CoachRoute with _$CoachRoute {
   const factory CoachRoute({
     String? id,
 

@@ -4,7 +4,7 @@ part 'driver.freezed.dart';
 part 'driver.g.dart';
 
 @freezed
-class Driver with _$Driver {
+abstract class Driver with _$Driver {
   const factory Driver({
     String? id,
 

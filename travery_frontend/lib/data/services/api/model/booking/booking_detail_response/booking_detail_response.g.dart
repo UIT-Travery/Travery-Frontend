@@ -6,12 +6,12 @@ part of 'booking_detail_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$BookingDetailResponseImpl _$$BookingDetailResponseImplFromJson(
+_BookingDetailResponse _$BookingDetailResponseFromJson(
   Map<String, dynamic> json,
-) => _$BookingDetailResponseImpl(
+) => _BookingDetailResponse(
   data: TourBookingData.fromJson(json['data'] as Map<String, dynamic>),
 );
 
-Map<String, dynamic> _$$BookingDetailResponseImplToJson(
-  _$BookingDetailResponseImpl instance,
+Map<String, dynamic> _$BookingDetailResponseToJson(
+  _BookingDetailResponse instance,
 ) => <String, dynamic>{'data': instance.data};

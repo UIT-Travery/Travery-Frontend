@@ -90,10 +90,9 @@ class BookingReviewViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Converts date from DD/MM/YYYY to YYYY-MM-DD (ISO 8601) format.
   String _toIsoDate(String dateStr) {
     if (dateStr.isEmpty) return '';
-    // dateStr is in DD/MM/YYYY format from the date picker
+
     final parts = dateStr.split('/');
     if (parts.length != 3) return dateStr;
     final day = parts[0];
@@ -179,7 +178,6 @@ class BookingReviewViewModel extends ChangeNotifier {
       return 'Đặt tour đã bị đóng. Vui lòng chọn tour khác.';
     }
 
-    // Strip generic prefixes like "Exception:" or "Error:"
     var msg = raw.replaceAll(
       RegExp(r'^(Exception|Error|ErrorCode)?[:\s]*', caseSensitive: false),
       '',

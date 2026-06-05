@@ -146,7 +146,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         context.go('/tour-home');
         break;
       case 2:
-        context.go('/coordinator-home');
+        context.go('/coordinator-main');
         break;
       case 3:
         context.go('/guide/home');

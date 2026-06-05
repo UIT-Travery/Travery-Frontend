@@ -6,6 +6,10 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/tour/booking_detail/view_models/booking_detail_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/user_app_bar.dart';
 import 'package:travery_frontend/ui/user/widgets/member_row.dart';
+import 'package:travery_frontend/ui/chat/view_models/chat_view_model.dart';
+import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/utils/alert.dart';
+import 'package:travery_frontend/ui/user/widgets/write_review_screen.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   const BookingDetailScreen({
@@ -147,13 +151,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     color: AppColors.primary,
                   ),
                 ),
-                if (booking.transactionId != null &&
-                    booking.transactionId!.isNotEmpty) ...[
+                if (booking.gatewayTransactionId != null &&
+                    booking.gatewayTransactionId!.isNotEmpty) ...[
                   _buildDivider(),
-                  _buildFormRow(
-                    'Mã giao dịch',
-                    _shortCode(booking.transactionId!),
-                  ),
+                  _buildFormRow('Mã giao dịch', booking.gatewayTransactionId!),
                 ],
                 if (booking.createdAt != null) ...[
                   _buildDivider(),
@@ -211,7 +212,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             return const SizedBox.shrink();
           }
 
-          final canCancel = vm.bookingDetail!.canCancel;
+          final booking = vm.bookingDetail!;
+          final canCancel = booking.canCancel;
+          final canReview = vm.canCreateReview;
           return Container(
             padding: EdgeInsets.fromLTRB(
               20,
@@ -252,36 +255,126 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   ),
                   const SizedBox(width: 12),
                 ],
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                if (canReview) ...[
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _openReviewSheet(context, vm),
+                      icon: const Icon(Icons.star_rounded, size: 18),
+                      label: const Text(
+                        'Viết đánh giá',
+                        style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.group, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'Vào group chat',
-                          style: TextStyle(fontWeight: FontWeight.w700),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
+                        elevation: 0,
+                      ),
                     ),
                   ),
-                ),
+                ] else
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        debugPrint("BookingDetailScreen: 'Vào group chat' pressed");
+                        if (vm.bookingDetail?.tourInstanceId != null) {
+                          debugPrint("BookingDetailScreen: tourInstanceId = ${vm.bookingDetail!.tourInstanceId}");
+                          final chatVm = context.read<ChatViewModel>();
+                          final guid = await chatVm.initiateGroupChat(
+                            vm.bookingDetail!.tourInstanceId!,
+                          );
+                          debugPrint("BookingDetailScreen: Chat initiation result: $guid");
+                          if (guid != null && context.mounted) {
+                            context.push(
+                              Routes.chat,
+                              extra: {
+                                'guid': guid,
+                                'title': vm.bookingDetail!.tourName,
+                              },
+                            );
+                          } else if (context.mounted &&
+                              chatVm.errorMessage != null) {
+                            debugPrint("BookingDetailScreen: Chat initiation failed: ${chatVm.errorMessage}");
+                            Utils.showErrorNotification(context, chatVm.errorMessage!);
+                          }
+                        } else {
+                          debugPrint("BookingDetailScreen: tourInstanceId is null");
+                          if (context.mounted) {
+                            Utils.showErrorNotification(
+                              context,
+                              'Thông tin nhóm chat chưa sẵn sàng',
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.group, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Vào group chat',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Future<void> _openReviewSheet(
+    BuildContext context,
+    BookingDetailViewModel vm,
+  ) async {
+    final booking = vm.bookingDetail;
+    if (booking == null) return;
+    if (booking.hasReview || !vm.canCreateReview) {
+      _showAlreadyReviewedMessage(context);
+      return;
+    }
+
+    final submitted = await pushWriteReviewScreen(
+      context,
+      title: 'Đánh giá tour',
+      imageUrl: '',
+      onSubmit: vm.createReview,
+    );
+
+    if (!context.mounted || submitted != true) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Cảm ơn bạn đã gửi đánh giá'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showAlreadyReviewedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bạn đã gửi đánh giá cho đơn này rồi.'),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -405,10 +498,5 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     } catch (_) {
       return dateTimeStr;
     }
-  }
-
-  String _shortCode(String id) {
-    final clean = id.replaceAll('-', '');
-    return clean.length >= 8 ? clean.substring(clean.length - 8) : clean;
   }
 }

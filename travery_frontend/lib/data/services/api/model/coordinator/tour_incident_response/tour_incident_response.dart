@@ -4,7 +4,7 @@ part 'tour_incident_response.freezed.dart';
 part 'tour_incident_response.g.dart';
 
 @freezed
-class TourIncidentResponse with _$TourIncidentResponse {
+abstract class TourIncidentResponse with _$TourIncidentResponse {
   const factory TourIncidentResponse({
     required String id,
     required String tourInstanceId,

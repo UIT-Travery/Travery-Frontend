@@ -200,6 +200,7 @@ class _CreateVehicleScreenState extends State<CreateVehicleScreen> {
 
   // ── Builders ───────────────────────────────────────────────────────────────
 
+
   Widget _buildHeader() {
     return ListenableBuilder(
       listenable: widget.viewModel.createVehicle,

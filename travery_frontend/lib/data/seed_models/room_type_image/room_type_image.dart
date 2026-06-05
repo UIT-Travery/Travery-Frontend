@@ -4,7 +4,7 @@ part 'room_type_image.freezed.dart';
 part 'room_type_image.g.dart';
 
 @freezed
-class RoomTypeImage with _$RoomTypeImage {
+abstract class RoomTypeImage with _$RoomTypeImage {
   const factory RoomTypeImage({
     String? id,
 

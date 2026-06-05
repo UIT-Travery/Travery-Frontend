@@ -4,7 +4,7 @@ part 'update_tourist_profile_request.freezed.dart';
 part 'update_tourist_profile_request.g.dart';
 
 @freezed
-class UpdateTouristProfileRequest with _$UpdateTouristProfileRequest {
+abstract class UpdateTouristProfileRequest with _$UpdateTouristProfileRequest {
   const factory UpdateTouristProfileRequest({
     String? fullName,
     String? phoneNumber,

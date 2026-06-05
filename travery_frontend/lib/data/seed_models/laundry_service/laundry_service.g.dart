@@ -6,8 +6,8 @@ part of 'laundry_service.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$LaundryServiceImpl _$$LaundryServiceImplFromJson(Map<String, dynamic> json) =>
-    _$LaundryServiceImpl(
+_LaundryService _$LaundryServiceFromJson(Map<String, dynamic> json) =>
+    _LaundryService(
       id: json['id'] as String?,
       hotelId: json['hotel_id'] as String,
       name: json['name'] as String,
@@ -26,19 +26,18 @@ _$LaundryServiceImpl _$$LaundryServiceImplFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updated_at'] as String),
     );
 
-Map<String, dynamic> _$$LaundryServiceImplToJson(
-  _$LaundryServiceImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'hotel_id': instance.hotelId,
-  'name': instance.name,
-  'description': instance.description,
-  'serviceType': _$LaundryServiceTypeEnumMap[instance.serviceType]!,
-  'price_per_kg': instance.pricePerKg,
-  'is_available': instance.isAvailable,
-  'created_at': instance.createdAt?.toIso8601String(),
-  'updated_at': instance.updatedAt?.toIso8601String(),
-};
+Map<String, dynamic> _$LaundryServiceToJson(_LaundryService instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'hotel_id': instance.hotelId,
+      'name': instance.name,
+      'description': instance.description,
+      'serviceType': _$LaundryServiceTypeEnumMap[instance.serviceType]!,
+      'price_per_kg': instance.pricePerKg,
+      'is_available': instance.isAvailable,
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
+    };
 
 const _$LaundryServiceTypeEnumMap = {
   LaundryServiceType.washDry: 'washDry',

@@ -4,7 +4,7 @@ part 'tour_summary_response.freezed.dart';
 part 'tour_summary_response.g.dart';
 
 @freezed
-class TourSummaryResponse with _$TourSummaryResponse {
+abstract class TourSummaryResponse with _$TourSummaryResponse {
   const factory TourSummaryResponse({
     required String id,
     required String name,

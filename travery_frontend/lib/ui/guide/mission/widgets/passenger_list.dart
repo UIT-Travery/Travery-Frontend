@@ -82,7 +82,6 @@ class _PassengerListState extends State<PassengerList> {
         ),
         child: Column(
           children: [
-            // Booking header
             InkWell(
               onTap: () {
                 setState(() {
@@ -120,8 +119,10 @@ class _PassengerListState extends State<PassengerList> {
                         ],
                       ),
                     ),
-                    _buildPaymentStatus(booking.status),
-                    const SizedBox(width: 8),
+                    if (_shouldShowPaymentStatus(booking.status)) ...[
+                      _buildPaymentStatus(booking.status),
+                      const SizedBox(width: 8),
+                    ],
                     Icon(
                       isExpanded
                           ? Icons.keyboard_arrow_up
@@ -132,7 +133,6 @@ class _PassengerListState extends State<PassengerList> {
                 ),
               ),
             ),
-            // Expanded members list
             if (isExpanded) ...[
               const Divider(height: 1, color: AppColors.surfaceGray),
               Padding(
@@ -148,6 +148,17 @@ class _PassengerListState extends State<PassengerList> {
         ),
       ),
     );
+  }
+
+  bool _shouldShowPaymentStatus(String status) {
+    switch (status.toUpperCase()) {
+      case 'PAID':
+      case 'COMPLETED':
+      case 'CONFIRMED':
+        return false;
+      default:
+        return true;
+    }
   }
 
   Widget _buildPaymentStatus(String status) {
@@ -174,11 +185,7 @@ class _PassengerListState extends State<PassengerList> {
       case 'PAID':
       case 'COMPLETED':
       case 'CONFIRMED':
-        return (
-          const Color(0xFFeffaf3),
-          const Color(0xFF22c55e),
-          'Đã thanh toán',
-        );
+        return (const Color(0xFFeffaf3), const Color(0xFF22c55e), '');
       case 'PENDING':
       case 'WAITING':
         return (

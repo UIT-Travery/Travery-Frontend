@@ -6,22 +6,21 @@ part of 'vehicle_seat.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$VehicleSeatImpl _$$VehicleSeatImplFromJson(Map<String, dynamic> json) =>
-    _$VehicleSeatImpl(
-      id: json['id'] as String?,
-      vehicleId: json['vehicle_id'] as String,
-      seatCode: json['seat_code'] as String,
-      floor: (json['floor'] as num).toInt(),
-      rowZone: $enumDecode(_$SeatRowZoneEnumMap, json['rowZone']),
-      createdAt: json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
-    );
+_VehicleSeat _$VehicleSeatFromJson(Map<String, dynamic> json) => _VehicleSeat(
+  id: json['id'] as String?,
+  vehicleId: json['vehicle_id'] as String,
+  seatCode: json['seat_code'] as String,
+  floor: (json['floor'] as num).toInt(),
+  rowZone: $enumDecode(_$SeatRowZoneEnumMap, json['rowZone']),
+  createdAt: json['created_at'] == null
+      ? null
+      : DateTime.parse(json['created_at'] as String),
+  updatedAt: json['updated_at'] == null
+      ? null
+      : DateTime.parse(json['updated_at'] as String),
+);
 
-Map<String, dynamic> _$$VehicleSeatImplToJson(_$VehicleSeatImpl instance) =>
+Map<String, dynamic> _$VehicleSeatToJson(_VehicleSeat instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vehicle_id': instance.vehicleId,

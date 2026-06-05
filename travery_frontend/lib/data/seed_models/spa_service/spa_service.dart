@@ -4,7 +4,7 @@ part 'spa_service.freezed.dart';
 part 'spa_service.g.dart';
 
 @freezed
-class SpaService with _$SpaService {
+abstract class SpaService with _$SpaService {
   const factory SpaService({
     String? id,
 

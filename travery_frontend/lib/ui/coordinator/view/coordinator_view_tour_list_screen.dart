@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travery_frontend/ui/common/notification/view/widgets/notification_badge.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_list_view_model.dart';
@@ -149,17 +150,27 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
               ],
             ),
           ),
-          IconButton(
-            onPressed: () {
-              context.push(Routes.coordinatorViewProfile);
-            },
-            icon: const Icon(
-              Icons.settings_outlined,
-              color: Colors.white,
-              size: 28,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+          Row(
+            children: [
+              NotificationBadge(
+                onTap: () => context.push(Routes.notifications),
+                iconColor: Colors.white,
+                iconSize: 28,
+              ),
+              const SizedBox(width: 16),
+              IconButton(
+                onPressed: () {
+                  context.push(Routes.coordinatorViewProfile);
+                },
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
           ),
         ],
       ),
@@ -180,12 +191,6 @@ class _CoordinatorTourListScreenState extends State<CoordinatorTourListScreen>
                 widget.viewModel.searchQuery.value = _searchController.text;
               },
             ),
-          ),
-          const SizedBox(width: 12),
-          CoordinatorFilterButton(
-            onFilterTap: () {
-              // Open filter dialog or perform sorting if needed
-            },
           ),
         ],
       ),

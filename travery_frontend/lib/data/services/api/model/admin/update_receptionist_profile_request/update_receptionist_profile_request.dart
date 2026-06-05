@@ -5,7 +5,7 @@ part 'update_receptionist_profile_request.g.dart';
 
 /// Matches UpdateReceptionistProfileRequest schema.
 @freezed
-class UpdateReceptionistProfileRequest with _$UpdateReceptionistProfileRequest {
+abstract class UpdateReceptionistProfileRequest with _$UpdateReceptionistProfileRequest {
   const factory UpdateReceptionistProfileRequest({
     String? fullName,
     String? phoneNumber,

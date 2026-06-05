@@ -6,9 +6,9 @@ part of 'tour_instance_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourInstanceResponseImpl _$$TourInstanceResponseImplFromJson(
+_TourInstanceResponse _$TourInstanceResponseFromJson(
   Map<String, dynamic> json,
-) => _$TourInstanceResponseImpl(
+) => _TourInstanceResponse(
   id: json['id'] as String,
   tourName: json['tourName'] as String,
   startDate: json['startDate'] as String,
@@ -17,11 +17,11 @@ _$TourInstanceResponseImpl _$$TourInstanceResponseImplFromJson(
   currentParticipants: (json['currentParticipants'] as num).toInt(),
   maxParticipants: (json['maxParticipants'] as num?)?.toInt(),
   availableSlots: (json['availableSlots'] as num?)?.toInt(),
-  imageUrl: json['imageUrl'] as String?,
+  thumbnailUrl: json['thumbnailUrl'] as String?,
 );
 
-Map<String, dynamic> _$$TourInstanceResponseImplToJson(
-  _$TourInstanceResponseImpl instance,
+Map<String, dynamic> _$TourInstanceResponseToJson(
+  _TourInstanceResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'tourName': instance.tourName,
@@ -31,5 +31,5 @@ Map<String, dynamic> _$$TourInstanceResponseImplToJson(
   'currentParticipants': instance.currentParticipants,
   'maxParticipants': instance.maxParticipants,
   'availableSlots': instance.availableSlots,
-  'imageUrl': instance.imageUrl,
+  'thumbnailUrl': instance.thumbnailUrl,
 };

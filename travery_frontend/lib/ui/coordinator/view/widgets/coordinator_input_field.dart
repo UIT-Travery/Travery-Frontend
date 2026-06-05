@@ -9,6 +9,8 @@ class CoordinatorInputField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextEditingController controller;
   final bool isMultipleLine;
+  final TextInputType? keyboardType;
+  final FocusNode? focusNode;
 
   const CoordinatorInputField({
     super.key,
@@ -18,6 +20,8 @@ class CoordinatorInputField extends StatelessWidget {
     this.suffixIcon,
     required this.controller,
     this.isMultipleLine = false,
+    this.keyboardType,
+    this.focusNode,
   });
 
   @override
@@ -41,6 +45,8 @@ class CoordinatorInputField extends StatelessWidget {
           width: double.infinity,
           child: TextField(
             controller: controller,
+            keyboardType: keyboardType,
+            focusNode: focusNode,
             maxLines: isMultipleLine ? null : 1,
             expands: isMultipleLine,
             textAlignVertical: isMultipleLine

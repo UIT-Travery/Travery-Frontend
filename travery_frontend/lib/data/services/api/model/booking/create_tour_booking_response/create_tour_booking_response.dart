@@ -4,7 +4,7 @@ part 'create_tour_booking_response.freezed.dart';
 part 'create_tour_booking_response.g.dart';
 
 @freezed
-class CreateTourBookingResponse with _$CreateTourBookingResponse {
+abstract class CreateTourBookingResponse with _$CreateTourBookingResponse {
   const factory CreateTourBookingResponse({required TourBookingData data}) =
       _CreateTourBookingResponse;
 
@@ -13,7 +13,7 @@ class CreateTourBookingResponse with _$CreateTourBookingResponse {
 }
 
 @freezed
-class TourBookingData with _$TourBookingData {
+abstract class TourBookingData with _$TourBookingData {
   const factory TourBookingData({
     required String id,
     @Default('') String customerName,
@@ -40,7 +40,7 @@ class TourBookingData with _$TourBookingData {
 }
 
 @freezed
-class BookingMemberData with _$BookingMemberData {
+abstract class BookingMemberData with _$BookingMemberData {
   const factory BookingMemberData({
     @Default('') String id,
     @Default('') String fullName,
@@ -55,7 +55,7 @@ class BookingMemberData with _$BookingMemberData {
 }
 
 @freezed
-class PaymentData with _$PaymentData {
+abstract class PaymentData with _$PaymentData {
   const factory PaymentData({
     @Default('') String transactionId,
     @Default('') String gatewayTransactionId,

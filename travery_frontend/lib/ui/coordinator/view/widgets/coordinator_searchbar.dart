@@ -8,6 +8,7 @@ class CoordinatorSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback? onFilterTap;
   final VoidCallback? onSearchTap;
+  final ValueChanged<String>? onSearchChanged;
 
   const CoordinatorSearchBar({
     super.key,
@@ -16,6 +17,7 @@ class CoordinatorSearchBar extends StatelessWidget {
     required this.controller,
     this.onFilterTap,
     this.onSearchTap,
+    this.onSearchChanged,
   });
 
   @override
@@ -30,7 +32,7 @@ class CoordinatorSearchBar extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        onChanged: (value) => onSearchTap?.call(),
+        onChanged: onSearchChanged,
         textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(
           fontSize: AppTextTheme.bodyMedium,
@@ -43,7 +45,11 @@ class CoordinatorSearchBar extends StatelessWidget {
             fontSize: AppTextTheme.hintLarge,
             color: AppColors.textHint,
           ),
-          prefixIcon: Icon(Icons.search, color: AppColors.icon, size: 20.0),
+          prefixIcon: Icon(
+            Icons.search,
+            color: AppColors.icon,
+            size: 20.0,
+          ),
           // Forces the icon to center properly within the 36px height
           prefixIconConstraints: BoxConstraints(
             minWidth: 40.0,

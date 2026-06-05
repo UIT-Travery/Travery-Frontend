@@ -4,7 +4,7 @@ part 'refresh_reponse.freezed.dart';
 part 'refresh_reponse.g.dart';
 
 @freezed
-class RefreshResponse with _$RefreshResponse {
+abstract class RefreshResponse with _$RefreshResponse {
   const factory RefreshResponse({
     required String accessToken,
     required String refreshToken,

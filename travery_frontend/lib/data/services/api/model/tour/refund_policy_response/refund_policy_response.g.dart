@@ -6,17 +6,17 @@ part of 'refund_policy_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RefundPolicyRuleResponseImpl _$$RefundPolicyRuleResponseImplFromJson(
+_RefundPolicyRuleResponse _$RefundPolicyRuleResponseFromJson(
   Map<String, dynamic> json,
-) => _$RefundPolicyRuleResponseImpl(
+) => _RefundPolicyRuleResponse(
   id: json['id'] as String?,
   timeBefore: (json['timeBefore'] as num?)?.toDouble(),
   timeUnit: json['timeUnit'] as String?,
   refundPercentage: (json['refundPercentage'] as num?)?.toDouble(),
 );
 
-Map<String, dynamic> _$$RefundPolicyRuleResponseImplToJson(
-  _$RefundPolicyRuleResponseImpl instance,
+Map<String, dynamic> _$RefundPolicyRuleResponseToJson(
+  _RefundPolicyRuleResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'timeBefore': instance.timeBefore,
@@ -24,9 +24,9 @@ Map<String, dynamic> _$$RefundPolicyRuleResponseImplToJson(
   'refundPercentage': instance.refundPercentage,
 };
 
-_$RefundPolicyResponseImpl _$$RefundPolicyResponseImplFromJson(
+_RefundPolicyResponse _$RefundPolicyResponseFromJson(
   Map<String, dynamic> json,
-) => _$RefundPolicyResponseImpl(
+) => _RefundPolicyResponse(
   id: json['id'] as String?,
   name: json['name'] as String?,
   serviceType: json['serviceType'] as String?,
@@ -39,8 +39,8 @@ _$RefundPolicyResponseImpl _$$RefundPolicyResponseImplFromJson(
       const [],
 );
 
-Map<String, dynamic> _$$RefundPolicyResponseImplToJson(
-  _$RefundPolicyResponseImpl instance,
+Map<String, dynamic> _$RefundPolicyResponseToJson(
+  _RefundPolicyResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
