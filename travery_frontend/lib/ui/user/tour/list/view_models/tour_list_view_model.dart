@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/models/tour/tour_search_item.dart';
+import 'package:travery_frontend/data/models/tour/tour_search_response.dart';
 import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
@@ -25,14 +26,16 @@ class TourListViewModel extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
+  String? _loadMoreError;
+  String? get loadMoreError => _loadMoreError;
+
   String _keyword = '';
   double? _minPrice;
   double? _maxPrice;
   int? _minRating;
   DateTime? _startDate;
   int _currentPage = 0;
-  static const int _pageSize = 20;
-  static const int _defaultMinDays = 5;
+  static const int _pageSize = 10;
 
   Timer? _debounceTimer;
   static const Duration _debounceDuration = Duration(milliseconds: 500);
@@ -111,6 +114,7 @@ class TourListViewModel extends ChangeNotifier {
       _currentPage = 0;
       _tours = [];
       _hasMore = true;
+      _loadMoreError = null;
     }
 
     _keyword = keyword ?? _keyword;
@@ -123,23 +127,25 @@ class TourListViewModel extends ChangeNotifier {
 
     _isLoading = _currentPage == 0;
     _error = null;
+    _loadMoreError = null;
     notifyListeners();
 
+    final pageToLoad = _currentPage;
     final result = await _tourService.searchTours(
       keyword: _keyword.isNotEmpty ? _keyword : null,
       minPrice: _minPrice,
       maxPrice: _maxPrice,
       minRating: _minRating,
       startDate: _startDate,
-      page: _currentPage,
+      page: pageToLoad,
       size: _pageSize,
-      minDays: _defaultMinDays,
     );
 
     switch (result) {
       case Ok(value: final data):
+        _currentPage = pageToLoad;
         _tours = data.content;
-        _hasMore = _tours.length >= _pageSize;
+        _hasMore = _hasNextPage(data, pageToLoad);
       case Error(error: final e):
         _error = e.toString();
     }
@@ -148,35 +154,50 @@ class TourListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadMore() async {
-    if (_isLoadingMore || !_hasMore) return;
+  Future<void> loadMore({bool retry = false}) async {
+    if (_isLoading ||
+        _isLoadingMore ||
+        !_hasMore ||
+        _tours.isEmpty ||
+        (_loadMoreError != null && !retry)) {
+      return;
+    }
 
     _isLoadingMore = true;
+    _loadMoreError = null;
     notifyListeners();
 
-    _currentPage++;
+    final pageToLoad = _currentPage + 1;
     final result = await _tourService.searchTours(
       keyword: _keyword.isNotEmpty ? _keyword : null,
       minPrice: _minPrice,
       maxPrice: _maxPrice,
       minRating: _minRating,
       startDate: _startDate,
-      page: _currentPage,
+      page: pageToLoad,
       size: _pageSize,
-      minDays: _defaultMinDays,
     );
 
     switch (result) {
       case Ok(value: final data):
+        _currentPage = pageToLoad;
         _tours.addAll(data.content);
-        _hasMore = data.content.length >= _pageSize;
+        _hasMore = _hasNextPage(data, pageToLoad);
       case Error(error: final e):
-        _currentPage--;
-        _error = e.toString();
+        _loadMoreError = e.toString();
     }
 
     _isLoadingMore = false;
     notifyListeners();
+  }
+
+  bool _hasNextPage(TourSearchPageData data, int loadedPage) {
+    if (data.content.isEmpty) return false;
+    if (data.totalPages > 0) {
+      return loadedPage + 1 < data.totalPages;
+    }
+    if (data.last) return false;
+    return data.content.length >= _pageSize;
   }
 
   @override

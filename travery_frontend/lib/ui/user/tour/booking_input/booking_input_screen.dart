@@ -131,6 +131,7 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
   final List<TextEditingController> _dobControllers = [];
   final TextEditingController _contactNameController = TextEditingController();
   final TextEditingController _contactPhoneController = TextEditingController();
+  String _contactEmail = '';
   final TextEditingController _specialRequestsController =
       TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -199,7 +200,7 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
             phone: value.phoneNumber,
             email: value.email,
           );
-          _setContactInfo(value.fullName, value.phoneNumber);
+          _setContactInfo(value.fullName, value.phoneNumber, value.email);
         case Error<ProfileData>():
           _loadFromLocalStorage();
       }
@@ -210,11 +211,15 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
 
   void _loadFromLocalStorage() {
     UserStorageService.getInstance().then((userStorage) {
-      _setContactInfo(userStorage.fullName, userStorage.phone);
+      _setContactInfo(
+        userStorage.fullName,
+        userStorage.phone,
+        userStorage.email,
+      );
     });
   }
 
-  void _setContactInfo(String? fullName, String? phone) {
+  void _setContactInfo(String? fullName, String? phone, String? email) {
     if (!mounted) return;
     setState(() {
       if (_contactNameController.text.trim().isEmpty) {
@@ -222,6 +227,9 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
       }
       if (_contactPhoneController.text.trim().isEmpty) {
         _contactPhoneController.text = phone ?? '';
+      }
+      if (_contactEmail.trim().isEmpty) {
+        _contactEmail = email ?? '';
       }
     });
   }
@@ -532,6 +540,7 @@ class _BookingInputScreenState extends State<BookingInputScreen> {
         'pricePerChild': widget.pricePerChild ?? 0.0,
         'contactName': _contactNameController.text.trim(),
         'contactPhone': _contactPhoneController.text.trim(),
+        'contactEmail': _contactEmail.trim(),
         'specialRequests': widget.viewModel.specialRequests,
         'startDate': widget.startDate,
         'endDate': widget.endDate,

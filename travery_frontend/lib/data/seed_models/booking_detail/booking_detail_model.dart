@@ -15,6 +15,7 @@ class BookingDetailModel {
   final String? paymentMethod;
   final String? paymentStatus;
   final String? transactionId;
+  final String? gatewayTransactionId;
   final String? paymentUrl;
   final double? paymentAmount;
   final String? paymentExpiresAt;
@@ -37,6 +38,7 @@ class BookingDetailModel {
     this.paymentMethod,
     this.paymentStatus,
     this.transactionId,
+    this.gatewayTransactionId,
     this.paymentUrl,
     this.paymentAmount,
     this.paymentExpiresAt,

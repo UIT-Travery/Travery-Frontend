@@ -11,6 +11,7 @@ import 'package:travery_frontend/data/services/api/model/booking/booking_detail_
 import 'package:travery_frontend/data/services/api/model/booking/create_payment_response/create_payment_response.dart';
 import 'package:travery_frontend/data/services/api/model/booking/create_tour_booking_request/create_tour_booking_request.dart';
 import 'package:travery_frontend/data/services/api/model/booking/create_tour_booking_response/create_tour_booking_response.dart';
+import 'package:travery_frontend/data/services/api/model/tour/tour_instance_response/tour_instance_response.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/data/services/tour/tour_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -263,10 +264,13 @@ class TourServiceImpl implements TourService {
       if (response.statusCode == 200) {
         final stringData = await response.transform(utf8.decoder).join();
         final jsonMap = jsonDecode(stringData) as Map<String, dynamic>;
-        final data = jsonMap['data'] as List<dynamic>;
-        final instances = data
-            .map((e) => TourInstance.fromJson(e as Map<String, dynamic>))
-            .toList();
+        final data = jsonMap['data'] as List<dynamic>? ?? const [];
+        final instances = data.map((e) {
+          final response = TourInstanceResponse.fromJson(
+            e as Map<String, dynamic>,
+          );
+          return _tourInstanceFromResponse(response);
+        }).toList();
         return Result.ok(instances);
       } else {
         final errorMsg = await _extractErrorMessage(
@@ -280,6 +284,34 @@ class TourServiceImpl implements TourService {
     } finally {
       client.close();
     }
+  }
+
+  TourInstance _tourInstanceFromResponse(TourInstanceResponse response) {
+    final startDate = DateTime.parse(response.startDate);
+    final endDate = response.endDate != null && response.endDate!.isNotEmpty
+        ? DateTime.parse(response.endDate!)
+        : startDate;
+    final maxParticipants = response.maxParticipants ?? 0;
+    final availableSlots =
+        response.availableSlots ??
+        (maxParticipants - response.currentParticipants)
+            .clamp(0, maxParticipants)
+            .toInt();
+
+    return TourInstance(
+      id: response.id,
+      startDate: startDate,
+      endDate: endDate,
+      status: _parseTourInstanceStatus(response.status),
+      availableSlots: availableSlots,
+    );
+  }
+
+  TourInstanceStatus _parseTourInstanceStatus(String status) {
+    return TourInstanceStatus.values.firstWhere(
+      (value) => value.name == status.toUpperCase(),
+      orElse: () => TourInstanceStatus.PLANNING,
+    );
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/guide_checkin_view_model.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/widgets/member_attendance_tile.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 
 class GuideCheckinScreen extends StatefulWidget {
   const GuideCheckinScreen({super.key, required this.missionId});
@@ -308,7 +309,12 @@ class _GuideCheckinScreenState extends State<GuideCheckinScreen> {
     } else {
       messenger.showSnackBar(
         SnackBar(
-          content: Text(_viewModel.saveError.value ?? 'Lưu thất bại'),
+          content: Text(
+            guideFriendlyErrorMessage(
+              _viewModel.saveError.value,
+              fallback: 'Không lưu được điểm danh. Vui lòng thử lại.',
+            ),
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -322,8 +328,8 @@ class _GuideCheckinScreenState extends State<GuideCheckinScreen> {
         children: [
           const Icon(Icons.error_outline, color: AppColors.error, size: 48),
           const SizedBox(height: 12),
-          const Text(
-            'Đã xảy ra lỗi khi tải dữ liệu',
+          Text(
+            _viewModel.loadMission.friendlyErrorMessage,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: AppTextTheme.bodyMedium,

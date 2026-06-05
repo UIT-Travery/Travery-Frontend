@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/utils/core_result.dart';
 
 enum GuideCoachTripFilter {
@@ -62,7 +63,10 @@ class GuideCoachTripListViewModel extends ChangeNotifier {
         _hasMore = !value.last && value.content.isNotEmpty;
         _page = 1;
       case Error(:final error):
-        _errorMessage = error.toString();
+        _errorMessage = guideFriendlyErrorMessage(
+          error,
+          fallback: 'Không tải được danh sách chuyến xe. Vui lòng thử lại.',
+        );
         _hasMore = false;
     }
 
@@ -88,7 +92,10 @@ class GuideCoachTripListViewModel extends ChangeNotifier {
         _hasMore = !value.last && value.content.isNotEmpty;
         _page++;
       case Error(:final error):
-        _errorMessage = error.toString();
+        _errorMessage = guideFriendlyErrorMessage(
+          error,
+          fallback: 'Không tải thêm được chuyến xe. Vui lòng thử lại.',
+        );
     }
 
     _isLoadingMore = false;

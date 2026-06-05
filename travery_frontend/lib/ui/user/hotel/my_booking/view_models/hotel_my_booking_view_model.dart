@@ -5,9 +5,7 @@ import 'package:travery_frontend/utils/core_result.dart';
 
 class HotelMyBookingViewModel extends ChangeNotifier {
   HotelMyBookingViewModel({required HotelService hotelService})
-    : _hotelService = hotelService {
-    loadBookings();
-  }
+    : _hotelService = hotelService;
 
   final HotelService _hotelService;
 
@@ -40,14 +38,14 @@ class HotelMyBookingViewModel extends ChangeNotifier {
   ];
   List<String> get statusFilters => _allStatuses;
 
-  void loadBookings({String? status}) {
+  Future<void> loadBookings({String? status}) async {
     if (_isLoading) return;
     _selectedStatus = status ?? _selectedStatus ?? 'Tất cả';
     _isLoading = true;
     _error = null;
     notifyListeners();
 
-    _fetchBookings();
+    await _fetchBookings();
   }
 
   Future<void> _fetchBookings() async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/utils/review_guards.dart';
 
 typedef ReviewSubmitter =
     Future<String?> Function({required int rating, required String comment});
@@ -46,6 +47,7 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
   int _rating = 5;
   bool _isSubmitting = false;
   String? _error;
+  bool _isAlreadyReviewed = false;
 
   @override
   void dispose() {
@@ -77,7 +79,8 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
 
     setState(() {
       _isSubmitting = false;
-      _error = error;
+      _isAlreadyReviewed = isDuplicateReviewError(error);
+      _error = friendlyReviewError(error);
     });
   }
 
@@ -258,13 +261,26 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
                       ),
                       if (_error != null) ...[
                         const SizedBox(height: 4),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            _error!,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFFDC2626),
+                        _ReviewMessageBox(
+                          message: _error!,
+                          isAlreadyReviewed: _isAlreadyReviewed,
+                        ),
+                      ],
+                      if (_isAlreadyReviewed) ...[
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            icon: const Icon(Icons.check_circle_outline),
+                            label: const Text('Đã hiểu'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: const BorderSide(color: AppColors.primary),
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
                         ),
@@ -273,7 +289,9 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: _isSubmitting ? null : _submit,
+                          onPressed: _isSubmitting || _isAlreadyReviewed
+                              ? null
+                              : _submit,
                           icon: _isSubmitting
                               ? const SizedBox(
                                   width: 18,
@@ -306,6 +324,56 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
                     ],
                   ),
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewMessageBox extends StatelessWidget {
+  const _ReviewMessageBox({
+    required this.message,
+    required this.isAlreadyReviewed,
+  });
+
+  final String message;
+  final bool isAlreadyReviewed;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isAlreadyReviewed
+        ? AppColors.primary
+        : const Color(0xFFDC2626);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isAlreadyReviewed
+                ? Icons.check_circle_outline
+                : Icons.info_outline_rounded,
+            size: 18,
+            color: color,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 13,
+                color: color,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

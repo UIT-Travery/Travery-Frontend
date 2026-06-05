@@ -19,6 +19,15 @@ class BookingListScreen extends StatefulWidget {
 }
 
 class _BookingListScreenState extends State<BookingListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<BookingListViewModel>().loadBookings(refresh: true);
+    });
+  }
+
   Future<void> _handleBookingTap(UserBookingItem booking) async {
     debugPrint('=== _handleBookingTap - status: ${booking.status}');
     if (booking.status != 'PENDING') {

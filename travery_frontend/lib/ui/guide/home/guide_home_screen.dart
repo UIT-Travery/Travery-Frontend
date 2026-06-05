@@ -119,8 +119,8 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
           children: [
             const Icon(Icons.error_outline, color: AppColors.error, size: 48),
             const SizedBox(height: 12),
-            const Text(
-              'Đã xảy ra lỗi khi tải dữ liệu',
+            Text(
+              _viewModel.loadTours.friendlyErrorMessage,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: AppTextTheme.bodyMedium,

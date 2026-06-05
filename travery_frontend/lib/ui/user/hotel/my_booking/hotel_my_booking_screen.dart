@@ -19,6 +19,15 @@ class HotelMyBookingScreen extends StatefulWidget {
 
 class _HotelMyBookingScreenState extends State<HotelMyBookingScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<HotelMyBookingViewModel>().loadBookings();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<HotelMyBookingViewModel>(
       builder: (context, vm, _) {

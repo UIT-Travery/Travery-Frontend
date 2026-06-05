@@ -4,6 +4,7 @@ import 'package:travery_frontend/data/services/guide/guide_mission_service.dart'
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/guide/coach_trip/passengers/guide_coach_trip_passengers_view_model.dart';
+import 'package:travery_frontend/ui/guide/utils/guide_error_message.dart';
 import 'package:travery_frontend/ui/guide/widgets/guide_attendance_status_picker.dart';
 
 class GuideCoachTripPassengersScreen extends StatefulWidget {
@@ -177,13 +178,11 @@ class _GuideCoachTripPassengersScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          isCheckIn ? 'Check-in ${booking.contactName}?' : 'Đánh dấu vắng mặt?',
-        ),
+        title: Text(isCheckIn ? 'Xác nhận lên xe' : 'Đánh dấu vắng mặt'),
         content: Text(
           isCheckIn
-              ? 'Xác nhận hành khách đã lên xe?\nGhế: ${_seatText(booking)}'
-              : 'Xác nhận ${booking.contactName} không lên xe?\nGhế: ${_seatText(booking)}',
+              ? 'Bạn xác nhận ${_passengerName(booking)} đã lên xe?\nGhế: ${_seatText(booking)}'
+              : 'Bạn muốn đánh dấu ${_passengerName(booking)} là vắng mặt?\nGhế: ${_seatText(booking)}',
         ),
         actions: [
           TextButton(
@@ -192,7 +191,7 @@ class _GuideCoachTripPassengersScreenState
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(isCheckIn ? 'Xác nhận check-in' : 'Xác nhận vắng mặt'),
+            child: Text(isCheckIn ? 'Đã lên xe' : 'Đánh dấu vắng'),
           ),
         ],
       ),
@@ -209,7 +208,11 @@ class _GuideCoachTripPassengersScreenState
     if (success) {
       messenger.showSnackBar(
         SnackBar(
-          content: Text(isCheckIn ? 'Đã check-in' : 'Đã đánh dấu vắng mặt'),
+          content: Text(
+            isCheckIn
+                ? 'Đã xác nhận hành khách lên xe.'
+                : 'Đã đánh dấu hành khách vắng mặt.',
+          ),
           backgroundColor: AppColors.success,
         ),
       );
@@ -217,7 +220,12 @@ class _GuideCoachTripPassengersScreenState
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            _cleanError(_viewModel.actionError ?? 'Thao tác thất bại'),
+            guideFriendlyErrorMessage(
+              _viewModel.actionError,
+              fallback: isCheckIn
+                  ? 'Không xác nhận được hành khách lên xe. Vui lòng thử lại.'
+                  : 'Không đánh dấu được vắng mặt. Vui lòng thử lại.',
+            ),
           ),
           backgroundColor: AppColors.error,
         ),
@@ -252,7 +260,11 @@ class _GuideCoachTripPassengersScreenState
           const Icon(Icons.error_outline, color: AppColors.error, size: 48),
           const SizedBox(height: 12),
           Text(
-            _cleanError(_viewModel.errorMessage ?? 'Đã xảy ra lỗi'),
+            guideFriendlyErrorMessage(
+              _viewModel.errorMessage,
+              fallback:
+                  'Không tải được danh sách hành khách. Vui lòng thử lại.',
+            ),
             style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: AppTextTheme.bodyMedium,
@@ -275,8 +287,10 @@ class _GuideCoachTripPassengersScreenState
         : booking.seatNames.join(', ');
   }
 
-  String _cleanError(String message) {
-    return message.replaceFirst('HttpException: ', '');
+  String _passengerName(CoachTripBooking booking) {
+    return booking.contactName.trim().isEmpty
+        ? 'hành khách này'
+        : booking.contactName;
   }
 }
 
