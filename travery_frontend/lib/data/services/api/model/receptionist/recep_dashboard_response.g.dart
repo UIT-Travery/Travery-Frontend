@@ -6,9 +6,9 @@ part of 'recep_dashboard_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RecepDashboardResponseImpl _$$RecepDashboardResponseImplFromJson(
+_RecepDashboardResponse _$RecepDashboardResponseFromJson(
   Map<String, dynamic> json,
-) => _$RecepDashboardResponseImpl(
+) => _RecepDashboardResponse(
   availableRooms: (json['availableRooms'] as num?)?.toInt() ?? 0,
   occupiedRooms: (json['occupiedRooms'] as num?)?.toInt() ?? 0,
   cleaningRooms: (json['cleaningRooms'] as num?)?.toInt() ?? 0,
@@ -31,8 +31,8 @@ _$RecepDashboardResponseImpl _$$RecepDashboardResponseImplFromJson(
       const [],
 );
 
-Map<String, dynamic> _$$RecepDashboardResponseImplToJson(
-  _$RecepDashboardResponseImpl instance,
+Map<String, dynamic> _$RecepDashboardResponseToJson(
+  _RecepDashboardResponse instance,
 ) => <String, dynamic>{
   'availableRooms': instance.availableRooms,
   'occupiedRooms': instance.occupiedRooms,

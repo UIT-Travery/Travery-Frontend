@@ -8,6 +8,7 @@ import 'package:travery_frontend/ui/admin/view/widgets/input_text_field.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/large_button.dart';
 import '../../core/themes/app_colors.dart';
 import '../../core/themes/app_text_theme.dart';
+
 import 'package:travery_frontend/ui/admin/view/widgets/input_button.dart';
 import 'package:travery_frontend/ui/admin/view/widgets/amenity_bottom_sheet.dart';
 import 'package:travery_frontend/data/services/api/model/hotel/amenity_response.dart';
@@ -86,6 +87,7 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+
     } else if (cmd.completed) {
       final result = cmd.result;
       if (result != null) {
@@ -514,7 +516,6 @@ class _UpdateHotelScreenState extends State<UpdateHotelScreen> {
   }
 
   // ── Builders ───────────────────────────────────────────────────────────────
-
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

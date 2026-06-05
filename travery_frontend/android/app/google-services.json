@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "31945787831",
+    "project_id": "travery-9ef7c",
+    "storage_bucket": "travery-9ef7c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31945787831:android:6a834b1a0ea7ca9ee8c032",
+        "android_client_info": {
+          "package_name": "com.example.travery_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4U3qgyaz3fdfzgPjiDs78n2XgEBeP9n8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

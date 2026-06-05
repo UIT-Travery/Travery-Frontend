@@ -6,7 +6,7 @@ part of 'tour.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourImpl _$$TourImplFromJson(Map<String, dynamic> json) => _$TourImpl(
+_Tour _$TourFromJson(Map<String, dynamic> json) => _Tour(
   id: json['id'] as String?,
   name: json['name'] as String,
   description: json['description'] as String?,
@@ -24,17 +24,16 @@ _$TourImpl _$$TourImplFromJson(Map<String, dynamic> json) => _$TourImpl(
       .toList(),
 );
 
-Map<String, dynamic> _$$TourImplToJson(_$TourImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'description': instance.description,
-      'pricePerAdult': instance.pricePerAdult,
-      'pricePerChild': instance.pricePerChild,
-      'averageRating': instance.averageRating,
-      'ratingCount': instance.ratingCount,
-      'startLocation': instance.startLocation,
-      'durationDays': instance.durationDays,
-      'images': instance.images,
-      'instances': instance.instances,
-    };
+Map<String, dynamic> _$TourToJson(_Tour instance) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'description': instance.description,
+  'pricePerAdult': instance.pricePerAdult,
+  'pricePerChild': instance.pricePerChild,
+  'averageRating': instance.averageRating,
+  'ratingCount': instance.ratingCount,
+  'startLocation': instance.startLocation,
+  'durationDays': instance.durationDays,
+  'images': instance.images,
+  'instances': instance.instances,
+};

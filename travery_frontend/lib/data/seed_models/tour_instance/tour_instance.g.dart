@@ -6,8 +6,8 @@ part of 'tour_instance.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourInstanceImpl _$$TourInstanceImplFromJson(Map<String, dynamic> json) =>
-    _$TourInstanceImpl(
+_TourInstance _$TourInstanceFromJson(Map<String, dynamic> json) =>
+    _TourInstance(
       id: json['id'] as String?,
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
@@ -18,7 +18,7 @@ _$TourInstanceImpl _$$TourInstanceImplFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$$TourInstanceImplToJson(_$TourInstanceImpl instance) =>
+Map<String, dynamic> _$TourInstanceToJson(_TourInstance instance) =>
     <String, dynamic>{
       'id': instance.id,
       'startDate': instance.startDate.toIso8601String(),

@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,257 +9,281 @@ part of 'recep_room_response.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-RecepRoomResponse _$RecepRoomResponseFromJson(Map<String, dynamic> json) {
-  return _RecepRoomResponse.fromJson(json);
-}
 
 /// @nodoc
 mixin _$RecepRoomResponse {
-  String get id => throw _privateConstructorUsedError;
-  String get roomNumber => throw _privateConstructorUsedError;
-  String get roomTypeName => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
-  int? get floor => throw _privateConstructorUsedError;
+
+ String get id; String get roomNumber; String get roomTypeName; String get status; int? get floor;
+/// Create a copy of RecepRoomResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RecepRoomResponseCopyWith<RecepRoomResponse> get copyWith => _$RecepRoomResponseCopyWithImpl<RecepRoomResponse>(this as RecepRoomResponse, _$identity);
 
   /// Serializes this RecepRoomResponse to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of RecepRoomResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $RecepRoomResponseCopyWith<RecepRoomResponse> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecepRoomResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.roomNumber, roomNumber) || other.roomNumber == roomNumber)&&(identical(other.roomTypeName, roomTypeName) || other.roomTypeName == roomTypeName)&&(identical(other.status, status) || other.status == status)&&(identical(other.floor, floor) || other.floor == floor));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,roomNumber,roomTypeName,status,floor);
+
+@override
+String toString() {
+  return 'RecepRoomResponse(id: $id, roomNumber: $roomNumber, roomTypeName: $roomTypeName, status: $status, floor: $floor)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $RecepRoomResponseCopyWith<$Res> {
-  factory $RecepRoomResponseCopyWith(
-    RecepRoomResponse value,
-    $Res Function(RecepRoomResponse) then,
-  ) = _$RecepRoomResponseCopyWithImpl<$Res, RecepRoomResponse>;
-  @useResult
-  $Res call({
-    String id,
-    String roomNumber,
-    String roomTypeName,
-    String status,
-    int? floor,
-  });
-}
+abstract mixin class $RecepRoomResponseCopyWith<$Res>  {
+  factory $RecepRoomResponseCopyWith(RecepRoomResponse value, $Res Function(RecepRoomResponse) _then) = _$RecepRoomResponseCopyWithImpl;
+@useResult
+$Res call({
+ String id, String roomNumber, String roomTypeName, String status, int? floor
+});
 
+
+
+
+}
 /// @nodoc
-class _$RecepRoomResponseCopyWithImpl<$Res, $Val extends RecepRoomResponse>
+class _$RecepRoomResponseCopyWithImpl<$Res>
     implements $RecepRoomResponseCopyWith<$Res> {
-  _$RecepRoomResponseCopyWithImpl(this._value, this._then);
+  _$RecepRoomResponseCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final RecepRoomResponse _self;
+  final $Res Function(RecepRoomResponse) _then;
 
-  /// Create a copy of RecepRoomResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? roomNumber = null,
-    Object? roomTypeName = null,
-    Object? status = null,
-    Object? floor = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            roomNumber: null == roomNumber
-                ? _value.roomNumber
-                : roomNumber // ignore: cast_nullable_to_non_nullable
-                      as String,
-            roomTypeName: null == roomTypeName
-                ? _value.roomTypeName
-                : roomTypeName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as String,
-            floor: freezed == floor
-                ? _value.floor
-                : floor // ignore: cast_nullable_to_non_nullable
-                      as int?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of RecepRoomResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? roomNumber = null,Object? roomTypeName = null,Object? status = null,Object? floor = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,roomNumber: null == roomNumber ? _self.roomNumber : roomNumber // ignore: cast_nullable_to_non_nullable
+as String,roomTypeName: null == roomTypeName ? _self.roomTypeName : roomTypeName // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,floor: freezed == floor ? _self.floor : floor // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$RecepRoomResponseImplCopyWith<$Res>
-    implements $RecepRoomResponseCopyWith<$Res> {
-  factory _$$RecepRoomResponseImplCopyWith(
-    _$RecepRoomResponseImpl value,
-    $Res Function(_$RecepRoomResponseImpl) then,
-  ) = __$$RecepRoomResponseImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String roomNumber,
-    String roomTypeName,
-    String status,
-    int? floor,
-  });
 }
 
-/// @nodoc
-class __$$RecepRoomResponseImplCopyWithImpl<$Res>
-    extends _$RecepRoomResponseCopyWithImpl<$Res, _$RecepRoomResponseImpl>
-    implements _$$RecepRoomResponseImplCopyWith<$Res> {
-  __$$RecepRoomResponseImplCopyWithImpl(
-    _$RecepRoomResponseImpl _value,
-    $Res Function(_$RecepRoomResponseImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of RecepRoomResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? roomNumber = null,
-    Object? roomTypeName = null,
-    Object? status = null,
-    Object? floor = freezed,
-  }) {
-    return _then(
-      _$RecepRoomResponseImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        roomNumber: null == roomNumber
-            ? _value.roomNumber
-            : roomNumber // ignore: cast_nullable_to_non_nullable
-                  as String,
-        roomTypeName: null == roomTypeName
-            ? _value.roomTypeName
-            : roomTypeName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as String,
-        floor: freezed == floor
-            ? _value.floor
-            : floor // ignore: cast_nullable_to_non_nullable
-                  as int?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [RecepRoomResponse].
+extension RecepRoomResponsePatterns on RecepRoomResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RecepRoomResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RecepRoomResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RecepRoomResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _RecepRoomResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RecepRoomResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RecepRoomResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String roomNumber,  String roomTypeName,  String status,  int? floor)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RecepRoomResponse() when $default != null:
+return $default(_that.id,_that.roomNumber,_that.roomTypeName,_that.status,_that.floor);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String roomNumber,  String roomTypeName,  String status,  int? floor)  $default,) {final _that = this;
+switch (_that) {
+case _RecepRoomResponse():
+return $default(_that.id,_that.roomNumber,_that.roomTypeName,_that.status,_that.floor);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String roomNumber,  String roomTypeName,  String status,  int? floor)?  $default,) {final _that = this;
+switch (_that) {
+case _RecepRoomResponse() when $default != null:
+return $default(_that.id,_that.roomNumber,_that.roomTypeName,_that.status,_that.floor);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$RecepRoomResponseImpl implements _RecepRoomResponse {
-  _$RecepRoomResponseImpl({
-    required this.id,
-    required this.roomNumber,
-    required this.roomTypeName,
-    required this.status,
-    this.floor,
-  });
 
-  factory _$RecepRoomResponseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$RecepRoomResponseImplFromJson(json);
+class _RecepRoomResponse implements RecepRoomResponse {
+   _RecepRoomResponse({required this.id, required this.roomNumber, required this.roomTypeName, required this.status, this.floor});
+  factory _RecepRoomResponse.fromJson(Map<String, dynamic> json) => _$RecepRoomResponseFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String roomNumber;
-  @override
-  final String roomTypeName;
-  @override
-  final String status;
-  @override
-  final int? floor;
+@override final  String id;
+@override final  String roomNumber;
+@override final  String roomTypeName;
+@override final  String status;
+@override final  int? floor;
 
-  @override
-  String toString() {
-    return 'RecepRoomResponse(id: $id, roomNumber: $roomNumber, roomTypeName: $roomTypeName, status: $status, floor: $floor)';
-  }
+/// Create a copy of RecepRoomResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RecepRoomResponseCopyWith<_RecepRoomResponse> get copyWith => __$RecepRoomResponseCopyWithImpl<_RecepRoomResponse>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$RecepRoomResponseImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.roomNumber, roomNumber) ||
-                other.roomNumber == roomNumber) &&
-            (identical(other.roomTypeName, roomTypeName) ||
-                other.roomTypeName == roomTypeName) &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.floor, floor) || other.floor == floor));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, roomNumber, roomTypeName, status, floor);
-
-  /// Create a copy of RecepRoomResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$RecepRoomResponseImplCopyWith<_$RecepRoomResponseImpl> get copyWith =>
-      __$$RecepRoomResponseImplCopyWithImpl<_$RecepRoomResponseImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$RecepRoomResponseImplToJson(this);
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$RecepRoomResponseToJson(this, );
 }
 
-abstract class _RecepRoomResponse implements RecepRoomResponse {
-  factory _RecepRoomResponse({
-    required final String id,
-    required final String roomNumber,
-    required final String roomTypeName,
-    required final String status,
-    final int? floor,
-  }) = _$RecepRoomResponseImpl;
-
-  factory _RecepRoomResponse.fromJson(Map<String, dynamic> json) =
-      _$RecepRoomResponseImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get roomNumber;
-  @override
-  String get roomTypeName;
-  @override
-  String get status;
-  @override
-  int? get floor;
-
-  /// Create a copy of RecepRoomResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$RecepRoomResponseImplCopyWith<_$RecepRoomResponseImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecepRoomResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.roomNumber, roomNumber) || other.roomNumber == roomNumber)&&(identical(other.roomTypeName, roomTypeName) || other.roomTypeName == roomTypeName)&&(identical(other.status, status) || other.status == status)&&(identical(other.floor, floor) || other.floor == floor));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,roomNumber,roomTypeName,status,floor);
+
+@override
+String toString() {
+  return 'RecepRoomResponse(id: $id, roomNumber: $roomNumber, roomTypeName: $roomTypeName, status: $status, floor: $floor)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RecepRoomResponseCopyWith<$Res> implements $RecepRoomResponseCopyWith<$Res> {
+  factory _$RecepRoomResponseCopyWith(_RecepRoomResponse value, $Res Function(_RecepRoomResponse) _then) = __$RecepRoomResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String roomNumber, String roomTypeName, String status, int? floor
+});
+
+
+
+
+}
+/// @nodoc
+class __$RecepRoomResponseCopyWithImpl<$Res>
+    implements _$RecepRoomResponseCopyWith<$Res> {
+  __$RecepRoomResponseCopyWithImpl(this._self, this._then);
+
+  final _RecepRoomResponse _self;
+  final $Res Function(_RecepRoomResponse) _then;
+
+/// Create a copy of RecepRoomResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? roomNumber = null,Object? roomTypeName = null,Object? status = null,Object? floor = freezed,}) {
+  return _then(_RecepRoomResponse(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,roomNumber: null == roomNumber ? _self.roomNumber : roomNumber // ignore: cast_nullable_to_non_nullable
+as String,roomTypeName: null == roomTypeName ? _self.roomTypeName : roomTypeName // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,floor: freezed == floor ? _self.floor : floor // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+// dart format on

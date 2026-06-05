@@ -6,9 +6,9 @@ part of 'page_tour_summary_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PageTourSummaryResponseImpl _$$PageTourSummaryResponseImplFromJson(
+_PageTourSummaryResponse _$PageTourSummaryResponseFromJson(
   Map<String, dynamic> json,
-) => _$PageTourSummaryResponseImpl(
+) => _PageTourSummaryResponse(
   content:
       (json['content'] as List<dynamic>?)
           ?.map((e) => TourSummaryResponse.fromJson(e as Map<String, dynamic>))
@@ -23,8 +23,8 @@ _$PageTourSummaryResponseImpl _$$PageTourSummaryResponseImplFromJson(
   empty: json['empty'] as bool? ?? true,
 );
 
-Map<String, dynamic> _$$PageTourSummaryResponseImplToJson(
-  _$PageTourSummaryResponseImpl instance,
+Map<String, dynamic> _$PageTourSummaryResponseToJson(
+  _PageTourSummaryResponse instance,
 ) => <String, dynamic>{
   'content': instance.content,
   'totalElements': instance.totalElements,

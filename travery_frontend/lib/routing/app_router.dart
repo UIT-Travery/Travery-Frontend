@@ -5,10 +5,13 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart'; 
 import 'package:travery_frontend/data/repositories/admin/admin_repository.dart';
 import 'package:travery_frontend/domain/models/admin/business_hotel/business_hotel.dart';
+
 import 'package:travery_frontend/data/repositories/profile/profile_repository.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/data/repositories/coordinator/coordinator_repository.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
+
+import 'package:travery_frontend/ui/guide/home/guide_main_screen.dart';
 import 'package:travery_frontend/domain/models/coordinator/coordinator_coach/coordinator_coach.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
@@ -18,6 +21,7 @@ import 'package:travery_frontend/ui/admin/view_model/image_management_view_model
 import 'package:travery_frontend/ui/admin/view/view_hotel_room_list.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_coach_trip_list_view_model.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_screen.dart';
+
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_hotel_room_screen.dart';
 import 'package:travery_frontend/ui/receptionist/view_models/recep_view_addon_list_view_model.dart';
@@ -25,10 +29,12 @@ import 'package:travery_frontend/ui/guide/coach_trip/detail/guide_coach_trip_det
 import 'package:travery_frontend/ui/guide/coach_trip/list/guide_coach_trip_list_screen.dart';
 import 'package:travery_frontend/ui/guide/coach_trip/passengers/guide_coach_trip_passengers_screen.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
+
 import 'package:travery_frontend/ui/guide/mission/guide_mission_detail_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/guide_mission_detail_view_model.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/guide_checkin_screen.dart';
 import 'package:travery_frontend/ui/guide/mission/check_in/guide_checkin_view_model.dart';
+
 import 'package:travery_frontend/ui/admin/view_model/update_hotel_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/update_vehicle_view_model.dart';
 import 'package:travery_frontend/ui/admin/view/admin_main_screen.dart';
@@ -80,7 +86,9 @@ import 'package:travery_frontend/domain/models/coordinator/coordinator_tour/coor
 import 'package:travery_frontend/domain/models/coordinator/coordinator_tour_template/coordinator_tour_template.dart';
 import 'package:travery_frontend/ui/admin/view_model/dashboard_view_model.dart';
 import 'package:travery_frontend/ui/admin/view_model/account_management_view_model.dart';
+
 import 'package:travery_frontend/ui/admin/view/add_hotel_info_screen.dart';
+
 import 'package:travery_frontend/ui/admin/view_model/create_account_view_model.dart';
 import 'package:travery_frontend/ui/authentication/view/login_screen.dart';
 import 'package:travery_frontend/ui/authentication/view/register_screen.dart';
@@ -114,12 +122,16 @@ import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_t
 import 'package:travery_frontend/ui/coordinator/view/coordinator_create_tour_screen.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_create_tour_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view/coordinator_view_template_screen.dart';
+
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_detail_view_model.dart';
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_template_detail_view_model.dart';
+
 import 'package:travery_frontend/ui/user/hotel/home/hotel_home_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/hotel_detail_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/home/view_models/hotel_detail_view_model.dart';
+
 import 'package:travery_frontend/data/services/hotel/hotel_service.dart';
+
 import 'package:travery_frontend/ui/user/hotel/room_list/hotel_room_list_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_input/hotel_booking_input_screen.dart';
 import 'package:travery_frontend/ui/user/hotel/booking_review/hotel_booking_review_screen.dart';
@@ -143,6 +155,9 @@ import '../ui/admin/view_model/create_vehicle_view_model.dart';
 import '../ui/admin/view_model/hotel_management_view_model.dart';
 import '../ui/admin/view_model/tour_management_view_model.dart';
 import '../ui/admin/view_model/vehicle_management_view_model.dart';
+
+import 'package:travery_frontend/ui/common/notification/view/notification_screen.dart';
+import '../ui/chat/chat_screen.dart';
 import 'routes.dart';
 
 // Admin new imports
@@ -198,6 +213,7 @@ import 'package:travery_frontend/ui/receptionist/view_models/recep_room_selectio
 import 'package:travery_frontend/ui/receptionist/view_models/recep_view_hotel_room_view_model.dart';
 import 'package:travery_frontend/ui/receptionist/view/recep_view_detail_booking_screen.dart';
 
+
 GoRouter appRouter(
   AuthRepository authRepository, {
   void Function(GoRouter router)? onInitialized,
@@ -210,6 +226,30 @@ GoRouter appRouter(
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => const SplashScreen(),
+      ),
+
+      // --- COMMON ROUTES ---
+      GoRoute(
+        path: Routes.notifications,
+        builder: (context, state) => const NotificationScreen(),
+      ),
+
+      GoRoute(
+        path: Routes.chat,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final uid = extra?['uid'] as String?;
+          final guid = extra?['guid'] as String?;
+          final title = extra?['title'] as String? ?? '';
+          final showBackButton = extra?['showBackButton'] as bool? ?? true;
+
+          return ChatScreen(
+            uid: uid,
+            guid: guid,
+            title: title,
+            showBackButton: showBackButton,
+          );
+        },
       ),
 
       // --- AUTHENTICATION ROUTES ---

@@ -7,7 +7,7 @@ part 'tour_booking.freezed.dart';
 part 'tour_booking.g.dart';
 
 @freezed
-class TourBooking with _$TourBooking {
+abstract class TourBooking with _$TourBooking {
   const factory TourBooking({
     String? id,
 

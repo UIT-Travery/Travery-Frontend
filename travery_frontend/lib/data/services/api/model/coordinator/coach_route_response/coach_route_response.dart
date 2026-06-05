@@ -4,7 +4,7 @@ part 'coach_route_response.freezed.dart';
 part 'coach_route_response.g.dart';
 
 @freezed
-class CoachRouteResponse with _$CoachRouteResponse {
+abstract class CoachRouteResponse with _$CoachRouteResponse {
   const factory CoachRouteResponse({
     required String id,
     required String originDestinationId,

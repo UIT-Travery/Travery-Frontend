@@ -5,7 +5,7 @@ part 'recep_dashboard_response.freezed.dart';
 part 'recep_dashboard_response.g.dart';
 
 @freezed
-class RecepDashboardResponse with _$RecepDashboardResponse {
+abstract class RecepDashboardResponse with _$RecepDashboardResponse {
   factory RecepDashboardResponse({
     @Default(0) int availableRooms,
     @Default(0) int occupiedRooms,

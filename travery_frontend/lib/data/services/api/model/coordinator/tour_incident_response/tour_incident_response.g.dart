@@ -6,9 +6,9 @@ part of 'tour_incident_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourIncidentResponseImpl _$$TourIncidentResponseImplFromJson(
+_TourIncidentResponse _$TourIncidentResponseFromJson(
   Map<String, dynamic> json,
-) => _$TourIncidentResponseImpl(
+) => _TourIncidentResponse(
   id: json['id'] as String,
   tourInstanceId: json['tourInstanceId'] as String,
   reporterId: json['reporterId'] as String,
@@ -21,8 +21,8 @@ _$TourIncidentResponseImpl _$$TourIncidentResponseImplFromJson(
   updatedAt: json['updatedAt'] as String? ?? '',
 );
 
-Map<String, dynamic> _$$TourIncidentResponseImplToJson(
-  _$TourIncidentResponseImpl instance,
+Map<String, dynamic> _$TourIncidentResponseToJson(
+  _TourIncidentResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'tourInstanceId': instance.tourInstanceId,

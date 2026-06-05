@@ -6,28 +6,26 @@ part of 'coach_route.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CoachRouteImpl _$$CoachRouteImplFromJson(Map<String, dynamic> json) =>
-    _$CoachRouteImpl(
-      id: json['id'] as String?,
-      originCode: json['origin_code'] as String,
-      destinationCode: json['destination_code'] as String,
-      departureTime: json['departure_time'] as String,
-      estimatedDurationMinutes: (json['estimated_duration_minutes'] as num)
-          .toInt(),
-      basePrice: (json['base_price'] as num).toDouble(),
-      isActive: json['is_active'] as bool,
-      createdAt: json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
-      deletedAt: json['deleted_at'] == null
-          ? null
-          : DateTime.parse(json['deleted_at'] as String),
-    );
+_CoachRoute _$CoachRouteFromJson(Map<String, dynamic> json) => _CoachRoute(
+  id: json['id'] as String?,
+  originCode: json['origin_code'] as String,
+  destinationCode: json['destination_code'] as String,
+  departureTime: json['departure_time'] as String,
+  estimatedDurationMinutes: (json['estimated_duration_minutes'] as num).toInt(),
+  basePrice: (json['base_price'] as num).toDouble(),
+  isActive: json['is_active'] as bool,
+  createdAt: json['created_at'] == null
+      ? null
+      : DateTime.parse(json['created_at'] as String),
+  updatedAt: json['updated_at'] == null
+      ? null
+      : DateTime.parse(json['updated_at'] as String),
+  deletedAt: json['deleted_at'] == null
+      ? null
+      : DateTime.parse(json['deleted_at'] as String),
+);
 
-Map<String, dynamic> _$$CoachRouteImplToJson(_$CoachRouteImpl instance) =>
+Map<String, dynamic> _$CoachRouteToJson(_CoachRoute instance) =>
     <String, dynamic>{
       'id': instance.id,
       'origin_code': instance.originCode,

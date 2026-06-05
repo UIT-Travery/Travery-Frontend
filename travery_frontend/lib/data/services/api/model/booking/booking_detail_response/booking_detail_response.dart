@@ -5,7 +5,7 @@ part 'booking_detail_response.freezed.dart';
 part 'booking_detail_response.g.dart';
 
 @freezed
-class BookingDetailResponse with _$BookingDetailResponse {
+abstract class BookingDetailResponse with _$BookingDetailResponse {
   const factory BookingDetailResponse({required TourBookingData data}) =
       _BookingDetailResponse;
 

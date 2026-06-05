@@ -4,7 +4,7 @@ part 'check_in_queue_item_response.freezed.dart';
 part 'check_in_queue_item_response.g.dart';
 
 @freezed
-class CheckInQueueItemResponse with _$CheckInQueueItemResponse {
+abstract class CheckInQueueItemResponse with _$CheckInQueueItemResponse {
   factory CheckInQueueItemResponse({
     @Default('') String bookingId,
     @Default('') String touristName,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/utils/command.dart';
 import 'package:travery_frontend/utils/core_result.dart';
@@ -28,10 +29,12 @@ class LoginViewModel {
     );
     switch (result) {
       case Ok<String>():
+        debugPrint("LoginViewModel: Login success. Setting userRole: ${result.value}");
         userRole = result.value;
         return Result.ok(result.value);
 
       case Error<String>():
+        debugPrint("LoginViewModel: Login error. Setting userRole: null");
         userRole = null;
         return Result.error(result.error);
     }

@@ -4,7 +4,7 @@ part 'available_room_response.freezed.dart';
 part 'available_room_response.g.dart';
 
 @freezed
-class AvailableRoomResponse with _$AvailableRoomResponse {
+abstract class AvailableRoomResponse with _$AvailableRoomResponse {
   factory AvailableRoomResponse({
     String? id,
     String? roomNumber,

@@ -5,7 +5,7 @@ part 'page_tour_summary_response.freezed.dart';
 part 'page_tour_summary_response.g.dart';
 
 @freezed
-class PageTourSummaryResponse with _$PageTourSummaryResponse {
+abstract class PageTourSummaryResponse with _$PageTourSummaryResponse {
   const factory PageTourSummaryResponse({
     @Default([]) List<TourSummaryResponse> content,
     @Default(0) int totalElements,

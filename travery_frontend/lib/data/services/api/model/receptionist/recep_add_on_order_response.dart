@@ -4,7 +4,7 @@ part 'recep_add_on_order_response.freezed.dart';
 part 'recep_add_on_order_response.g.dart';
 
 @freezed
-class RecepAddOnOrderResponse with _$RecepAddOnOrderResponse {
+abstract class RecepAddOnOrderResponse with _$RecepAddOnOrderResponse {
   const factory RecepAddOnOrderResponse({
     required String id,
     required String serviceName,

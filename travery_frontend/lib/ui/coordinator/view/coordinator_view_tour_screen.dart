@@ -5,6 +5,11 @@ import 'package:travery_frontend/ui/coordinator/view/widgets/coordinator_tour_in
 import 'package:travery_frontend/ui/coordinator/view_models/coordinator_tour_detail_view_model.dart';
 import 'package:travery_frontend/utils/alert.dart';
 import 'package:travery_frontend/utils/core_result.dart' as core_result;
+import 'package:go_router/go_router.dart';
+import 'package:travery_frontend/routing/routes.dart';
+
+import 'package:travery_frontend/ui/chat/view_models/chat_view_model.dart';
+import 'package:provider/provider.dart';
 
 class CoordinatorViewTourScreen extends StatefulWidget {
   final CoordinatorTour tour;
@@ -237,14 +242,33 @@ class _CoordinatorViewTourScreenState extends State<CoordinatorViewTourScreen> {
                     ),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        onPressed: _showUpdateStatusDialog,
-                        tooltip: 'Cập nhật trạng thái',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.chat_bubble_outline,
+                                color: Colors.white, size: 22),
+                            onPressed: () async {
+                              final chatVm = context.read<ChatViewModel>();
+                              final guid = await chatVm.initiateGroupChat(tour.id);
+                              if (guid != null && context.mounted) {
+                                context.push(Routes.chat, extra: {
+                                  'guid': guid,
+                                  'title': tour.tourName,
+                                });
+                              } else if (context.mounted && chatVm.errorMessage != null) {
+                                Utils.showErrorNotification(context, chatVm.errorMessage!);
+                              }
+                            },
+                            tooltip: 'Chat với đoàn',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined,
+                                color: Colors.white, size: 22),
+                            onPressed: _showUpdateStatusDialog,
+                            tooltip: 'Cập nhật trạng thái',
+                          ),
+                        ],
                       ),
                     ),
                   ],

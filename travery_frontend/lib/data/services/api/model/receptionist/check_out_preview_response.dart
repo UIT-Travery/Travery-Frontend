@@ -5,7 +5,7 @@ part 'check_out_preview_response.freezed.dart';
 part 'check_out_preview_response.g.dart';
 
 @freezed
-class CheckOutPreviewResponse with _$CheckOutPreviewResponse {
+abstract class CheckOutPreviewResponse with _$CheckOutPreviewResponse {
   const factory CheckOutPreviewResponse({
     required String bookingId,
     required num roomCharges,

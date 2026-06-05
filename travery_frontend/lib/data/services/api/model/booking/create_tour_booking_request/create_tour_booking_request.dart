@@ -4,7 +4,7 @@ part 'create_tour_booking_request.freezed.dart';
 part 'create_tour_booking_request.g.dart';
 
 @freezed
-class CreateTourBookingRequest with _$CreateTourBookingRequest {
+abstract class CreateTourBookingRequest with _$CreateTourBookingRequest {
   const factory CreateTourBookingRequest({
     required List<BookingMemberRequest> members,
     @Default('') String specialRequests,
@@ -15,7 +15,7 @@ class CreateTourBookingRequest with _$CreateTourBookingRequest {
 }
 
 @freezed
-class BookingMemberRequest with _$BookingMemberRequest {
+abstract class BookingMemberRequest with _$BookingMemberRequest {
   const factory BookingMemberRequest({
     required String fullName,
     @Default('') String identityNumber,

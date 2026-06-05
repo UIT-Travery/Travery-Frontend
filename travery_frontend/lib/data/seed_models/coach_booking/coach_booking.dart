@@ -4,7 +4,7 @@ part 'coach_booking.freezed.dart';
 part 'coach_booking.g.dart';
 
 @freezed
-class CoachBooking with _$CoachBooking {
+abstract class CoachBooking with _$CoachBooking {
   const factory CoachBooking({
     String? id,
 

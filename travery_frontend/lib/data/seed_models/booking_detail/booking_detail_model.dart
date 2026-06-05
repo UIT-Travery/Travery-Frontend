@@ -8,6 +8,7 @@ class BookingDetailModel {
   final String? specialRequests;
   final String? createdAt;
   final String tourName;
+  final String? tourInstanceId;
   final String? startDate;
   final String? endDate;
   final List<BookingMember> members;
@@ -30,6 +31,7 @@ class BookingDetailModel {
     this.specialRequests,
     this.createdAt,
     required this.tourName,
+    this.tourInstanceId,
     this.startDate,
     this.endDate,
     this.members = const [],

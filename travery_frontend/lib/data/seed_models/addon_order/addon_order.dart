@@ -4,7 +4,7 @@ part 'addon_order.freezed.dart';
 part 'addon_order.g.dart';
 
 @freezed
-class AddonOrder with _$AddonOrder {
+abstract class AddonOrder with _$AddonOrder {
   const factory AddonOrder({
     String? id,
 

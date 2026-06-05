@@ -6,9 +6,9 @@ part of 'check_out_preview_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CheckOutPreviewResponseImpl _$$CheckOutPreviewResponseImplFromJson(
+_CheckOutPreviewResponse _$CheckOutPreviewResponseFromJson(
   Map<String, dynamic> json,
-) => _$CheckOutPreviewResponseImpl(
+) => _CheckOutPreviewResponse(
   bookingId: json['bookingId'] as String,
   roomCharges: json['roomCharges'] as num,
   addOnCharges: json['addOnCharges'] as num,
@@ -19,8 +19,8 @@ _$CheckOutPreviewResponseImpl _$$CheckOutPreviewResponseImplFromJson(
       .toList(),
 );
 
-Map<String, dynamic> _$$CheckOutPreviewResponseImplToJson(
-  _$CheckOutPreviewResponseImpl instance,
+Map<String, dynamic> _$CheckOutPreviewResponseToJson(
+  _CheckOutPreviewResponse instance,
 ) => <String, dynamic>{
   'bookingId': instance.bookingId,
   'roomCharges': instance.roomCharges,

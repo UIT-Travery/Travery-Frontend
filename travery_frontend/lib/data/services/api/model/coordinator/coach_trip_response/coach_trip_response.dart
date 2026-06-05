@@ -5,7 +5,7 @@ part 'coach_trip_response.freezed.dart';
 part 'coach_trip_response.g.dart';
 
 @freezed
-class CoachTripResponse with _$CoachTripResponse {
+abstract class CoachTripResponse with _$CoachTripResponse {
   const factory CoachTripResponse({
     @JsonKey(name: 'id') String? id,
     @JsonKey(name: 'departureTime') DateTime? departureTime,

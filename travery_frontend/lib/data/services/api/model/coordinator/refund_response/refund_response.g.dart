@@ -6,8 +6,8 @@ part of 'refund_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RefundResponseImpl _$$RefundResponseImplFromJson(Map<String, dynamic> json) =>
-    _$RefundResponseImpl(
+_RefundResponse _$RefundResponseFromJson(Map<String, dynamic> json) =>
+    _RefundResponse(
       id: json['id'] as String,
       userId: json['userId'] as String,
       userName: json['userName'] as String,
@@ -24,21 +24,20 @@ _$RefundResponseImpl _$$RefundResponseImplFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updatedAt'] as String,
     );
 
-Map<String, dynamic> _$$RefundResponseImplToJson(
-  _$RefundResponseImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'userId': instance.userId,
-  'userName': instance.userName,
-  'userEmail': instance.userEmail,
-  'requestedAmount': instance.requestedAmount,
-  'actualRefunded': instance.actualRefunded,
-  'customerReason': instance.customerReason,
-  'rejectReason': instance.rejectReason,
-  'bookingType': instance.bookingType,
-  'bankName': instance.bankName,
-  'accountNumber': instance.accountNumber,
-  'accountHolderName': instance.accountHolderName,
-  'createdAt': instance.createdAt,
-  'updatedAt': instance.updatedAt,
-};
+Map<String, dynamic> _$RefundResponseToJson(_RefundResponse instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'userId': instance.userId,
+      'userName': instance.userName,
+      'userEmail': instance.userEmail,
+      'requestedAmount': instance.requestedAmount,
+      'actualRefunded': instance.actualRefunded,
+      'customerReason': instance.customerReason,
+      'rejectReason': instance.rejectReason,
+      'bookingType': instance.bookingType,
+      'bankName': instance.bankName,
+      'accountNumber': instance.accountNumber,
+      'accountHolderName': instance.accountHolderName,
+      'createdAt': instance.createdAt,
+      'updatedAt': instance.updatedAt,
+    };

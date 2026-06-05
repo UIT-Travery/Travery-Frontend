@@ -46,13 +46,29 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _onResult() {
-    if (widget.viewModel.loginViaEmail.completed) {
-      Utils.showSuccessNotification(context, 'Đăng nhập thành công');
-      _navigateByRole(widget.viewModel.userRole);
-      widget.viewModel.loginViaEmail.clearResult();
+    if (!mounted) return;
+
+    final command = widget.viewModel.loginViaEmail;
+    
+    if (command.completed) {
+      final role = widget.viewModel.userRole;
+      debugPrint("LoginScreen: Login completed successfully. Role: $role");
+      
+      // Clear result and remove listener immediately to prevent any further callbacks
+      // during the navigation process
+      command.clearResult();
+      command.removeListener(_onResult);
+      
+      if (mounted) {
+        Utils.showSuccessNotification(context, 'Đăng nhập thành công');
+        _navigateByRole(role);
+      }
     }
-    if (widget.viewModel.loginViaEmail.error) {
-      final result = widget.viewModel.loginViaEmail.result;
+    
+    if (command.error) {
+      final result = command.result;
+      debugPrint("LoginScreen: Login failed. Result: $result");
+      
       String errorMessage = 'Đăng nhập thất bại';
       if (result is core.Error) {
         errorMessage = result.error.toString().replaceAll(
@@ -60,24 +76,39 @@ class _LoginScreenState extends State<LoginScreen> {
           '',
         );
       }
-      widget.viewModel.loginViaEmail.clearResult();
-      Utils.showErrorNotification(context, errorMessage);
+      
+      command.clearResult();
+      
+      if (mounted) {
+        Utils.showErrorNotification(context, errorMessage);
+      }
     }
   }
 
   void _navigateByRole(String? role) {
+    debugPrint("LoginScreen: Navigating by role: $role");
+    
+    if (!mounted) return;
+
+    final targetRoute = _getRouteForRole(role);
+    debugPrint("LoginScreen: Target route: $targetRoute");
+    
+    context.go(targetRoute);
+  }
+
+  String _getRouteForRole(String? role) {
     switch (role) {
       case 'ROLE_ADMIN':
-        context.go(Routes.adminMain);
+        return Routes.adminMain;
       case 'ROLE_COORDINATOR':
-        context.go(Routes.coordinatorMain);
+        return Routes.coordinatorMain;
       case 'ROLE_GUIDE':
-        context.go(Routes.guideHome);
+        return Routes.guideHome;
       case 'ROLE_RECEPTIONIST':
-        context.go(Routes.recepMain);
+        return Routes.recepMain;
       case 'ROLE_TOURIST':
       default:
-        context.go(Routes.tourHome);
+        return Routes.tourHome;
     }
   }
 
@@ -100,6 +131,10 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    // Re-add listener in case it was removed by a previous attempt or result
+    widget.viewModel.loginViaEmail.removeListener(_onResult);
+    widget.viewModel.loginViaEmail.addListener(_onResult);
+    
     widget.viewModel.loginViaEmail.execute((email, password));
   }
 
@@ -218,65 +253,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 24),
 
                       AuthButton(title: 'Đăng nhập', onPressed: _handleLogin),
-
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 100,
-                            child: InkWell(
-                              onTap: () => context.go(Routes.adminMain),
-                              child: Text(
-                                'Admin',
-                                style: TextStyle(
-                                  color: AppColors.link,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 100,
-                            child: InkWell(
-                              onTap: () => context.go(Routes.tourHome),
-                              child: Text(
-                                'User',
-                                style: TextStyle(
-                                  color: AppColors.link,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 100,
-                            child: InkWell(
-                              onTap: () => context.go(Routes.coordinatorMain),
-                              child: Text(
-                                'Coordinator',
-                                style: TextStyle(
-                                  color: AppColors.link,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 100,
-                            child: InkWell(
-                              onTap: () => context.go(Routes.recepMain),
-                              child: Text(
-                                'Recep',
-                                style: TextStyle(
-                                  color: AppColors.link,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),

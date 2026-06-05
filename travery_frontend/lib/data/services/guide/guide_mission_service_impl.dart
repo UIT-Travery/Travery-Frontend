@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:travery_frontend/config/app_config.dart';
 import 'package:travery_frontend/data/seed_models/incident/incident.dart';
+import 'package:travery_frontend/data/seed_models/tour_progress/tour_progress.dart';
+
 import 'package:travery_frontend/data/services/guide/guide_mission_service.dart';
 import 'package:travery_frontend/data/services/token_refresh_service.dart';
 import 'package:travery_frontend/utils/core_result.dart';

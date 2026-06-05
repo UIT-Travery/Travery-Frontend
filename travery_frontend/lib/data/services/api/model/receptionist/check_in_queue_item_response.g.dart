@@ -6,9 +6,9 @@ part of 'check_in_queue_item_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CheckInQueueItemResponseImpl _$$CheckInQueueItemResponseImplFromJson(
+_CheckInQueueItemResponse _$CheckInQueueItemResponseFromJson(
   Map<String, dynamic> json,
-) => _$CheckInQueueItemResponseImpl(
+) => _CheckInQueueItemResponse(
   bookingId: json['bookingId'] as String? ?? '',
   touristName: json['touristName'] as String? ?? '',
   phoneNumber: json['phoneNumber'] as String? ?? '',
@@ -21,8 +21,8 @@ _$CheckInQueueItemResponseImpl _$$CheckInQueueItemResponseImplFromJson(
       const {},
 );
 
-Map<String, dynamic> _$$CheckInQueueItemResponseImplToJson(
-  _$CheckInQueueItemResponseImpl instance,
+Map<String, dynamic> _$CheckInQueueItemResponseToJson(
+  _CheckInQueueItemResponse instance,
 ) => <String, dynamic>{
   'bookingId': instance.bookingId,
   'touristName': instance.touristName,

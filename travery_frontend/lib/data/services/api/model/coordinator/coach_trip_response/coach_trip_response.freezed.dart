@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,450 +9,344 @@ part of 'coach_trip_response.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-CoachTripResponse _$CoachTripResponseFromJson(Map<String, dynamic> json) {
-  return _CoachTripResponse.fromJson(json);
-}
 
 /// @nodoc
 mixin _$CoachTripResponse {
-  @JsonKey(name: 'id')
-  String? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'departureTime')
-  DateTime? get departureTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'arrivalTime')
-  DateTime? get arrivalTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'coachType')
-  String? get coachType => throw _privateConstructorUsedError;
-  @JsonKey(name: 'totalSeats')
-  int? get totalSeats => throw _privateConstructorUsedError;
-  @JsonKey(name: 'availableSeats')
-  int? get availableSeats => throw _privateConstructorUsedError;
-  @JsonKey(name: 'basePrice')
-  double? get basePrice => throw _privateConstructorUsedError;
-  @JsonKey(name: 'originDestination')
-  DestinationResponse? get originDestination =>
-      throw _privateConstructorUsedError;
-  @JsonKey(name: 'destinationDestination')
-  DestinationResponse? get destinationDestination =>
-      throw _privateConstructorUsedError;
-  @JsonKey(name: 'status')
-  String? get status => throw _privateConstructorUsedError;
+
+@JsonKey(name: 'id') String? get id;@JsonKey(name: 'departureTime') DateTime? get departureTime;@JsonKey(name: 'arrivalTime') DateTime? get arrivalTime;@JsonKey(name: 'coachType') String? get coachType;@JsonKey(name: 'totalSeats') int? get totalSeats;@JsonKey(name: 'availableSeats') int? get availableSeats;@JsonKey(name: 'basePrice') double? get basePrice;@JsonKey(name: 'originDestination') DestinationResponse? get originDestination;@JsonKey(name: 'destinationDestination') DestinationResponse? get destinationDestination;@JsonKey(name: 'status') String? get status;
+/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CoachTripResponseCopyWith<CoachTripResponse> get copyWith => _$CoachTripResponseCopyWithImpl<CoachTripResponse>(this as CoachTripResponse, _$identity);
 
   /// Serializes this CoachTripResponse to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of CoachTripResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $CoachTripResponseCopyWith<CoachTripResponse> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CoachTripResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.coachType, coachType) || other.coachType == coachType)&&(identical(other.totalSeats, totalSeats) || other.totalSeats == totalSeats)&&(identical(other.availableSeats, availableSeats) || other.availableSeats == availableSeats)&&(identical(other.basePrice, basePrice) || other.basePrice == basePrice)&&(identical(other.originDestination, originDestination) || other.originDestination == originDestination)&&(identical(other.destinationDestination, destinationDestination) || other.destinationDestination == destinationDestination)&&(identical(other.status, status) || other.status == status));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,departureTime,arrivalTime,coachType,totalSeats,availableSeats,basePrice,originDestination,destinationDestination,status);
+
+@override
+String toString() {
+  return 'CoachTripResponse(id: $id, departureTime: $departureTime, arrivalTime: $arrivalTime, coachType: $coachType, totalSeats: $totalSeats, availableSeats: $availableSeats, basePrice: $basePrice, originDestination: $originDestination, destinationDestination: $destinationDestination, status: $status)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $CoachTripResponseCopyWith<$Res> {
-  factory $CoachTripResponseCopyWith(
-    CoachTripResponse value,
-    $Res Function(CoachTripResponse) then,
-  ) = _$CoachTripResponseCopyWithImpl<$Res, CoachTripResponse>;
-  @useResult
-  $Res call({
-    @JsonKey(name: 'id') String? id,
-    @JsonKey(name: 'departureTime') DateTime? departureTime,
-    @JsonKey(name: 'arrivalTime') DateTime? arrivalTime,
-    @JsonKey(name: 'coachType') String? coachType,
-    @JsonKey(name: 'totalSeats') int? totalSeats,
-    @JsonKey(name: 'availableSeats') int? availableSeats,
-    @JsonKey(name: 'basePrice') double? basePrice,
-    @JsonKey(name: 'originDestination') DestinationResponse? originDestination,
-    @JsonKey(name: 'destinationDestination')
-    DestinationResponse? destinationDestination,
-    @JsonKey(name: 'status') String? status,
-  });
+abstract mixin class $CoachTripResponseCopyWith<$Res>  {
+  factory $CoachTripResponseCopyWith(CoachTripResponse value, $Res Function(CoachTripResponse) _then) = _$CoachTripResponseCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'id') String? id,@JsonKey(name: 'departureTime') DateTime? departureTime,@JsonKey(name: 'arrivalTime') DateTime? arrivalTime,@JsonKey(name: 'coachType') String? coachType,@JsonKey(name: 'totalSeats') int? totalSeats,@JsonKey(name: 'availableSeats') int? availableSeats,@JsonKey(name: 'basePrice') double? basePrice,@JsonKey(name: 'originDestination') DestinationResponse? originDestination,@JsonKey(name: 'destinationDestination') DestinationResponse? destinationDestination,@JsonKey(name: 'status') String? status
+});
 
-  $DestinationResponseCopyWith<$Res>? get originDestination;
-  $DestinationResponseCopyWith<$Res>? get destinationDestination;
+
+$DestinationResponseCopyWith<$Res>? get originDestination;$DestinationResponseCopyWith<$Res>? get destinationDestination;
+
 }
-
 /// @nodoc
-class _$CoachTripResponseCopyWithImpl<$Res, $Val extends CoachTripResponse>
+class _$CoachTripResponseCopyWithImpl<$Res>
     implements $CoachTripResponseCopyWith<$Res> {
-  _$CoachTripResponseCopyWithImpl(this._value, this._then);
+  _$CoachTripResponseCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final CoachTripResponse _self;
+  final $Res Function(CoachTripResponse) _then;
 
-  /// Create a copy of CoachTripResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = freezed,
-    Object? departureTime = freezed,
-    Object? arrivalTime = freezed,
-    Object? coachType = freezed,
-    Object? totalSeats = freezed,
-    Object? availableSeats = freezed,
-    Object? basePrice = freezed,
-    Object? originDestination = freezed,
-    Object? destinationDestination = freezed,
-    Object? status = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: freezed == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            departureTime: freezed == departureTime
-                ? _value.departureTime
-                : departureTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            arrivalTime: freezed == arrivalTime
-                ? _value.arrivalTime
-                : arrivalTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            coachType: freezed == coachType
-                ? _value.coachType
-                : coachType // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            totalSeats: freezed == totalSeats
-                ? _value.totalSeats
-                : totalSeats // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            availableSeats: freezed == availableSeats
-                ? _value.availableSeats
-                : availableSeats // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            basePrice: freezed == basePrice
-                ? _value.basePrice
-                : basePrice // ignore: cast_nullable_to_non_nullable
-                      as double?,
-            originDestination: freezed == originDestination
-                ? _value.originDestination
-                : originDestination // ignore: cast_nullable_to_non_nullable
-                      as DestinationResponse?,
-            destinationDestination: freezed == destinationDestination
-                ? _value.destinationDestination
-                : destinationDestination // ignore: cast_nullable_to_non_nullable
-                      as DestinationResponse?,
-            status: freezed == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
-  }
-
-  /// Create a copy of CoachTripResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $DestinationResponseCopyWith<$Res>? get originDestination {
-    if (_value.originDestination == null) {
-      return null;
-    }
-
-    return $DestinationResponseCopyWith<$Res>(_value.originDestination!, (
-      value,
-    ) {
-      return _then(_value.copyWith(originDestination: value) as $Val);
-    });
-  }
-
-  /// Create a copy of CoachTripResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $DestinationResponseCopyWith<$Res>? get destinationDestination {
-    if (_value.destinationDestination == null) {
-      return null;
-    }
-
-    return $DestinationResponseCopyWith<$Res>(_value.destinationDestination!, (
-      value,
-    ) {
-      return _then(_value.copyWith(destinationDestination: value) as $Val);
-    });
-  }
+/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? departureTime = freezed,Object? arrivalTime = freezed,Object? coachType = freezed,Object? totalSeats = freezed,Object? availableSeats = freezed,Object? basePrice = freezed,Object? originDestination = freezed,Object? destinationDestination = freezed,Object? status = freezed,}) {
+  return _then(_self.copyWith(
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,departureTime: freezed == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,arrivalTime: freezed == arrivalTime ? _self.arrivalTime : arrivalTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,coachType: freezed == coachType ? _self.coachType : coachType // ignore: cast_nullable_to_non_nullable
+as String?,totalSeats: freezed == totalSeats ? _self.totalSeats : totalSeats // ignore: cast_nullable_to_non_nullable
+as int?,availableSeats: freezed == availableSeats ? _self.availableSeats : availableSeats // ignore: cast_nullable_to_non_nullable
+as int?,basePrice: freezed == basePrice ? _self.basePrice : basePrice // ignore: cast_nullable_to_non_nullable
+as double?,originDestination: freezed == originDestination ? _self.originDestination : originDestination // ignore: cast_nullable_to_non_nullable
+as DestinationResponse?,destinationDestination: freezed == destinationDestination ? _self.destinationDestination : destinationDestination // ignore: cast_nullable_to_non_nullable
+as DestinationResponse?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
+/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DestinationResponseCopyWith<$Res>? get originDestination {
+    if (_self.originDestination == null) {
+    return null;
+  }
 
-/// @nodoc
-abstract class _$$CoachTripResponseImplCopyWith<$Res>
-    implements $CoachTripResponseCopyWith<$Res> {
-  factory _$$CoachTripResponseImplCopyWith(
-    _$CoachTripResponseImpl value,
-    $Res Function(_$CoachTripResponseImpl) then,
-  ) = __$$CoachTripResponseImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    @JsonKey(name: 'id') String? id,
-    @JsonKey(name: 'departureTime') DateTime? departureTime,
-    @JsonKey(name: 'arrivalTime') DateTime? arrivalTime,
-    @JsonKey(name: 'coachType') String? coachType,
-    @JsonKey(name: 'totalSeats') int? totalSeats,
-    @JsonKey(name: 'availableSeats') int? availableSeats,
-    @JsonKey(name: 'basePrice') double? basePrice,
-    @JsonKey(name: 'originDestination') DestinationResponse? originDestination,
-    @JsonKey(name: 'destinationDestination')
-    DestinationResponse? destinationDestination,
-    @JsonKey(name: 'status') String? status,
+  return $DestinationResponseCopyWith<$Res>(_self.originDestination!, (value) {
+    return _then(_self.copyWith(originDestination: value));
   });
+}/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DestinationResponseCopyWith<$Res>? get destinationDestination {
+    if (_self.destinationDestination == null) {
+    return null;
+  }
 
-  @override
-  $DestinationResponseCopyWith<$Res>? get originDestination;
-  @override
-  $DestinationResponseCopyWith<$Res>? get destinationDestination;
+  return $DestinationResponseCopyWith<$Res>(_self.destinationDestination!, (value) {
+    return _then(_self.copyWith(destinationDestination: value));
+  });
+}
 }
 
-/// @nodoc
-class __$$CoachTripResponseImplCopyWithImpl<$Res>
-    extends _$CoachTripResponseCopyWithImpl<$Res, _$CoachTripResponseImpl>
-    implements _$$CoachTripResponseImplCopyWith<$Res> {
-  __$$CoachTripResponseImplCopyWithImpl(
-    _$CoachTripResponseImpl _value,
-    $Res Function(_$CoachTripResponseImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of CoachTripResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = freezed,
-    Object? departureTime = freezed,
-    Object? arrivalTime = freezed,
-    Object? coachType = freezed,
-    Object? totalSeats = freezed,
-    Object? availableSeats = freezed,
-    Object? basePrice = freezed,
-    Object? originDestination = freezed,
-    Object? destinationDestination = freezed,
-    Object? status = freezed,
-  }) {
-    return _then(
-      _$CoachTripResponseImpl(
-        id: freezed == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        departureTime: freezed == departureTime
-            ? _value.departureTime
-            : departureTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        arrivalTime: freezed == arrivalTime
-            ? _value.arrivalTime
-            : arrivalTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        coachType: freezed == coachType
-            ? _value.coachType
-            : coachType // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        totalSeats: freezed == totalSeats
-            ? _value.totalSeats
-            : totalSeats // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        availableSeats: freezed == availableSeats
-            ? _value.availableSeats
-            : availableSeats // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        basePrice: freezed == basePrice
-            ? _value.basePrice
-            : basePrice // ignore: cast_nullable_to_non_nullable
-                  as double?,
-        originDestination: freezed == originDestination
-            ? _value.originDestination
-            : originDestination // ignore: cast_nullable_to_non_nullable
-                  as DestinationResponse?,
-        destinationDestination: freezed == destinationDestination
-            ? _value.destinationDestination
-            : destinationDestination // ignore: cast_nullable_to_non_nullable
-                  as DestinationResponse?,
-        status: freezed == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [CoachTripResponse].
+extension CoachTripResponsePatterns on CoachTripResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CoachTripResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CoachTripResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CoachTripResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _CoachTripResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CoachTripResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CoachTripResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String? id, @JsonKey(name: 'departureTime')  DateTime? departureTime, @JsonKey(name: 'arrivalTime')  DateTime? arrivalTime, @JsonKey(name: 'coachType')  String? coachType, @JsonKey(name: 'totalSeats')  int? totalSeats, @JsonKey(name: 'availableSeats')  int? availableSeats, @JsonKey(name: 'basePrice')  double? basePrice, @JsonKey(name: 'originDestination')  DestinationResponse? originDestination, @JsonKey(name: 'destinationDestination')  DestinationResponse? destinationDestination, @JsonKey(name: 'status')  String? status)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CoachTripResponse() when $default != null:
+return $default(_that.id,_that.departureTime,_that.arrivalTime,_that.coachType,_that.totalSeats,_that.availableSeats,_that.basePrice,_that.originDestination,_that.destinationDestination,_that.status);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String? id, @JsonKey(name: 'departureTime')  DateTime? departureTime, @JsonKey(name: 'arrivalTime')  DateTime? arrivalTime, @JsonKey(name: 'coachType')  String? coachType, @JsonKey(name: 'totalSeats')  int? totalSeats, @JsonKey(name: 'availableSeats')  int? availableSeats, @JsonKey(name: 'basePrice')  double? basePrice, @JsonKey(name: 'originDestination')  DestinationResponse? originDestination, @JsonKey(name: 'destinationDestination')  DestinationResponse? destinationDestination, @JsonKey(name: 'status')  String? status)  $default,) {final _that = this;
+switch (_that) {
+case _CoachTripResponse():
+return $default(_that.id,_that.departureTime,_that.arrivalTime,_that.coachType,_that.totalSeats,_that.availableSeats,_that.basePrice,_that.originDestination,_that.destinationDestination,_that.status);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  String? id, @JsonKey(name: 'departureTime')  DateTime? departureTime, @JsonKey(name: 'arrivalTime')  DateTime? arrivalTime, @JsonKey(name: 'coachType')  String? coachType, @JsonKey(name: 'totalSeats')  int? totalSeats, @JsonKey(name: 'availableSeats')  int? availableSeats, @JsonKey(name: 'basePrice')  double? basePrice, @JsonKey(name: 'originDestination')  DestinationResponse? originDestination, @JsonKey(name: 'destinationDestination')  DestinationResponse? destinationDestination, @JsonKey(name: 'status')  String? status)?  $default,) {final _that = this;
+switch (_that) {
+case _CoachTripResponse() when $default != null:
+return $default(_that.id,_that.departureTime,_that.arrivalTime,_that.coachType,_that.totalSeats,_that.availableSeats,_that.basePrice,_that.originDestination,_that.destinationDestination,_that.status);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$CoachTripResponseImpl implements _CoachTripResponse {
-  const _$CoachTripResponseImpl({
-    @JsonKey(name: 'id') this.id,
-    @JsonKey(name: 'departureTime') this.departureTime,
-    @JsonKey(name: 'arrivalTime') this.arrivalTime,
-    @JsonKey(name: 'coachType') this.coachType,
-    @JsonKey(name: 'totalSeats') this.totalSeats,
-    @JsonKey(name: 'availableSeats') this.availableSeats,
-    @JsonKey(name: 'basePrice') this.basePrice,
-    @JsonKey(name: 'originDestination') this.originDestination,
-    @JsonKey(name: 'destinationDestination') this.destinationDestination,
-    @JsonKey(name: 'status') this.status,
+
+class _CoachTripResponse implements CoachTripResponse {
+  const _CoachTripResponse({@JsonKey(name: 'id') this.id, @JsonKey(name: 'departureTime') this.departureTime, @JsonKey(name: 'arrivalTime') this.arrivalTime, @JsonKey(name: 'coachType') this.coachType, @JsonKey(name: 'totalSeats') this.totalSeats, @JsonKey(name: 'availableSeats') this.availableSeats, @JsonKey(name: 'basePrice') this.basePrice, @JsonKey(name: 'originDestination') this.originDestination, @JsonKey(name: 'destinationDestination') this.destinationDestination, @JsonKey(name: 'status') this.status});
+  factory _CoachTripResponse.fromJson(Map<String, dynamic> json) => _$CoachTripResponseFromJson(json);
+
+@override@JsonKey(name: 'id') final  String? id;
+@override@JsonKey(name: 'departureTime') final  DateTime? departureTime;
+@override@JsonKey(name: 'arrivalTime') final  DateTime? arrivalTime;
+@override@JsonKey(name: 'coachType') final  String? coachType;
+@override@JsonKey(name: 'totalSeats') final  int? totalSeats;
+@override@JsonKey(name: 'availableSeats') final  int? availableSeats;
+@override@JsonKey(name: 'basePrice') final  double? basePrice;
+@override@JsonKey(name: 'originDestination') final  DestinationResponse? originDestination;
+@override@JsonKey(name: 'destinationDestination') final  DestinationResponse? destinationDestination;
+@override@JsonKey(name: 'status') final  String? status;
+
+/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CoachTripResponseCopyWith<_CoachTripResponse> get copyWith => __$CoachTripResponseCopyWithImpl<_CoachTripResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CoachTripResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CoachTripResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.departureTime, departureTime) || other.departureTime == departureTime)&&(identical(other.arrivalTime, arrivalTime) || other.arrivalTime == arrivalTime)&&(identical(other.coachType, coachType) || other.coachType == coachType)&&(identical(other.totalSeats, totalSeats) || other.totalSeats == totalSeats)&&(identical(other.availableSeats, availableSeats) || other.availableSeats == availableSeats)&&(identical(other.basePrice, basePrice) || other.basePrice == basePrice)&&(identical(other.originDestination, originDestination) || other.originDestination == originDestination)&&(identical(other.destinationDestination, destinationDestination) || other.destinationDestination == destinationDestination)&&(identical(other.status, status) || other.status == status));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,departureTime,arrivalTime,coachType,totalSeats,availableSeats,basePrice,originDestination,destinationDestination,status);
+
+@override
+String toString() {
+  return 'CoachTripResponse(id: $id, departureTime: $departureTime, arrivalTime: $arrivalTime, coachType: $coachType, totalSeats: $totalSeats, availableSeats: $availableSeats, basePrice: $basePrice, originDestination: $originDestination, destinationDestination: $destinationDestination, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CoachTripResponseCopyWith<$Res> implements $CoachTripResponseCopyWith<$Res> {
+  factory _$CoachTripResponseCopyWith(_CoachTripResponse value, $Res Function(_CoachTripResponse) _then) = __$CoachTripResponseCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'id') String? id,@JsonKey(name: 'departureTime') DateTime? departureTime,@JsonKey(name: 'arrivalTime') DateTime? arrivalTime,@JsonKey(name: 'coachType') String? coachType,@JsonKey(name: 'totalSeats') int? totalSeats,@JsonKey(name: 'availableSeats') int? availableSeats,@JsonKey(name: 'basePrice') double? basePrice,@JsonKey(name: 'originDestination') DestinationResponse? originDestination,@JsonKey(name: 'destinationDestination') DestinationResponse? destinationDestination,@JsonKey(name: 'status') String? status
+});
+
+
+@override $DestinationResponseCopyWith<$Res>? get originDestination;@override $DestinationResponseCopyWith<$Res>? get destinationDestination;
+
+}
+/// @nodoc
+class __$CoachTripResponseCopyWithImpl<$Res>
+    implements _$CoachTripResponseCopyWith<$Res> {
+  __$CoachTripResponseCopyWithImpl(this._self, this._then);
+
+  final _CoachTripResponse _self;
+  final $Res Function(_CoachTripResponse) _then;
+
+/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? departureTime = freezed,Object? arrivalTime = freezed,Object? coachType = freezed,Object? totalSeats = freezed,Object? availableSeats = freezed,Object? basePrice = freezed,Object? originDestination = freezed,Object? destinationDestination = freezed,Object? status = freezed,}) {
+  return _then(_CoachTripResponse(
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,departureTime: freezed == departureTime ? _self.departureTime : departureTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,arrivalTime: freezed == arrivalTime ? _self.arrivalTime : arrivalTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,coachType: freezed == coachType ? _self.coachType : coachType // ignore: cast_nullable_to_non_nullable
+as String?,totalSeats: freezed == totalSeats ? _self.totalSeats : totalSeats // ignore: cast_nullable_to_non_nullable
+as int?,availableSeats: freezed == availableSeats ? _self.availableSeats : availableSeats // ignore: cast_nullable_to_non_nullable
+as int?,basePrice: freezed == basePrice ? _self.basePrice : basePrice // ignore: cast_nullable_to_non_nullable
+as double?,originDestination: freezed == originDestination ? _self.originDestination : originDestination // ignore: cast_nullable_to_non_nullable
+as DestinationResponse?,destinationDestination: freezed == destinationDestination ? _self.destinationDestination : destinationDestination // ignore: cast_nullable_to_non_nullable
+as DestinationResponse?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DestinationResponseCopyWith<$Res>? get originDestination {
+    if (_self.originDestination == null) {
+    return null;
+  }
+
+  return $DestinationResponseCopyWith<$Res>(_self.originDestination!, (value) {
+    return _then(_self.copyWith(originDestination: value));
   });
-
-  factory _$CoachTripResponseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$CoachTripResponseImplFromJson(json);
-
-  @override
-  @JsonKey(name: 'id')
-  final String? id;
-  @override
-  @JsonKey(name: 'departureTime')
-  final DateTime? departureTime;
-  @override
-  @JsonKey(name: 'arrivalTime')
-  final DateTime? arrivalTime;
-  @override
-  @JsonKey(name: 'coachType')
-  final String? coachType;
-  @override
-  @JsonKey(name: 'totalSeats')
-  final int? totalSeats;
-  @override
-  @JsonKey(name: 'availableSeats')
-  final int? availableSeats;
-  @override
-  @JsonKey(name: 'basePrice')
-  final double? basePrice;
-  @override
-  @JsonKey(name: 'originDestination')
-  final DestinationResponse? originDestination;
-  @override
-  @JsonKey(name: 'destinationDestination')
-  final DestinationResponse? destinationDestination;
-  @override
-  @JsonKey(name: 'status')
-  final String? status;
-
-  @override
-  String toString() {
-    return 'CoachTripResponse(id: $id, departureTime: $departureTime, arrivalTime: $arrivalTime, coachType: $coachType, totalSeats: $totalSeats, availableSeats: $availableSeats, basePrice: $basePrice, originDestination: $originDestination, destinationDestination: $destinationDestination, status: $status)';
+}/// Create a copy of CoachTripResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DestinationResponseCopyWith<$Res>? get destinationDestination {
+    if (_self.destinationDestination == null) {
+    return null;
   }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CoachTripResponseImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.departureTime, departureTime) ||
-                other.departureTime == departureTime) &&
-            (identical(other.arrivalTime, arrivalTime) ||
-                other.arrivalTime == arrivalTime) &&
-            (identical(other.coachType, coachType) ||
-                other.coachType == coachType) &&
-            (identical(other.totalSeats, totalSeats) ||
-                other.totalSeats == totalSeats) &&
-            (identical(other.availableSeats, availableSeats) ||
-                other.availableSeats == availableSeats) &&
-            (identical(other.basePrice, basePrice) ||
-                other.basePrice == basePrice) &&
-            (identical(other.originDestination, originDestination) ||
-                other.originDestination == originDestination) &&
-            (identical(other.destinationDestination, destinationDestination) ||
-                other.destinationDestination == destinationDestination) &&
-            (identical(other.status, status) || other.status == status));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    departureTime,
-    arrivalTime,
-    coachType,
-    totalSeats,
-    availableSeats,
-    basePrice,
-    originDestination,
-    destinationDestination,
-    status,
-  );
-
-  /// Create a copy of CoachTripResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$CoachTripResponseImplCopyWith<_$CoachTripResponseImpl> get copyWith =>
-      __$$CoachTripResponseImplCopyWithImpl<_$CoachTripResponseImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$CoachTripResponseImplToJson(this);
-  }
+  return $DestinationResponseCopyWith<$Res>(_self.destinationDestination!, (value) {
+    return _then(_self.copyWith(destinationDestination: value));
+  });
+}
 }
 
-abstract class _CoachTripResponse implements CoachTripResponse {
-  const factory _CoachTripResponse({
-    @JsonKey(name: 'id') final String? id,
-    @JsonKey(name: 'departureTime') final DateTime? departureTime,
-    @JsonKey(name: 'arrivalTime') final DateTime? arrivalTime,
-    @JsonKey(name: 'coachType') final String? coachType,
-    @JsonKey(name: 'totalSeats') final int? totalSeats,
-    @JsonKey(name: 'availableSeats') final int? availableSeats,
-    @JsonKey(name: 'basePrice') final double? basePrice,
-    @JsonKey(name: 'originDestination')
-    final DestinationResponse? originDestination,
-    @JsonKey(name: 'destinationDestination')
-    final DestinationResponse? destinationDestination,
-    @JsonKey(name: 'status') final String? status,
-  }) = _$CoachTripResponseImpl;
-
-  factory _CoachTripResponse.fromJson(Map<String, dynamic> json) =
-      _$CoachTripResponseImpl.fromJson;
-
-  @override
-  @JsonKey(name: 'id')
-  String? get id;
-  @override
-  @JsonKey(name: 'departureTime')
-  DateTime? get departureTime;
-  @override
-  @JsonKey(name: 'arrivalTime')
-  DateTime? get arrivalTime;
-  @override
-  @JsonKey(name: 'coachType')
-  String? get coachType;
-  @override
-  @JsonKey(name: 'totalSeats')
-  int? get totalSeats;
-  @override
-  @JsonKey(name: 'availableSeats')
-  int? get availableSeats;
-  @override
-  @JsonKey(name: 'basePrice')
-  double? get basePrice;
-  @override
-  @JsonKey(name: 'originDestination')
-  DestinationResponse? get originDestination;
-  @override
-  @JsonKey(name: 'destinationDestination')
-  DestinationResponse? get destinationDestination;
-  @override
-  @JsonKey(name: 'status')
-  String? get status;
-
-  /// Create a copy of CoachTripResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CoachTripResponseImplCopyWith<_$CoachTripResponseImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+// dart format on

@@ -6,8 +6,8 @@ part of 'tour_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourResponseImpl _$$TourResponseImplFromJson(Map<String, dynamic> json) =>
-    _$TourResponseImpl(
+_TourResponse _$TourResponseFromJson(Map<String, dynamic> json) =>
+    _TourResponse(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
@@ -19,7 +19,7 @@ _$TourResponseImpl _$$TourResponseImplFromJson(Map<String, dynamic> json) =>
       custom: json['custom'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$$TourResponseImplToJson(_$TourResponseImpl instance) =>
+Map<String, dynamic> _$TourResponseToJson(_TourResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

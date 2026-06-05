@@ -12,6 +12,7 @@ class Routes {
   static const String home = '/tour-home';
   static const String testHome = '/test-home';
   static const String tourHome = '/tour-home';
+  static const String notifications = '/notifications';
 
   // Tour nhóm
   static const String tourList = '/tours';
@@ -125,6 +126,8 @@ class Routes {
 
   // Guide
   static const String guideHome = '/guide/home';
+  static const String guideEditProfile = '/guide/edit-profile';
+  static const String guideChangePassword = '/guide/change-password';
   static const String guideCoachTrips = '/guide/coach-trips';
   static const String guideCoachTripDetail = '/guide/coach-trips/:id';
   static const String guideCoachTripPassengers =
@@ -133,6 +136,9 @@ class Routes {
   static const String checkIn = '/guide/mission/:id/check-in';
   static const String tourProgress = '/guide/mission/:id/progress';
   static const String tourCompleted = '/guide/mission/:id/completed';
+
+  // Chat
+  static const String chat = '/chat';
 
   // Hotel nhóm
   static const String hotelHome = '/hotel/home';

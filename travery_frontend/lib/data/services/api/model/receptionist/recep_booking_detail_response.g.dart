@@ -6,9 +6,9 @@ part of 'recep_booking_detail_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RecepBookingDetailResponseImpl _$$RecepBookingDetailResponseImplFromJson(
+_RecepBookingDetailResponse _$RecepBookingDetailResponseFromJson(
   Map<String, dynamic> json,
-) => _$RecepBookingDetailResponseImpl(
+) => _RecepBookingDetailResponse(
   id: json['id'] as String,
   guestName: json['guestName'] as String,
   phoneNumber: json['phoneNumber'] as String,
@@ -28,8 +28,8 @@ _$RecepBookingDetailResponseImpl _$$RecepBookingDetailResponseImplFromJson(
       .toList(),
 );
 
-Map<String, dynamic> _$$RecepBookingDetailResponseImplToJson(
-  _$RecepBookingDetailResponseImpl instance,
+Map<String, dynamic> _$RecepBookingDetailResponseToJson(
+  _RecepBookingDetailResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'guestName': instance.guestName,
@@ -44,29 +44,27 @@ Map<String, dynamic> _$$RecepBookingDetailResponseImplToJson(
   'addOnOrders': instance.addOnOrders,
 };
 
-_$HotelGuestResponseImpl _$$HotelGuestResponseImplFromJson(
-  Map<String, dynamic> json,
-) => _$HotelGuestResponseImpl(
-  id: json['id'] as String,
-  fullName: json['fullName'] as String,
-  identityNumber: json['identityNumber'] as String,
-  dateOfBirth: json['dateOfBirth'] as String,
-  memberType: json['memberType'] as String,
-);
+_HotelGuestResponse _$HotelGuestResponseFromJson(Map<String, dynamic> json) =>
+    _HotelGuestResponse(
+      id: json['id'] as String,
+      fullName: json['fullName'] as String,
+      identityNumber: json['identityNumber'] as String,
+      dateOfBirth: json['dateOfBirth'] as String,
+      memberType: json['memberType'] as String,
+    );
 
-Map<String, dynamic> _$$HotelGuestResponseImplToJson(
-  _$HotelGuestResponseImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'fullName': instance.fullName,
-  'identityNumber': instance.identityNumber,
-  'dateOfBirth': instance.dateOfBirth,
-  'memberType': instance.memberType,
-};
+Map<String, dynamic> _$HotelGuestResponseToJson(_HotelGuestResponse instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'fullName': instance.fullName,
+      'identityNumber': instance.identityNumber,
+      'dateOfBirth': instance.dateOfBirth,
+      'memberType': instance.memberType,
+    };
 
-_$RoomAllocationResponseImpl _$$RoomAllocationResponseImplFromJson(
+_RoomAllocationResponse _$RoomAllocationResponseFromJson(
   Map<String, dynamic> json,
-) => _$RoomAllocationResponseImpl(
+) => _RoomAllocationResponse(
   roomTypeId: json['roomTypeId'] as String,
   roomTypeName: json['roomTypeName'] as String,
   quantity: (json['quantity'] as num).toInt(),
@@ -75,8 +73,8 @@ _$RoomAllocationResponseImpl _$$RoomAllocationResponseImplFromJson(
       .toList(),
 );
 
-Map<String, dynamic> _$$RoomAllocationResponseImplToJson(
-  _$RoomAllocationResponseImpl instance,
+Map<String, dynamic> _$RoomAllocationResponseToJson(
+  _RoomAllocationResponse instance,
 ) => <String, dynamic>{
   'roomTypeId': instance.roomTypeId,
   'roomTypeName': instance.roomTypeName,

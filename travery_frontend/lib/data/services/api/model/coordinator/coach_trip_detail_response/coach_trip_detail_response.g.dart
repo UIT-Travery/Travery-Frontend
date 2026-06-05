@@ -6,9 +6,9 @@ part of 'coach_trip_detail_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CoachTripDetailResponseImpl _$$CoachTripDetailResponseImplFromJson(
+_CoachTripDetailResponse _$CoachTripDetailResponseFromJson(
   Map<String, dynamic> json,
-) => _$CoachTripDetailResponseImpl(
+) => _CoachTripDetailResponse(
   id: json['id'] as String?,
   departureTime: json['departureTime'] == null
       ? null
@@ -36,8 +36,8 @@ _$CoachTripDetailResponseImpl _$$CoachTripDetailResponseImplFromJson(
   passengersCount: (json['passengersCount'] as num?)?.toInt(),
 );
 
-Map<String, dynamic> _$$CoachTripDetailResponseImplToJson(
-  _$CoachTripDetailResponseImpl instance,
+Map<String, dynamic> _$CoachTripDetailResponseToJson(
+  _CoachTripDetailResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'departureTime': instance.departureTime?.toIso8601String(),

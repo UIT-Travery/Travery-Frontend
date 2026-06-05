@@ -6,9 +6,9 @@ part of 'update_guide_profile_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UpdateGuideProfileRequestImpl _$$UpdateGuideProfileRequestImplFromJson(
+_UpdateGuideProfileRequest _$UpdateGuideProfileRequestFromJson(
   Map<String, dynamic> json,
-) => _$UpdateGuideProfileRequestImpl(
+) => _UpdateGuideProfileRequest(
   fullName: json['fullName'] as String?,
   phoneNumber: json['phoneNumber'] as String?,
   guideLicense: json['guideLicense'] as String?,
@@ -18,8 +18,8 @@ _$UpdateGuideProfileRequestImpl _$$UpdateGuideProfileRequestImplFromJson(
       .toList(),
 );
 
-Map<String, dynamic> _$$UpdateGuideProfileRequestImplToJson(
-  _$UpdateGuideProfileRequestImpl instance,
+Map<String, dynamic> _$UpdateGuideProfileRequestToJson(
+  _UpdateGuideProfileRequest instance,
 ) => <String, dynamic>{
   'fullName': instance.fullName,
   'phoneNumber': instance.phoneNumber,

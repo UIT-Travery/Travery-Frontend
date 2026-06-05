@@ -6,8 +6,8 @@ part of 'room_type_image.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RoomTypeImageImpl _$$RoomTypeImageImplFromJson(Map<String, dynamic> json) =>
-    _$RoomTypeImageImpl(
+_RoomTypeImage _$RoomTypeImageFromJson(Map<String, dynamic> json) =>
+    _RoomTypeImage(
       id: json['id'] as String?,
       roomTypeId: json['room_type_id'] as String,
       imageUrl: json['image_url'] as String,
@@ -20,7 +20,7 @@ _$RoomTypeImageImpl _$$RoomTypeImageImplFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updated_at'] as String),
     );
 
-Map<String, dynamic> _$$RoomTypeImageImplToJson(_$RoomTypeImageImpl instance) =>
+Map<String, dynamic> _$RoomTypeImageToJson(_RoomTypeImage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'room_type_id': instance.roomTypeId,

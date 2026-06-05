@@ -9,6 +9,8 @@ import 'package:travery_frontend/data/services/security_storage_service.dart';
 import 'package:travery_frontend/data/repositories/authentication/auth_repository.dart';
 import 'package:travery_frontend/ui/user/profile/view_model/profile_view_model.dart';
 
+import 'package:travery_frontend/ui/chat/chat_screen.dart';
+
 class UserBottomNav extends StatefulWidget {
   const UserBottomNav({
     super.key,
@@ -56,7 +58,7 @@ class _UserBottomNavState extends State<UserBottomNav> {
             initialTab: widget.initialBookingTab,
             refreshTick: _bookingRefreshTick,
           ),
-          const Scaffold(body: Center(child: Text('Chat - Coming Soon'))),
+          const ChatScreen(title: 'Tin nhắn', showBackButton: false),
           ChangeNotifierProvider(
             create: (context) => ProfileViewModel(
               profileService: context.read<ProfileService>(),

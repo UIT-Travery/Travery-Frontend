@@ -6,7 +6,7 @@ part 'tour_itinerary_day.freezed.dart';
 part 'tour_itinerary_day.g.dart';
 
 @freezed
-class TourItineraryDay with _$TourItineraryDay {
+abstract class TourItineraryDay with _$TourItineraryDay {
   const factory TourItineraryDay({
     String? id,
 

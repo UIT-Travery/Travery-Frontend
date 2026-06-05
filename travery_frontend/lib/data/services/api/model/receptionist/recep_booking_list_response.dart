@@ -4,7 +4,7 @@ part 'recep_booking_list_response.freezed.dart';
 part 'recep_booking_list_response.g.dart';
 
 @freezed
-class RecepBookingListResponse with _$RecepBookingListResponse {
+abstract class RecepBookingListResponse with _$RecepBookingListResponse {
   const factory RecepBookingListResponse({
     required String id,
     required String guestName,

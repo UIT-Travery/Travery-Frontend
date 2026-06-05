@@ -10,8 +10,8 @@ class HotelDetailData {
     required this.checkOutTime,
     required this.amenities,
     required this.rooms,
+    required this.reviews,
     this.cityProvince,
-    this.reviews = const [],
   });
 
   final String id;
@@ -79,6 +79,11 @@ class HotelDetailData {
           '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
     }
 
+    final reviewsList = json['reviews'] as List<dynamic>? ?? [];
+    final reviews = reviewsList
+        .map((r) => HotelReviewData.fromJson(r as Map<String, dynamic>))
+        .toList();
+
     return HotelDetailData(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
@@ -90,6 +95,7 @@ class HotelDetailData {
       checkOutTime: checkOutTime,
       amenities: amenityObjects,
       rooms: rooms,
+      reviews: reviews,
       cityProvince: json['cityProvince'] as String?,
     );
   }

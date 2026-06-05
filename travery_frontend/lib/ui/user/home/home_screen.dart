@@ -5,6 +5,9 @@ import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
 import 'package:travery_frontend/ui/user/home/view_models/home_view_model.dart';
 import 'package:travery_frontend/ui/user/widgets/tour_card.dart';
+import 'package:travery_frontend/ui/common/notification/view/widgets/notification_badge.dart';
+import 'package:travery_frontend/ui/chat/view_models/chat_view_model.dart';
+import 'package:travery_frontend/utils/alert.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -53,6 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: AppColors.primary,
                               size: 20,
                             ),
+                          ),
+                          NotificationBadge(
+                            onTap: () => context.push(Routes.notifications),
+                            iconColor: const Color(0xFF717786),
+                            iconSize: 26,
                           ),
                           const SizedBox(width: 12),
                           const Expanded(
@@ -234,7 +242,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      debugPrint("HomeScreen: 'Liên hệ ngay' pressed. Initiating chat...");
+                                      final chatVm = context.read<ChatViewModel>();
+                                      final guid = await chatVm.initiateChat();
+                                      debugPrint("HomeScreen: Chat initiation result: $guid");
+                                      if (guid != null && context.mounted) {
+                                        debugPrint("HomeScreen: Navigating to ChatScreen with guid: $guid");
+                                        context.push(Routes.chat, extra: {
+                                          'guid': guid,
+                                          'title': 'Tư vấn Tour Custom',
+                                        });
+                                      } else if (context.mounted && chatVm.errorMessage != null) {
+                                        debugPrint("HomeScreen: Chat initiation failed: ${chatVm.errorMessage}");
+                                        Utils.showErrorNotification(context, chatVm.errorMessage!);
+                                      }
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primary,
                                       foregroundColor: Colors.white,

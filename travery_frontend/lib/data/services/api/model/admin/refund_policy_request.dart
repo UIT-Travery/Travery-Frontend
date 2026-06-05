@@ -4,7 +4,7 @@ part 'refund_policy_request.freezed.dart';
 part 'refund_policy_request.g.dart';
 
 @freezed
-class RefundPolicyRuleRequest with _$RefundPolicyRuleRequest {
+abstract class RefundPolicyRuleRequest with _$RefundPolicyRuleRequest {
   const factory RefundPolicyRuleRequest({
     required double timeBefore,
     required String timeUnit,
@@ -16,7 +16,7 @@ class RefundPolicyRuleRequest with _$RefundPolicyRuleRequest {
 }
 
 @freezed
-class RefundPolicyRequest with _$RefundPolicyRequest {
+abstract class RefundPolicyRequest with _$RefundPolicyRequest {
   const factory RefundPolicyRequest({
     required String name,
     required String serviceType,

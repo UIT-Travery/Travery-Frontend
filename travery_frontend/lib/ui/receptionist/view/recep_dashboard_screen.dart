@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:travery_frontend/routing/routes.dart';
+import 'package:travery_frontend/ui/common/notification/view/widgets/notification_badge.dart';
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_dashboard_info_box.dart';
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_dashboard_checkin_list.dart';
 import 'package:travery_frontend/ui/receptionist/view/widgets/recep_dashboard_checkout_list.dart';

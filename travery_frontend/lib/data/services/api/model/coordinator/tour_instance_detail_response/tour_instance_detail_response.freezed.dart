@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,588 +9,323 @@ part of 'tour_instance_detail_response.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-TourInstanceDetailResponse _$TourInstanceDetailResponseFromJson(
-  Map<String, dynamic> json,
-) {
-  return _TourInstanceDetailResponse.fromJson(json);
-}
 
 /// @nodoc
 mixin _$TourInstanceDetailResponse {
-  String get id => throw _privateConstructorUsedError;
-  String get tourName => throw _privateConstructorUsedError;
-  String get destinationName => throw _privateConstructorUsedError;
-  String get pickupLocation => throw _privateConstructorUsedError;
-  String get startDate => throw _privateConstructorUsedError;
-  String get endDate => throw _privateConstructorUsedError;
-  int get minParticipants => throw _privateConstructorUsedError;
-  int get maxParticipants => throw _privateConstructorUsedError;
-  int get currentParticipants => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
-  String? get guideId => throw _privateConstructorUsedError;
-  String? get guideName => throw _privateConstructorUsedError;
-  String? get guidePhone => throw _privateConstructorUsedError;
-  String? get coachId => throw _privateConstructorUsedError;
-  String? get coachLicensePlate => throw _privateConstructorUsedError;
-  String? get coachType => throw _privateConstructorUsedError;
-  String? get driverId => throw _privateConstructorUsedError;
-  String? get driverName => throw _privateConstructorUsedError;
-  String? get driverPhone => throw _privateConstructorUsedError;
+
+ String get id; String get tourName; String get destinationName; String get pickupLocation; String get startDate; String get endDate; int get minParticipants; int get maxParticipants; int get currentParticipants; String get status; String? get guideId; String? get guideName; String? get guidePhone; String? get coachId; String? get coachLicensePlate; String? get coachType; String? get driverId; String? get driverName; String? get driverPhone;
+/// Create a copy of TourInstanceDetailResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TourInstanceDetailResponseCopyWith<TourInstanceDetailResponse> get copyWith => _$TourInstanceDetailResponseCopyWithImpl<TourInstanceDetailResponse>(this as TourInstanceDetailResponse, _$identity);
 
   /// Serializes this TourInstanceDetailResponse to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of TourInstanceDetailResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $TourInstanceDetailResponseCopyWith<TourInstanceDetailResponse>
-  get copyWith => throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TourInstanceDetailResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.destinationName, destinationName) || other.destinationName == destinationName)&&(identical(other.pickupLocation, pickupLocation) || other.pickupLocation == pickupLocation)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.minParticipants, minParticipants) || other.minParticipants == minParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.currentParticipants, currentParticipants) || other.currentParticipants == currentParticipants)&&(identical(other.status, status) || other.status == status)&&(identical(other.guideId, guideId) || other.guideId == guideId)&&(identical(other.guideName, guideName) || other.guideName == guideName)&&(identical(other.guidePhone, guidePhone) || other.guidePhone == guidePhone)&&(identical(other.coachId, coachId) || other.coachId == coachId)&&(identical(other.coachLicensePlate, coachLicensePlate) || other.coachLicensePlate == coachLicensePlate)&&(identical(other.coachType, coachType) || other.coachType == coachType)&&(identical(other.driverId, driverId) || other.driverId == driverId)&&(identical(other.driverName, driverName) || other.driverName == driverName)&&(identical(other.driverPhone, driverPhone) || other.driverPhone == driverPhone));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hashAll([runtimeType,id,tourName,destinationName,pickupLocation,startDate,endDate,minParticipants,maxParticipants,currentParticipants,status,guideId,guideName,guidePhone,coachId,coachLicensePlate,coachType,driverId,driverName,driverPhone]);
+
+@override
+String toString() {
+  return 'TourInstanceDetailResponse(id: $id, tourName: $tourName, destinationName: $destinationName, pickupLocation: $pickupLocation, startDate: $startDate, endDate: $endDate, minParticipants: $minParticipants, maxParticipants: $maxParticipants, currentParticipants: $currentParticipants, status: $status, guideId: $guideId, guideName: $guideName, guidePhone: $guidePhone, coachId: $coachId, coachLicensePlate: $coachLicensePlate, coachType: $coachType, driverId: $driverId, driverName: $driverName, driverPhone: $driverPhone)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $TourInstanceDetailResponseCopyWith<$Res> {
-  factory $TourInstanceDetailResponseCopyWith(
-    TourInstanceDetailResponse value,
-    $Res Function(TourInstanceDetailResponse) then,
-  ) =
-      _$TourInstanceDetailResponseCopyWithImpl<
-        $Res,
-        TourInstanceDetailResponse
-      >;
-  @useResult
-  $Res call({
-    String id,
-    String tourName,
-    String destinationName,
-    String pickupLocation,
-    String startDate,
-    String endDate,
-    int minParticipants,
-    int maxParticipants,
-    int currentParticipants,
-    String status,
-    String? guideId,
-    String? guideName,
-    String? guidePhone,
-    String? coachId,
-    String? coachLicensePlate,
-    String? coachType,
-    String? driverId,
-    String? driverName,
-    String? driverPhone,
-  });
-}
+abstract mixin class $TourInstanceDetailResponseCopyWith<$Res>  {
+  factory $TourInstanceDetailResponseCopyWith(TourInstanceDetailResponse value, $Res Function(TourInstanceDetailResponse) _then) = _$TourInstanceDetailResponseCopyWithImpl;
+@useResult
+$Res call({
+ String id, String tourName, String destinationName, String pickupLocation, String startDate, String endDate, int minParticipants, int maxParticipants, int currentParticipants, String status, String? guideId, String? guideName, String? guidePhone, String? coachId, String? coachLicensePlate, String? coachType, String? driverId, String? driverName, String? driverPhone
+});
 
+
+
+
+}
 /// @nodoc
-class _$TourInstanceDetailResponseCopyWithImpl<
-  $Res,
-  $Val extends TourInstanceDetailResponse
->
+class _$TourInstanceDetailResponseCopyWithImpl<$Res>
     implements $TourInstanceDetailResponseCopyWith<$Res> {
-  _$TourInstanceDetailResponseCopyWithImpl(this._value, this._then);
+  _$TourInstanceDetailResponseCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final TourInstanceDetailResponse _self;
+  final $Res Function(TourInstanceDetailResponse) _then;
 
-  /// Create a copy of TourInstanceDetailResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? tourName = null,
-    Object? destinationName = null,
-    Object? pickupLocation = null,
-    Object? startDate = null,
-    Object? endDate = null,
-    Object? minParticipants = null,
-    Object? maxParticipants = null,
-    Object? currentParticipants = null,
-    Object? status = null,
-    Object? guideId = freezed,
-    Object? guideName = freezed,
-    Object? guidePhone = freezed,
-    Object? coachId = freezed,
-    Object? coachLicensePlate = freezed,
-    Object? coachType = freezed,
-    Object? driverId = freezed,
-    Object? driverName = freezed,
-    Object? driverPhone = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            tourName: null == tourName
-                ? _value.tourName
-                : tourName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            destinationName: null == destinationName
-                ? _value.destinationName
-                : destinationName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            pickupLocation: null == pickupLocation
-                ? _value.pickupLocation
-                : pickupLocation // ignore: cast_nullable_to_non_nullable
-                      as String,
-            startDate: null == startDate
-                ? _value.startDate
-                : startDate // ignore: cast_nullable_to_non_nullable
-                      as String,
-            endDate: null == endDate
-                ? _value.endDate
-                : endDate // ignore: cast_nullable_to_non_nullable
-                      as String,
-            minParticipants: null == minParticipants
-                ? _value.minParticipants
-                : minParticipants // ignore: cast_nullable_to_non_nullable
-                      as int,
-            maxParticipants: null == maxParticipants
-                ? _value.maxParticipants
-                : maxParticipants // ignore: cast_nullable_to_non_nullable
-                      as int,
-            currentParticipants: null == currentParticipants
-                ? _value.currentParticipants
-                : currentParticipants // ignore: cast_nullable_to_non_nullable
-                      as int,
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as String,
-            guideId: freezed == guideId
-                ? _value.guideId
-                : guideId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            guideName: freezed == guideName
-                ? _value.guideName
-                : guideName // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            guidePhone: freezed == guidePhone
-                ? _value.guidePhone
-                : guidePhone // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            coachId: freezed == coachId
-                ? _value.coachId
-                : coachId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            coachLicensePlate: freezed == coachLicensePlate
-                ? _value.coachLicensePlate
-                : coachLicensePlate // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            coachType: freezed == coachType
-                ? _value.coachType
-                : coachType // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            driverId: freezed == driverId
-                ? _value.driverId
-                : driverId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            driverName: freezed == driverName
-                ? _value.driverName
-                : driverName // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            driverPhone: freezed == driverPhone
-                ? _value.driverPhone
-                : driverPhone // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of TourInstanceDetailResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tourName = null,Object? destinationName = null,Object? pickupLocation = null,Object? startDate = null,Object? endDate = null,Object? minParticipants = null,Object? maxParticipants = null,Object? currentParticipants = null,Object? status = null,Object? guideId = freezed,Object? guideName = freezed,Object? guidePhone = freezed,Object? coachId = freezed,Object? coachLicensePlate = freezed,Object? coachType = freezed,Object? driverId = freezed,Object? driverName = freezed,Object? driverPhone = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,tourName: null == tourName ? _self.tourName : tourName // ignore: cast_nullable_to_non_nullable
+as String,destinationName: null == destinationName ? _self.destinationName : destinationName // ignore: cast_nullable_to_non_nullable
+as String,pickupLocation: null == pickupLocation ? _self.pickupLocation : pickupLocation // ignore: cast_nullable_to_non_nullable
+as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as String,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
+as String,minParticipants: null == minParticipants ? _self.minParticipants : minParticipants // ignore: cast_nullable_to_non_nullable
+as int,maxParticipants: null == maxParticipants ? _self.maxParticipants : maxParticipants // ignore: cast_nullable_to_non_nullable
+as int,currentParticipants: null == currentParticipants ? _self.currentParticipants : currentParticipants // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,guideId: freezed == guideId ? _self.guideId : guideId // ignore: cast_nullable_to_non_nullable
+as String?,guideName: freezed == guideName ? _self.guideName : guideName // ignore: cast_nullable_to_non_nullable
+as String?,guidePhone: freezed == guidePhone ? _self.guidePhone : guidePhone // ignore: cast_nullable_to_non_nullable
+as String?,coachId: freezed == coachId ? _self.coachId : coachId // ignore: cast_nullable_to_non_nullable
+as String?,coachLicensePlate: freezed == coachLicensePlate ? _self.coachLicensePlate : coachLicensePlate // ignore: cast_nullable_to_non_nullable
+as String?,coachType: freezed == coachType ? _self.coachType : coachType // ignore: cast_nullable_to_non_nullable
+as String?,driverId: freezed == driverId ? _self.driverId : driverId // ignore: cast_nullable_to_non_nullable
+as String?,driverName: freezed == driverName ? _self.driverName : driverName // ignore: cast_nullable_to_non_nullable
+as String?,driverPhone: freezed == driverPhone ? _self.driverPhone : driverPhone // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$TourInstanceDetailResponseImplCopyWith<$Res>
-    implements $TourInstanceDetailResponseCopyWith<$Res> {
-  factory _$$TourInstanceDetailResponseImplCopyWith(
-    _$TourInstanceDetailResponseImpl value,
-    $Res Function(_$TourInstanceDetailResponseImpl) then,
-  ) = __$$TourInstanceDetailResponseImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String tourName,
-    String destinationName,
-    String pickupLocation,
-    String startDate,
-    String endDate,
-    int minParticipants,
-    int maxParticipants,
-    int currentParticipants,
-    String status,
-    String? guideId,
-    String? guideName,
-    String? guidePhone,
-    String? coachId,
-    String? coachLicensePlate,
-    String? coachType,
-    String? driverId,
-    String? driverName,
-    String? driverPhone,
-  });
 }
 
-/// @nodoc
-class __$$TourInstanceDetailResponseImplCopyWithImpl<$Res>
-    extends
-        _$TourInstanceDetailResponseCopyWithImpl<
-          $Res,
-          _$TourInstanceDetailResponseImpl
-        >
-    implements _$$TourInstanceDetailResponseImplCopyWith<$Res> {
-  __$$TourInstanceDetailResponseImplCopyWithImpl(
-    _$TourInstanceDetailResponseImpl _value,
-    $Res Function(_$TourInstanceDetailResponseImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of TourInstanceDetailResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? tourName = null,
-    Object? destinationName = null,
-    Object? pickupLocation = null,
-    Object? startDate = null,
-    Object? endDate = null,
-    Object? minParticipants = null,
-    Object? maxParticipants = null,
-    Object? currentParticipants = null,
-    Object? status = null,
-    Object? guideId = freezed,
-    Object? guideName = freezed,
-    Object? guidePhone = freezed,
-    Object? coachId = freezed,
-    Object? coachLicensePlate = freezed,
-    Object? coachType = freezed,
-    Object? driverId = freezed,
-    Object? driverName = freezed,
-    Object? driverPhone = freezed,
-  }) {
-    return _then(
-      _$TourInstanceDetailResponseImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        tourName: null == tourName
-            ? _value.tourName
-            : tourName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        destinationName: null == destinationName
-            ? _value.destinationName
-            : destinationName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        pickupLocation: null == pickupLocation
-            ? _value.pickupLocation
-            : pickupLocation // ignore: cast_nullable_to_non_nullable
-                  as String,
-        startDate: null == startDate
-            ? _value.startDate
-            : startDate // ignore: cast_nullable_to_non_nullable
-                  as String,
-        endDate: null == endDate
-            ? _value.endDate
-            : endDate // ignore: cast_nullable_to_non_nullable
-                  as String,
-        minParticipants: null == minParticipants
-            ? _value.minParticipants
-            : minParticipants // ignore: cast_nullable_to_non_nullable
-                  as int,
-        maxParticipants: null == maxParticipants
-            ? _value.maxParticipants
-            : maxParticipants // ignore: cast_nullable_to_non_nullable
-                  as int,
-        currentParticipants: null == currentParticipants
-            ? _value.currentParticipants
-            : currentParticipants // ignore: cast_nullable_to_non_nullable
-                  as int,
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as String,
-        guideId: freezed == guideId
-            ? _value.guideId
-            : guideId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        guideName: freezed == guideName
-            ? _value.guideName
-            : guideName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        guidePhone: freezed == guidePhone
-            ? _value.guidePhone
-            : guidePhone // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        coachId: freezed == coachId
-            ? _value.coachId
-            : coachId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        coachLicensePlate: freezed == coachLicensePlate
-            ? _value.coachLicensePlate
-            : coachLicensePlate // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        coachType: freezed == coachType
-            ? _value.coachType
-            : coachType // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        driverId: freezed == driverId
-            ? _value.driverId
-            : driverId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        driverName: freezed == driverName
-            ? _value.driverName
-            : driverName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        driverPhone: freezed == driverPhone
-            ? _value.driverPhone
-            : driverPhone // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [TourInstanceDetailResponse].
+extension TourInstanceDetailResponsePatterns on TourInstanceDetailResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TourInstanceDetailResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TourInstanceDetailResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TourInstanceDetailResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _TourInstanceDetailResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TourInstanceDetailResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TourInstanceDetailResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String tourName,  String destinationName,  String pickupLocation,  String startDate,  String endDate,  int minParticipants,  int maxParticipants,  int currentParticipants,  String status,  String? guideId,  String? guideName,  String? guidePhone,  String? coachId,  String? coachLicensePlate,  String? coachType,  String? driverId,  String? driverName,  String? driverPhone)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TourInstanceDetailResponse() when $default != null:
+return $default(_that.id,_that.tourName,_that.destinationName,_that.pickupLocation,_that.startDate,_that.endDate,_that.minParticipants,_that.maxParticipants,_that.currentParticipants,_that.status,_that.guideId,_that.guideName,_that.guidePhone,_that.coachId,_that.coachLicensePlate,_that.coachType,_that.driverId,_that.driverName,_that.driverPhone);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String tourName,  String destinationName,  String pickupLocation,  String startDate,  String endDate,  int minParticipants,  int maxParticipants,  int currentParticipants,  String status,  String? guideId,  String? guideName,  String? guidePhone,  String? coachId,  String? coachLicensePlate,  String? coachType,  String? driverId,  String? driverName,  String? driverPhone)  $default,) {final _that = this;
+switch (_that) {
+case _TourInstanceDetailResponse():
+return $default(_that.id,_that.tourName,_that.destinationName,_that.pickupLocation,_that.startDate,_that.endDate,_that.minParticipants,_that.maxParticipants,_that.currentParticipants,_that.status,_that.guideId,_that.guideName,_that.guidePhone,_that.coachId,_that.coachLicensePlate,_that.coachType,_that.driverId,_that.driverName,_that.driverPhone);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String tourName,  String destinationName,  String pickupLocation,  String startDate,  String endDate,  int minParticipants,  int maxParticipants,  int currentParticipants,  String status,  String? guideId,  String? guideName,  String? guidePhone,  String? coachId,  String? coachLicensePlate,  String? coachType,  String? driverId,  String? driverName,  String? driverPhone)?  $default,) {final _that = this;
+switch (_that) {
+case _TourInstanceDetailResponse() when $default != null:
+return $default(_that.id,_that.tourName,_that.destinationName,_that.pickupLocation,_that.startDate,_that.endDate,_that.minParticipants,_that.maxParticipants,_that.currentParticipants,_that.status,_that.guideId,_that.guideName,_that.guidePhone,_that.coachId,_that.coachLicensePlate,_that.coachType,_that.driverId,_that.driverName,_that.driverPhone);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$TourInstanceDetailResponseImpl implements _TourInstanceDetailResponse {
-  const _$TourInstanceDetailResponseImpl({
-    required this.id,
-    required this.tourName,
-    required this.destinationName,
-    this.pickupLocation = '',
-    required this.startDate,
-    required this.endDate,
-    this.minParticipants = 0,
-    this.maxParticipants = 0,
-    this.currentParticipants = 0,
-    required this.status,
-    this.guideId,
-    this.guideName,
-    this.guidePhone,
-    this.coachId,
-    this.coachLicensePlate,
-    this.coachType,
-    this.driverId,
-    this.driverName,
-    this.driverPhone,
-  });
 
-  factory _$TourInstanceDetailResponseImpl.fromJson(
-    Map<String, dynamic> json,
-  ) => _$$TourInstanceDetailResponseImplFromJson(json);
+class _TourInstanceDetailResponse implements TourInstanceDetailResponse {
+  const _TourInstanceDetailResponse({required this.id, required this.tourName, required this.destinationName, this.pickupLocation = '', required this.startDate, required this.endDate, this.minParticipants = 0, this.maxParticipants = 0, this.currentParticipants = 0, required this.status, this.guideId, this.guideName, this.guidePhone, this.coachId, this.coachLicensePlate, this.coachType, this.driverId, this.driverName, this.driverPhone});
+  factory _TourInstanceDetailResponse.fromJson(Map<String, dynamic> json) => _$TourInstanceDetailResponseFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String tourName;
-  @override
-  final String destinationName;
-  @override
-  @JsonKey()
-  final String pickupLocation;
-  @override
-  final String startDate;
-  @override
-  final String endDate;
-  @override
-  @JsonKey()
-  final int minParticipants;
-  @override
-  @JsonKey()
-  final int maxParticipants;
-  @override
-  @JsonKey()
-  final int currentParticipants;
-  @override
-  final String status;
-  @override
-  final String? guideId;
-  @override
-  final String? guideName;
-  @override
-  final String? guidePhone;
-  @override
-  final String? coachId;
-  @override
-  final String? coachLicensePlate;
-  @override
-  final String? coachType;
-  @override
-  final String? driverId;
-  @override
-  final String? driverName;
-  @override
-  final String? driverPhone;
+@override final  String id;
+@override final  String tourName;
+@override final  String destinationName;
+@override@JsonKey() final  String pickupLocation;
+@override final  String startDate;
+@override final  String endDate;
+@override@JsonKey() final  int minParticipants;
+@override@JsonKey() final  int maxParticipants;
+@override@JsonKey() final  int currentParticipants;
+@override final  String status;
+@override final  String? guideId;
+@override final  String? guideName;
+@override final  String? guidePhone;
+@override final  String? coachId;
+@override final  String? coachLicensePlate;
+@override final  String? coachType;
+@override final  String? driverId;
+@override final  String? driverName;
+@override final  String? driverPhone;
 
-  @override
-  String toString() {
-    return 'TourInstanceDetailResponse(id: $id, tourName: $tourName, destinationName: $destinationName, pickupLocation: $pickupLocation, startDate: $startDate, endDate: $endDate, minParticipants: $minParticipants, maxParticipants: $maxParticipants, currentParticipants: $currentParticipants, status: $status, guideId: $guideId, guideName: $guideName, guidePhone: $guidePhone, coachId: $coachId, coachLicensePlate: $coachLicensePlate, coachType: $coachType, driverId: $driverId, driverName: $driverName, driverPhone: $driverPhone)';
-  }
+/// Create a copy of TourInstanceDetailResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TourInstanceDetailResponseCopyWith<_TourInstanceDetailResponse> get copyWith => __$TourInstanceDetailResponseCopyWithImpl<_TourInstanceDetailResponse>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$TourInstanceDetailResponseImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.tourName, tourName) ||
-                other.tourName == tourName) &&
-            (identical(other.destinationName, destinationName) ||
-                other.destinationName == destinationName) &&
-            (identical(other.pickupLocation, pickupLocation) ||
-                other.pickupLocation == pickupLocation) &&
-            (identical(other.startDate, startDate) ||
-                other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate) &&
-            (identical(other.minParticipants, minParticipants) ||
-                other.minParticipants == minParticipants) &&
-            (identical(other.maxParticipants, maxParticipants) ||
-                other.maxParticipants == maxParticipants) &&
-            (identical(other.currentParticipants, currentParticipants) ||
-                other.currentParticipants == currentParticipants) &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.guideId, guideId) || other.guideId == guideId) &&
-            (identical(other.guideName, guideName) ||
-                other.guideName == guideName) &&
-            (identical(other.guidePhone, guidePhone) ||
-                other.guidePhone == guidePhone) &&
-            (identical(other.coachId, coachId) || other.coachId == coachId) &&
-            (identical(other.coachLicensePlate, coachLicensePlate) ||
-                other.coachLicensePlate == coachLicensePlate) &&
-            (identical(other.coachType, coachType) ||
-                other.coachType == coachType) &&
-            (identical(other.driverId, driverId) ||
-                other.driverId == driverId) &&
-            (identical(other.driverName, driverName) ||
-                other.driverName == driverName) &&
-            (identical(other.driverPhone, driverPhone) ||
-                other.driverPhone == driverPhone));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hashAll([
-    runtimeType,
-    id,
-    tourName,
-    destinationName,
-    pickupLocation,
-    startDate,
-    endDate,
-    minParticipants,
-    maxParticipants,
-    currentParticipants,
-    status,
-    guideId,
-    guideName,
-    guidePhone,
-    coachId,
-    coachLicensePlate,
-    coachType,
-    driverId,
-    driverName,
-    driverPhone,
-  ]);
-
-  /// Create a copy of TourInstanceDetailResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$TourInstanceDetailResponseImplCopyWith<_$TourInstanceDetailResponseImpl>
-  get copyWith =>
-      __$$TourInstanceDetailResponseImplCopyWithImpl<
-        _$TourInstanceDetailResponseImpl
-      >(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$TourInstanceDetailResponseImplToJson(this);
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$TourInstanceDetailResponseToJson(this, );
 }
 
-abstract class _TourInstanceDetailResponse
-    implements TourInstanceDetailResponse {
-  const factory _TourInstanceDetailResponse({
-    required final String id,
-    required final String tourName,
-    required final String destinationName,
-    final String pickupLocation,
-    required final String startDate,
-    required final String endDate,
-    final int minParticipants,
-    final int maxParticipants,
-    final int currentParticipants,
-    required final String status,
-    final String? guideId,
-    final String? guideName,
-    final String? guidePhone,
-    final String? coachId,
-    final String? coachLicensePlate,
-    final String? coachType,
-    final String? driverId,
-    final String? driverName,
-    final String? driverPhone,
-  }) = _$TourInstanceDetailResponseImpl;
-
-  factory _TourInstanceDetailResponse.fromJson(Map<String, dynamic> json) =
-      _$TourInstanceDetailResponseImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get tourName;
-  @override
-  String get destinationName;
-  @override
-  String get pickupLocation;
-  @override
-  String get startDate;
-  @override
-  String get endDate;
-  @override
-  int get minParticipants;
-  @override
-  int get maxParticipants;
-  @override
-  int get currentParticipants;
-  @override
-  String get status;
-  @override
-  String? get guideId;
-  @override
-  String? get guideName;
-  @override
-  String? get guidePhone;
-  @override
-  String? get coachId;
-  @override
-  String? get coachLicensePlate;
-  @override
-  String? get coachType;
-  @override
-  String? get driverId;
-  @override
-  String? get driverName;
-  @override
-  String? get driverPhone;
-
-  /// Create a copy of TourInstanceDetailResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$TourInstanceDetailResponseImplCopyWith<_$TourInstanceDetailResponseImpl>
-  get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TourInstanceDetailResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.tourName, tourName) || other.tourName == tourName)&&(identical(other.destinationName, destinationName) || other.destinationName == destinationName)&&(identical(other.pickupLocation, pickupLocation) || other.pickupLocation == pickupLocation)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.minParticipants, minParticipants) || other.minParticipants == minParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.currentParticipants, currentParticipants) || other.currentParticipants == currentParticipants)&&(identical(other.status, status) || other.status == status)&&(identical(other.guideId, guideId) || other.guideId == guideId)&&(identical(other.guideName, guideName) || other.guideName == guideName)&&(identical(other.guidePhone, guidePhone) || other.guidePhone == guidePhone)&&(identical(other.coachId, coachId) || other.coachId == coachId)&&(identical(other.coachLicensePlate, coachLicensePlate) || other.coachLicensePlate == coachLicensePlate)&&(identical(other.coachType, coachType) || other.coachType == coachType)&&(identical(other.driverId, driverId) || other.driverId == driverId)&&(identical(other.driverName, driverName) || other.driverName == driverName)&&(identical(other.driverPhone, driverPhone) || other.driverPhone == driverPhone));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hashAll([runtimeType,id,tourName,destinationName,pickupLocation,startDate,endDate,minParticipants,maxParticipants,currentParticipants,status,guideId,guideName,guidePhone,coachId,coachLicensePlate,coachType,driverId,driverName,driverPhone]);
+
+@override
+String toString() {
+  return 'TourInstanceDetailResponse(id: $id, tourName: $tourName, destinationName: $destinationName, pickupLocation: $pickupLocation, startDate: $startDate, endDate: $endDate, minParticipants: $minParticipants, maxParticipants: $maxParticipants, currentParticipants: $currentParticipants, status: $status, guideId: $guideId, guideName: $guideName, guidePhone: $guidePhone, coachId: $coachId, coachLicensePlate: $coachLicensePlate, coachType: $coachType, driverId: $driverId, driverName: $driverName, driverPhone: $driverPhone)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TourInstanceDetailResponseCopyWith<$Res> implements $TourInstanceDetailResponseCopyWith<$Res> {
+  factory _$TourInstanceDetailResponseCopyWith(_TourInstanceDetailResponse value, $Res Function(_TourInstanceDetailResponse) _then) = __$TourInstanceDetailResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String tourName, String destinationName, String pickupLocation, String startDate, String endDate, int minParticipants, int maxParticipants, int currentParticipants, String status, String? guideId, String? guideName, String? guidePhone, String? coachId, String? coachLicensePlate, String? coachType, String? driverId, String? driverName, String? driverPhone
+});
+
+
+
+
+}
+/// @nodoc
+class __$TourInstanceDetailResponseCopyWithImpl<$Res>
+    implements _$TourInstanceDetailResponseCopyWith<$Res> {
+  __$TourInstanceDetailResponseCopyWithImpl(this._self, this._then);
+
+  final _TourInstanceDetailResponse _self;
+  final $Res Function(_TourInstanceDetailResponse) _then;
+
+/// Create a copy of TourInstanceDetailResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tourName = null,Object? destinationName = null,Object? pickupLocation = null,Object? startDate = null,Object? endDate = null,Object? minParticipants = null,Object? maxParticipants = null,Object? currentParticipants = null,Object? status = null,Object? guideId = freezed,Object? guideName = freezed,Object? guidePhone = freezed,Object? coachId = freezed,Object? coachLicensePlate = freezed,Object? coachType = freezed,Object? driverId = freezed,Object? driverName = freezed,Object? driverPhone = freezed,}) {
+  return _then(_TourInstanceDetailResponse(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,tourName: null == tourName ? _self.tourName : tourName // ignore: cast_nullable_to_non_nullable
+as String,destinationName: null == destinationName ? _self.destinationName : destinationName // ignore: cast_nullable_to_non_nullable
+as String,pickupLocation: null == pickupLocation ? _self.pickupLocation : pickupLocation // ignore: cast_nullable_to_non_nullable
+as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as String,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
+as String,minParticipants: null == minParticipants ? _self.minParticipants : minParticipants // ignore: cast_nullable_to_non_nullable
+as int,maxParticipants: null == maxParticipants ? _self.maxParticipants : maxParticipants // ignore: cast_nullable_to_non_nullable
+as int,currentParticipants: null == currentParticipants ? _self.currentParticipants : currentParticipants // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,guideId: freezed == guideId ? _self.guideId : guideId // ignore: cast_nullable_to_non_nullable
+as String?,guideName: freezed == guideName ? _self.guideName : guideName // ignore: cast_nullable_to_non_nullable
+as String?,guidePhone: freezed == guidePhone ? _self.guidePhone : guidePhone // ignore: cast_nullable_to_non_nullable
+as String?,coachId: freezed == coachId ? _self.coachId : coachId // ignore: cast_nullable_to_non_nullable
+as String?,coachLicensePlate: freezed == coachLicensePlate ? _self.coachLicensePlate : coachLicensePlate // ignore: cast_nullable_to_non_nullable
+as String?,coachType: freezed == coachType ? _self.coachType : coachType // ignore: cast_nullable_to_non_nullable
+as String?,driverId: freezed == driverId ? _self.driverId : driverId // ignore: cast_nullable_to_non_nullable
+as String?,driverName: freezed == driverName ? _self.driverName : driverName // ignore: cast_nullable_to_non_nullable
+as String?,driverPhone: freezed == driverPhone ? _self.driverPhone : driverPhone // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+// dart format on

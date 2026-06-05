@@ -4,7 +4,7 @@ part 'tour_review.freezed.dart';
 part 'tour_review.g.dart';
 
 @freezed
-class TourReview with _$TourReview {
+abstract class TourReview with _$TourReview {
   const factory TourReview({
     String? id,
 

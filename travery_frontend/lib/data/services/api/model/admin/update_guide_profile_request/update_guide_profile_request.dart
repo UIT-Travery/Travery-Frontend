@@ -5,7 +5,7 @@ part 'update_guide_profile_request.g.dart';
 
 /// Matches UpdateGuideProfileRequest schema.
 @freezed
-class UpdateGuideProfileRequest with _$UpdateGuideProfileRequest {
+abstract class UpdateGuideProfileRequest with _$UpdateGuideProfileRequest {
   const factory UpdateGuideProfileRequest({
     String? fullName,
     String? phoneNumber,

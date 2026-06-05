@@ -5,7 +5,7 @@ part 'recep_booking_detail_response.freezed.dart';
 part 'recep_booking_detail_response.g.dart';
 
 @freezed
-class RecepBookingDetailResponse with _$RecepBookingDetailResponse {
+abstract class RecepBookingDetailResponse with _$RecepBookingDetailResponse {
   const factory RecepBookingDetailResponse({
     required String id,
     required String guestName,
@@ -25,7 +25,7 @@ class RecepBookingDetailResponse with _$RecepBookingDetailResponse {
 }
 
 @freezed
-class HotelGuestResponse with _$HotelGuestResponse {
+abstract class HotelGuestResponse with _$HotelGuestResponse {
   const factory HotelGuestResponse({
     required String id,
     required String fullName,
@@ -39,7 +39,7 @@ class HotelGuestResponse with _$HotelGuestResponse {
 }
 
 @freezed
-class RoomAllocationResponse with _$RoomAllocationResponse {
+abstract class RoomAllocationResponse with _$RoomAllocationResponse {
   const factory RoomAllocationResponse({
     required String roomTypeId,
     required String roomTypeName,

@@ -6,7 +6,7 @@ part of 'hotel.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$HotelImpl _$$HotelImplFromJson(Map<String, dynamic> json) => _$HotelImpl(
+_Hotel _$HotelFromJson(Map<String, dynamic> json) => _Hotel(
   id: json['id'] as String?,
   name: json['name'] as String,
   description: json['description'] as String?,
@@ -31,18 +31,17 @@ _$HotelImpl _$$HotelImplFromJson(Map<String, dynamic> json) => _$HotelImpl(
       .toList(),
 );
 
-Map<String, dynamic> _$$HotelImplToJson(_$HotelImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'description': instance.description,
-      'address': instance.address,
-      'city': instance.city,
-      'location_code': instance.locationCode,
-      'amenities': instance.amenities,
-      'created_at': instance.createdAt?.toIso8601String(),
-      'updated_at': instance.updatedAt?.toIso8601String(),
-      'deleted_at': instance.deletedAt?.toIso8601String(),
-      'images': instance.images,
-      'roomTypes': instance.roomTypes,
-    };
+Map<String, dynamic> _$HotelToJson(_Hotel instance) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'description': instance.description,
+  'address': instance.address,
+  'city': instance.city,
+  'location_code': instance.locationCode,
+  'amenities': instance.amenities,
+  'created_at': instance.createdAt?.toIso8601String(),
+  'updated_at': instance.updatedAt?.toIso8601String(),
+  'deleted_at': instance.deletedAt?.toIso8601String(),
+  'images': instance.images,
+  'roomTypes': instance.roomTypes,
+};

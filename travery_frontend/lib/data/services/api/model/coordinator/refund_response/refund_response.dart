@@ -4,7 +4,7 @@ part 'refund_response.freezed.dart';
 part 'refund_response.g.dart';
 
 @freezed
-class RefundResponse with _$RefundResponse {
+abstract class RefundResponse with _$RefundResponse {
   const factory RefundResponse({
     required String id,
     required String userId,

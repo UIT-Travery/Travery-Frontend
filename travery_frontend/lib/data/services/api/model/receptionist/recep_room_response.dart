@@ -4,7 +4,7 @@ part 'recep_room_response.freezed.dart';
 part 'recep_room_response.g.dart';
 
 @freezed
-class RecepRoomResponse with _$RecepRoomResponse {
+abstract class RecepRoomResponse with _$RecepRoomResponse {
   factory RecepRoomResponse({
     required String id,
     required String roomNumber,

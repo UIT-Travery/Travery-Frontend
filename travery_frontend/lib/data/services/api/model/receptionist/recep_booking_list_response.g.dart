@@ -6,9 +6,9 @@ part of 'recep_booking_list_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RecepBookingListResponseImpl _$$RecepBookingListResponseImplFromJson(
+_RecepBookingListResponse _$RecepBookingListResponseFromJson(
   Map<String, dynamic> json,
-) => _$RecepBookingListResponseImpl(
+) => _RecepBookingListResponse(
   id: json['id'] as String,
   guestName: json['guestName'] as String,
   phoneNumber: json['phoneNumber'] as String,
@@ -17,8 +17,8 @@ _$RecepBookingListResponseImpl _$$RecepBookingListResponseImplFromJson(
   status: json['status'] as String,
 );
 
-Map<String, dynamic> _$$RecepBookingListResponseImplToJson(
-  _$RecepBookingListResponseImpl instance,
+Map<String, dynamic> _$RecepBookingListResponseToJson(
+  _RecepBookingListResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'guestName': instance.guestName,

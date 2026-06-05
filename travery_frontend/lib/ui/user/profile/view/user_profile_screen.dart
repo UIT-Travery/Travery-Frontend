@@ -22,24 +22,34 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final viewModel = context.read<ProfileViewModel>();
-      _viewModel = viewModel;
-      viewModel.logout.addListener(_onLogoutResult);
-      viewModel.loadProfile.execute();
+      _viewModel = context.read<ProfileViewModel>();
+      _viewModel!.loadProfile.addListener(_onLoadProfileStateChanged);
+      _viewModel!.logout.addListener(_onLogoutResult);
+      _viewModel!.loadProfile.execute();
     });
   }
 
   @override
   void dispose() {
+    _viewModel?.loadProfile.removeListener(_onLoadProfileStateChanged);
     _viewModel?.logout.removeListener(_onLogoutResult);
     super.dispose();
   }
 
+  void _onLoadProfileStateChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   void _onLogoutResult() {
     final viewModel = _viewModel;
-    if (viewModel == null || !viewModel.logout.completed) return;
-    viewModel.logout.clearResult();
-    if (mounted) context.go(Routes.login);
+    if (viewModel != null && viewModel.logout.completed) {
+      viewModel.logout.clearResult();
+      if (mounted) {
+        context.go(Routes.login);
+      }
+    }
   }
 
   Future<void> _handleLogout() async {
@@ -62,7 +72,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
 
     if (confirmed == true && mounted) {
-      context.read<ProfileViewModel>().logout.execute();
+      _viewModel?.logout.execute();
     }
   }
 

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:travery_frontend/data/services/api/auth_service.dart';
 import 'package:travery_frontend/data/services/api/model/authentication/refresh_request/refresh_request.dart';
 import 'package:travery_frontend/data/services/security_storage_service.dart';
@@ -44,9 +47,13 @@ class TokenRefreshService {
       if (!_isExpiringSoon(accessToken)) {
         return Result.ok(accessToken);
       }
+      debugPrint("TokenRefreshService: Access token expiring soon or already expired.");
+    } else {
+      debugPrint("TokenRefreshService: Access token is missing.");
     }
 
     // Token is missing, expired, or about to expire — refresh.
+    debugPrint("TokenRefreshService: Triggering refresh flow...");
     _refreshInFlight ??= _doRefresh().whenComplete(() {
       _refreshInFlight = null;
     });
@@ -58,24 +65,34 @@ class TokenRefreshService {
   Future<Result<String>> _doRefresh() async {
     final refreshToken = await _storage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {
-      await _storage.deleteAllTokens();
+      debugPrint("TokenRefreshService: No refresh token available in storage.");
+      // Don't call deleteAllTokens() here as it might wipe new tokens during login race conditions.
+      // Just return an error so the caller knows the session is invalid.
       return Result.error(Exception('No refresh token available. Please log in again.'));
     }
 
+    debugPrint("TokenRefreshService: Calling refresh API...");
     final result = await _authService.refresh(
       RefreshRequest(refreshToken: refreshToken),
     );
 
     switch (result) {
       case Ok():
+        debugPrint("TokenRefreshService: Refresh API Success.");
         final newAccess = result.value.accessToken;
         final newRefresh = result.value.refreshToken;
         await _storage.saveAccessToken(newAccess);
         await _storage.saveRefreshToken(newRefresh);
         return Result.ok(newAccess);
       case Error():
-        // Refresh token is invalid/expired – clear everything.
-        await _storage.deleteAllTokens();
+        debugPrint("TokenRefreshService: Refresh API Error: ${result.error}");
+        // Only clear tokens if it's an authentication failure (401/403)
+        // or specifically requested. If it's a network error, just return the error.
+        final error = result.error;
+        if (error is HttpException || error.toString().contains('401') || error.toString().contains('403')) {
+          debugPrint("TokenRefreshService: Auth error detected. Clearing tokens.");
+          await _storage.deleteAllTokens();
+        }
         return Result.error(result.error);
     }
   }
@@ -85,18 +102,34 @@ class TokenRefreshService {
   bool _isExpiringSoon(String token) {
     try {
       final payload = JwtUtils.decodePayload(token);
-      if (payload == null) return true;
+      if (payload == null) {
+        debugPrint("TokenRefreshService: Failed to decode JWT payload.");
+        return true;
+      }
 
       final exp = payload['exp'];
-      if (exp == null) return true;
+      if (exp == null) {
+        debugPrint("TokenRefreshService: JWT payload missing 'exp' field.");
+        return true;
+      }
 
       final expiryTime = DateTime.fromMillisecondsSinceEpoch(
         (exp as int) * 1000,
         isUtc: true,
       );
       final now = DateTime.now().toUtc();
-      return now.isAfter(expiryTime.subtract(Duration(seconds: _bufferSeconds)));
-    } catch (_) {
+      
+      final diff = expiryTime.difference(now);
+      debugPrint("TokenRefreshService: Token expires in ${diff.inMinutes}m ${diff.inSeconds % 60}s (at $expiryTime)");
+
+      final expiringSoon = now.isAfter(expiryTime.subtract(Duration(seconds: _bufferSeconds)));
+      if (expiringSoon) {
+        debugPrint("TokenRefreshService: Token is within buffer zone of $_bufferSeconds seconds.");
+      }
+      
+      return expiringSoon;
+    } catch (e) {
+      debugPrint("TokenRefreshService: Error during expiry check: $e");
       return true;
     }
   }

@@ -6,6 +6,7 @@ import 'package:travery_frontend/data/seed_models/guide_tour/guide_tour.dart';
 import 'package:travery_frontend/data/services/guide/guide_service.dart';
 import 'package:travery_frontend/routing/routes.dart';
 import 'package:travery_frontend/ui/core/themes/app_colors.dart';
+import 'package:travery_frontend/ui/common/notification/view/widgets/notification_badge.dart';
 import 'package:travery_frontend/ui/core/themes/app_text_theme.dart';
 import 'package:travery_frontend/ui/guide/home/guide_home_view_model.dart';
 import 'package:travery_frontend/ui/guide/home/widgets/guide_tour_card.dart';
@@ -13,7 +14,8 @@ import 'package:travery_frontend/ui/guide/home/widgets/guide_filter_chips.dart';
 import 'package:travery_frontend/ui/guide/widgets/guide_bottom_nav_bar.dart';
 
 class GuideHomeScreen extends StatefulWidget {
-  const GuideHomeScreen({super.key});
+  final GuideHomeViewModel? viewModel;
+  const GuideHomeScreen({super.key, this.viewModel});
 
   @override
   State<GuideHomeScreen> createState() => _GuideHomeScreenState();
@@ -26,7 +28,8 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = GuideHomeViewModel(guideService: context.read<GuideService>());
+    _viewModel = widget.viewModel ??
+        GuideHomeViewModel(guideService: context.read<GuideService>());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _viewModel.fetchTours();
     });
@@ -55,6 +58,13 @@ class _GuideHomeScreenState extends State<GuideHomeScreen> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          NotificationBadge(
+            onTap: () => context.push(Routes.notifications),
+            iconColor: AppColors.textPrimary,
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: ListenableBuilder(
         listenable: _viewModel.loadTours,

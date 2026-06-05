@@ -46,6 +46,13 @@ class GuideHomeViewModel extends ChangeNotifier {
     loadTours.execute(_guideService);
   }
 
+  // ── Backward Compatibility for GuideMissionScreen ──────────────────────────
+  List<GuideTour> get allTours => loadTours.value ?? [];
+  bool get isLoading => loadTours.running;
+  Future<void> loadGuideTours() => fetchTours();
+  List<GuideTour> get ongoingTours =>
+      allTours.where((t) => t.status == GuideTourStatus.ongoing).toList();
+
   Future<void> _applyFilter() async {
     if (loadTours.value == null) return;
 

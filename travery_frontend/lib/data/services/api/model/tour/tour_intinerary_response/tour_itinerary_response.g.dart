@@ -6,9 +6,9 @@ part of 'tour_itinerary_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TourItineraryResponseImpl _$$TourItineraryResponseImplFromJson(
+_TourItineraryResponse _$TourItineraryResponseFromJson(
   Map<String, dynamic> json,
-) => _$TourItineraryResponseImpl(
+) => _TourItineraryResponse(
   dayNumber: (json['dayNumber'] as num).toInt(),
   title: json['title'] as String,
   description: json['description'] as String,
@@ -19,8 +19,8 @@ _$TourItineraryResponseImpl _$$TourItineraryResponseImplFromJson(
       const [],
 );
 
-Map<String, dynamic> _$$TourItineraryResponseImplToJson(
-  _$TourItineraryResponseImpl instance,
+Map<String, dynamic> _$TourItineraryResponseToJson(
+  _TourItineraryResponse instance,
 ) => <String, dynamic>{
   'dayNumber': instance.dayNumber,
   'title': instance.title,

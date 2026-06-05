@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,426 +9,302 @@ part of 'coach_route_response.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-CoachRouteResponse _$CoachRouteResponseFromJson(Map<String, dynamic> json) {
-  return _CoachRouteResponse.fromJson(json);
-}
 
 /// @nodoc
 mixin _$CoachRouteResponse {
-  String get id => throw _privateConstructorUsedError;
-  String get originDestinationId => throw _privateConstructorUsedError;
-  String get originDestinationName => throw _privateConstructorUsedError;
-  String get destinationDestinationId => throw _privateConstructorUsedError;
-  String get destinationDestinationName => throw _privateConstructorUsedError;
-  double get distanceKm => throw _privateConstructorUsedError;
-  double get estimatedHours => throw _privateConstructorUsedError;
-  double get basePrice => throw _privateConstructorUsedError;
-  String? get refundPolicyId => throw _privateConstructorUsedError;
-  String? get refundPolicyName => throw _privateConstructorUsedError;
-  double get averageRating => throw _privateConstructorUsedError;
-  int get reviewCount => throw _privateConstructorUsedError;
+
+ String get id; String get originDestinationId; String get originDestinationName; String get destinationDestinationId; String get destinationDestinationName; double get distanceKm; double get estimatedHours; double get basePrice; String? get refundPolicyId; String? get refundPolicyName; double get averageRating; int get reviewCount;
+/// Create a copy of CoachRouteResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CoachRouteResponseCopyWith<CoachRouteResponse> get copyWith => _$CoachRouteResponseCopyWithImpl<CoachRouteResponse>(this as CoachRouteResponse, _$identity);
 
   /// Serializes this CoachRouteResponse to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of CoachRouteResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $CoachRouteResponseCopyWith<CoachRouteResponse> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CoachRouteResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.originDestinationId, originDestinationId) || other.originDestinationId == originDestinationId)&&(identical(other.originDestinationName, originDestinationName) || other.originDestinationName == originDestinationName)&&(identical(other.destinationDestinationId, destinationDestinationId) || other.destinationDestinationId == destinationDestinationId)&&(identical(other.destinationDestinationName, destinationDestinationName) || other.destinationDestinationName == destinationDestinationName)&&(identical(other.distanceKm, distanceKm) || other.distanceKm == distanceKm)&&(identical(other.estimatedHours, estimatedHours) || other.estimatedHours == estimatedHours)&&(identical(other.basePrice, basePrice) || other.basePrice == basePrice)&&(identical(other.refundPolicyId, refundPolicyId) || other.refundPolicyId == refundPolicyId)&&(identical(other.refundPolicyName, refundPolicyName) || other.refundPolicyName == refundPolicyName)&&(identical(other.averageRating, averageRating) || other.averageRating == averageRating)&&(identical(other.reviewCount, reviewCount) || other.reviewCount == reviewCount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,originDestinationId,originDestinationName,destinationDestinationId,destinationDestinationName,distanceKm,estimatedHours,basePrice,refundPolicyId,refundPolicyName,averageRating,reviewCount);
+
+@override
+String toString() {
+  return 'CoachRouteResponse(id: $id, originDestinationId: $originDestinationId, originDestinationName: $originDestinationName, destinationDestinationId: $destinationDestinationId, destinationDestinationName: $destinationDestinationName, distanceKm: $distanceKm, estimatedHours: $estimatedHours, basePrice: $basePrice, refundPolicyId: $refundPolicyId, refundPolicyName: $refundPolicyName, averageRating: $averageRating, reviewCount: $reviewCount)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $CoachRouteResponseCopyWith<$Res> {
-  factory $CoachRouteResponseCopyWith(
-    CoachRouteResponse value,
-    $Res Function(CoachRouteResponse) then,
-  ) = _$CoachRouteResponseCopyWithImpl<$Res, CoachRouteResponse>;
-  @useResult
-  $Res call({
-    String id,
-    String originDestinationId,
-    String originDestinationName,
-    String destinationDestinationId,
-    String destinationDestinationName,
-    double distanceKm,
-    double estimatedHours,
-    double basePrice,
-    String? refundPolicyId,
-    String? refundPolicyName,
-    double averageRating,
-    int reviewCount,
-  });
-}
+abstract mixin class $CoachRouteResponseCopyWith<$Res>  {
+  factory $CoachRouteResponseCopyWith(CoachRouteResponse value, $Res Function(CoachRouteResponse) _then) = _$CoachRouteResponseCopyWithImpl;
+@useResult
+$Res call({
+ String id, String originDestinationId, String originDestinationName, String destinationDestinationId, String destinationDestinationName, double distanceKm, double estimatedHours, double basePrice, String? refundPolicyId, String? refundPolicyName, double averageRating, int reviewCount
+});
 
+
+
+
+}
 /// @nodoc
-class _$CoachRouteResponseCopyWithImpl<$Res, $Val extends CoachRouteResponse>
+class _$CoachRouteResponseCopyWithImpl<$Res>
     implements $CoachRouteResponseCopyWith<$Res> {
-  _$CoachRouteResponseCopyWithImpl(this._value, this._then);
+  _$CoachRouteResponseCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final CoachRouteResponse _self;
+  final $Res Function(CoachRouteResponse) _then;
 
-  /// Create a copy of CoachRouteResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? originDestinationId = null,
-    Object? originDestinationName = null,
-    Object? destinationDestinationId = null,
-    Object? destinationDestinationName = null,
-    Object? distanceKm = null,
-    Object? estimatedHours = null,
-    Object? basePrice = null,
-    Object? refundPolicyId = freezed,
-    Object? refundPolicyName = freezed,
-    Object? averageRating = null,
-    Object? reviewCount = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            originDestinationId: null == originDestinationId
-                ? _value.originDestinationId
-                : originDestinationId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            originDestinationName: null == originDestinationName
-                ? _value.originDestinationName
-                : originDestinationName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            destinationDestinationId: null == destinationDestinationId
-                ? _value.destinationDestinationId
-                : destinationDestinationId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            destinationDestinationName: null == destinationDestinationName
-                ? _value.destinationDestinationName
-                : destinationDestinationName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            distanceKm: null == distanceKm
-                ? _value.distanceKm
-                : distanceKm // ignore: cast_nullable_to_non_nullable
-                      as double,
-            estimatedHours: null == estimatedHours
-                ? _value.estimatedHours
-                : estimatedHours // ignore: cast_nullable_to_non_nullable
-                      as double,
-            basePrice: null == basePrice
-                ? _value.basePrice
-                : basePrice // ignore: cast_nullable_to_non_nullable
-                      as double,
-            refundPolicyId: freezed == refundPolicyId
-                ? _value.refundPolicyId
-                : refundPolicyId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            refundPolicyName: freezed == refundPolicyName
-                ? _value.refundPolicyName
-                : refundPolicyName // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            averageRating: null == averageRating
-                ? _value.averageRating
-                : averageRating // ignore: cast_nullable_to_non_nullable
-                      as double,
-            reviewCount: null == reviewCount
-                ? _value.reviewCount
-                : reviewCount // ignore: cast_nullable_to_non_nullable
-                      as int,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of CoachRouteResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? originDestinationId = null,Object? originDestinationName = null,Object? destinationDestinationId = null,Object? destinationDestinationName = null,Object? distanceKm = null,Object? estimatedHours = null,Object? basePrice = null,Object? refundPolicyId = freezed,Object? refundPolicyName = freezed,Object? averageRating = null,Object? reviewCount = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,originDestinationId: null == originDestinationId ? _self.originDestinationId : originDestinationId // ignore: cast_nullable_to_non_nullable
+as String,originDestinationName: null == originDestinationName ? _self.originDestinationName : originDestinationName // ignore: cast_nullable_to_non_nullable
+as String,destinationDestinationId: null == destinationDestinationId ? _self.destinationDestinationId : destinationDestinationId // ignore: cast_nullable_to_non_nullable
+as String,destinationDestinationName: null == destinationDestinationName ? _self.destinationDestinationName : destinationDestinationName // ignore: cast_nullable_to_non_nullable
+as String,distanceKm: null == distanceKm ? _self.distanceKm : distanceKm // ignore: cast_nullable_to_non_nullable
+as double,estimatedHours: null == estimatedHours ? _self.estimatedHours : estimatedHours // ignore: cast_nullable_to_non_nullable
+as double,basePrice: null == basePrice ? _self.basePrice : basePrice // ignore: cast_nullable_to_non_nullable
+as double,refundPolicyId: freezed == refundPolicyId ? _self.refundPolicyId : refundPolicyId // ignore: cast_nullable_to_non_nullable
+as String?,refundPolicyName: freezed == refundPolicyName ? _self.refundPolicyName : refundPolicyName // ignore: cast_nullable_to_non_nullable
+as String?,averageRating: null == averageRating ? _self.averageRating : averageRating // ignore: cast_nullable_to_non_nullable
+as double,reviewCount: null == reviewCount ? _self.reviewCount : reviewCount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
 }
 
-/// @nodoc
-abstract class _$$CoachRouteResponseImplCopyWith<$Res>
-    implements $CoachRouteResponseCopyWith<$Res> {
-  factory _$$CoachRouteResponseImplCopyWith(
-    _$CoachRouteResponseImpl value,
-    $Res Function(_$CoachRouteResponseImpl) then,
-  ) = __$$CoachRouteResponseImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String originDestinationId,
-    String originDestinationName,
-    String destinationDestinationId,
-    String destinationDestinationName,
-    double distanceKm,
-    double estimatedHours,
-    double basePrice,
-    String? refundPolicyId,
-    String? refundPolicyName,
-    double averageRating,
-    int reviewCount,
-  });
 }
 
-/// @nodoc
-class __$$CoachRouteResponseImplCopyWithImpl<$Res>
-    extends _$CoachRouteResponseCopyWithImpl<$Res, _$CoachRouteResponseImpl>
-    implements _$$CoachRouteResponseImplCopyWith<$Res> {
-  __$$CoachRouteResponseImplCopyWithImpl(
-    _$CoachRouteResponseImpl _value,
-    $Res Function(_$CoachRouteResponseImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of CoachRouteResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? originDestinationId = null,
-    Object? originDestinationName = null,
-    Object? destinationDestinationId = null,
-    Object? destinationDestinationName = null,
-    Object? distanceKm = null,
-    Object? estimatedHours = null,
-    Object? basePrice = null,
-    Object? refundPolicyId = freezed,
-    Object? refundPolicyName = freezed,
-    Object? averageRating = null,
-    Object? reviewCount = null,
-  }) {
-    return _then(
-      _$CoachRouteResponseImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        originDestinationId: null == originDestinationId
-            ? _value.originDestinationId
-            : originDestinationId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        originDestinationName: null == originDestinationName
-            ? _value.originDestinationName
-            : originDestinationName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        destinationDestinationId: null == destinationDestinationId
-            ? _value.destinationDestinationId
-            : destinationDestinationId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        destinationDestinationName: null == destinationDestinationName
-            ? _value.destinationDestinationName
-            : destinationDestinationName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        distanceKm: null == distanceKm
-            ? _value.distanceKm
-            : distanceKm // ignore: cast_nullable_to_non_nullable
-                  as double,
-        estimatedHours: null == estimatedHours
-            ? _value.estimatedHours
-            : estimatedHours // ignore: cast_nullable_to_non_nullable
-                  as double,
-        basePrice: null == basePrice
-            ? _value.basePrice
-            : basePrice // ignore: cast_nullable_to_non_nullable
-                  as double,
-        refundPolicyId: freezed == refundPolicyId
-            ? _value.refundPolicyId
-            : refundPolicyId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        refundPolicyName: freezed == refundPolicyName
-            ? _value.refundPolicyName
-            : refundPolicyName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        averageRating: null == averageRating
-            ? _value.averageRating
-            : averageRating // ignore: cast_nullable_to_non_nullable
-                  as double,
-        reviewCount: null == reviewCount
-            ? _value.reviewCount
-            : reviewCount // ignore: cast_nullable_to_non_nullable
-                  as int,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [CoachRouteResponse].
+extension CoachRouteResponsePatterns on CoachRouteResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CoachRouteResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CoachRouteResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CoachRouteResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _CoachRouteResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CoachRouteResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CoachRouteResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String originDestinationId,  String originDestinationName,  String destinationDestinationId,  String destinationDestinationName,  double distanceKm,  double estimatedHours,  double basePrice,  String? refundPolicyId,  String? refundPolicyName,  double averageRating,  int reviewCount)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CoachRouteResponse() when $default != null:
+return $default(_that.id,_that.originDestinationId,_that.originDestinationName,_that.destinationDestinationId,_that.destinationDestinationName,_that.distanceKm,_that.estimatedHours,_that.basePrice,_that.refundPolicyId,_that.refundPolicyName,_that.averageRating,_that.reviewCount);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String originDestinationId,  String originDestinationName,  String destinationDestinationId,  String destinationDestinationName,  double distanceKm,  double estimatedHours,  double basePrice,  String? refundPolicyId,  String? refundPolicyName,  double averageRating,  int reviewCount)  $default,) {final _that = this;
+switch (_that) {
+case _CoachRouteResponse():
+return $default(_that.id,_that.originDestinationId,_that.originDestinationName,_that.destinationDestinationId,_that.destinationDestinationName,_that.distanceKm,_that.estimatedHours,_that.basePrice,_that.refundPolicyId,_that.refundPolicyName,_that.averageRating,_that.reviewCount);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String originDestinationId,  String originDestinationName,  String destinationDestinationId,  String destinationDestinationName,  double distanceKm,  double estimatedHours,  double basePrice,  String? refundPolicyId,  String? refundPolicyName,  double averageRating,  int reviewCount)?  $default,) {final _that = this;
+switch (_that) {
+case _CoachRouteResponse() when $default != null:
+return $default(_that.id,_that.originDestinationId,_that.originDestinationName,_that.destinationDestinationId,_that.destinationDestinationName,_that.distanceKm,_that.estimatedHours,_that.basePrice,_that.refundPolicyId,_that.refundPolicyName,_that.averageRating,_that.reviewCount);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$CoachRouteResponseImpl implements _CoachRouteResponse {
-  const _$CoachRouteResponseImpl({
-    required this.id,
-    required this.originDestinationId,
-    required this.originDestinationName,
-    required this.destinationDestinationId,
-    required this.destinationDestinationName,
-    required this.distanceKm,
-    required this.estimatedHours,
-    required this.basePrice,
-    this.refundPolicyId,
-    this.refundPolicyName,
-    required this.averageRating,
-    required this.reviewCount,
-  });
 
-  factory _$CoachRouteResponseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$CoachRouteResponseImplFromJson(json);
+class _CoachRouteResponse implements CoachRouteResponse {
+  const _CoachRouteResponse({required this.id, required this.originDestinationId, required this.originDestinationName, required this.destinationDestinationId, required this.destinationDestinationName, required this.distanceKm, required this.estimatedHours, required this.basePrice, this.refundPolicyId, this.refundPolicyName, required this.averageRating, required this.reviewCount});
+  factory _CoachRouteResponse.fromJson(Map<String, dynamic> json) => _$CoachRouteResponseFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String originDestinationId;
-  @override
-  final String originDestinationName;
-  @override
-  final String destinationDestinationId;
-  @override
-  final String destinationDestinationName;
-  @override
-  final double distanceKm;
-  @override
-  final double estimatedHours;
-  @override
-  final double basePrice;
-  @override
-  final String? refundPolicyId;
-  @override
-  final String? refundPolicyName;
-  @override
-  final double averageRating;
-  @override
-  final int reviewCount;
+@override final  String id;
+@override final  String originDestinationId;
+@override final  String originDestinationName;
+@override final  String destinationDestinationId;
+@override final  String destinationDestinationName;
+@override final  double distanceKm;
+@override final  double estimatedHours;
+@override final  double basePrice;
+@override final  String? refundPolicyId;
+@override final  String? refundPolicyName;
+@override final  double averageRating;
+@override final  int reviewCount;
 
-  @override
-  String toString() {
-    return 'CoachRouteResponse(id: $id, originDestinationId: $originDestinationId, originDestinationName: $originDestinationName, destinationDestinationId: $destinationDestinationId, destinationDestinationName: $destinationDestinationName, distanceKm: $distanceKm, estimatedHours: $estimatedHours, basePrice: $basePrice, refundPolicyId: $refundPolicyId, refundPolicyName: $refundPolicyName, averageRating: $averageRating, reviewCount: $reviewCount)';
-  }
+/// Create a copy of CoachRouteResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CoachRouteResponseCopyWith<_CoachRouteResponse> get copyWith => __$CoachRouteResponseCopyWithImpl<_CoachRouteResponse>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CoachRouteResponseImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.originDestinationId, originDestinationId) ||
-                other.originDestinationId == originDestinationId) &&
-            (identical(other.originDestinationName, originDestinationName) ||
-                other.originDestinationName == originDestinationName) &&
-            (identical(
-                  other.destinationDestinationId,
-                  destinationDestinationId,
-                ) ||
-                other.destinationDestinationId == destinationDestinationId) &&
-            (identical(
-                  other.destinationDestinationName,
-                  destinationDestinationName,
-                ) ||
-                other.destinationDestinationName ==
-                    destinationDestinationName) &&
-            (identical(other.distanceKm, distanceKm) ||
-                other.distanceKm == distanceKm) &&
-            (identical(other.estimatedHours, estimatedHours) ||
-                other.estimatedHours == estimatedHours) &&
-            (identical(other.basePrice, basePrice) ||
-                other.basePrice == basePrice) &&
-            (identical(other.refundPolicyId, refundPolicyId) ||
-                other.refundPolicyId == refundPolicyId) &&
-            (identical(other.refundPolicyName, refundPolicyName) ||
-                other.refundPolicyName == refundPolicyName) &&
-            (identical(other.averageRating, averageRating) ||
-                other.averageRating == averageRating) &&
-            (identical(other.reviewCount, reviewCount) ||
-                other.reviewCount == reviewCount));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    originDestinationId,
-    originDestinationName,
-    destinationDestinationId,
-    destinationDestinationName,
-    distanceKm,
-    estimatedHours,
-    basePrice,
-    refundPolicyId,
-    refundPolicyName,
-    averageRating,
-    reviewCount,
-  );
-
-  /// Create a copy of CoachRouteResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$CoachRouteResponseImplCopyWith<_$CoachRouteResponseImpl> get copyWith =>
-      __$$CoachRouteResponseImplCopyWithImpl<_$CoachRouteResponseImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$CoachRouteResponseImplToJson(this);
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$CoachRouteResponseToJson(this, );
 }
 
-abstract class _CoachRouteResponse implements CoachRouteResponse {
-  const factory _CoachRouteResponse({
-    required final String id,
-    required final String originDestinationId,
-    required final String originDestinationName,
-    required final String destinationDestinationId,
-    required final String destinationDestinationName,
-    required final double distanceKm,
-    required final double estimatedHours,
-    required final double basePrice,
-    final String? refundPolicyId,
-    final String? refundPolicyName,
-    required final double averageRating,
-    required final int reviewCount,
-  }) = _$CoachRouteResponseImpl;
-
-  factory _CoachRouteResponse.fromJson(Map<String, dynamic> json) =
-      _$CoachRouteResponseImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get originDestinationId;
-  @override
-  String get originDestinationName;
-  @override
-  String get destinationDestinationId;
-  @override
-  String get destinationDestinationName;
-  @override
-  double get distanceKm;
-  @override
-  double get estimatedHours;
-  @override
-  double get basePrice;
-  @override
-  String? get refundPolicyId;
-  @override
-  String? get refundPolicyName;
-  @override
-  double get averageRating;
-  @override
-  int get reviewCount;
-
-  /// Create a copy of CoachRouteResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CoachRouteResponseImplCopyWith<_$CoachRouteResponseImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CoachRouteResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.originDestinationId, originDestinationId) || other.originDestinationId == originDestinationId)&&(identical(other.originDestinationName, originDestinationName) || other.originDestinationName == originDestinationName)&&(identical(other.destinationDestinationId, destinationDestinationId) || other.destinationDestinationId == destinationDestinationId)&&(identical(other.destinationDestinationName, destinationDestinationName) || other.destinationDestinationName == destinationDestinationName)&&(identical(other.distanceKm, distanceKm) || other.distanceKm == distanceKm)&&(identical(other.estimatedHours, estimatedHours) || other.estimatedHours == estimatedHours)&&(identical(other.basePrice, basePrice) || other.basePrice == basePrice)&&(identical(other.refundPolicyId, refundPolicyId) || other.refundPolicyId == refundPolicyId)&&(identical(other.refundPolicyName, refundPolicyName) || other.refundPolicyName == refundPolicyName)&&(identical(other.averageRating, averageRating) || other.averageRating == averageRating)&&(identical(other.reviewCount, reviewCount) || other.reviewCount == reviewCount));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,originDestinationId,originDestinationName,destinationDestinationId,destinationDestinationName,distanceKm,estimatedHours,basePrice,refundPolicyId,refundPolicyName,averageRating,reviewCount);
+
+@override
+String toString() {
+  return 'CoachRouteResponse(id: $id, originDestinationId: $originDestinationId, originDestinationName: $originDestinationName, destinationDestinationId: $destinationDestinationId, destinationDestinationName: $destinationDestinationName, distanceKm: $distanceKm, estimatedHours: $estimatedHours, basePrice: $basePrice, refundPolicyId: $refundPolicyId, refundPolicyName: $refundPolicyName, averageRating: $averageRating, reviewCount: $reviewCount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CoachRouteResponseCopyWith<$Res> implements $CoachRouteResponseCopyWith<$Res> {
+  factory _$CoachRouteResponseCopyWith(_CoachRouteResponse value, $Res Function(_CoachRouteResponse) _then) = __$CoachRouteResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String originDestinationId, String originDestinationName, String destinationDestinationId, String destinationDestinationName, double distanceKm, double estimatedHours, double basePrice, String? refundPolicyId, String? refundPolicyName, double averageRating, int reviewCount
+});
+
+
+
+
+}
+/// @nodoc
+class __$CoachRouteResponseCopyWithImpl<$Res>
+    implements _$CoachRouteResponseCopyWith<$Res> {
+  __$CoachRouteResponseCopyWithImpl(this._self, this._then);
+
+  final _CoachRouteResponse _self;
+  final $Res Function(_CoachRouteResponse) _then;
+
+/// Create a copy of CoachRouteResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? originDestinationId = null,Object? originDestinationName = null,Object? destinationDestinationId = null,Object? destinationDestinationName = null,Object? distanceKm = null,Object? estimatedHours = null,Object? basePrice = null,Object? refundPolicyId = freezed,Object? refundPolicyName = freezed,Object? averageRating = null,Object? reviewCount = null,}) {
+  return _then(_CoachRouteResponse(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,originDestinationId: null == originDestinationId ? _self.originDestinationId : originDestinationId // ignore: cast_nullable_to_non_nullable
+as String,originDestinationName: null == originDestinationName ? _self.originDestinationName : originDestinationName // ignore: cast_nullable_to_non_nullable
+as String,destinationDestinationId: null == destinationDestinationId ? _self.destinationDestinationId : destinationDestinationId // ignore: cast_nullable_to_non_nullable
+as String,destinationDestinationName: null == destinationDestinationName ? _self.destinationDestinationName : destinationDestinationName // ignore: cast_nullable_to_non_nullable
+as String,distanceKm: null == distanceKm ? _self.distanceKm : distanceKm // ignore: cast_nullable_to_non_nullable
+as double,estimatedHours: null == estimatedHours ? _self.estimatedHours : estimatedHours // ignore: cast_nullable_to_non_nullable
+as double,basePrice: null == basePrice ? _self.basePrice : basePrice // ignore: cast_nullable_to_non_nullable
+as double,refundPolicyId: freezed == refundPolicyId ? _self.refundPolicyId : refundPolicyId // ignore: cast_nullable_to_non_nullable
+as String?,refundPolicyName: freezed == refundPolicyName ? _self.refundPolicyName : refundPolicyName // ignore: cast_nullable_to_non_nullable
+as String?,averageRating: null == averageRating ? _self.averageRating : averageRating // ignore: cast_nullable_to_non_nullable
+as double,reviewCount: null == reviewCount ? _self.reviewCount : reviewCount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on

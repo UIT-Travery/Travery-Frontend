@@ -80,6 +80,7 @@ class UserBookingRepository extends BookingService {
             specialRequests: data['specialRequests'] as String?,
             createdAt: data['createdAt'] as String?,
             tourName: data['tourName'] as String? ?? '',
+            tourInstanceId: data['tourInstanceId'] as String?,
             startDate: data['startDate'] as String?,
             endDate: data['endDate'] as String?,
             members: members,

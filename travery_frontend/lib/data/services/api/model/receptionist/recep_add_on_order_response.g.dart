@@ -6,9 +6,9 @@ part of 'recep_add_on_order_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RecepAddOnOrderResponseImpl _$$RecepAddOnOrderResponseImplFromJson(
+_RecepAddOnOrderResponse _$RecepAddOnOrderResponseFromJson(
   Map<String, dynamic> json,
-) => _$RecepAddOnOrderResponseImpl(
+) => _RecepAddOnOrderResponse(
   id: json['id'] as String,
   serviceName: json['serviceName'] as String,
   category: json['category'] as String,
@@ -19,8 +19,8 @@ _$RecepAddOnOrderResponseImpl _$$RecepAddOnOrderResponseImplFromJson(
   status: json['status'] as String,
 );
 
-Map<String, dynamic> _$$RecepAddOnOrderResponseImplToJson(
-  _$RecepAddOnOrderResponseImpl instance,
+Map<String, dynamic> _$RecepAddOnOrderResponseToJson(
+  _RecepAddOnOrderResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'serviceName': instance.serviceName,

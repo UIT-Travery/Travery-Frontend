@@ -9,6 +9,8 @@ import 'coordinator_view_refund_list_screen.dart';
 import '../view_models/coordinator_refund_list_view_model.dart';
 import 'widgets/coordinator_bottom_navigation_bar.dart';
 
+import 'package:travery_frontend/ui/chat/chat_screen.dart';
+
 class CoordinatorMainScreen extends StatefulWidget {
   const CoordinatorMainScreen({super.key});
 
@@ -39,15 +41,6 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
   }
 
   void _onBottomNavTapped(int index) {
-    if (index == 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tính năng Chat đang được phát triển'),
-          duration: Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -69,7 +62,7 @@ class _CoordinatorMainScreenState extends State<CoordinatorMainScreen> {
             viewModel: context.read<CoordinatorCoachTripListViewModel>(),
           ),
           const CoordinatorSelectionScreen(),
-          const Center(child: Text('Chat')),
+          const ChatScreen(title: 'Tin nhắn', showBackButton: false),
           CoordinatorViewRefundListScreen(
             viewModel: context.read<CoordinatorRefundListViewModel>(),
           ),
