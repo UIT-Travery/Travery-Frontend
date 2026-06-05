@@ -96,7 +96,6 @@ class GuideCheckinViewModel extends ChangeNotifier {
     saveError.value = null;
 
     try {
-      // API expects 'PRESENT', 'NOT_CHECKED', 'NO_SHOW' — not 'CHECKED_IN'
       final attendances = attendanceChanges.value.entries
           .map((e) => {'memberId': e.key, 'status': _toApiStatus(e.value)})
           .toList();
