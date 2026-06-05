@@ -86,9 +86,9 @@ class CheckInViewModel extends ChangeNotifier {
     if (_instanceId.isEmpty) return false;
 
     final newStatus = passenger.isArrived ? 'NOT_CHECKED' : 'CHECKED_IN';
-    final map = {passenger.id: newStatus};
+    final attendances = [{'memberId': passenger.id, 'status': newStatus}];
 
-    final result = await _missionService.updateAttendance(_instanceId, map);
+    final result = await _missionService.updateAttendance(_instanceId, attendances);
 
     switch (result) {
       case Ok():
@@ -116,9 +116,9 @@ class CheckInViewModel extends ChangeNotifier {
   Future<bool> markNoShow(GuidePassenger passenger) async {
     if (_instanceId.isEmpty) return false;
 
-    final map = {passenger.id: 'NO_SHOW'};
+    final attendances = [{'memberId': passenger.id, 'status': 'NO_SHOW'}];
 
-    final result = await _missionService.updateAttendance(_instanceId, map);
+    final result = await _missionService.updateAttendance(_instanceId, attendances);
 
     switch (result) {
       case Ok():
@@ -150,14 +150,14 @@ class CheckInViewModel extends ChangeNotifier {
     notifyListeners();
 
     final pending = _allPassengers.where((p) => !p.isArrived && !p.isNoShow);
-    final attendanceMap = <String, String>{};
-    for (final p in pending) {
-      attendanceMap[p.id] = 'NO_SHOW';
-    }
+    final attendances = pending.map((p) => {
+      'memberId': p.id,
+      'status': 'NO_SHOW',
+    }).toList();
 
     final result = await _missionService.updateAttendance(
       _instanceId,
-      attendanceMap,
+      attendances,
     );
 
     switch (result) {
